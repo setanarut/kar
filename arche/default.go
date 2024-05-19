@@ -5,20 +5,30 @@ import (
 	"kar/engine"
 	"kar/engine/cm"
 	"math/rand/v2"
+	"time"
 
 	"github.com/yohamta/donburi"
 )
 
+func FreezeEffect(speed float64) *comp.EffectData {
+	return &comp.EffectData{
+		ShootCooldown:    0,
+		ExtraSnowball:    0,
+		AddMovementSpeed: -speed,
+		EffectTimer:      engine.NewTimer(time.Second * 3),
+	}
+}
+
 func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
-	return SpawnPlayer(1, 0.3, 0.5, 20, pos)
+	return SpawnPlayer(1, 0.3, 0.5, 22, pos)
 
 }
 func SpawnDefaultEnemy(pos cm.Vec2) *donburi.Entry {
-	return SpawnEnemy(0.3, 0.3, 0.5, 20, pos)
+	return SpawnEnemy(1, 0.3, 0.5, 20, pos)
 }
 
 func SpawnDefaultSnowball(pos cm.Vec2) *donburi.Entry {
-	return SpawnSnowball(1, 0.3, 0.5, 5, pos)
+	return SpawnSnowball(0.2, 0.3, 0.5, 7, pos)
 }
 
 func SpawnDefaultBomb(pos cm.Vec2) {

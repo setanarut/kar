@@ -52,8 +52,8 @@ func (hs *DrawHUDSystem) Draw() {
 			if ok {
 				playerInventory := comp.Inventory.Get(p)
 
-				if p.HasComponent(comp.PowerUp) {
-					eff := comp.PowerUp.Get(p)
+				if p.HasComponent(comp.Effect) {
+					eff := comp.Effect.Get(p)
 
 					hs.statsTextOptions.GeoM.Translate(250, 10)
 					text.Draw(res.Screen,

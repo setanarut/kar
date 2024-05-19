@@ -26,7 +26,23 @@ func (sys *PlayerControlSystem) Init() {
 
 func (sys *PlayerControlSystem) Update() {
 
-	// Input.UpdateJustArrowDirection()
+	comp.Effect.Each(res.World, func(e *donburi.Entry) {
+		effectData := comp.Effect.Get(e)
+		charData := comp.Char.Get(e)
+
+		if effectData.EffectTimer.IsStart() {
+			AddDrugEffect(charData, effectData)
+
+		}
+
+		if effectData.EffectTimer.IsReady() {
+			RemoveDrugEffect(charData, effectData)
+			e.RemoveComponent(comp.Effect)
+		}
+
+		effectData.EffectTimer.Update()
+	})
+
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
 
@@ -37,25 +53,6 @@ func (sys *PlayerControlSystem) Update() {
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
 		playerPos := playerBody.Position()
-
-		// playerBody.ApplyForceAtLocalPoint(res.Input.WASDDirection.Normalize().Mult(1800), playerBody.CenterOfGravity())
-
-		if playerEntry.HasComponent(comp.PowerUp) {
-
-			drugEffectData := comp.PowerUp.Get(playerEntry)
-
-			if drugEffectData.EffectTimer.IsStart() {
-				AddDrugEffect(charData, drugEffectData)
-
-			}
-
-			if drugEffectData.EffectTimer.IsReady() {
-				RemoveDrugEffect(charData, drugEffectData)
-				playerEntry.RemoveComponent(comp.PowerUp)
-			}
-
-			drugEffectData.EffectTimer.Update()
-		}
 
 		if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
 			playerRenderData.AnimPlayer.SetState("shoot")
@@ -75,7 +72,8 @@ func (sys *PlayerControlSystem) Update() {
 						dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
 						bullet := arche.SpawnDefaultSnowball(playerPos)
 						bulletBody := comp.Body.Get(bullet)
-						bulletBody.ApplyImpulseAtWorldPoint(dir, playerPos)
+
+						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerPos)
 					}
 				}
 			}
@@ -103,8 +101,8 @@ func (sys *PlayerControlSystem) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 
 			if inventory.PowerUp > 0 {
-				if !playerEntry.HasComponent(comp.PowerUp) {
-					playerEntry.AddComponent(comp.PowerUp)
+				if !playerEntry.HasComponent(comp.Effect) {
+					playerEntry.AddComponent(comp.Effect)
 					inventory.PowerUp -= 1
 				}
 			}
@@ -133,13 +131,13 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func AddDrugEffect(charData *comp.CharacterData, drugEffectData *comp.PowerUpData) {
-	charData.SnowballPerCooldown += drugEffectData.ExtraSnowball
-	charData.ShootCooldownTimer.Target += drugEffectData.ShootCooldown
-	charData.Speed += drugEffectData.AddMovementSpeed
+func AddDrugEffect(charData *comp.CharacterData, effectData *comp.EffectData) {
+	charData.SnowballPerCooldown += effectData.ExtraSnowball
+	charData.ShootCooldownTimer.Target += effectData.ShootCooldown
+	charData.Speed += effectData.AddMovementSpeed
 }
-func RemoveDrugEffect(charData *comp.CharacterData, drugEffectData *comp.PowerUpData) {
-	charData.SnowballPerCooldown -= drugEffectData.ExtraSnowball
-	charData.ShootCooldownTimer.Target -= drugEffectData.ShootCooldown
-	charData.Speed -= drugEffectData.AddMovementSpeed
+func RemoveDrugEffect(charData *comp.CharacterData, effectData *comp.EffectData) {
+	charData.SnowballPerCooldown -= effectData.ExtraSnowball
+	charData.ShootCooldownTimer.Target -= effectData.ShootCooldown
+	charData.Speed -= effectData.AddMovementSpeed
 }

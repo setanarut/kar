@@ -54,9 +54,9 @@ func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt floa
 
 	if ok {
 		if entry.Valid() {
-			livingData := comp.Char.Get(entry)
-			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
+			charData := comp.Char.Get(entry)
+			WASDAxisVector := Input.WASDDirection.Normalize().Mult(charData.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, charData.Accel))
 
 		}
 	}

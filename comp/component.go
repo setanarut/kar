@@ -56,7 +56,7 @@ type CharacterData struct {
 	ShootCooldownTimer   engine.Timer
 	SnowballPerCooldown  int
 }
-type PowerUpData struct {
+type EffectData struct {
 	AddMovementSpeed, Accel, Health float64
 	ShootCooldown                   time.Duration
 	ExtraSnowball                   int
@@ -71,7 +71,7 @@ var Inventory = donburi.NewComponentType[InventoryData](InventoryData{
 })
 var Door = donburi.NewComponentType[DoorData]()
 
-var PowerUp = donburi.NewComponentType[PowerUpData](PowerUpData{
+var Effect = donburi.NewComponentType[EffectData](EffectData{
 	ShootCooldown:    -(time.Second / 10),
 	ExtraSnowball:    2,
 	AddMovementSpeed: -200,
@@ -99,8 +99,8 @@ var Body = donburi.NewComponentType[cm.Body]()
 var AI = donburi.NewComponentType[AIData](AIData{Follow: true, FollowDistance: 300})
 
 var Char = donburi.NewComponentType[CharacterData](CharacterData{
-	Speed:               500,
-	Accel:               100,
+	Speed:               350,
+	Accel:               80,
 	Health:              100.,
 	ShootCooldownTimer:  engine.NewTimer(time.Second / 5),
 	SnowballPerCooldown: 1,
