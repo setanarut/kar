@@ -1,2 +1,1 @@
-# kar
-Top-down 2D game
+Kar - Top-down 2D game
