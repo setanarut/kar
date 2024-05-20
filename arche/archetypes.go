@@ -13,7 +13,7 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-func SpawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+func spawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	// body := cm.NewBody(m, cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
 	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewCircle(body, r, cm.Vec2{})
@@ -29,7 +29,7 @@ func SpawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 }
 
 func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, pos)
+	entry := spawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
 	body.FirstShape().SetCollisionType(constants.CollPlayer)
@@ -56,21 +56,13 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 }
 
 func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, pos)
+	entry := spawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 
 	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskEnemy, cm.AllCategories)
 	body.FirstShape().SetCollisionType(constants.CollEnemy)
-
-	entry.AddComponent(comp.EnemyTag)
-	entry.AddComponent(comp.AI)
-	entry.AddComponent(comp.Char)
-	entry.AddComponent(comp.Render)
-	entry.AddComponent(comp.Gradient)
-	entry.AddComponent(comp.Damage)
-	entry.AddComponent(comp.Inventory)
+	engine.AddComponents(entry, comp.EnemyTag, comp.AI, comp.Char, comp.Render, comp.Gradient, comp.Damage, comp.Inventory)
 	comp.Inventory.Set(entry, &model.InventoryData{Bombs: 0, Snowballs: 0, Keys: make([]int, 0)})
-
 	render := comp.Render.Get(entry)
 	char := comp.Char.Get(entry)
 	char.Health = 100
@@ -84,7 +76,7 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 }
 
 func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, pos)
+	entry := spawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().SetCollisionType(constants.CollBomb)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskBomb, cm.AllCategories)
@@ -105,7 +97,7 @@ func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 // SpawnSnowball e: elastiklik f: friction
 func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, pos)
+	entry := spawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().SetCollisionType(constants.CollSnowball)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskSnowball, cm.AllCategories)
@@ -194,7 +186,7 @@ func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.E
 func SpawnCollectible(itemType model.ItemType, count, keyNumber int,
 	r float64, pos cm.Vec2) *donburi.Entry {
 
-	entry := SpawnBody(1, 0, 1, r, pos)
+	entry := spawnBody(1, 0, 1, r, pos)
 	body := comp.Body.Get(entry)
 	// body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, constants.BitmaskPlayer|constants.BitmaskWall|constants.BitmaskCollectible)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, cm.AllCategories&^constants.BitmaskSnowball)

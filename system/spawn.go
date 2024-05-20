@@ -65,26 +65,8 @@ func (sys *EntitySpawnSystem) Update() {
 		ResetLevel()
 	}
 
-	worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
-	cursor := engine.InvPosVectY(worldPos, res.CurrentRoom.T)
-
-	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		arche.SpawnDefaultBomb(cursor)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.Key2) {
-		arche.SpawnDefaultEmeticCollectible(cursor)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.Key3) {
-		arche.SpawnRandomCollectible(cursor)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.Key4) {
-		arche.SpawnWall(cursor, 200, 20)
-
-	}
-	if inpututil.IsKeyJustPressed(ebiten.Key5) {
-		arche.SpawnWall(cursor, 20, 200)
-
-	}
+	// worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
+	// cursor := engine.InvPosVectY(worldPos, res.CurrentRoom.T)
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
 

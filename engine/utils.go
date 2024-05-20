@@ -11,6 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/yohamta/donburi"
 	"golang.org/x/text/language"
 )
 
@@ -164,4 +165,10 @@ func GetBoxScaleFactor(imageW, imageH, targetW, targetH float64) cm.Vec2 {
 func GetCircleScaleFactor(radius float64, image *ebiten.Image) cm.Vec2 {
 	scaleX := 2 * radius / float64(image.Bounds().Dx())
 	return cm.Vec2{scaleX, scaleX}
+}
+
+func AddComponents(e *donburi.Entry, comps ...donburi.IComponentType) {
+	for _, comp := range comps {
+		e.AddComponent(comp)
+	}
 }

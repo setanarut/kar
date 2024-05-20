@@ -33,12 +33,12 @@ func (sys *PlayerControlSystem) Update() {
 		charData := comp.Char.Get(e)
 
 		if effectData.EffectTimer.IsStart() {
-			AddDrugEffect(charData, effectData)
+			AddEffect(charData, effectData)
 
 		}
 
 		if effectData.EffectTimer.IsReady() {
-			RemoveDrugEffect(charData, effectData)
+			RemoveEffect(charData, effectData)
 			e.RemoveComponent(comp.Effect)
 		}
 
@@ -51,12 +51,11 @@ func (sys *PlayerControlSystem) Update() {
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
 		playerCharData := comp.Char.Get(player)
+		playerInventoryData := comp.Inventory.Get(player)
+		playerBody := comp.Body.Get(player)
+		playerRenderData := comp.Render.Get(player)
 
 		if playerCharData.CurrentTool == constants.ItemSnowball {
-
-			playerInventoryData := comp.Inventory.Get(player)
-			playerBody := comp.Body.Get(player)
-			playerRenderData := comp.Render.Get(player)
 
 			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
 				playerRenderData.AnimPlayer.SetState("shoot")
@@ -64,6 +63,7 @@ func (sys *PlayerControlSystem) Update() {
 
 				// SHOOTING
 				if playerInventoryData.Snowballs > 0 {
+
 					if playerCharData.ShootCooldownTimer.IsReady() {
 						playerCharData.ShootCooldownTimer.Reset()
 					}
@@ -74,12 +74,14 @@ func (sys *PlayerControlSystem) Update() {
 								playerInventoryData.Snowballs -= 1
 							}
 							dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+							// spawn snowball
 							bullet := arche.SpawnDefaultSnowball(playerBody.Position())
 							bulletBody := comp.Body.Get(bullet)
 
 							bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
 						}
 					}
+
 				}
 
 			} else {
@@ -90,25 +92,33 @@ func (sys *PlayerControlSystem) Update() {
 
 			playerCharData.ShootCooldownTimer.Update()
 
-			if playerInventoryData.Bombs > 0 {
+		}
 
-				// Bomba bırak
-				if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
-					bombPos := res.Input.LastPressedDirection.Neg().Mult(bombDistance)
-					arche.SpawnDefaultBomb(playerBody.Position().Add(bombPos))
+		if playerCharData.CurrentTool == constants.ItemBomb {
+			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
+				if playerInventoryData.Bombs > 0 {
+					arche.SpawnDefaultBomb(playerBody.Position().Add(res.Input.ArrowDirection.Mult(bombDistance)))
 					playerInventoryData.Bombs -= 1
 				}
-
 			}
+		}
 
-			// ilac kullan
-			if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		if inpututil.IsKeyJustPressed(ebiten.Key1) {
+			playerCharData.CurrentTool = constants.ItemSnowball
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key1) {
+			playerCharData.CurrentTool = constants.ItemSnowball
+		}
 
-				if playerInventoryData.Potion > 0 {
-					if !player.HasComponent(comp.Effect) {
-						player.AddComponent(comp.Effect)
-						playerInventoryData.Potion -= 1
-					}
+		if inpututil.IsKeyJustPressed(ebiten.Key2) {
+			playerCharData.CurrentTool = constants.ItemBomb
+		}
+
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			if playerInventoryData.Potion > 0 {
+				if !player.HasComponent(comp.Effect) {
+					player.AddComponent(comp.Effect)
+					playerInventoryData.Potion -= 1
 				}
 			}
 		}
@@ -136,12 +146,12 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func AddDrugEffect(charData *model.CharacterData, effectData *model.EffectData) {
+func AddEffect(charData *model.CharacterData, effectData *model.EffectData) {
 	charData.SnowballPerCooldown += effectData.ExtraSnowball
 	charData.ShootCooldownTimer.Target += effectData.ShootCooldown
 	charData.Speed += effectData.AddMovementSpeed
 }
-func RemoveDrugEffect(charData *model.CharacterData, effectData *model.EffectData) {
+func RemoveEffect(charData *model.CharacterData, effectData *model.EffectData) {
 	charData.SnowballPerCooldown -= effectData.ExtraSnowball
 	charData.ShootCooldownTimer.Target -= effectData.ShootCooldown
 	charData.Speed -= effectData.AddMovementSpeed

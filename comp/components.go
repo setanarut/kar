@@ -17,7 +17,7 @@ var (
 		Speed:               350,
 		Accel:               80,
 		Health:              100.,
-		ShootCooldownTimer:  engine.NewTimer(time.Second / 5),
+		ShootCooldownTimer:  engine.NewTimer(time.Second / 2),
 		SnowballPerCooldown: 1,
 	})
 	Render = donburi.NewComponentType[model.RenderData](model.RenderData{
@@ -36,8 +36,8 @@ var (
 	})
 
 	Effect = donburi.NewComponentType[model.EffectData](model.EffectData{
-		ShootCooldown:    -(time.Second / 10),
-		ExtraSnowball:    2,
+		ShootCooldown:    -(time.Second / 4),
+		ExtraSnowball:    1,
 		AddMovementSpeed: -200,
 		EffectTimer:      engine.NewTimer(time.Second * 6),
 	})
