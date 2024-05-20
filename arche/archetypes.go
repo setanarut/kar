@@ -3,8 +3,10 @@ package arche
 import (
 	"image/color"
 	"kar/comp"
+	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/model"
 	"kar/res"
 
 	"github.com/yohamta/donburi"
@@ -30,14 +32,16 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
-	body.FirstShape().SetCollisionType(CollisionTypePlayer)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskPlayer, cm.AllCategories&^BitmaskSnowball)
+	body.FirstShape().SetCollisionType(constants.CollPlayer)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
 
 	entry.AddComponent(comp.PlayerTag)
 	entry.AddComponent(comp.Inventory)
 	entry.AddComponent(comp.Char)
 	entry.AddComponent(comp.Render)
 	render := comp.Render.Get(entry)
+	char := comp.Char.Get(entry)
+	char.CurrentTool = constants.ItemSnowball
 
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
 	w := 100
@@ -55,8 +59,8 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskEnemy, cm.AllCategories)
-	body.FirstShape().SetCollisionType(CollisionTypeEnemy)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskEnemy, cm.AllCategories)
+	body.FirstShape().SetCollisionType(constants.CollEnemy)
 
 	entry.AddComponent(comp.EnemyTag)
 	entry.AddComponent(comp.AI)
@@ -65,7 +69,7 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry.AddComponent(comp.Gradient)
 	entry.AddComponent(comp.Damage)
 	entry.AddComponent(comp.Inventory)
-	comp.Inventory.Set(entry, &comp.InventoryData{Bombs: 0, Snowballs: 0, Keys: make([]int, 0)})
+	comp.Inventory.Set(entry, &model.InventoryData{Bombs: 0, Snowballs: 0, Keys: make([]int, 0)})
 
 	render := comp.Render.Get(entry)
 	char := comp.Char.Get(entry)
@@ -82,8 +86,8 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
-	body.FirstShape().SetCollisionType(CollisionTypeBomb)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskBomb, cm.AllCategories)
+	body.FirstShape().SetCollisionType(constants.CollBomb)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskBomb, cm.AllCategories)
 
 	entry.AddComponent(comp.BombTag)
 	entry.AddComponent(comp.Render)
@@ -103,8 +107,8 @@ func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
-	body.FirstShape().SetCollisionType(CollisionTypeSnowball)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskSnowball, cm.AllCategories)
+	body.FirstShape().SetCollisionType(constants.CollSnowball)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskSnowball, cm.AllCategories)
 
 	entry.AddComponent(comp.SnowballTag)
 	entry.AddComponent(comp.Render)
@@ -125,8 +129,8 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
-	wallShape.Filter = cm.NewShapeFilter(0, BitmaskWall, cm.AllCategories)
-	wallShape.CollisionType = CollisionTypeWall
+	wallShape.Filter = cm.NewShapeFilter(0, constants.BitmaskWall, cm.AllCategories)
+	wallShape.CollisionType = constants.CollWall
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
 	sbody.SetPosition(boxCenter)
@@ -153,14 +157,15 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	render.ScaleColor = colornames.Blue
 	return entry
 }
+
 func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	shape := cm.NewBox(sbody, boxW, boxH, 0)
-	shape.Filter = cm.NewShapeFilter(0, BitmaskDoor, cm.AllCategories)
+	shape.Filter = cm.NewShapeFilter(0, constants.BitmaskDoor, cm.AllCategories)
 	shape.SetSensor(false)
 	shape.SetElasticity(0)
 	shape.SetFriction(0)
-	shape.CollisionType = CollisionTypeDoor
+	shape.CollisionType = constants.CollDoor
 	sbody.SetPosition(boxCenter)
 	res.Space.AddShape(shape)
 	res.Space.AddBody(shape.Body())
@@ -173,7 +178,7 @@ func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.E
 	))
 	shape.Body().UserData = entry
 	comp.Body.Set(entry, shape.Body())
-	comp.Door.SetValue(entry, comp.DoorData{LockNumber: lockNumber})
+	comp.Door.SetValue(entry, model.DoorData{LockNumber: lockNumber})
 
 	render := comp.Render.Get(entry)
 
@@ -186,19 +191,19 @@ func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.E
 	return entry
 }
 
-func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
+func SpawnCollectible(itemType model.ItemType, count, keyNumber int,
 	r float64, pos cm.Vec2) *donburi.Entry {
 
 	entry := SpawnBody(1, 0, 1, r, pos)
 	body := comp.Body.Get(entry)
-	// body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, BitmaskPlayer|BitmaskWall|BitmaskCollectible)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, cm.AllCategories&^BitmaskSnowball)
-	body.FirstShape().SetCollisionType(CollisionTypeCollectible)
+	// body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, constants.BitmaskPlayer|constants.BitmaskWall|constants.BitmaskCollectible)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, cm.AllCategories&^constants.BitmaskSnowball)
+	body.FirstShape().SetCollisionType(constants.CollCollectible)
 
 	entry.AddComponent(comp.Collectible)
 	entry.AddComponent(comp.Render)
 
-	comp.Collectible.SetValue(entry, comp.CollectibleData{
+	comp.Collectible.SetValue(entry, model.CollectibleData{
 		Type:      itemType,
 		ItemCount: count,
 		KeyNumber: keyNumber})
@@ -207,16 +212,16 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 
 	switch itemType {
 
-	case comp.Bomb:
+	case constants.ItemBomb:
 		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
-	case comp.Key:
+	case constants.ItemKey:
 		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 100, 0, 100, 100, 1, false)
-	case comp.Snowball:
+	case constants.ItemSnowball:
 		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
-	case comp.PowerUpItem:
+	case constants.ItemPotion:
 		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 300, 0, 100, 100, 1, false)
 	default:

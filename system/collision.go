@@ -3,8 +3,10 @@ package system
 import (
 	"kar/arche"
 	"kar/comp"
+	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/model"
 	"kar/res"
 	"math"
 	"slices"
@@ -31,20 +33,20 @@ func (ps *CollisionSystem) Init() {
 	// res.Space.Iterations = 1
 
 	// Player
-	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = playerDoorEnter
-	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).SeparateFunc = playerDoorExit
-	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeCollectible).BeginFunc = playerCollectibleCollisionBegin
+	res.Space.NewCollisionHandler(constants.CollPlayer, constants.CollDoor).BeginFunc = playerDoorEnter
+	res.Space.NewCollisionHandler(constants.CollPlayer, constants.CollDoor).SeparateFunc = playerDoorExit
+	res.Space.NewCollisionHandler(constants.CollPlayer, constants.CollCollectible).BeginFunc = playerCollectibleCollisionBegin
 
 	// Enemy
-	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).PostSolveFunc = enemyPlayerPostSolve
-	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).BeginFunc = enemyPlayerBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).SeparateFunc = enemyPlayerSep
+	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
+	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).BeginFunc = enemyPlayerBegin
+	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).SeparateFunc = enemyPlayerSep
 
 	// Snowball
-	res.Space.NewCollisionHandler(arche.CollisionTypeSnowball, arche.CollisionTypeEnemy).BeginFunc = snowballEnemyCollisionBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeSnowball, arche.CollisionTypeBomb).BeginFunc = SnowballBombCollisionBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeSnowball, arche.CollisionTypeWall).BeginFunc = snowballWallCollisionBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeSnowball, arche.CollisionTypeDoor).BeginFunc = snowballDoorCollisionBegin
+	res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollEnemy).BeginFunc = snowballEnemyCollisionBegin
+	res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollBomb).BeginFunc = SnowballBombCollisionBegin
+	res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollWall).BeginFunc = snowballWallCollisionBegin
+	res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollDoor).BeginFunc = snowballDoorCollisionBegin
 
 	res.Space.Step(ps.DT)
 
@@ -113,18 +115,18 @@ func playerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData 
 			inventory := comp.Inventory.Get(playerEntry)
 			collectibleComponent := comp.Collectible.Get(collectibleEntry)
 
-			if collectibleComponent.Type == comp.Snowball {
+			if collectibleComponent.Type == constants.ItemSnowball {
 				inventory.Snowballs += collectibleComponent.ItemCount
 			}
-			if collectibleComponent.Type == comp.Bomb {
+			if collectibleComponent.Type == constants.ItemBomb {
 				inventory.Bombs += collectibleComponent.ItemCount
 			}
-			if collectibleComponent.Type == comp.PowerUpItem {
-				inventory.PowerUp += collectibleComponent.ItemCount
+			if collectibleComponent.Type == constants.ItemPotion {
+				inventory.Potion += collectibleComponent.ItemCount
 
 			}
 
-			if collectibleComponent.Type == comp.Key {
+			if collectibleComponent.Type == constants.ItemKey {
 				// oyuncu anahtara sahip değilse ekle
 				keyNum := collectibleComponent.KeyNumber
 				if !slices.Contains(inventory.Keys, keyNum) {
@@ -184,7 +186,7 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 	enemyBody, playerBody := arb.Bodies()
 	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
 	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
-	var charData *comp.CharacterData
+	var charData *model.CharacterData
 
 	if eok && pok {
 
@@ -208,7 +210,7 @@ func enemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bo
 	enemyBody, playerBody := arb.Bodies()
 	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
 	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
-	var charData *comp.CharacterData
+	var charData *model.CharacterData
 
 	if eok && pok {
 
@@ -251,7 +253,7 @@ func snowballEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData inte
 
 			if !enemyEntry.HasComponent(comp.Effect) {
 				enemyEntry.AddComponent(comp.Effect)
-				comp.Effect.Set(enemyEntry, arche.FreezeEffect(charData.Speed))
+				comp.Effect.Set(enemyEntry, arche.PotionFreeze(charData.Speed))
 			}
 
 			if bulletEntry.Valid() {
@@ -318,7 +320,7 @@ func Explode(bomb *donburi.Entry) {
 		charData := comp.Char.Get(enemy)
 		enemyBody := comp.Body.Get(enemy)
 
-		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, arche.FilterBombRaycast)
+		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, res.FilterBombRaycast)
 		contactShape := queryInfo.Shape
 
 		if contactShape != nil {

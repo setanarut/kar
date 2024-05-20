@@ -5,6 +5,7 @@ import (
 	"image/color"
 	_ "image/png"
 	"kar/comp"
+	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
 
@@ -24,9 +25,10 @@ var (
 	World      donburi.World = donburi.NewWorld()
 	Space      *cm.Space     = cm.NewSpace()
 
-	Rooms       []cm.BB = make([]cm.BB, 0)
-	CurrentRoom cm.BB
-	Input       *engine.InputManager = &engine.InputManager{}
+	Rooms             []cm.BB = make([]cm.BB, 0)
+	CurrentRoom       cm.BB
+	Input             *engine.InputManager = &engine.InputManager{}
+	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, constants.BitmaskBombRaycast, cm.AllCategories&^constants.BitmaskBomb)
 )
 
 var (

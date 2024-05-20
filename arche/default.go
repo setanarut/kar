@@ -1,17 +1,18 @@
 package arche
 
 import (
-	"kar/comp"
+	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/model"
 	"math/rand/v2"
 	"time"
 
 	"github.com/yohamta/donburi"
 )
 
-func FreezeEffect(speed float64) *comp.EffectData {
-	return &comp.EffectData{
+func PotionFreeze(speed float64) *model.EffectData {
+	return &model.EffectData{
 		ShootCooldown:    0,
 		ExtraSnowball:    0,
 		AddMovementSpeed: -speed,
@@ -37,25 +38,25 @@ func SpawnDefaultBomb(pos cm.Vec2) {
 
 // collectible
 func SpawnDefaultSnowballCollectible(pos cm.Vec2) {
-	SpawnCollectible(comp.Snowball, 1, -1, 5, pos)
+	SpawnCollectible(constants.ItemSnowball, 1, -1, 5, pos)
 }
 func SpawnDefaultEmeticCollectible(pos cm.Vec2) {
-	SpawnCollectible(comp.PowerUpItem, 1, -1, 13, pos)
+	SpawnCollectible(constants.ItemPotion, 1, -1, 13, pos)
 }
 
 func SpawnDefaultKeyCollectible(keyNumber int, pos cm.Vec2) {
-	SpawnCollectible(comp.Key, 1, keyNumber, 13, pos)
+	SpawnCollectible(constants.ItemKey, 1, keyNumber, 13, pos)
 }
 
 // Random
 
 func SpawnRandomCollectible(pos cm.Vec2) {
-	randomType := comp.ItemType(rand.IntN(4))
+	randomType := model.ItemType(rand.IntN(4))
 	SpawnCollectible(randomType, 1, engine.RandRangeInt(1, 10), 10, pos)
 }
 
 func SpawnRandomKeyCollectible(pos cm.Vec2) {
-	SpawnCollectible(comp.Key, 1, engine.RandRangeInt(1, 10), 10, pos)
+	SpawnCollectible(constants.ItemKey, 1, engine.RandRangeInt(1, 10), 10, pos)
 }
 
 func SpawnRandomEnemy(pos cm.Vec2) {

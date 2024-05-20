@@ -75,7 +75,7 @@ func (hs *DrawHUDSystem) Draw() {
 						playerInventory.Snowballs,
 						playerInventory.Bombs,
 						playerInventory.Keys,
-						playerInventory.PowerUp,
+						playerInventory.Potion,
 						liv.Health,
 						liv.Speed,
 					),

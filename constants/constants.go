@@ -1,7 +1,17 @@
-package arche
+package constants
 
 import (
 	"kar/engine/cm"
+	"kar/model"
+)
+
+const (
+	ItemSnowball model.ItemType = iota
+	ItemBomb
+	ItemKey
+	ItemPotion
+	ItemAxe
+	ItemShovel
 )
 
 // Collision Bitmask Category
@@ -18,16 +28,14 @@ const (
 
 // Collision type
 const (
-	CollisionTypePlayer cm.CollisionType = iota
-	CollisionTypeEnemy
-	CollisionTypeWall
-	CollisionTypeSnowball
-	CollisionTypeBomb
-	CollisionTypeCollectible
-	CollisionTypeDoor
+	CollPlayer cm.CollisionType = iota
+	CollEnemy
+	CollWall
+	CollSnowball
+	CollBomb
+	CollCollectible
+	CollDoor
 )
-
-var FilterBombRaycast cm.ShapeFilter = cm.NewShapeFilter(0, BitmaskBombRaycast, cm.AllCategories&^BitmaskBomb)
 
 /* var (
 	QueryEnemy  = donburi.NewQuery(filter.Contains(component.EnemyTagComp))

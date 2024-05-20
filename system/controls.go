@@ -3,7 +3,9 @@ package system
 import (
 	"kar/arche"
 	"kar/comp"
+	"kar/constants"
 	"kar/engine"
+	"kar/model"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -46,69 +48,72 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
 
-	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
+	if player, ok := comp.PlayerTag.First(res.World); ok {
 
-		charData := comp.Char.Get(playerEntry)
-		inventory := comp.Inventory.Get(playerEntry)
-		playerBody := comp.Body.Get(playerEntry)
-		playerRenderData := comp.Render.Get(playerEntry)
-		playerPos := playerBody.Position()
+		playerCharData := comp.Char.Get(player)
 
-		if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
-			playerRenderData.AnimPlayer.SetState("shoot")
-			playerRenderData.DrawAngle = res.Input.ArrowDirection.ToAngle()
+		if playerCharData.CurrentTool == constants.ItemSnowball {
 
-			// SHOOTING
-			if inventory.Snowballs > 0 {
-				if charData.ShootCooldownTimer.IsReady() {
-					charData.ShootCooldownTimer.Reset()
+			playerInventoryData := comp.Inventory.Get(player)
+			playerBody := comp.Body.Get(player)
+			playerRenderData := comp.Render.Get(player)
+
+			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
+				playerRenderData.AnimPlayer.SetState("shoot")
+				playerRenderData.DrawAngle = res.Input.ArrowDirection.ToAngle()
+
+				// SHOOTING
+				if playerInventoryData.Snowballs > 0 {
+					if playerCharData.ShootCooldownTimer.IsReady() {
+						playerCharData.ShootCooldownTimer.Reset()
+					}
+
+					if playerCharData.ShootCooldownTimer.IsStart() {
+						for range playerCharData.SnowballPerCooldown {
+							if playerInventoryData.Snowballs > 0 {
+								playerInventoryData.Snowballs -= 1
+							}
+							dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+							bullet := arche.SpawnDefaultSnowball(playerBody.Position())
+							bulletBody := comp.Body.Get(bullet)
+
+							bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
+						}
+					}
 				}
 
-				if charData.ShootCooldownTimer.IsStart() {
-					for range charData.SnowballPerCooldown {
-						if inventory.Snowballs > 0 {
-							inventory.Snowballs -= 1
-						}
-						dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
-						bullet := arche.SpawnDefaultSnowball(playerPos)
-						bulletBody := comp.Body.Get(bullet)
+			} else {
+				playerRenderData.AnimPlayer.SetState("right")
+				playerRenderData.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
-						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerPos)
+			}
+
+			playerCharData.ShootCooldownTimer.Update()
+
+			if playerInventoryData.Bombs > 0 {
+
+				// Bomba bırak
+				if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
+					bombPos := res.Input.LastPressedDirection.Neg().Mult(bombDistance)
+					arche.SpawnDefaultBomb(playerBody.Position().Add(bombPos))
+					playerInventoryData.Bombs -= 1
+				}
+
+			}
+
+			// ilac kullan
+			if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+
+				if playerInventoryData.Potion > 0 {
+					if !player.HasComponent(comp.Effect) {
+						player.AddComponent(comp.Effect)
+						playerInventoryData.Potion -= 1
 					}
 				}
 			}
-
-		} else {
-			playerRenderData.AnimPlayer.SetState("right")
-			playerRenderData.DrawAngle = res.Input.LastPressedDirection.ToAngle()
-
 		}
 
-		charData.ShootCooldownTimer.Update()
-
-		if inventory.Bombs > 0 {
-
-			// Bomba bırak
-			if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
-				bombPos := res.Input.LastPressedDirection.Neg().Mult(bombDistance)
-				arche.SpawnDefaultBomb(playerPos.Add(bombPos))
-				inventory.Bombs -= 1
-			}
-
-		}
-
-		// ilac kullan
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-
-			if inventory.PowerUp > 0 {
-				if !playerEntry.HasComponent(comp.Effect) {
-					playerEntry.AddComponent(comp.Effect)
-					inventory.PowerUp -= 1
-				}
-			}
-		}
-
-	}
+	} // bitiş
 
 	// Explode all bombs
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -131,12 +136,12 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func AddDrugEffect(charData *comp.CharacterData, effectData *comp.EffectData) {
+func AddDrugEffect(charData *model.CharacterData, effectData *model.EffectData) {
 	charData.SnowballPerCooldown += effectData.ExtraSnowball
 	charData.ShootCooldownTimer.Target += effectData.ShootCooldown
 	charData.Speed += effectData.AddMovementSpeed
 }
-func RemoveDrugEffect(charData *comp.CharacterData, effectData *comp.EffectData) {
+func RemoveDrugEffect(charData *model.CharacterData, effectData *model.EffectData) {
 	charData.SnowballPerCooldown -= effectData.ExtraSnowball
 	charData.ShootCooldownTimer.Target -= effectData.ShootCooldown
 	charData.Speed -= effectData.AddMovementSpeed
