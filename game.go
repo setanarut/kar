@@ -34,12 +34,13 @@ func (g *Game) Init() {
 	res.Camera = engine.NewCamera(res.ScreenRect.Center(), res.ScreenRect.R, res.ScreenRect.T)
 	res.Camera.Lerp = true
 	g.systems = []System{
-		system.NewEntitySpawnSystem(),
+		system.NewSpawnSystem(),
 		system.NewCollisionSystem(),
 		system.NewTimersSystem(),
 		system.NewPlayerControlSystem(),
 		system.NewDrawCameraSystem(),
 		system.NewDrawHUDSystem(),
+		system.NewDestroySystem(),
 	}
 
 	// Initalize systems

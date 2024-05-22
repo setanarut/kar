@@ -1,9 +1,9 @@
 package system
 
 import (
+	"fmt"
 	"kar/comp"
 	"kar/constants"
-	"kar/engine"
 	"kar/engine/cm"
 	"kar/res"
 	"math"
@@ -27,40 +27,34 @@ func (ps *CollisionSystem) Init() {
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5
 	res.Space.Damping = 0.03
-	// res.Space.NewCollisionHandler(constants.CollPlayer, constants.CollDoor).SeparateFunc = playerDoorExit
 	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
-	// res.Space.NewCollisionHandler(constants.CollSnowball).PostSolveFunc = snowballwild
-
-	// res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollEnemy).BeginFunc = snowballEnemyCollisionBegin
-	// res.Space.NewCollisionHandler(constants.CollSnowball, cm.CollisionType(cm.AllCategories)).BeginFunc = snowballAllBegin
-	// res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollBomb).BeginFunc = SnowballBombCollisionBegin
-	// res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollWall).BeginFunc = snowballWallCollisionBegin
-	// res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollDoor).BeginFunc = snowballDoorCollisionBegin
 	res.Space.Step(ps.DT)
-
 }
 
 func (ps *CollisionSystem) Update() {
 
+	// Snowball arbiters
 	comp.SnowballTag.Each(res.World, func(e *donburi.Entry) {
 		b := comp.Body.Get(e)
+		snowBallEntry := b.UserData.(*donburi.Entry)
+		snowBallDamage := comp.Damage.GetValue(snowBallEntry)
+
 		b.EachArbiter(func(a *cm.Arbiter) {
 			if a.IsFirstContact() {
-				snowball, _ := a.Bodies()
-				// otherEntry := hit.UserData.(*donburi.Entry)
-				snowballEntry := snowball.UserData.(*donburi.Entry)
-				DestroyEntryWithBody(snowballEntry)
-				// fmt.Println(snowballEntry.Archetype().ComponentTypes(), otherEntry.Archetype().ComponentTypes())
+				_, other := a.Bodies()
+				otherEntry := other.UserData.(*donburi.Entry)
+
+				if otherEntry.Valid() && otherEntry.HasComponent(comp.Health) {
+					h := comp.Health.Get(otherEntry)
+					*h -= snowBallDamage
+
+				}
+				fmt.Println(otherEntry.Archetype().Layout())
+				DestroyBodyWithEntry(b)
 			}
 
 		})
 
-	})
-	comp.SnowballTag.Each(res.World, func(e *donburi.Entry) {
-		b := comp.Body.Get(e)
-		if engine.IsMoving(b.Velocity(), 80) {
-			DestroyBodyWithEntry(b)
-		}
 	})
 
 	if pla, ok := comp.PlayerTag.First(res.World); ok {
@@ -84,7 +78,9 @@ func (ps *CollisionSystem) Update() {
 		})
 
 	}
+
 	res.Space.Step(ps.DT)
+
 }
 
 func (ps *CollisionSystem) Draw() {}
@@ -103,6 +99,8 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 				playerHealth := comp.Health.Get(playerEntry)
 				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
 				if arb.IsFirstContact() {
+
+					// playerBody.ApplyImpulseAtLocalPoint(playerBody.CenterOfGravity(), )
 					*playerHealth -= enemyDamage
 				}
 				*playerHealth -= enemyDamage / 60.0
@@ -114,125 +112,4 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 
 	}
 
-}
-
-// func snowballAllBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-// 	Snowball, other := arb.Bodies()
-// 	otherEntry := other.UserData.(*donburi.Entry)
-// 	fmt.Println(otherEntry)
-// 	DestroyBodyWithEntry(Snowball)
-// 	return false
-// }
-
-// // Snowball <-> Enemy
-// func snowballEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-// 	bulletBody, enemyBody := arb.Bodies()
-// 	snowball := bulletBody.UserData.(*donburi.Entry)
-// 	enemy := enemyBody.UserData.(*donburi.Entry)
-
-// 	if snowball.Valid() && enemy.Valid() {
-// 		if enemy.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) {
-// 			enemyHealth := comp.Health.Get(enemy)
-// 			*enemyHealth -= comp.Damage.GetValue(snowball)
-
-// 			if *enemyHealth < 0 {
-// 				DestroyBodyWithEntry(enemyBody)
-// 			}
-// 		}
-// 	}
-// 	// çarpan bulletı yok et
-// 	DestroyEntryWithBody(snowball)
-// 	return true
-
-// }
-
-// Snowball <-> other
-
-// // Snowball <-> Bomb
-// func SnowballBombCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-// 	snowball, bomb := arb.Bodies()
-// 	DestroyBodyWithEntry(snowball)
-// 	Explode(bomb.UserData.(*donburi.Entry))
-// 	return false
-// }
-
-// // Snowball <-> Wall
-// func snowballWallCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-// 	Snowball, _ := arb.Bodies()
-// 	DestroyBodyWithEntry(Snowball)
-// 	return false
-// }
-
-// // Snowball <-> Door
-// func snowballDoorCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-// 	bodyA, _ := arb.Bodies()
-// 	bulletEntry := bodyA.UserData.(*donburi.Entry)
-// 	DestroyEntryWithBody(bulletEntry)
-// 	return true
-// }
-
-// // Player <-> Door (exit)
-// func playerDoorExit(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
-// 	playerBody, doorBody := arb.Bodies()
-// 	doorEntry := doorBody.UserData.(*donburi.Entry)
-// 	d := comp.Door.Get(doorEntry)
-// 	d.Open = false
-// 	doorBody.FirstShape().SetSensor(false)
-
-// 	for _, room := range res.Rooms {
-// 		if room.ContainsVect(playerBody.Position()) {
-// 			res.CurrentRoom = room
-// 		}
-// 	}
-
-// }
-
-func DestroyBodyWithEntry(b *cm.Body) {
-	s := b.FirstShape().Space()
-	if s.ContainsBody(b) {
-		e := b.UserData.(*donburi.Entry)
-		e.Remove()
-		s.AddPostStepCallback(removeBodyPostStep, b, false)
-	}
-}
-func DestroyEntryWithBody(entry *donburi.Entry) {
-	if entry.Valid() {
-		if entry.HasComponent(comp.Body) {
-			body := comp.Body.Get(entry)
-			DestroyBodyWithEntry(body)
-		}
-	}
-}
-
-func Explode(bomb *donburi.Entry) {
-	bombBody := comp.Body.Get(bomb)
-	space := bombBody.FirstShape().Space()
-	comp.EnemyTag.Each(bomb.World, func(enemy *donburi.Entry) {
-		enemyHealth := comp.Health.GetValue(enemy)
-		enemyBody := comp.Body.Get(enemy)
-		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, res.FilterBombRaycast)
-		contactShape := queryInfo.Shape
-		if contactShape != nil {
-			if contactShape.Body() == enemyBody {
-				ApplyRaycastImpulse(queryInfo, 1000)
-				comp.Health.SetValue(enemy, enemyHealth-engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0))
-				if enemyHealth < 0 {
-					DestroyEntryWithBody(enemy)
-				}
-
-			}
-		}
-
-	})
-	res.Camera.AddTrauma(0.2)
-	DestroyEntryWithBody(bomb)
-}
-
-func ApplyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
-	impulseVec2 := sqi.Normal.Neg().Mult(power * engine.MapRange(sqi.Alpha, 0.5, 1, 1, 0))
-	sqi.Shape.Body().ApplyImpulseAtWorldPoint(impulseVec2, sqi.Point)
-}
-
-func removeBodyPostStep(space *cm.Space, body, data interface{}) {
-	space.RemoveBodyWithShapes(body.(*cm.Body))
 }

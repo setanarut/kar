@@ -65,7 +65,7 @@ var (
 	Body        = donburi.NewComponentType[cm.Body]()
 	AttackTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second / 4})
 	PoisonTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second * 5})
-	AI          = donburi.NewComponentType[DataAI](DataAI{Follow: true, FollowDistance: 300})
+	AI          = donburi.NewComponentType[DataAI](DataAI{Follow: false, FollowDistance: 300})
 	Door        = donburi.NewComponentType[DataDoor]()
 )
 

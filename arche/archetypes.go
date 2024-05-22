@@ -136,7 +136,7 @@ func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	b := spawnBody(m, e, f, r, entry)
 	b.SetPosition(pos)
 	b.FirstShape().SetCollisionType(constants.CollSnowball)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskSnowball, cm.AllCategories)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskSnowball, cm.AllCategories&^constants.BitmaskPlayer)
 	// b.FirstShape().SetSensor(true)
 	comp.Body.Set(entry, b)
 

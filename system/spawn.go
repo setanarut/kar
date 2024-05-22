@@ -12,15 +12,15 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-type EntitySpawnSystem struct {
+type SpawnSystem struct {
 }
 
-func NewEntitySpawnSystem() *EntitySpawnSystem {
+func NewSpawnSystem() *SpawnSystem {
 
-	return &EntitySpawnSystem{}
+	return &SpawnSystem{}
 }
 
-func (sys *EntitySpawnSystem) Init() {
+func (sys *SpawnSystem) Init() {
 	res.CurrentRoom = res.ScreenRect
 
 	res.Rooms = make([]cm.BB, 0)
@@ -58,7 +58,7 @@ func (sys *EntitySpawnSystem) Init() {
 
 }
 
-func (sys *EntitySpawnSystem) Update() {
+func (sys *SpawnSystem) Update() {
 
 	// Reset Level
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
@@ -86,7 +86,7 @@ func (sys *EntitySpawnSystem) Update() {
 
 }
 
-func (sys *EntitySpawnSystem) Draw() {
+func (sys *SpawnSystem) Draw() {
 }
 
 func ResetLevel() {
