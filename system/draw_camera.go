@@ -63,17 +63,9 @@ func (ds *DrawCameraSystem) Draw() {
 
 	})
 
-	comp.Collectible.Each(res.World, ds.DrawEntry)
 	comp.BombTag.Each(res.World, ds.DrawEntry)
 	comp.SnowballTag.Each(res.World, ds.DrawEntry)
-
-	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
-		r := comp.Render.Get(e)
-		r.ScaleColor = comp.Gradient.Get(e).At(comp.Char.Get(e).Health)
-		ds.DrawEntry(e)
-
-	})
-
+	comp.EnemyTag.Each(res.World, ds.DrawEntry)
 	if e, ok := comp.PlayerTag.First(res.World); ok {
 		ds.DrawEntry(e)
 	}
@@ -91,6 +83,13 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	render.DIO.GeoM.Scale(render.DrawScale.X, render.DrawScale.Y)
 	render.DIO.GeoM.Rotate(engine.InvertAngle(render.DrawAngle))
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
+
+	// if e.HasComponent(comp.EnemyTag) {
+	// 	v := engine.MapRange(comp.Health.GetValue(e), 0, 8, 0, 1)
+	// 	render.DIO.ColorScale.ScaleWithColor(res.DamageGradient.At(v))
+	// } else {
+	// 	render.DIO.ColorScale.ScaleWithColor(color.White)
+	// }
 
 	render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)
 	res.Camera.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)

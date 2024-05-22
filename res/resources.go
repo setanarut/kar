@@ -33,7 +33,7 @@ var (
 	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, constants.BitmaskBombRaycast, cm.AllCategories&^constants.BitmaskBomb)
 	DamageGradient, _                      = colorgrad.NewGradient().
 				HtmlColors("rgb(0, 229, 255)", "rgb(93, 90, 193)", "rgb(255, 0, 123)").
-				Domain(0, 100).
+				Domain(0, 1).
 				Mode(colorgrad.BlendOklab).
 				Interpolation(colorgrad.InterpolationBasis).
 				Build()
@@ -62,15 +62,14 @@ var (
 			SecondaryAlign: text.AlignCenter,
 			LineSpacing:    FuturaBig.Size * 1.2},
 	}
+
+	CurrentTool constants.ItemType
 )
 
 func init() {
 	Wall.Fill(color.White)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-
 	StatsTextOptions.GeoM.Translate(30, 25)
-	CenterTextOptions.GeoM.Translate(ScreenRect.Center().X, ScreenRect.Center().Y)
-
 }
 
 func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {

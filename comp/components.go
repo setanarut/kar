@@ -38,6 +38,9 @@ type DataTimer struct {
 	TimerDuration time.Duration
 	Elapsed       time.Duration
 }
+type DataInventory struct {
+	Items map[constants.ItemType]int
+}
 
 // Components
 
@@ -55,14 +58,12 @@ var (
 		ScaleColor: color.White,
 	})
 
-	Inventory = donburi.NewComponentType[map[constants.ItemType]int](
-		map[constants.ItemType]int{constants.ItemSnowball: 100},
-	)
+	Inventory = donburi.NewComponentType[DataInventory]()
 
 	Damage      = donburi.NewComponentType[float64](1.0)
 	Health      = donburi.NewComponentType[float64](8.0)
 	Body        = donburi.NewComponentType[cm.Body]()
-	AttackTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second})
+	AttackTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second / 4})
 	PoisonTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second * 5})
 	AI          = donburi.NewComponentType[DataAI](DataAI{Follow: true, FollowDistance: 300})
 	Door        = donburi.NewComponentType[DataDoor]()

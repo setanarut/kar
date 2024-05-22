@@ -5,7 +5,6 @@ import (
 	"kar/comp"
 	"kar/constants"
 	"kar/engine"
-	"kar/model"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,98 +27,67 @@ func (sys *PlayerControlSystem) Init() {
 
 func (sys *PlayerControlSystem) Update() {
 
-	comp.Effect.Each(res.World, func(e *donburi.Entry) {
-		effectData := comp.Effect.Get(e)
-		charData := comp.Char.Get(e)
-
-		if effectData.EffectTimerData.IsStart() {
-			AddEffect(charData, effectData)
-
-		}
-
-		if effectData.EffectTimerData.IsReady() {
-			RemoveEffect(charData, effectData)
-			e.RemoveComponent(comp.Effect)
-		}
-
-		effectData.EffectTimerData.Update()
-	})
-
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
-		playerCharData := comp.Char.Get(player)
-		playerInventoryData := comp.Inventory.Get(player)
+		playerAttackTimer := comp.AttackTimer.Get(player)
+		inventory := comp.Inventory.Get(player)
 		playerBody := comp.Body.Get(player)
-		playerRenderData := comp.Render.Get(player)
+		playerRender := comp.Render.Get(player)
 
-		if playerCharData.CurrentTool == constants.ItemSnowball {
+		playerRender.AnimPlayer.SetState("right")
+		playerRender.DrawAngle = res.Input.LastPressedDirection.ToAngle()
+
+		if res.CurrentTool == constants.ItemSnowball {
 
 			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
-				playerRenderData.AnimPlayer.SetState("shoot")
-				playerRenderData.DrawAngle = res.Input.ArrowDirection.ToAngle()
+
+				playerRender.AnimPlayer.SetState("shoot")
+				playerRender.DrawAngle = res.Input.ArrowDirection.ToAngle()
 
 				// SHOOTING
-				if playerInventoryData.Snowballs > 0 {
+				if inventory.Items[constants.ItemSnowball] > 0 {
 
-					if IsTimerReady(playerCharData.ShootCooldown) {
-						ResetTimer(playerCharData.ShootCooldown)
+					if IsTimerReady(playerAttackTimer) {
+						ResetTimer(playerAttackTimer)
 					}
 
-					if IsTimerStart(playerCharData.ShootCooldown) {
-						for range playerCharData.SnowballPerCooldown {
-							if playerInventoryData.Snowballs > 0 {
-								playerInventoryData.Snowballs -= 1
-							}
-							// dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
-							dir := res.Input.ArrowDirection.Mult(1000)
-							// spawn snowball
-							bullet := arche.SpawnDefaultSnowball(playerBody.Position())
-							bulletBody := comp.Body.Get(bullet)
+					if IsTimerStart(playerAttackTimer) {
+						// dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+						dir := res.Input.ArrowDirection.Mult(1000)
+						// spawn snowball
+						bullet := arche.SpawnDefaultSnowball(playerBody.Position())
+						bulletBody := comp.Body.Get(bullet)
 
-							bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
-						}
+						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
 					}
 
 				}
-
-			} else {
-				playerRenderData.AnimPlayer.SetState("right")
-				playerRenderData.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
 			}
 
 		}
 
-		if playerCharData.CurrentTool == constants.ItemBomb {
+		if res.CurrentTool == constants.ItemBomb {
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-				if playerInventoryData.Bombs > 0 {
+				if inventory.Items[constants.ItemBomb] > 0 {
 					arche.SpawnDefaultBomb(playerBody.Position().Add(res.Input.ArrowDirection.Mult(bombDistance)))
-					playerInventoryData.Bombs -= 1
+					inventory.Items[constants.ItemBomb] -= 1
 				}
 			}
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			playerCharData.CurrentTool = constants.ItemSnowball
+			res.CurrentTool = constants.ItemSnowball
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			playerCharData.CurrentTool = constants.ItemSnowball
+			res.CurrentTool = constants.ItemSnowball
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			playerCharData.CurrentTool = constants.ItemBomb
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			if playerInventoryData.Potion > 0 {
-				if !player.HasComponent(comp.Effect) {
-					player.AddComponent(comp.Effect)
-					playerInventoryData.Potion -= 1
-				}
-			}
+			res.CurrentTool = constants.ItemBomb
 		}
 
 	} // bitiş
@@ -145,7 +113,7 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func AddEffect(charData *model.Mobile, effectData *model.EffectData) {
+/* func AddEffect(charData *model.Mobile, effectData *model.EffectData) {
 	charData.SnowballPerCooldown += effectData.ExtraSnowballPerAttack
 	charData.ShootCooldown.Target += effectData.AdditiveShootCooldown
 	charData.Speed += effectData.AdditiveMovementSpeed
@@ -155,3 +123,4 @@ func RemoveEffect(charData *model.Mobile, effectData *model.EffectData) {
 	charData.ShootCooldown.Target -= effectData.AdditiveShootCooldown
 	charData.Speed -= effectData.AdditiveMovementSpeed
 }
+*/

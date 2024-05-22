@@ -38,23 +38,23 @@ func (sys *EntitySpawnSystem) Init() {
 
 	ResetLevel()
 
-	res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
-		e := world.Entry(entity)
-		if e.HasComponent(comp.EnemyTag) {
-			p := comp.Body.Get(e).Position()
-			i := comp.Inventory.Get(e)
-			for _, v := range i.Keys {
-				arche.SpawnDefaultKeyCollectible(v, p)
-			}
-			for range i.Bombs {
-				arche.SpawnDefaultBomb(p)
-			}
-			for range i.Snowballs {
-				arche.SpawnDefaultSnowball(p)
-			}
-		}
+	// res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
+	// 	e := world.Entry(entity)
+	// 	if e.HasComponent(comp.EnemyTag) {
+	// 		p := comp.Body.Get(e).Position()
+	// 		i := comp.Inventory.Get(e)
+	// 		for _, v := range i.Keys {
+	// 			arche.SpawnDefaultKeyCollectible(v, p)
+	// 		}
+	// 		for range i.Bombs {
+	// 			arche.SpawnDefaultBomb(p)
+	// 		}
+	// 		for range i.Snowballs {
+	// 			arche.SpawnDefaultSnowball(p)
+	// 		}
+	// 	}
 
-	})
+	// })
 
 }
 
@@ -72,7 +72,7 @@ func (sys *EntitySpawnSystem) Update() {
 
 		for range 500 {
 			// arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.CurrentRoom, 64))
-			arche.SpawnEnemy(0.3, 0.3, 0.5, 8, engine.RandomPointInBB(res.CurrentRoom, 64))
+			arche.SpawnDefaultMob(engine.RandomPointInBB(res.CurrentRoom, 64))
 		}
 
 	}
@@ -104,38 +104,23 @@ func ResetLevel() {
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
 		DestroyEntryWithBody(e)
 	})
-	comp.Collectible.Each(res.World, func(e *donburi.Entry) {
-		DestroyEntryWithBody(e)
-	})
+
 	comp.BombTag.Each(res.World, func(e *donburi.Entry) {
 		DestroyEntryWithBody(e)
 	})
 
-	// reset doors
-	comp.Door.Each(res.World, func(e *donburi.Entry) {
-		comp.Door.Get(e).PlayerHasKey = false
-		comp.Door.Get(e).Open = false
-	})
-
-	// top room
-	for i := 5; i < 8; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[1], 20))
-		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[1], 20))
-	}
+	// // top room
+	// for i := 5; i < 8; i++ {
+	// 	arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[1], 20))
+	// }
 	// center room
-	arche.SpawnDefaultEmeticCollectible(engine.RandomPointInBB(res.Rooms[0], 20))
 
 	for i := 1; i < 5; i++ {
-		e := arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
-		inv := comp.Inventory.Get(e)
-		inv.Keys = append(inv.Keys, i)
-
-		// arche.SpawnDefaultKeyCollectible(i, engine.RandomPointInBB(res.Rooms[0], 20))
+		arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[0], 20))
 	}
-	// bottom room
-	for i := 8; i < 11; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[2], 20))
-		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[2], 20))
-	}
+	// // bottom room
+	// for i := 8; i < 11; i++ {
+	// 	arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[2], 20))
+	// }
 
 }

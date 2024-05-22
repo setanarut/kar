@@ -1,7 +1,6 @@
 package arche
 
 import (
-	"image/color"
 	"kar/comp"
 	"kar/constants"
 	"kar/engine"
@@ -28,11 +27,20 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
 		comp.Inventory,
+		comp.AttackTimer,
 		comp.Health,
 		comp.Damage,
 		comp.Render,
 		comp.Body,
+		comp.Mobile,
 	))
+
+	comp.Inventory.Set(entry, &comp.DataInventory{
+		Items: make(map[constants.ItemType]int),
+	})
+
+	i := comp.Inventory.Get(entry)
+	i.Items[constants.ItemSnowball] = 100
 
 	w := 100
 	render := comp.Render.Get(entry)
@@ -48,9 +56,10 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	b := spawnBody(m, e, f, r, entry)
 	b.FirstShape().SetCollisionType(constants.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
+	b.SetPosition(pos)
 	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
 	comp.Body.Set(entry, b)
-
+	res.CurrentTool = constants.ItemSnowball
 	return entry
 }
 func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
@@ -58,10 +67,10 @@ func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := res.World.Entry(res.World.Create(
 		comp.EnemyTag,
 		comp.AI,
-		comp.Inventory,
 		comp.Health,
 		comp.Damage,
 		comp.Render,
+		comp.Mobile,
 		comp.Body,
 	))
 
@@ -71,13 +80,12 @@ func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-	render.ScaleColor = colornames.White
 	render.AnimPlayer.Paused = true
 
 	b := spawnBody(m, e, f, r, entry)
+	b.SetPosition(pos)
 	b.FirstShape().SetCollisionType(constants.CollEnemy)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
-	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskEnemy, cm.AllCategories)
 	comp.Body.Set(entry, b)
 
 	return entry
@@ -100,57 +108,38 @@ func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-	render.ScaleColor = colornames.White
 	render.AnimPlayer.Paused = true
 
 	b := spawnBody(m, e, f, r, entry)
-	b.FirstShape().SetCollisionType(constants.CollPlayer)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
-	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
+	b.FirstShape().SetCollisionType(constants.CollBomb)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskBomb, cm.AllCategories)
 	comp.Body.Set(entry, b)
 
 	return entry
 }
 
-func SpawnBomb1(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := spawnBody(m, e, f, r, pos)
-	body := comp.Body.Get(entry)
-	body.FirstShape().SetCollisionType(constants.CollBomb)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskBomb, cm.AllCategories)
-
-	entry.AddComponent(comp.BombTag)
-	entry.AddComponent(comp.Render)
-
-	render := comp.Render.Get(entry)
-
-	render.AnimPlayer = engine.NewAnimationPlayer(res.Items)
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
-	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
-	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-	render.AnimPlayer.Paused = true
-	render.ScaleColor = color.RGBA{244, 117, 88, 255}
-	return entry
-}
-
-// SpawnSnowball e: elastiklik f: friction
 func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := spawnBody(m, e, f, r, pos)
-	body := comp.Body.Get(entry)
-	body.FirstShape().SetCollisionType(constants.CollSnowball)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskSnowball, cm.AllCategories)
-
-	entry.AddComponent(comp.SnowballTag)
-	entry.AddComponent(comp.Render)
-	entry.AddComponent(comp.Damage)
+	entry := res.World.Entry(res.World.Create(
+		comp.SnowballTag,
+		comp.Render,
+		comp.Damage,
+		comp.Body,
+	))
 
 	render := comp.Render.Get(entry)
-
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Items)
 	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
-	render.ScaleColor = colornames.White
+
+	b := spawnBody(m, e, f, r, entry)
+	b.SetPosition(pos)
+	b.FirstShape().SetCollisionType(constants.CollSnowball)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskSnowball, cm.AllCategories)
+	// b.FirstShape().SetSensor(true)
+	comp.Body.Set(entry, b)
+
 	return entry
 }
 
@@ -172,6 +161,7 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 		comp.WallTag,
 		comp.Render,
 	))
+
 	wallShape.Body().UserData = entry
 	comp.Body.Set(entry, wallShape.Body())
 
@@ -205,9 +195,10 @@ func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.E
 		comp.Door,
 		comp.Render,
 	))
+
 	shape.Body().UserData = entry
 	comp.Body.Set(entry, shape.Body())
-	comp.Door.SetValue(entry, model.DoorData{LockNumber: lockNumber})
+	comp.Door.SetValue(entry, comp.DataDoor{LockNumber: lockNumber})
 
 	render := comp.Render.Get(entry)
 
@@ -220,55 +211,55 @@ func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.E
 	return entry
 }
 
-func SpawnCollectible(itemType model.ItemType, count, keyNumber int,
-	r float64, pos cm.Vec2) *donburi.Entry {
+// func SpawnCollectible(itemType model.ItemType, count, keyNumber int,
+// 	r float64, pos cm.Vec2) *donburi.Entry {
 
-	entry := spawnBody(1, 0, 1, r, pos)
-	body := comp.Body.Get(entry)
-	// body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, constants.BitmaskPlayer|constants.BitmaskWall|constants.BitmaskCollectible)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, cm.AllCategories&^constants.BitmaskSnowball)
-	body.FirstShape().SetCollisionType(constants.CollCollectible)
+// 	entry := spawnBody(1, 0, 1, r, pos)
+// 	body := comp.Body.Get(entry)
+// 	// body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, constants.BitmaskPlayer|constants.BitmaskWall|constants.BitmaskCollectible)
+// 	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskCollectible, cm.AllCategories&^constants.BitmaskSnowball)
+// 	body.FirstShape().SetCollisionType(constants.CollCollectible)
 
-	entry.AddComponent(comp.Collectible)
-	entry.AddComponent(comp.Render)
+// 	entry.AddComponent(comp.Collectible)
+// 	entry.AddComponent(comp.Render)
 
-	comp.Collectible.SetValue(entry, model.CollectibleData{
-		Type:      itemType,
-		ItemCount: count,
-		KeyNumber: keyNumber})
+// 	comp.Collectible.SetValue(entry, model.CollectibleData{
+// 		Type:      itemType,
+// 		ItemCount: count,
+// 		KeyNumber: keyNumber})
 
-	var ap *engine.AnimationPlayer
+// 	var ap *engine.AnimationPlayer
 
-	switch itemType {
+// 	switch itemType {
 
-	case constants.ItemBomb:
-		ap = engine.NewAnimationPlayer(res.Items)
-		ap.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
-	case constants.ItemKey:
-		ap = engine.NewAnimationPlayer(res.Items)
-		ap.AddStateAnimation("idle", 100, 0, 100, 100, 1, false)
-	case constants.ItemSnowball:
-		ap = engine.NewAnimationPlayer(res.Items)
-		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
-	case constants.ItemPotion:
-		ap = engine.NewAnimationPlayer(res.Items)
-		ap.AddStateAnimation("idle", 300, 0, 100, 100, 1, false)
-	default:
-		ap = engine.NewAnimationPlayer(res.Items)
-		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
+// 	case constants.ItemBomb:
+// 		ap = engine.NewAnimationPlayer(res.Items)
+// 		ap.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
+// 	case constants.ItemKey:
+// 		ap = engine.NewAnimationPlayer(res.Items)
+// 		ap.AddStateAnimation("idle", 100, 0, 100, 100, 1, false)
+// 	case constants.ItemSnowball:
+// 		ap = engine.NewAnimationPlayer(res.Items)
+// 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
+// 	case constants.ItemPotion:
+// 		ap = engine.NewAnimationPlayer(res.Items)
+// 		ap.AddStateAnimation("idle", 300, 0, 100, 100, 1, false)
+// 	default:
+// 		ap = engine.NewAnimationPlayer(res.Items)
+// 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 
-	}
+// 	}
 
-	render := comp.Render.Get(entry)
-	render.AnimPlayer = ap
+// 	render := comp.Render.Get(entry)
+// 	render.AnimPlayer = ap
 
-	render.AnimPlayer.Paused = true
-	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
-	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-	render.ScaleColor = colornames.Yellow
+// 	render.AnimPlayer.Paused = true
+// 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
+// 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
+// 	render.ScaleColor = colornames.Yellow
 
-	return entry
-}
+// 	return entry
+// }
 
 func SpawnRoom(roomBB cm.BB, opts RoomOptions) {
 
