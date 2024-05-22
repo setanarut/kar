@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"kar/comp"
 	"kar/constants"
-	"kar/model"
 	"kar/res"
 	"time"
+
+	"github.com/yohamta/donburi"
 )
 
 type Timers struct {
@@ -20,36 +21,34 @@ func (s *Timers) Init() {}
 
 func (s *Timers) Update() {
 
-	if p, ok := comp.PlayerTag.First(res.World); ok {
-		c := comp.Char.Get(p)
-		UpdateTimer(c.ShootCooldown)
-	}
+	comp.AttackTimer.Each(res.World, func(e *donburi.Entry) {
+		t := comp.AttackTimer.Get(e)
+		if t.Elapsed < t.TimerDuration {
+			t.Elapsed += constants.TimerTick
+
+		}
+	})
+
 }
 
 func (s *Timers) Draw() {
 }
 
-func Remaining(t *model.TimerData) time.Duration {
-	return t.Target - t.Elapsed
+func Remaining(t *comp.DataTimer) time.Duration {
+	return t.TimerDuration - t.Elapsed
 }
 
-func RemainingSecondsString(t *model.TimerData) string {
+func RemainingSecondsString(t *comp.DataTimer) string {
 	return fmt.Sprintf("%.1fs", Remaining(t).Abs().Seconds())
 }
 
-func ResetTimer(t *model.TimerData) {
+func ResetTimer(t *comp.DataTimer) {
 	t.Elapsed = 0
 }
 
-func IsTimerReady(t *model.TimerData) bool {
-	return t.Elapsed > t.Target
+func IsTimerReady(t *comp.DataTimer) bool {
+	return t.Elapsed > t.TimerDuration
 }
-func IsTimerStart(t *model.TimerData) bool {
+func IsTimerStart(t *comp.DataTimer) bool {
 	return t.Elapsed == 0
-}
-func UpdateTimer(t *model.TimerData) {
-	if t.Elapsed < t.Target {
-		t.Elapsed += constants.TimerTick
-
-	}
 }

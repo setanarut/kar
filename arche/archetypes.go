@@ -6,77 +6,113 @@ import (
 	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
-	"kar/model"
 	"kar/res"
-	"time"
 
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 )
 
-func spawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	// body := cm.NewBody(m, cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
+func spawnBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
 	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewCircle(body, r, cm.Vec2{})
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
 	res.Space.AddShape(shape)
 	res.Space.AddBody(shape.Body())
-	body.SetPosition(pos)
-	bodyEntry := res.World.Entry(res.World.Create(comp.Body))
-	body.UserData = bodyEntry
-	comp.Body.Set(bodyEntry, body)
-	return bodyEntry
+	body.UserData = userData
+	return body
 }
 
 func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := spawnBody(m, e, f, r, pos)
-	body := comp.Body.Get(entry)
-	body.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
-	body.FirstShape().SetCollisionType(constants.CollPlayer)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
 
-	entry.AddComponent(comp.PlayerTag)
-	entry.AddComponent(comp.Inventory)
-	entry.AddComponent(comp.Char)
-	entry.AddComponent(comp.Render)
-	render := comp.Render.Get(entry)
-	char := comp.Char.Get(entry)
-	char.CurrentTool = constants.ItemSnowball
-	char.ShootCooldown.Target = time.Second
-	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
+	entry := res.World.Entry(res.World.Create(
+		comp.PlayerTag,
+		comp.Inventory,
+		comp.Health,
+		comp.Damage,
+		comp.Render,
+		comp.Body,
+	))
+
 	w := 100
+	render := comp.Render.Get(entry)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
 	render.AnimPlayer.AddStateAnimation("shoot", 0, 0, w, w, 1, false)
 	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
-
 	render.AnimPlayer.SetFPS(9)
+
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.ScaleColor = colornames.White
+
+	b := spawnBody(m, e, f, r, entry)
+	b.FirstShape().SetCollisionType(constants.CollPlayer)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
+	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
+	comp.Body.Set(entry, b)
+
 	return entry
 }
+func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
-func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	entry := spawnBody(m, e, f, r, pos)
-	body := comp.Body.Get(entry)
+	entry := res.World.Entry(res.World.Create(
+		comp.EnemyTag,
+		comp.AI,
+		comp.Inventory,
+		comp.Health,
+		comp.Damage,
+		comp.Render,
+		comp.Body,
+	))
 
-	body.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskEnemy, cm.AllCategories)
-	body.FirstShape().SetCollisionType(constants.CollEnemy)
-	engine.AddComponents(entry, comp.EnemyTag, comp.AI, comp.Char, comp.Render, comp.Gradient, comp.Damage, comp.Inventory)
-	comp.Inventory.Set(entry, &model.InventoryData{Bombs: 0, Snowballs: 0, Keys: make([]int, 0)})
 	render := comp.Render.Get(entry)
-	char := comp.Char.Get(entry)
-	char.Health = 100
 	render.AnimPlayer = engine.NewAnimationPlayer(res.EnemyBody)
 	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
+
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
-	render.ScaleColor = colornames.Orangered
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
+	render.ScaleColor = colornames.White
 	render.AnimPlayer.Paused = true
+
+	b := spawnBody(m, e, f, r, entry)
+	b.FirstShape().SetCollisionType(constants.CollEnemy)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
+	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
+	comp.Body.Set(entry, b)
+
+	return entry
+}
+func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+
+	entry := res.World.Entry(res.World.Create(
+		comp.EnemyTag,
+		comp.AI,
+		comp.Inventory,
+		comp.Health,
+		comp.Damage,
+		comp.Render,
+		comp.Body,
+	))
+
+	render := comp.Render.Get(entry)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Items)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
+
+	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
+	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
+	render.ScaleColor = colornames.White
+	render.AnimPlayer.Paused = true
+
+	b := spawnBody(m, e, f, r, entry)
+	b.FirstShape().SetCollisionType(constants.CollPlayer)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
+	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
+	comp.Body.Set(entry, b)
+
 	return entry
 }
 
-func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+func SpawnBomb1(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := spawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().SetCollisionType(constants.CollBomb)

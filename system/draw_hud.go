@@ -38,10 +38,10 @@ func (hs *DrawHUDSystem) Draw() {
 
 					text.Draw(res.Screen,
 						fmt.Sprintf("Remaining %s\nSpeed: %v\nCooldown: %v\nExtra Snowball: %v",
-							eff.EffectTimer.RemainingSecondsString(),
-							eff.AddMovementSpeed,
-							eff.ShootCooldown,
-							eff.ExtraSnowball,
+							eff.EffectTimerData.RemainingSecondsString(),
+							eff.AdditiveMovementSpeed,
+							eff.AdditiveShootCooldown,
+							eff.ExtraSnowballPerAttack,
 						),
 						res.FuturaBig, res.StatsTextOptions)
 

@@ -13,10 +13,10 @@ import (
 
 func PotionFreeze(speed float64) *model.EffectData {
 	return &model.EffectData{
-		ShootCooldown:    0,
-		ExtraSnowball:    0,
-		AddMovementSpeed: -speed,
-		EffectTimer:      engine.NewTimer(time.Second * 3),
+		AdditiveShootCooldown:  0,
+		ExtraSnowballPerAttack: 0,
+		AdditiveMovementSpeed:  -speed,
+		EffectTimerData:        engine.NewTimer(time.Second * 3),
 	}
 }
 

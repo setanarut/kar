@@ -11,6 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/mazznoer/colorgrad"
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 	"golang.org/x/text/language"
@@ -30,6 +31,12 @@ var (
 	CurrentRoom       cm.BB
 	Input             *engine.InputManager = &engine.InputManager{}
 	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, constants.BitmaskBombRaycast, cm.AllCategories&^constants.BitmaskBomb)
+	DamageGradient, _                      = colorgrad.NewGradient().
+				HtmlColors("rgb(0, 229, 255)", "rgb(93, 90, 193)", "rgb(255, 0, 123)").
+				Domain(0, 100).
+				Mode(colorgrad.BlendOklab).
+				Interpolation(colorgrad.InterpolationBasis).
+				Build()
 )
 
 var (
@@ -58,9 +65,7 @@ var (
 )
 
 func init() {
-
 	Wall.Fill(color.White)
-
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
 
 	StatsTextOptions.GeoM.Translate(30, 25)
@@ -74,9 +79,9 @@ func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt floa
 
 	if ok {
 		if entry.Valid() {
-			charData := comp.Char.Get(entry)
-			WASDAxisVector := Input.WASDDirection.Normalize().Mult(charData.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, charData.Accel))
+			dataMobile := comp.Mobile.Get(entry)
+			WASDAxisVector := Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
 
 		}
 	}

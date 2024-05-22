@@ -32,17 +32,17 @@ func (sys *PlayerControlSystem) Update() {
 		effectData := comp.Effect.Get(e)
 		charData := comp.Char.Get(e)
 
-		if effectData.EffectTimer.IsStart() {
+		if effectData.EffectTimerData.IsStart() {
 			AddEffect(charData, effectData)
 
 		}
 
-		if effectData.EffectTimer.IsReady() {
+		if effectData.EffectTimerData.IsReady() {
 			RemoveEffect(charData, effectData)
 			e.RemoveComponent(comp.Effect)
 		}
 
-		effectData.EffectTimer.Update()
+		effectData.EffectTimerData.Update()
 	})
 
 	res.Input.UpdateArrowDirection()
@@ -145,13 +145,13 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func AddEffect(charData *model.CharacterData, effectData *model.EffectData) {
-	charData.SnowballPerCooldown += effectData.ExtraSnowball
-	charData.ShootCooldown.Target += effectData.ShootCooldown
-	charData.Speed += effectData.AddMovementSpeed
+func AddEffect(charData *model.Mobile, effectData *model.EffectData) {
+	charData.SnowballPerCooldown += effectData.ExtraSnowballPerAttack
+	charData.ShootCooldown.Target += effectData.AdditiveShootCooldown
+	charData.Speed += effectData.AdditiveMovementSpeed
 }
-func RemoveEffect(charData *model.CharacterData, effectData *model.EffectData) {
-	charData.SnowballPerCooldown -= effectData.ExtraSnowball
-	charData.ShootCooldown.Target -= effectData.ShootCooldown
-	charData.Speed -= effectData.AddMovementSpeed
+func RemoveEffect(charData *model.Mobile, effectData *model.EffectData) {
+	charData.SnowballPerCooldown -= effectData.ExtraSnowballPerAttack
+	charData.ShootCooldown.Target -= effectData.AdditiveShootCooldown
+	charData.Speed -= effectData.AdditiveMovementSpeed
 }

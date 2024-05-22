@@ -2,25 +2,52 @@ package comp
 
 import (
 	"image/color"
+	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
-	"kar/model"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/mazznoer/colorgrad"
 	"github.com/yohamta/donburi"
 )
 
+type DataAI struct {
+	Follow         bool
+	FollowDistance float64
+}
+
+type DataDoor struct {
+	LockNumber   int
+	Open         bool
+	PlayerHasKey bool
+}
+
+type DataRender struct {
+	Offset     cm.Vec2
+	DrawScale  cm.Vec2
+	DrawAngle  float64
+	AnimPlayer *engine.AnimationPlayer
+	DIO        *ebiten.DrawImageOptions
+	ScaleColor color.Color
+}
+type DataMobile struct {
+	Speed, Accel float64
+}
+
+type DataTimer struct {
+	TimerDuration time.Duration
+	Elapsed       time.Duration
+}
+
+// Components
+
 var (
-	Char = donburi.NewComponentType[model.CharacterData](model.CharacterData{
-		Speed:               350,
-		Accel:               80,
-		Health:              100.,
-		ShootCooldown:       &model.TimerData{Target: time.Second},
-		SnowballPerCooldown: 1,
+	Mobile = donburi.NewComponentType[DataMobile](DataMobile{
+		Speed: 350,
+		Accel: 80,
 	})
-	Render = donburi.NewComponentType[model.RenderData](model.RenderData{
+
+	Render = donburi.NewComponentType[DataRender](DataRender{
 		Offset:     cm.Vec2{},
 		DrawScale:  cm.Vec2{1, 1},
 		DrawAngle:  0.0,
@@ -28,33 +55,17 @@ var (
 		ScaleColor: color.White,
 	})
 
-	Inventory = donburi.NewComponentType[model.InventoryData](model.InventoryData{
-		Bombs:     100,
-		Potion:    20,
-		Snowballs: 5000,
-		Keys:      make([]int, 0),
-	})
+	Inventory = donburi.NewComponentType[map[constants.ItemType]int](
+		map[constants.ItemType]int{constants.ItemSnowball: 100},
+	)
 
-	Effect = donburi.NewComponentType[model.EffectData](model.EffectData{
-		ShootCooldown:    -(time.Second / 4),
-		ExtraSnowball:    1,
-		AddMovementSpeed: -200,
-		EffectTimer:      engine.NewTimer(time.Second * 6),
-	})
-
-	Collectible = donburi.NewComponentType[model.CollectibleData]()
-
-	Body = donburi.NewComponentType[cm.Body]()
-	AI   = donburi.NewComponentType[model.AIData](model.AIData{Follow: true, FollowDistance: 300})
-
-	Door     = donburi.NewComponentType[model.DoorData]()
-	Damage   = donburi.NewComponentType[float64](25.0)
-	Gradient = donburi.NewComponentType[colorgrad.Gradient](colorgrad.NewGradient().
-			HtmlColors("rgb(0, 229, 255)", "rgb(93, 90, 193)", "rgb(255, 0, 123)").
-			Domain(0, 100).
-			Mode(colorgrad.BlendOklab).
-			Interpolation(colorgrad.InterpolationBasis).
-			Build())
+	Damage      = donburi.NewComponentType[float64](1.0)
+	Health      = donburi.NewComponentType[float64](8.0)
+	Body        = donburi.NewComponentType[cm.Body]()
+	AttackTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second})
+	PoisonTimer = donburi.NewComponentType[DataTimer](DataTimer{TimerDuration: time.Second * 5})
+	AI          = donburi.NewComponentType[DataAI](DataAI{Follow: true, FollowDistance: 300})
+	Door        = donburi.NewComponentType[DataDoor]()
 )
 
 // Tags

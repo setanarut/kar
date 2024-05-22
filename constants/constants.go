@@ -2,14 +2,15 @@ package constants
 
 import (
 	"kar/engine/cm"
-	"kar/model"
 	"time"
 )
 
 const TimerTick = time.Second / 60
 
+type ItemType int
+
 const (
-	ItemSnowball model.ItemType = iota
+	ItemSnowball ItemType = iota
 	ItemBomb
 	ItemKey
 	ItemPotion
