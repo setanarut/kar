@@ -44,7 +44,7 @@ type RenderData struct {
 }
 type CharacterData struct {
 	Speed, Accel, Health float64
-	ShootCooldownTimer   engine.Timer
+	ShootCooldown        *TimerData
 	SnowballPerCooldown  int
 	CurrentTool          ItemType
 }
@@ -53,4 +53,9 @@ type EffectData struct {
 	ShootCooldown                   time.Duration
 	ExtraSnowball                   int
 	EffectTimer                     engine.Timer
+}
+
+type TimerData struct {
+	Target  time.Duration
+	Elapsed time.Duration
 }

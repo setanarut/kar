@@ -36,8 +36,8 @@ func (g *Game) Init() {
 	g.systems = []System{
 		system.NewEntitySpawnSystem(),
 		system.NewCollisionSystem(),
+		system.NewTimersSystem(),
 		system.NewPlayerControlSystem(),
-		// system.NewTemplate(g.screenBox),
 		system.NewDrawCameraSystem(),
 		system.NewDrawHUDSystem(),
 	}

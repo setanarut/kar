@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/yohamta/donburi"
+	"golang.org/x/image/colornames"
 	"golang.org/x/text/language"
 )
 
@@ -43,10 +44,27 @@ var (
 		Size:     28,
 		Language: language.English,
 	}
+	StatsTextOptions = &text.DrawOptions{
+		DrawImageOptions: ebiten.DrawImageOptions{Filter: ebiten.FilterLinear},
+		LayoutOptions:    text.LayoutOptions{LineSpacing: FuturaBig.Size * 1.2},
+	}
+	CenterTextOptions = &text.DrawOptions{
+		DrawImageOptions: ebiten.DrawImageOptions{Filter: ebiten.FilterLinear},
+		LayoutOptions: text.LayoutOptions{
+			PrimaryAlign:   text.AlignCenter,
+			SecondaryAlign: text.AlignCenter,
+			LineSpacing:    FuturaBig.Size * 1.2},
+	}
 )
 
 func init() {
+
 	Wall.Fill(color.White)
+
+	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
+
+	StatsTextOptions.GeoM.Translate(30, 25)
+	CenterTextOptions.GeoM.Translate(ScreenRect.Center().X, ScreenRect.Center().Y)
 
 }
 

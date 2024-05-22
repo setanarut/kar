@@ -26,6 +26,7 @@ func NewCollisionSystem() *CollisionSystem {
 }
 
 func (ps *CollisionSystem) Init() {
+
 	res.Space.UseSpatialHash(50, 1000)
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5

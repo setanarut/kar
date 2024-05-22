@@ -17,7 +17,7 @@ var (
 		Speed:               350,
 		Accel:               80,
 		Health:              100.,
-		ShootCooldownTimer:  engine.NewTimer(time.Second / 2),
+		ShootCooldown:       &model.TimerData{Target: time.Second},
 		SnowballPerCooldown: 1,
 	})
 	Render = donburi.NewComponentType[model.RenderData](model.RenderData{

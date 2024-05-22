@@ -7,37 +7,16 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"golang.org/x/image/colornames"
 )
 
 // Chipmunk Space draw system
 type DrawHUDSystem struct {
-	statsTextOptions  *text.DrawOptions
-	centerTextOptions *text.DrawOptions
 }
 
 func NewDrawHUDSystem() *DrawHUDSystem {
-	return &DrawHUDSystem{
-		statsTextOptions: &text.DrawOptions{},
-		centerTextOptions: &text.DrawOptions{
-
-			LayoutOptions: text.LayoutOptions{PrimaryAlign: text.AlignCenter},
-		},
-	}
+	return &DrawHUDSystem{}
 }
 func (hs *DrawHUDSystem) Init() {
-	hs.statsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	hs.statsTextOptions.LineSpacing = res.FuturaBig.Size * 1.2
-	hs.statsTextOptions.GeoM.Translate(30, 25)
-	hs.statsTextOptions.Filter = ebiten.FilterLinear
-
-	hs.centerTextOptions.LayoutOptions.PrimaryAlign = text.AlignCenter
-	hs.centerTextOptions.LayoutOptions.SecondaryAlign = text.AlignCenter
-	hs.centerTextOptions.Filter = ebiten.FilterLinear
-	hs.centerTextOptions.LineSpacing = res.FuturaBig.Size * 1.2
-	center := res.ScreenRect.Center()
-	hs.centerTextOptions.GeoM.Translate(center.X, center.Y)
-
 }
 
 func (hs *DrawHUDSystem) Update() {
@@ -55,7 +34,8 @@ func (hs *DrawHUDSystem) Draw() {
 				if p.HasComponent(comp.Effect) {
 					eff := comp.Effect.Get(p)
 
-					hs.statsTextOptions.GeoM.Translate(250, 10)
+					res.StatsTextOptions.GeoM.Translate(250, 10)
+
 					text.Draw(res.Screen,
 						fmt.Sprintf("Remaining %s\nSpeed: %v\nCooldown: %v\nExtra Snowball: %v",
 							eff.EffectTimer.RemainingSecondsString(),
@@ -63,8 +43,9 @@ func (hs *DrawHUDSystem) Draw() {
 							eff.ShootCooldown,
 							eff.ExtraSnowball,
 						),
-						res.FuturaBig, hs.statsTextOptions)
-					hs.statsTextOptions.GeoM.Translate(-250, -10)
+						res.FuturaBig, res.StatsTextOptions)
+
+					res.StatsTextOptions.GeoM.Translate(-250, -10)
 				}
 
 				liv := *comp.Char.Get(p)
@@ -80,16 +61,16 @@ func (hs *DrawHUDSystem) Draw() {
 						liv.Speed,
 					),
 					res.Futura,
-					hs.statsTextOptions)
+					res.StatsTextOptions)
 			} else {
-				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.FuturaBig, hs.centerTextOptions)
+				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.FuturaBig, res.CenterTextOptions)
 			}
 		}
 	} else {
 
 		// unfocused
 		if true {
-			text.Draw(res.Screen, "PAUSED\n Click to resume", res.FuturaBig, hs.centerTextOptions)
+			text.Draw(res.Screen, "PAUSED\n Click to resume", res.FuturaBig, res.CenterTextOptions)
 		}
 
 	}
@@ -108,7 +89,16 @@ func (hs *DrawHUDSystem) Draw() {
 				res.Input.ArrowDirection,
 			),
 			res.Futura,
-			hs.statsTextOptions)
+			res.StatsTextOptions)
 	}
 
+	if true {
+		if p, ok := comp.PlayerTag.First(res.World); ok {
+			c := comp.Char.Get(p)
+			res.StatsTextOptions.GeoM.Translate(250, 10)
+			text.Draw(res.Screen, fmt.Sprintf("%v", c.ShootCooldown), res.FuturaBig, res.StatsTextOptions)
+			res.StatsTextOptions.GeoM.Translate(-250, -10)
+		}
+
+	}
 }

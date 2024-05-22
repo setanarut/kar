@@ -8,6 +8,7 @@ import (
 	"kar/engine/cm"
 	"kar/model"
 	"kar/res"
+	"time"
 
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
@@ -42,7 +43,7 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	render := comp.Render.Get(entry)
 	char := comp.Char.Get(entry)
 	char.CurrentTool = constants.ItemSnowball
-
+	char.ShootCooldown.Target = time.Second
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
 	w := 100
 	render.AnimPlayer.AddStateAnimation("shoot", 0, 0, w, w, 1, false)

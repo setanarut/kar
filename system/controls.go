@@ -64,16 +64,17 @@ func (sys *PlayerControlSystem) Update() {
 				// SHOOTING
 				if playerInventoryData.Snowballs > 0 {
 
-					if playerCharData.ShootCooldownTimer.IsReady() {
-						playerCharData.ShootCooldownTimer.Reset()
+					if IsTimerReady(playerCharData.ShootCooldown) {
+						ResetTimer(playerCharData.ShootCooldown)
 					}
 
-					if playerCharData.ShootCooldownTimer.IsStart() {
+					if IsTimerStart(playerCharData.ShootCooldown) {
 						for range playerCharData.SnowballPerCooldown {
 							if playerInventoryData.Snowballs > 0 {
 								playerInventoryData.Snowballs -= 1
 							}
-							dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+							// dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+							dir := res.Input.ArrowDirection.Mult(1000)
 							// spawn snowball
 							bullet := arche.SpawnDefaultSnowball(playerBody.Position())
 							bulletBody := comp.Body.Get(bullet)
@@ -89,8 +90,6 @@ func (sys *PlayerControlSystem) Update() {
 				playerRenderData.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
 			}
-
-			playerCharData.ShootCooldownTimer.Update()
 
 		}
 
@@ -148,11 +147,11 @@ func (sys *PlayerControlSystem) Draw() {
 
 func AddEffect(charData *model.CharacterData, effectData *model.EffectData) {
 	charData.SnowballPerCooldown += effectData.ExtraSnowball
-	charData.ShootCooldownTimer.Target += effectData.ShootCooldown
+	charData.ShootCooldown.Target += effectData.ShootCooldown
 	charData.Speed += effectData.AddMovementSpeed
 }
 func RemoveEffect(charData *model.CharacterData, effectData *model.EffectData) {
 	charData.SnowballPerCooldown -= effectData.ExtraSnowball
-	charData.ShootCooldownTimer.Target -= effectData.ShootCooldown
+	charData.ShootCooldown.Target -= effectData.ShootCooldown
 	charData.Speed -= effectData.AddMovementSpeed
 }
