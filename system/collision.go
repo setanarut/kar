@@ -28,6 +28,7 @@ func (ps *CollisionSystem) Init() {
 	res.Space.CollisionSlop = 0.5
 	res.Space.Damping = 0.03
 	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
+	res.Space.NewCollisionHandler(constants.CollPlayer, constants.CollEnemy).SeparateFunc = playerEnemySep
 	res.Space.Step(ps.DT)
 }
 
@@ -49,7 +50,7 @@ func (ps *CollisionSystem) Update() {
 					*h -= snowBallDamage
 
 				}
-				fmt.Println(otherEntry.Archetype().Layout())
+				// fmt.Println(otherEntry.Archetype().Layout())
 				DestroyBodyWithEntry(b)
 			}
 
@@ -89,6 +90,7 @@ func (ps *CollisionSystem) Draw() {}
 func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 	enemyBody, playerBody := arb.Bodies()
 	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
+	fmt.Println(enemyEntry.HasComponent(comp.EnemyTag))
 	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
 
 	if eok && pok {
@@ -99,8 +101,7 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 				playerHealth := comp.Health.Get(playerEntry)
 				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
 				if arb.IsFirstContact() {
-
-					// playerBody.ApplyImpulseAtLocalPoint(playerBody.CenterOfGravity(), )
+					// playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Mult(500), playerBody.CenterOfGravity())
 					*playerHealth -= enemyDamage
 				}
 				*playerHealth -= enemyDamage / 60.0
@@ -112,4 +113,11 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 
 	}
 
+}
+
+// oyuncu düşmandan ayrılınca rengini beyaz yap
+func playerEnemySep(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
+	_, a := arb.Bodies()
+	e := a.UserData.(*donburi.Entry)
+	comp.Render.Get(e).ScaleColor = colornames.White
 }

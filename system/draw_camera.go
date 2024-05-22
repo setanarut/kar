@@ -84,14 +84,13 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	render.DIO.GeoM.Rotate(engine.InvertAngle(render.DrawAngle))
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
 
-	// if e.HasComponent(comp.EnemyTag) {
-	// 	v := engine.MapRange(comp.Health.GetValue(e), 0, 8, 0, 1)
-	// 	render.DIO.ColorScale.ScaleWithColor(res.DamageGradient.At(v))
-	// } else {
-	// 	render.DIO.ColorScale.ScaleWithColor(color.White)
-	// }
+	if e.HasComponent(comp.EnemyTag) {
+		v := engine.MapRange(comp.Health.GetValue(e), 0, 8, 0, 1)
+		render.DIO.ColorScale.ScaleWithColor(res.DamageGradient.At(v))
+	} else {
+		render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)
+	}
 
-	render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)
 	res.Camera.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)
 	render.DIO.ColorScale.Reset()
 }

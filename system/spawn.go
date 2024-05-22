@@ -70,7 +70,7 @@ func (sys *SpawnSystem) Update() {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
 
-		for range 500 {
+		for range 4 {
 			// arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.CurrentRoom, 64))
 			arche.SpawnDefaultMob(engine.RandomPointInBB(res.CurrentRoom, 64))
 		}
