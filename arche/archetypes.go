@@ -4,6 +4,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/models"
 	"kar/res"
 
 	"github.com/yohamta/donburi"
@@ -35,12 +36,12 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 		comp.WASDControll,
 	))
 	comp.Health.SetValue(e, 100000)
-	comp.Inventory.Set(e, &comp.DataInventory{
-		Items: make(map[res.ItemType]int),
+	comp.Inventory.Set(e, &models.DataInventory{
+		Items: make(map[models.ItemType]int),
 	})
 
 	i := comp.Inventory.Get(e)
-	i.Items[res.ItemSnowball] = 1000
+	i.Items[models.ItemSnowball] = 1000
 
 	w := 100
 	render := comp.Render.Get(e)
@@ -54,12 +55,12 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	render.ScaleColor = colornames.White
 
 	b := spawnBody(mass, el, fr, rad, e)
-	b.FirstShape().SetCollisionType(res.CollPlayer)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskSnowball)
+	b.FirstShape().SetCollisionType(models.CollPlayer)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, models.BitmaskPlayer, cm.AllCategories&^models.BitmaskSnowball)
 	b.SetPosition(pos)
 	// b.SetVelocityUpdateFunc(comp.PlayerVelocityFunc)
 	comp.Body.Set(e, b)
-	res.CurrentTool = res.ItemSnowball
+	res.CurrentTool = models.ItemSnowball
 	return e
 }
 func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
@@ -84,8 +85,8 @@ func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 	b := spawnBody(m, e, f, r, entry)
 	b.SetPosition(pos)
-	b.FirstShape().SetCollisionType(res.CollEnemy)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskEnemy, cm.AllCategories)
+	b.FirstShape().SetCollisionType(models.CollEnemy)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, models.BitmaskEnemy, cm.AllCategories)
 	comp.Body.Set(entry, b)
 
 	return entry
@@ -111,8 +112,8 @@ func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	render.AnimPlayer.Paused = true
 
 	b := spawnBody(m, e, f, r, entry)
-	b.FirstShape().SetCollisionType(res.CollBomb)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskBomb, cm.AllCategories)
+	b.FirstShape().SetCollisionType(models.CollBomb)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, models.BitmaskBomb, cm.AllCategories)
 	comp.Body.Set(entry, b)
 
 	return entry
@@ -135,8 +136,8 @@ func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 	b := spawnBody(m, e, f, r, entry)
 	b.SetPosition(pos)
-	b.FirstShape().SetCollisionType(res.CollSnowball)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskSnowball, cm.AllCategories&^res.BitmaskPlayer)
+	b.FirstShape().SetCollisionType(models.CollSnowball)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, models.BitmaskSnowball, cm.AllCategories&^models.BitmaskPlayer)
 	// b.FirstShape().SetSensor(true)
 	comp.Body.Set(entry, b)
 
@@ -147,8 +148,8 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
-	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskWall, cm.AllCategories)
-	wallShape.CollisionType = res.CollWall
+	wallShape.Filter = cm.NewShapeFilter(0, models.BitmaskWall, cm.AllCategories)
+	wallShape.CollisionType = models.CollWall
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
 	sbody.SetPosition(boxCenter)
@@ -180,11 +181,11 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	shape := cm.NewBox(sbody, boxW, boxH, 0)
-	shape.Filter = cm.NewShapeFilter(0, res.BitmaskDoor, cm.AllCategories)
+	shape.Filter = cm.NewShapeFilter(0, models.BitmaskDoor, cm.AllCategories)
 	shape.SetSensor(false)
 	shape.SetElasticity(0)
 	shape.SetFriction(0)
-	shape.CollisionType = res.CollDoor
+	shape.CollisionType = models.CollDoor
 	sbody.SetPosition(boxCenter)
 	res.Space.AddShape(shape)
 	res.Space.AddBody(shape.Body())
@@ -198,7 +199,6 @@ func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.E
 
 	shape.Body().UserData = entry
 	comp.Body.Set(entry, shape.Body())
-	comp.Door.SetValue(entry, comp.DataDoor{LockNumber: lockNumber})
 
 	render := comp.Render.Get(entry)
 

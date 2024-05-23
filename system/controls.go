@@ -4,6 +4,7 @@ import (
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
+	"kar/models"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,6 +30,14 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
 
+	// WASD Controller
+	res.QueryWASDcontrollable.Each(res.World, func(e *donburi.Entry) {
+		body := comp.Body.Get(e)
+		mobileData := comp.Mobile.Get(e)
+		velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
+		body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
+	})
+
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
 		playerAttackTimer := comp.AttackTimer.Get(player)
@@ -39,7 +48,7 @@ func (sys *PlayerControlSystem) Update() {
 		playerRender.AnimPlayer.SetState("right")
 		playerRender.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
-		if res.CurrentTool == res.ItemSnowball {
+		if res.CurrentTool == models.ItemSnowball {
 
 			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
 
@@ -47,7 +56,7 @@ func (sys *PlayerControlSystem) Update() {
 				playerRender.DrawAngle = res.Input.ArrowDirection.ToAngle()
 
 				// SHOOTING
-				if inventory.Items[res.ItemSnowball] > 0 {
+				if inventory.Items[models.ItemSnowball] > 0 {
 
 					if timerIsReady(playerAttackTimer) {
 						timerReset(playerAttackTimer)
@@ -58,7 +67,7 @@ func (sys *PlayerControlSystem) Update() {
 						dir := res.Input.ArrowDirection.Normalize().Mult(1000)
 						// spawn snowball
 						bullet := arche.SpawnDefaultSnowball(playerBody.Position())
-						inventory.Items[res.ItemSnowball] -= 1
+						inventory.Items[models.ItemSnowball] -= 1
 						bulletBody := comp.Body.Get(bullet)
 						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
 					}
@@ -69,24 +78,27 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		if res.CurrentTool == res.ItemBomb {
+		if res.CurrentTool == models.ItemBomb {
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-				if inventory.Items[res.ItemBomb] > 0 {
+				if inventory.Items[models.ItemBomb] > 0 {
 					arche.SpawnDefaultBomb(playerBody.Position().Add(res.Input.ArrowDirection.Mult(bombDistance)))
-					inventory.Items[res.ItemBomb] -= 1
+					inventory.Items[models.ItemBomb] -= 1
 				}
 			}
 		}
 
-		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			res.CurrentTool = res.ItemSnowball
+		if inpututil.IsKeyJustPressed(ebiten.KeyU) {
+			comp.AI.Each(res.World, func(e *donburi.Entry) {
+				e.RemoveComponent(comp.AI)
+				e.AddComponent(comp.WASDControll)
+			})
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			res.CurrentTool = res.ItemSnowball
+			res.CurrentTool = models.ItemSnowball
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			res.CurrentTool = res.ItemBomb
+			res.CurrentTool = models.ItemBomb
 		}
 
 	} // bitiş
