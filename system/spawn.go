@@ -38,24 +38,6 @@ func (sys *SpawnSystem) Init() {
 
 	ResetLevel()
 
-	// res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
-	// 	e := world.Entry(entity)
-	// 	if e.HasComponent(comp.EnemyTag) {
-	// 		p := comp.Body.Get(e).Position()
-	// 		i := comp.Inventory.Get(e)
-	// 		for _, v := range i.Keys {
-	// 			arche.SpawnDefaultKeyCollectible(v, p)
-	// 		}
-	// 		for range i.Bombs {
-	// 			arche.SpawnDefaultBomb(p)
-	// 		}
-	// 		for range i.Snowballs {
-	// 			arche.SpawnDefaultSnowball(p)
-	// 		}
-	// 	}
-
-	// })
-
 }
 
 func (sys *SpawnSystem) Update() {
@@ -102,6 +84,7 @@ func ResetLevel() {
 	}
 
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
+
 		destroyEntryWithBody(e)
 	})
 

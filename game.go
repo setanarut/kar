@@ -5,18 +5,13 @@ import (
 	"kar/engine/cm"
 	"kar/res"
 	"kar/system"
+	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type System interface {
-	Init()
-	Update()
-	Draw()
-}
-
 type Game struct {
-	systems []System
+	systems []types.System
 }
 
 func NewGame() *Game {
@@ -33,7 +28,7 @@ func (g *Game) Init() {
 	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))
 	res.Camera = engine.NewCamera(res.ScreenRect.Center(), res.ScreenRect.R, res.ScreenRect.T)
 	res.Camera.Lerp = true
-	g.systems = []System{
+	g.systems = []types.System{
 		system.NewSpawnSystem(),
 		system.NewTimersSystem(),
 		system.NewPhysicsSystem(),

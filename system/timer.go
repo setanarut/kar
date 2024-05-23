@@ -2,8 +2,8 @@ package system
 
 import (
 	"kar/comp"
-	"kar/models"
 	"kar/res"
+	"kar/types"
 
 	"github.com/yohamta/donburi"
 )
@@ -22,7 +22,7 @@ func (s *TimersSystem) Update() {
 	comp.AttackTimer.Each(res.World, func(e *donburi.Entry) {
 		t := comp.AttackTimer.Get(e)
 		if t.Elapsed < t.TimerDuration {
-			t.Elapsed += models.TimerTick
+			t.Elapsed += types.TimerTick
 
 		}
 	})
@@ -39,13 +39,13 @@ func (s *TimersSystem) Draw() {}
 // 	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
 // }
 
-func timerReset(t *models.DataTimer) {
+func timerReset(t *types.DataTimer) {
 	t.Elapsed = 0
 }
 
-func timerIsReady(t *models.DataTimer) bool {
+func timerIsReady(t *types.DataTimer) bool {
 	return t.Elapsed > t.TimerDuration
 }
-func timerIsStart(t *models.DataTimer) bool {
+func timerIsStart(t *types.DataTimer) bool {
 	return t.Elapsed == 0
 }

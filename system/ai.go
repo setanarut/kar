@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"kar/comp"
 	"kar/res"
 
@@ -17,6 +18,7 @@ func NewAISystem() *AISystem {
 func (s *AISystem) Init() {}
 
 func (s *AISystem) Update() {
+	fmt.Println()
 
 	if pla, ok := comp.PlayerTag.First(res.World); ok {
 		playerBody := comp.Body.Get(pla)

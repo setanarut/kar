@@ -7,6 +7,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+var Deneme = "Deneme"
+
 func main() {
 
 	g := NewGame()

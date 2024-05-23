@@ -7,7 +7,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
-	"kar/models"
+	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -28,10 +28,10 @@ var (
 	ScreenRect, CurrentRoom cm.BB
 	Camera                  *engine.Camera
 
-	CurrentTool       models.ItemType
+	CurrentTool       types.ItemType
 	Rooms             []cm.BB              = make([]cm.BB, 0)
 	Input             *engine.InputManager = &engine.InputManager{}
-	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, models.BitmaskBombRaycast, cm.AllCategories&^models.BitmaskBomb)
+	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskBombRaycast, cm.AllCategories&^types.BitmaskBomb)
 	DamageGradient, _                      = colorgrad.NewGradient().
 				HtmlColors("rgb(0, 229, 255)", "rgb(93, 90, 193)", "rgb(255, 0, 123)").
 				Domain(0, 1).

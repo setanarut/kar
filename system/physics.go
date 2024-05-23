@@ -3,8 +3,8 @@ package system
 import (
 	"kar/comp"
 	"kar/engine/cm"
-	"kar/models"
 	"kar/res"
+	"kar/types"
 	"math"
 
 	"golang.org/x/image/colornames"
@@ -25,10 +25,10 @@ func (ps *PhysicsSystem) Init() {
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5
 	res.Space.Damping = 0.03
-	res.Space.NewCollisionHandler(models.CollEnemy, models.CollPlayer).BeginFunc = enemyPlayerBegin
-	res.Space.NewCollisionHandler(models.CollEnemy, models.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
-	res.Space.NewCollisionHandler(models.CollPlayer, models.CollEnemy).SeparateFunc = playerEnemySep
-	res.Space.NewCollisionHandler(models.CollSnowball, models.CollEnemy).BeginFunc = snowballEnemyBegin
+	res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
+	res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
+	res.Space.NewCollisionHandler(types.CollPlayer, types.CollEnemy).SeparateFunc = playerEnemySep
+	res.Space.NewCollisionHandler(types.CollSnowball, types.CollEnemy).BeginFunc = snowballEnemyBegin
 	res.Space.Step(ps.DT)
 }
 
