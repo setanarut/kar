@@ -37,11 +37,8 @@ func (ps *PhysicsSystem) Update() {
 	comp.WASDControll.Each(res.World, func(e *donburi.Entry) {
 		body := comp.Body.Get(e)
 		dataMobile := comp.Mobile.Get(e)
-		if e.HasComponent(comp.AI) {
-			e.RemoveComponent(comp.WASDControll)
-			WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
-		}
+		WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
+		body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
 
 	})
 

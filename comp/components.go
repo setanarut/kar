@@ -78,17 +78,3 @@ var (
 	BombTag      = donburi.NewTag()
 	EnemyTag     = donburi.NewTag()
 )
-
-func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
-
-	entry, ok := body.UserData.(*donburi.Entry)
-
-	if ok {
-		if entry.Valid() {
-			dataMobile := Mobile.Get(entry)
-			WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
-
-		}
-	}
-}

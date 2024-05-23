@@ -32,6 +32,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 		comp.Render,
 		comp.Body,
 		comp.Mobile,
+		comp.WASDControll,
 	))
 	comp.Health.SetValue(e, 100000)
 	comp.Inventory.Set(e, &comp.DataInventory{
@@ -56,7 +57,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	b.FirstShape().SetCollisionType(res.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskSnowball)
 	b.SetPosition(pos)
-	b.SetVelocityUpdateFunc(comp.PlayerVelocityFunc)
+	// b.SetVelocityUpdateFunc(comp.PlayerVelocityFunc)
 	comp.Body.Set(e, b)
 	res.CurrentTool = res.ItemSnowball
 	return e
