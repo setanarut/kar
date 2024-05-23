@@ -69,7 +69,6 @@ var (
 func init() {
 	Wall.Fill(color.White)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	StatsTextOptions.GeoM.Translate(30, 25)
 }
 
 func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {

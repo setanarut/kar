@@ -15,8 +15,8 @@ func NewDestroySystem() *DestroySystem {
 func (s *DestroySystem) Init() {}
 
 func (s *DestroySystem) Update() {
-	comp.Health.Each(res.World, DestroyDead)
-	comp.SnowballTag.Each(res.World, DestroyStopped)
+	comp.Health.Each(res.World, destroyDead)
+	comp.SnowballTag.Each(res.World, destroyStopped)
 }
 
 func (s *DestroySystem) Draw() {}

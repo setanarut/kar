@@ -50,17 +50,17 @@ func (sys *PlayerControlSystem) Update() {
 				// SHOOTING
 				if inventory.Items[constants.ItemSnowball] > 0 {
 
-					if IsTimerReady(playerAttackTimer) {
-						ResetTimer(playerAttackTimer)
+					if timerIsReady(playerAttackTimer) {
+						timerReset(playerAttackTimer)
 					}
 
-					if IsTimerStart(playerAttackTimer) {
+					if timerIsStart(playerAttackTimer) {
 						// dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
-						dir := res.Input.ArrowDirection.Mult(1000)
+						dir := res.Input.ArrowDirection.Normalize().Mult(1000)
 						// spawn snowball
 						bullet := arche.SpawnDefaultSnowball(playerBody.Position())
+						inventory.Items[constants.ItemSnowball] -= 1
 						bulletBody := comp.Body.Get(bullet)
-
 						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
 					}
 
@@ -95,7 +95,7 @@ func (sys *PlayerControlSystem) Update() {
 	// Explode all bombs
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		comp.BombTag.Each(res.World, func(e *donburi.Entry) {
-			Explode(e)
+			explode(e)
 		})
 	}
 

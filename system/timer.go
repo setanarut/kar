@@ -1,25 +1,23 @@
 package system
 
 import (
-	"fmt"
 	"kar/comp"
 	"kar/constants"
 	"kar/res"
-	"time"
 
 	"github.com/yohamta/donburi"
 )
 
-type Timers struct {
+type TimersSystem struct {
 }
 
-func NewTimersSystem() *Timers {
-	return &Timers{}
+func NewTimersSystem() *TimersSystem {
+	return &TimersSystem{}
 }
 
-func (s *Timers) Init() {}
+func (s *TimersSystem) Init() {}
 
-func (s *Timers) Update() {
+func (s *TimersSystem) Update() {
 
 	comp.AttackTimer.Each(res.World, func(e *donburi.Entry) {
 		t := comp.AttackTimer.Get(e)
@@ -31,24 +29,23 @@ func (s *Timers) Update() {
 
 }
 
-func (s *Timers) Draw() {
-}
+func (s *TimersSystem) Draw() {}
 
-func Remaining(t *comp.DataTimer) time.Duration {
-	return t.TimerDuration - t.Elapsed
-}
+// func timerRemaining(t *comp.DataTimer) time.Duration {
+// 	return t.TimerDuration - t.Elapsed
+// }
 
-func RemainingSecondsString(t *comp.DataTimer) string {
-	return fmt.Sprintf("%.1fs", Remaining(t).Abs().Seconds())
-}
+// func timerRemainingSecondsString(t *comp.DataTimer) string {
+// 	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
+// }
 
-func ResetTimer(t *comp.DataTimer) {
+func timerReset(t *comp.DataTimer) {
 	t.Elapsed = 0
 }
 
-func IsTimerReady(t *comp.DataTimer) bool {
+func timerIsReady(t *comp.DataTimer) bool {
 	return t.Elapsed > t.TimerDuration
 }
-func IsTimerStart(t *comp.DataTimer) bool {
+func timerIsStart(t *comp.DataTimer) bool {
 	return t.Elapsed == 0
 }

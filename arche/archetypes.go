@@ -22,9 +22,9 @@ func spawnBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
 	return body
 }
 
-func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 
-	entry := res.World.Entry(res.World.Create(
+	e := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
 		comp.Inventory,
 		comp.AttackTimer,
@@ -34,33 +34,33 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 		comp.Body,
 		comp.Mobile,
 	))
-
-	comp.Inventory.Set(entry, &comp.DataInventory{
+	comp.Health.SetValue(e, 100000)
+	comp.Inventory.Set(e, &comp.DataInventory{
 		Items: make(map[constants.ItemType]int),
 	})
 
-	i := comp.Inventory.Get(entry)
-	i.Items[constants.ItemSnowball] = 100
+	i := comp.Inventory.Get(e)
+	i.Items[constants.ItemSnowball] = 1000
 
 	w := 100
-	render := comp.Render.Get(entry)
+	render := comp.Render.Get(e)
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
 	render.AnimPlayer.AddStateAnimation("shoot", 0, 0, w, w, 1, false)
 	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
 	render.AnimPlayer.SetFPS(9)
 
-	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
+	render.DrawScale = engine.GetCircleScaleFactor(rad, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.ScaleColor = colornames.White
 
-	b := spawnBody(m, e, f, r, entry)
+	b := spawnBody(mass, el, fr, rad, e)
 	b.FirstShape().SetCollisionType(constants.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, constants.BitmaskPlayer, cm.AllCategories&^constants.BitmaskSnowball)
 	b.SetPosition(pos)
 	b.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
-	comp.Body.Set(entry, b)
+	comp.Body.Set(e, b)
 	res.CurrentTool = constants.ItemSnowball
-	return entry
+	return e
 }
 func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 

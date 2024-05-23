@@ -95,18 +95,18 @@ func ResetLevel() {
 
 	player, ok := comp.PlayerTag.First(res.World)
 	if ok {
-		DestroyEntryWithBody(player)
+		destroyEntryWithBody(player)
 		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
 	} else {
 		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
 	}
 
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
-		DestroyEntryWithBody(e)
+		destroyEntryWithBody(e)
 	})
 
 	comp.BombTag.Each(res.World, func(e *donburi.Entry) {
-		DestroyEntryWithBody(e)
+		destroyEntryWithBody(e)
 	})
 
 	// // top room

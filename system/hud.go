@@ -17,6 +17,8 @@ func NewDrawHUDSystem() *DrawHUDSystem {
 	return &DrawHUDSystem{}
 }
 func (hs *DrawHUDSystem) Init() {
+	res.StatsTextOptions.GeoM.Translate(30, 25)
+	res.CenterTextOptions.GeoM.Translate(400, 300)
 }
 
 func (hs *DrawHUDSystem) Update() {
@@ -31,11 +33,10 @@ func (hs *DrawHUDSystem) Draw() {
 			if ok {
 				inv := comp.Inventory.Get(p)
 
-				text.Draw(res.Screen, fmt.Sprintf("%v", inv), res.Futura, res.StatsTextOptions)
+				text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)
 			} else {
-				res.CenterTextOptions.GeoM.Translate(res.ScreenRect.Center().X, res.ScreenRect.Center().X)
+
 				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.FuturaBig, res.CenterTextOptions)
-				res.CenterTextOptions.GeoM.Translate(-res.ScreenRect.Center().X, -res.ScreenRect.Center().X)
 			}
 		}
 	} else {
