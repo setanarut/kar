@@ -2,7 +2,6 @@ package system
 
 import (
 	"kar/comp"
-	"kar/constants"
 	"kar/res"
 
 	"github.com/yohamta/donburi"
@@ -22,7 +21,7 @@ func (s *TimersSystem) Update() {
 	comp.AttackTimer.Each(res.World, func(e *donburi.Entry) {
 		t := comp.AttackTimer.Get(e)
 		if t.Elapsed < t.TimerDuration {
-			t.Elapsed += constants.TimerTick
+			t.Elapsed += res.TimerTick
 
 		}
 	})

@@ -3,7 +3,6 @@ package system
 import (
 	"kar/arche"
 	"kar/comp"
-	"kar/constants"
 	"kar/engine"
 	"kar/res"
 
@@ -40,7 +39,7 @@ func (sys *PlayerControlSystem) Update() {
 		playerRender.AnimPlayer.SetState("right")
 		playerRender.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
-		if res.CurrentTool == constants.ItemSnowball {
+		if res.CurrentTool == res.ItemSnowball {
 
 			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
 
@@ -48,7 +47,7 @@ func (sys *PlayerControlSystem) Update() {
 				playerRender.DrawAngle = res.Input.ArrowDirection.ToAngle()
 
 				// SHOOTING
-				if inventory.Items[constants.ItemSnowball] > 0 {
+				if inventory.Items[res.ItemSnowball] > 0 {
 
 					if timerIsReady(playerAttackTimer) {
 						timerReset(playerAttackTimer)
@@ -59,7 +58,7 @@ func (sys *PlayerControlSystem) Update() {
 						dir := res.Input.ArrowDirection.Normalize().Mult(1000)
 						// spawn snowball
 						bullet := arche.SpawnDefaultSnowball(playerBody.Position())
-						inventory.Items[constants.ItemSnowball] -= 1
+						inventory.Items[res.ItemSnowball] -= 1
 						bulletBody := comp.Body.Get(bullet)
 						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
 					}
@@ -70,24 +69,24 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		if res.CurrentTool == constants.ItemBomb {
+		if res.CurrentTool == res.ItemBomb {
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-				if inventory.Items[constants.ItemBomb] > 0 {
+				if inventory.Items[res.ItemBomb] > 0 {
 					arche.SpawnDefaultBomb(playerBody.Position().Add(res.Input.ArrowDirection.Mult(bombDistance)))
-					inventory.Items[constants.ItemBomb] -= 1
+					inventory.Items[res.ItemBomb] -= 1
 				}
 			}
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			res.CurrentTool = constants.ItemSnowball
+			res.CurrentTool = res.ItemSnowball
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			res.CurrentTool = constants.ItemSnowball
+			res.CurrentTool = res.ItemSnowball
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			res.CurrentTool = constants.ItemBomb
+			res.CurrentTool = res.ItemBomb
 		}
 
 	} // bitiş

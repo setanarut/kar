@@ -2,9 +2,9 @@ package comp
 
 import (
 	"image/color"
-	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/res"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -39,7 +39,7 @@ type DataTimer struct {
 	Elapsed       time.Duration
 }
 type DataInventory struct {
-	Items map[constants.ItemType]int
+	Items map[res.ItemType]int
 }
 
 // Components
@@ -71,9 +71,24 @@ var (
 
 // Tags
 var (
-	PlayerTag   = donburi.NewTag()
-	WallTag     = donburi.NewTag()
-	SnowballTag = donburi.NewTag()
-	BombTag     = donburi.NewTag()
-	EnemyTag    = donburi.NewTag()
+	WASDControll = donburi.NewTag()
+	PlayerTag    = donburi.NewTag()
+	WallTag      = donburi.NewTag()
+	SnowballTag  = donburi.NewTag()
+	BombTag      = donburi.NewTag()
+	EnemyTag     = donburi.NewTag()
 )
+
+func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
+
+	entry, ok := body.UserData.(*donburi.Entry)
+
+	if ok {
+		if entry.Valid() {
+			dataMobile := Mobile.Get(entry)
+			WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
+
+		}
+	}
+}

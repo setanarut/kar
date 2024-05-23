@@ -2,7 +2,6 @@ package system
 
 import (
 	"kar/comp"
-	"kar/constants"
 	"kar/engine/cm"
 	"kar/res"
 	"math"
@@ -11,29 +10,40 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-type CollisionSystem struct {
+type PhysicsSystem struct {
 	DT float64
 }
 
-func NewCollisionSystem() *CollisionSystem {
-	return &CollisionSystem{
+func NewPhysicsSystem() *PhysicsSystem {
+	return &PhysicsSystem{
 		DT: 1.0 / 60.0,
 	}
 }
 
-func (ps *CollisionSystem) Init() {
+func (ps *PhysicsSystem) Init() {
 	res.Space.UseSpatialHash(50, 1000)
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5
 	res.Space.Damping = 0.03
-	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
-	res.Space.NewCollisionHandler(constants.CollPlayer, constants.CollEnemy).SeparateFunc = playerEnemySep
-	res.Space.NewCollisionHandler(constants.CollEnemy, constants.CollPlayer).BeginFunc = enemyPlayerBegin
-	res.Space.NewCollisionHandler(constants.CollSnowball, constants.CollEnemy).BeginFunc = snowballEnemyBegin
+	res.Space.NewCollisionHandler(res.CollEnemy, res.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
+	res.Space.NewCollisionHandler(res.CollPlayer, res.CollEnemy).SeparateFunc = playerEnemySep
+	res.Space.NewCollisionHandler(res.CollEnemy, res.CollPlayer).BeginFunc = enemyPlayerBegin
+	res.Space.NewCollisionHandler(res.CollSnowball, res.CollEnemy).BeginFunc = snowballEnemyBegin
 	res.Space.Step(ps.DT)
 }
 
-func (ps *CollisionSystem) Update() {
+func (ps *PhysicsSystem) Update() {
+
+	comp.WASDControll.Each(res.World, func(e *donburi.Entry) {
+		body := comp.Body.Get(e)
+		dataMobile := comp.Mobile.Get(e)
+		if e.HasComponent(comp.AI) {
+			e.RemoveComponent(comp.WASDControll)
+			WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
+		}
+
+	})
 
 	// düşman takip AI
 	if pla, ok := comp.PlayerTag.First(res.World); ok {
@@ -57,7 +67,7 @@ func (ps *CollisionSystem) Update() {
 
 }
 
-func (ps *CollisionSystem) Draw() {}
+func (ps *PhysicsSystem) Draw() {}
 
 // Enemy <-> Player begin
 func enemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {

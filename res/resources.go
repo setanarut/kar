@@ -4,10 +4,9 @@ import (
 	"embed"
 	"image/color"
 	_ "image/png"
-	"kar/comp"
-	"kar/constants"
 	"kar/engine"
 	"kar/engine/cm"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -17,20 +16,56 @@ import (
 	"golang.org/x/text/language"
 )
 
+const TimerTick = time.Second / 60
+
+const (
+	ItemSnowball ItemType = iota
+	ItemBomb
+	ItemKey
+	ItemPotion
+	ItemAxe
+	ItemShovel
+)
+
+// Collision Bitmask Category
+const (
+	BitmaskPlayer      uint = 1
+	BitmaskEnemy       uint = 2
+	BitmaskBomb        uint = 4
+	BitmaskSnowball    uint = 8
+	BitmaskWall        uint = 16
+	BitmaskDoor        uint = 32
+	BitmaskCollectible uint = 64
+	BitmaskBombRaycast uint = 128
+)
+
+// Collision type
+const (
+	CollPlayer cm.CollisionType = iota
+	CollEnemy
+	CollWall
+	CollSnowball
+	CollBomb
+	CollCollectible
+	CollDoor
+)
+
+type ItemType int
+
 //go:embed assets/*
 var assets embed.FS
 
 var (
-	Screen     *ebiten.Image
-	Camera     *engine.Camera
-	ScreenRect cm.BB
-	World      donburi.World = donburi.NewWorld()
-	Space      *cm.Space     = cm.NewSpace()
+	World donburi.World = donburi.NewWorld()
+	Space *cm.Space     = cm.NewSpace()
 
-	Rooms             []cm.BB = make([]cm.BB, 0)
-	CurrentRoom       cm.BB
+	ScreenRect, CurrentRoom cm.BB
+	Camera                  *engine.Camera
+
+	CurrentTool       ItemType
+	Rooms             []cm.BB              = make([]cm.BB, 0)
 	Input             *engine.InputManager = &engine.InputManager{}
-	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, constants.BitmaskBombRaycast, cm.AllCategories&^constants.BitmaskBomb)
+	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskBombRaycast, cm.AllCategories&^BitmaskBomb)
 	DamageGradient, _                      = colorgrad.NewGradient().
 				HtmlColors("rgb(0, 229, 255)", "rgb(93, 90, 193)", "rgb(255, 0, 123)").
 				Domain(0, 1).
@@ -40,11 +75,15 @@ var (
 )
 
 var (
+	Screen    *ebiten.Image
 	Wall      = ebiten.NewImage(30, 30)
 	Player    = engine.LoadImage("assets/player.png", assets)
 	Items     = engine.LoadImage("assets/items.png", assets)
 	EnemyEyes = engine.LoadImage("assets/enemy_eyes.png", assets)
 	EnemyBody = engine.LoadImage("assets/enemy_body.png", assets)
+)
+
+var (
 	Futura    = engine.LoadTextFace("assets/futura.ttf", 20, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
@@ -62,25 +101,9 @@ var (
 			SecondaryAlign: text.AlignCenter,
 			LineSpacing:    FuturaBig.Size * 1.2},
 	}
-
-	CurrentTool constants.ItemType
 )
 
 func init() {
 	Wall.Fill(color.White)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-}
-
-func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
-
-	entry, ok := body.UserData.(*donburi.Entry)
-
-	if ok {
-		if entry.Valid() {
-			dataMobile := comp.Mobile.Get(entry)
-			WASDAxisVector := Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
-
-		}
-	}
 }

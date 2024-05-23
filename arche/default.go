@@ -24,14 +24,14 @@ func SpawnDefaultBomb(pos cm.Vec2) {
 
 // collectible
 // func SpawnDefaultSnowballCollectible(pos cm.Vec2) {
-// 	SpawnCollectible(constants.ItemSnowball, 1, -1, 5, pos)
+// 	SpawnCollectible(res.ItemSnowball, 1, -1, 5, pos)
 // }
 // func SpawnDefaultEmeticCollectible(pos cm.Vec2) {
-// 	SpawnCollectible(constants.ItemPotion, 1, -1, 13, pos)
+// 	SpawnCollectible(res.ItemPotion, 1, -1, 13, pos)
 // }
 
 // func SpawnDefaultKeyCollectible(keyNumber int, pos cm.Vec2) {
-// 	SpawnCollectible(constants.ItemKey, 1, keyNumber, 13, pos)
+// 	SpawnCollectible(res.ItemKey, 1, keyNumber, 13, pos)
 // }
 
 // Random
@@ -42,7 +42,7 @@ func SpawnDefaultBomb(pos cm.Vec2) {
 // }
 
 // func SpawnRandomKeyCollectible(pos cm.Vec2) {
-// 	SpawnCollectible(constants.ItemKey, 1, engine.RandRangeInt(1, 10), 10, pos)
+// 	SpawnCollectible(res.ItemKey, 1, engine.RandRangeInt(1, 10), 10, pos)
 // }
 
 // func SpawnRandomEnemy(pos cm.Vec2) {
