@@ -36,10 +36,9 @@ func (ps *PhysicsSystem) Update() {
 
 	comp.WASDControll.Each(res.World, func(e *donburi.Entry) {
 		body := comp.Body.Get(e)
-		dataMobile := comp.Mobile.Get(e)
-		WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(dataMobile.Speed)
-		body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, dataMobile.Accel))
-
+		mobileData := comp.Mobile.Get(e)
+		velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
+		body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 	})
 
 	// düşman takip AI
