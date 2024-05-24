@@ -58,9 +58,8 @@ func snowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) 
 	if checkEntries(arb) {
 		snowball, enemy := getEntries(arb)
 		if enemy.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) && enemy.HasComponent(comp.Render) {
-			enemyDamage := comp.Damage.GetValue(snowball)
 			enemyHealth := comp.Health.Get(enemy)
-			*enemyHealth -= enemyDamage
+			*enemyHealth -= comp.Damage.GetValue(snowball)
 		}
 		destroyEntryWithBody(snowball)
 	}

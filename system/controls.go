@@ -30,13 +30,8 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
 
-	// WASD Controller
-	res.QueryWASDcontrollable.Each(res.World, func(e *donburi.Entry) {
-		body := comp.Body.Get(e)
-		mobileData := comp.Mobile.Get(e)
-		velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
-		body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
-	})
+	// WASD system
+	res.QueryWASDcontrollable.Each(res.World, WASDMovement)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
@@ -90,7 +85,7 @@ func (sys *PlayerControlSystem) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeyU) {
 			comp.AI.Each(res.World, func(e *donburi.Entry) {
 				e.RemoveComponent(comp.AI)
-				e.AddComponent(comp.WASDControll)
+				e.AddComponent(comp.WASDTag)
 			})
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
@@ -135,3 +130,10 @@ func RemoveEffect(charData *model.Mobile, effectData *model.EffectData) {
 	charData.Speed -= effectData.AdditiveMovementSpeed
 }
 */
+
+func WASDMovement(e *donburi.Entry) {
+	body := comp.Body.Get(e)
+	mobileData := comp.Mobile.Get(e)
+	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
+	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
+}

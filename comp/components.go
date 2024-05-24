@@ -39,10 +39,10 @@ var (
 
 // Tags
 var (
-	WASDControll = donburi.NewTag()
-	PlayerTag    = donburi.NewTag()
-	WallTag      = donburi.NewTag()
-	SnowballTag  = donburi.NewTag()
-	BombTag      = donburi.NewTag()
-	EnemyTag     = donburi.NewTag()
+	WASDTag     = donburi.NewTag()
+	PlayerTag   = donburi.NewTag()
+	WallTag     = donburi.NewTag()
+	SnowballTag = donburi.NewTag()
+	BombTag     = donburi.NewTag()
+	EnemyTag    = donburi.NewTag()
 )

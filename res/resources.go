@@ -39,8 +39,11 @@ var (
 				Interpolation(colorgrad.InterpolationBasis).
 				Build()
 	QueryWASDcontrollable = donburi.NewQuery(filter.And(
-		filter.Contains(comp.Mobile, comp.WASDControll, comp.Body),
+		filter.Contains(comp.Mobile, comp.WASDTag, comp.Body),
 		filter.Not(filter.Contains(comp.AI))))
+	QueryAI = donburi.NewQuery(filter.And(
+		filter.Contains(comp.Mobile, comp.AI, comp.Body),
+		filter.Not(filter.Contains(comp.WASDTag))))
 )
 
 var (

@@ -33,7 +33,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 		comp.Render,
 		comp.Body,
 		comp.Mobile,
-		comp.WASDControll,
+		comp.WASDTag,
 	))
 	comp.Health.SetValue(e, 100000)
 	comp.Inventory.Set(e, &types.DataInventory{

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/yohamta/donburi"
 )
 
 type System interface {
@@ -17,6 +18,7 @@ type System interface {
 type ItemType int
 
 type DataAI struct {
+	Target         *donburi.Entry
 	Follow         bool
 	FollowDistance float64
 }
