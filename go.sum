@@ -25,6 +25,8 @@ github.com/ojrac/opensimplex-go v1.0.2 h1:l4vs0D+JCakcu5OV0kJ99oEaWJfggSc9jiLpxa
 github.com/ojrac/opensimplex-go v1.0.2/go.mod h1:NwbXFFbXcdGgIFdiA7/REME+7n/lOf1TuEbLiZYOWnM=
 github.com/yohamta/donburi v1.4.2 h1:E0kV235IzNojO2zNk/1PSU5EljtzHIG5gPsJtsf9330=
 github.com/yohamta/donburi v1.4.2/go.mod h1:cx7C0ucl1ugqXSR+OpaCgfezWJXxh7BjTceaTxzO+3E=
+github.com/yohamta/donburi v1.4.3 h1:W/j1RyHurMJvFFOFJ0ZXl3WutLmpMV43Be6yBucsd4Q=
+github.com/yohamta/donburi v1.4.3/go.mod h1:cx7C0ucl1ugqXSR+OpaCgfezWJXxh7BjTceaTxzO+3E=
 golang.org/x/image v0.16.0 h1:9kloLAKhUufZhA12l5fwnx2NZW39/we1UhBesW433jw=
 golang.org/x/image v0.16.0/go.mod h1:ugSZItdV4nOxyqp56HmXwH0Ry0nBCpjnZdpDaIHdoPs=
 golang.org/x/sync v0.7.0 h1:YsImfSBoP9QPYL0xyKJPq0gcaJdG3rInoqxTWbfQu9M=

@@ -20,7 +20,7 @@ require (
 	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/mazznoer/colorgrad v0.9.1
 	github.com/ojrac/opensimplex-go v1.0.2
-	github.com/yohamta/donburi v1.4.2
+	github.com/yohamta/donburi v1.4.3
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0
