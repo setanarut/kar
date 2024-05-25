@@ -35,7 +35,7 @@ func (s *DestroySystem) Init() {
 
 func (s *DestroySystem) Update() {
 	comp.Health.Each(res.World, destroyDead)
-	comp.SnowballTag.Each(res.World, destroyStopped)
+	comp.SnowballTag.Each(res.World, destroyOnCollisionAndStopped)
 }
 
 func (s *DestroySystem) Draw() {}

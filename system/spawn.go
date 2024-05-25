@@ -74,15 +74,11 @@ func (sys *SpawnSystem) Draw() {
 func ResetLevel() {
 	res.CurrentRoom = res.ScreenRect
 	res.Camera.LookAt(res.CurrentRoom.Center())
-	var player *donburi.Entry
-
-	p, ok := comp.PlayerTag.First(res.World)
-
-	if ok {
+	if p, ok := comp.PlayerTag.First(res.World); ok {
 		destroyEntryWithBody(p)
-		player = arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
+		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
 	} else {
-		player = arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
+		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
 	}
 
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
@@ -100,11 +96,7 @@ func ResetLevel() {
 	// center room
 
 	for i := 1; i < 5; i++ {
-		mob := arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[0], 20))
-		if mob.HasComponent(comp.AI) {
-			ai := comp.AI.Get(mob)
-			ai.Target = player
-		}
+		arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[0], 20))
 	}
 	// // bottom room
 	// for i := 8; i < 11; i++ {

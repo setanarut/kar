@@ -67,6 +67,20 @@ func destroyStopped(e *donburi.Entry) {
 		}
 	}
 }
+
+func destroyOnCollisionAndStopped(e *donburi.Entry) {
+	b := comp.Body.Get(e)
+	b.EachArbiter(func(a *cm.Arbiter) {
+		if checkEntries(a) {
+			snow, _ := getEntries(a)
+			destroyEntryWithBody(snow)
+		}
+	})
+	if e.Valid() {
+		destroyStopped(e)
+	}
+}
+
 func destroyDead(e *donburi.Entry) {
 	if e.HasComponent(comp.Health) {
 		if comp.Health.GetValue(e) < 1 {

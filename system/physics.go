@@ -33,6 +33,7 @@ func (ps *PhysicsSystem) Init() {
 }
 
 func (ps *PhysicsSystem) Update() {
+
 	res.Space.Step(ps.DT)
 
 }

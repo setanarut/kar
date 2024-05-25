@@ -1,7 +1,9 @@
 package arche
 
 import (
+	"kar/comp"
 	"kar/engine/cm"
+	"kar/res"
 
 	"github.com/yohamta/donburi"
 )
@@ -10,8 +12,12 @@ func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
 	return SpawnPlayer(1, 0.3, 0.5, 22, pos)
 
 }
-func SpawnDefaultMob(pos cm.Vec2) *donburi.Entry {
-	return SpawnMob(1, 0.3, 0.5, 20, pos)
+func SpawnDefaultMob(pos cm.Vec2) {
+	mob := SpawnMob(1, 0.3, 0.5, 20, pos)
+	if p, ok := comp.PlayerTag.First(res.World); ok {
+		ai := comp.AI.Get(mob)
+		ai.Target = p
+	}
 }
 
 func SpawnDefaultSnowball(pos cm.Vec2) *donburi.Entry {
