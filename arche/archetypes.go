@@ -7,6 +7,7 @@ import (
 	"kar/res"
 	"kar/types"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 )
@@ -49,7 +50,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	render.AnimPlayer.AddStateAnimation("shoot", 0, 0, w, w, 1, false)
 	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
 	render.AnimPlayer.SetFPS(9)
-
+	render.DIO.Filter = ebiten.FilterNearest
 	render.DrawScale = engine.GetCircleScaleFactor(rad, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.ScaleColor = colornames.White
@@ -167,14 +168,14 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	comp.Body.Set(entry, wallShape.Body())
 
 	render := comp.Render.Get(entry)
-
+	render.DIO.Filter = ebiten.FilterNearest
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Wall)
 	imW := res.Wall.Bounds().Dx()
 	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1, false)
 	render.DrawScale = engine.GetBoxScaleFactor(float64(imW), float64(imW), boxW, boxH)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
-	render.ScaleColor = colornames.Blue
+	render.ScaleColor = colornames.Gray
 	return entry
 }
 

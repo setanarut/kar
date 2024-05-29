@@ -19,9 +19,15 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 }
 
 func (ds *DrawCameraSystem) Init() {
+	res.Camera.DrawOptions.Filter = ebiten.FilterNearest
 }
 
 func (ds *DrawCameraSystem) Update() {
+	p, ok := comp.PlayerTag.First(res.World)
+	if ok {
+		pos := comp.Body.Get(p).Position()
+		res.Camera.LookAt(engine.InvPosVectY(pos, res.ScreenRect.T))
+	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
 		res.Camera.ZoomFactor -= 1
@@ -29,8 +35,6 @@ func (ds *DrawCameraSystem) Update() {
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
 		res.Camera.ZoomFactor += 1
 	}
-
-	res.Camera.LookAt(engine.InvPosVectY(res.CurrentRoom.Center(), res.ScreenRect.T))
 
 	comp.Render.Each(res.World, func(e *donburi.Entry) {
 		comp.Render.Get(e).AnimPlayer.Update()

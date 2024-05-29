@@ -4,6 +4,7 @@ import (
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
+	"kar/engine/cm"
 	"kar/res"
 	"kar/types"
 
@@ -31,7 +32,9 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateWASDDirection()
 
 	// WASD system
-	res.QueryWASDcontrollable.Each(res.World, WASDMovement)
+	// res.QueryWASDcontrollable.Each(res.World, WASDMovementForce)
+	res.QueryWASDcontrollable.Each(res.World, WASDMovementGravity)
+	// res.QueryWASDcontrollable.Each(res.World, WASDMovement)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
@@ -136,4 +139,27 @@ func WASDMovement(e *donburi.Entry) {
 	mobileData := comp.Mobile.Get(e)
 	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
 	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
+}
+func WASDMovementGravity(e *donburi.Entry) {
+	vel := cm.Vec2{}
+	body := comp.Body.Get(e)
+	mobileData := comp.Mobile.Get(e)
+	// velocity = velocity.Add(cm.Vec2{0, -500})
+	vel.X = res.Input.WASDDirection.X
+	vel = vel.Mult(mobileData.Speed)
+	vel.Y += res.Space.Gravity.Y
+	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
+	// body.ApplyForceAtLocalPoint(vel, body.CenterOfGravity())
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 800}, body.CenterOfGravity())
+	}
+
+}
+
+func WASDMovementForce(e *donburi.Entry) {
+	body := comp.Body.Get(e)
+	mobileData := comp.Mobile.Get(e)
+	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
+	body.ApplyForceAtLocalPoint(velocity, body.CenterOfGravity())
 }

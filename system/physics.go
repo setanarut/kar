@@ -21,10 +21,12 @@ func NewPhysicsSystem() *PhysicsSystem {
 }
 
 func (ps *PhysicsSystem) Init() {
-	res.Space.UseSpatialHash(50, 1000)
-	res.Space.CollisionBias = math.Pow(0.3, 60)
-	res.Space.CollisionSlop = 0.5
-	res.Space.Damping = 0.03
+	// res.Space.UseSpatialHash(50, 1000)
+	res.Space.CollisionBias = math.Pow(0.2, 60)
+	res.Space.CollisionSlop = 0.3
+	res.Space.Damping = 0.5
+	// res.Space.Iterations = 20
+	res.Space.SetGravity(cm.Vec2{0, -2000})
 	res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
 	res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
 	res.Space.NewCollisionHandler(types.CollPlayer, types.CollEnemy).SeparateFunc = playerEnemySep

@@ -1,6 +1,7 @@
 package system
 
 import (
+	"image/color"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
@@ -21,21 +22,6 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (sys *SpawnSystem) Init() {
-	res.CurrentRoom = res.ScreenRect
-
-	res.Rooms = make([]cm.BB, 0)
-	res.Rooms = append(res.Rooms, res.CurrentRoom)                                        // middle 0
-	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{0, res.CurrentRoom.T}))  // top 1
-	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{0, -res.CurrentRoom.T})) // bottom 2
-	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{-res.CurrentRoom.R, 0})) // left 3
-	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{res.CurrentRoom.R, 0}))  // right 4
-
-	arche.SpawnRoom(res.Rooms[0], arche.RoomOptions{true, true, true, true, 1, 2, 3, 4})
-	arche.SpawnRoom(res.Rooms[1], arche.RoomOptions{true, false, true, true, 5, -1, 6, 7})
-	arche.SpawnRoom(res.Rooms[2], arche.RoomOptions{false, true, true, true, -1, 8, 9, 10})
-	arche.SpawnRoom(res.Rooms[3], arche.RoomOptions{true, true, true, false, 11, 12, 13, -1})
-	arche.SpawnRoom(res.Rooms[4], arche.RoomOptions{true, true, false, true, 14, 15, -1, 16})
-
 	ResetLevel()
 
 }
@@ -72,13 +58,14 @@ func (sys *SpawnSystem) Draw() {
 }
 
 func ResetLevel() {
-	res.CurrentRoom = res.ScreenRect
-	res.Camera.LookAt(res.CurrentRoom.Center())
+
+	res.Camera.Reset()
+
 	if p, ok := comp.PlayerTag.First(res.World); ok {
 		destroyEntryWithBody(p)
-		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
+		arche.SpawnDefaultPlayer(cm.Vec2{0, 100})
 	} else {
-		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
+		arche.SpawnDefaultPlayer(cm.Vec2{0, 100})
 	}
 
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
@@ -89,18 +76,13 @@ func ResetLevel() {
 		destroyEntryWithBody(e)
 	})
 
-	// // top room
-	// for i := 5; i < 8; i++ {
-	// 	arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[1], 20))
-	// }
-	// center room
+	for y := 0; y > -1000; y -= 100 {
+		for x := 0; x < 1000; x += 100 {
+			p := cm.Vec2{float64(x), float64(y)}
+			e := arche.SpawnWall(p.Round(), 100, 100)
+			r := comp.Render.Get(e)
+			r.ScaleColor = color.Gray{uint8(engine.RandRangeInt(0, 255))}
+		}
 
-	for i := 1; i < 5; i++ {
-		arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[0], 20))
 	}
-	// // bottom room
-	// for i := 8; i < 11; i++ {
-	// 	arche.SpawnDefaultMob(engine.RandomPointInBB(res.Rooms[2], 20))
-	// }
-
 }

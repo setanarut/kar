@@ -14,7 +14,7 @@ import (
 
 var (
 	Mobile = donburi.NewComponentType[types.DataMobile](types.DataMobile{
-		Speed: 350,
+		Speed: 800,
 		Accel: 80,
 	})
 
@@ -22,7 +22,7 @@ var (
 		Offset:     cm.Vec2{},
 		DrawScale:  cm.Vec2{1, 1},
 		DrawAngle:  0.0,
-		DIO:        &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear},
+		DIO:        &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest},
 		ScaleColor: color.White,
 	})
 
