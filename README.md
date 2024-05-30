@@ -1,7 +1,2 @@
-Kar - Top-down 2D game
-
-
-- [ ] bombaya zamanlayıcı ekle
-- [ ] alet kullanımı için raycast
-- [ ] sağ sol el kısayolu ekle
-- [ ] minecraft tarzı blok kırma
+1. Keşfedilmemiş chunk'a oyuncu girdiğinde simplexnoise ile ütretip harita değişkenine ekle.
+2. Kefşedilmiş ise harita değişkeninden yükle/kaldır
