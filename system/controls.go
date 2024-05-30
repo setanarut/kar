@@ -32,9 +32,8 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateWASDDirection()
 
 	// WASD system
-	// res.QueryWASDcontrollable.Each(res.World, WASDMovementForce)
-	res.QueryWASDcontrollable.Each(res.World, WASDMovementGravity)
-	// res.QueryWASDcontrollable.Each(res.World, WASDMovement)
+	res.QueryWASDcontrollable.Each(res.World, WASDMovementForce)
+	// res.QueryWASDcontrollable.Each(res.World, WASDMovementVel)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
@@ -134,32 +133,40 @@ func RemoveEffect(charData *model.Mobile, effectData *model.EffectData) {
 }
 */
 
-func WASDMovement(e *donburi.Entry) {
-	body := comp.Body.Get(e)
-	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
-	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
-}
-func WASDMovementGravity(e *donburi.Entry) {
+func WASDMovementForce(e *donburi.Entry) {
 	vel := cm.Vec2{}
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	// velocity = velocity.Add(cm.Vec2{0, -500})
+
 	vel.X = res.Input.WASDDirection.X
 	vel = vel.Mult(mobileData.Speed)
-	vel.Y += res.Space.Gravity.Y
-	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
-	// body.ApplyForceAtLocalPoint(vel, body.CenterOfGravity())
+	bv := body.Velocity()
+	body.SetVelocity(bv.X*0.9, bv.Y)
+	if bv.X > 500 {
+		body.SetVelocity(500, bv.Y)
+	}
+	if bv.X < -500 {
+		body.SetVelocity(-500, bv.Y)
+	}
+
+	body.ApplyForceAtLocalPoint(vel, body.CenterOfGravity())
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 800}, body.CenterOfGravity())
+		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 600}, body.CenterOfGravity())
 	}
 
 }
-
-func WASDMovementForce(e *donburi.Entry) {
+func WASDMovementVel(e *donburi.Entry) {
+	vel := cm.Vec2{}
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
-	body.ApplyForceAtLocalPoint(velocity, body.CenterOfGravity())
+	vel.X = res.Input.WASDDirection.X
+	vel = vel.Mult(mobileData.Speed)
+	vel = vel.Add(cm.Vec2{0, -500})
+	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 1200}, body.CenterOfGravity())
+	}
+
 }

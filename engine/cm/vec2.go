@@ -39,6 +39,11 @@ func (v Vec2) Mult(s float64) Vec2 {
 	return Vec2{v.X * s, v.Y * s}
 }
 
+// MultV scales vector with other
+func (v Vec2) MultV(other Vec2) Vec2 {
+	return Vec2{v.X * other.X, v.Y * other.Y}
+}
+
 // Dot returns dot product
 func (v Vec2) Dot(other Vec2) float64 {
 	return v.X*other.X + v.Y*other.Y

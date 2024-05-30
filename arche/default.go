@@ -9,7 +9,7 @@ import (
 )
 
 func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
-	return SpawnPlayer(0.5, 0.3, 0, 22, pos)
+	return SpawnPlayer(1, 0, 0, 24, pos)
 
 }
 func SpawnDefaultMob(pos cm.Vec2) {

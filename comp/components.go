@@ -14,7 +14,7 @@ import (
 
 var (
 	Mobile = donburi.NewComponentType[types.DataMobile](types.DataMobile{
-		Speed: 800,
+		Speed: 3000,
 		Accel: 80,
 	})
 

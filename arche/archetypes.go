@@ -13,6 +13,7 @@ import (
 )
 
 func spawnBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
+	// body := cm.NewKinematicBody()
 	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewCircle(body, r, cm.Vec2{})
 	shape.SetElasticity(e)
@@ -59,7 +60,6 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	b.FirstShape().SetCollisionType(types.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskPlayer, cm.AllCategories&^types.BitmaskSnowball)
 	b.SetPosition(pos)
-	// b.SetVelocityUpdateFunc(comp.PlayerVelocityFunc)
 	comp.Body.Set(e, b)
 	res.CurrentTool = types.ItemSnowball
 	return e
