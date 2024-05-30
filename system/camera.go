@@ -30,10 +30,10 @@ func (ds *DrawCameraSystem) Update() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
-		res.Camera.ZoomFactor -= 1
+		res.Camera.ZoomFactor -= 5
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
-		res.Camera.ZoomFactor += 1
+		res.Camera.ZoomFactor += 5
 	}
 
 	comp.Render.Each(res.World, func(e *donburi.Entry) {

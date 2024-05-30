@@ -1,7 +1,6 @@
 package system
 
 import (
-	"image/color"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
@@ -76,12 +75,13 @@ func ResetLevel() {
 		destroyEntryWithBody(e)
 	})
 
-	for y := 0; y > -1000; y -= 100 {
-		for x := 0; x < 1000; x += 100 {
+	for y := 0; y > -1024; y -= 64 {
+		for x := 0; x < 1024; x += 64 {
 			p := cm.Vec2{float64(x), float64(y)}
-			e := arche.SpawnWall(p.Round(), 100, 100)
-			r := comp.Render.Get(e)
-			r.ScaleColor = color.Gray{uint8(engine.RandRangeInt(0, 255))}
+			if engine.RandRangeInt(0, 1) == 1 {
+				arche.SpawnWall(p.Round(), 64, 64)
+
+			}
 		}
 
 	}
