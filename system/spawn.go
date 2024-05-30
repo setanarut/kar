@@ -5,6 +5,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/terr"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -13,6 +14,7 @@ import (
 )
 
 type SpawnSystem struct {
+	Terr terr.Terrain
 }
 
 func NewSpawnSystem() *SpawnSystem {
@@ -21,7 +23,8 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (sys *SpawnSystem) Init() {
-	ResetLevel()
+	sys.Terr = *terr.NewTerrain(12, 128, 8)
+	ResetLevel(&sys.Terr)
 
 }
 
@@ -29,7 +32,7 @@ func (sys *SpawnSystem) Update() {
 
 	// Reset Level
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		ResetLevel()
+		ResetLevel(&sys.Terr)
 	}
 
 	// worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
@@ -56,7 +59,7 @@ func (sys *SpawnSystem) Update() {
 func (sys *SpawnSystem) Draw() {
 }
 
-func ResetLevel() {
+func ResetLevel(terra *terr.Terrain) {
 
 	res.Camera.Reset()
 
@@ -74,13 +77,13 @@ func ResetLevel() {
 	comp.BombTag.Each(res.World, func(e *donburi.Entry) {
 		destroyEntryWithBody(e)
 	})
+	terra.NoiseOptions.Frequency = 0.1
 
-	for y := 0; y > -1024; y -= 64 {
-		for x := 0; x < 1024; x += 64 {
-			p := cm.Vec2{float64(x), float64(y)}
-			if engine.RandRangeInt(0, 1) == 1 {
-				arche.SpawnWall(p.Round(), 64, 64)
-
+	for y := 0; y > -terra.MapSize; y-- {
+		for x := 0; x < terra.MapSize; x++ {
+			if terra.GetBlockValue(x, y) > 0.5 {
+				pos := cm.Vec2{float64(x) * 64, float64(y) * 64}
+				arche.SpawnWall(pos.Round(), 64, 64)
 			}
 		}
 

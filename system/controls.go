@@ -152,7 +152,7 @@ func WASDMovementForce(e *donburi.Entry) {
 	body.ApplyForceAtLocalPoint(vel, body.CenterOfGravity())
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 600}, body.CenterOfGravity())
+		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 400}, body.CenterOfGravity())
 	}
 
 }

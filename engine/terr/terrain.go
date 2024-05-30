@@ -126,8 +126,8 @@ func DefaultNoiseOptions() NoiseOptions {
 	return NoiseOptions{
 		Amplitude:   1,
 		Frequency:   0.03,
-		Persistence: 0.5,
-		Lacunarity:  2.0,
+		Persistence: 0.,
+		Lacunarity:  0.,
 		Octaves:     1,
 	}
 }
