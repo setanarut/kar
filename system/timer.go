@@ -23,7 +23,6 @@ func (s *TimersSystem) Update() {
 		t := comp.AttackTimer.Get(e)
 		if t.Elapsed < t.TimerDuration {
 			t.Elapsed += types.TimerTick
-
 		}
 	})
 
@@ -35,10 +34,14 @@ func (s *TimersSystem) Draw() {}
 // 	return t.TimerDuration - t.Elapsed
 // }
 
-// func timerRemainingSecondsString(t *comp.DataTimer) string {
-// 	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
-// }
-
+//	func timerRemainingSecondsString(t *comp.DataTimer) string {
+//		return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
+//	}
+func timerUpdate(t *types.DataTimer) {
+	if t.Elapsed < t.TimerDuration {
+		t.Elapsed += types.TimerTick
+	}
+}
 func timerReset(t *types.DataTimer) {
 	t.Elapsed = 0
 }

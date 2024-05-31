@@ -8,14 +8,19 @@ import (
 	"kar/engine/cm"
 	"kar/engine/terr"
 	"kar/res"
+	"kar/types"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/yohamta/donburi"
 )
 
+var spawnTick int
+
 type SpawnSystem struct {
-	Terr *terr.Terrain
+	Terr           *terr.Terrain
+	spawnTimerData *types.DataTimer
 }
 
 func NewSpawnSystem() *SpawnSystem {
@@ -24,6 +29,10 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (sys *SpawnSystem) Init() {
+	sys.spawnTimerData = &types.DataTimer{
+		TimerDuration: time.Second * 2,
+		Elapsed:       0,
+	}
 	sys.Terr = terr.NewTerrain(342)
 	sys.Terr.NoiseOptions.Frequency = 0.2
 	sys.Terr.Generate()
@@ -31,11 +40,18 @@ func (sys *SpawnSystem) Init() {
 
 }
 
-func (sys *SpawnSystem) Update() {
-
+func (s *SpawnSystem) Update() {
+	timerUpdate(s.spawnTimerData)
+	if timerIsReady(s.spawnTimerData) {
+		if spawnTick > -32 {
+			spawnTick--
+			s.Terr.SpawnChunk(image.Point{0, spawnTick}, arche.SpawnBlock)
+		}
+		timerReset(s.spawnTimerData)
+	}
 	// Reset Level
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		ResetLevel(sys.Terr)
+		ResetLevel(s.Terr)
 	}
 
 	// worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
@@ -59,13 +75,13 @@ func (sys *SpawnSystem) Update() {
 
 }
 
-func (sys *SpawnSystem) Draw() {
+func (s *SpawnSystem) Draw() {
 }
 
 func ResetLevel(tr *terr.Terrain) {
 
 	res.Camera.Reset()
-	playerSpawnPosition := cm.Vec2{-2 * 50, -2 * 50}
+	playerSpawnPosition := cm.Vec2{0 * 50, 0 * 50}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		destroyEntryWithBody(player)
@@ -83,10 +99,10 @@ func ResetLevel(tr *terr.Terrain) {
 		destroyEntryWithBody(e)
 	})
 
-	chunkCoord := tr.ChunkCoord(playerSpawnPosition).Div(50)
-	tr.SpawnChunk(chunkCoord, arche.SpawnBlock)
-	tr.SpawnChunk(chunkCoord.Add(image.Point{0, 1}), arche.SpawnBlock)
-	tr.SpawnChunk(chunkCoord.Add(image.Point{0, 2}), arche.SpawnBlock)
-	tr.SpawnChunk(chunkCoord.Add(image.Point{1, 0}), arche.SpawnBlock)
-	tr.SpawnChunk(chunkCoord.Add(image.Point{2, 0}), arche.SpawnBlock)
+	// chunkCoord := tr.ChunkCoord(playerSpawnPosition, 50)
+	// tr.SpawnChunk(image.Point{0, 0}, arche.SpawnBlock)
+	// tr.SpawnChunk(image.Point{-1, 0}, arche.SpawnBlock)
+	// tr.SpawnChunk(image.Point{1, 0}, arche.SpawnBlock)
+	// tr.SpawnChunk(image.Point{0, -1}, arche.SpawnBlock)
+	// tr.SpawnChunk(image.Point{0, 1}, arche.SpawnBlock)
 }

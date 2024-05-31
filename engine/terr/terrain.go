@@ -54,9 +54,10 @@ func (tr *Terrain) WriteChunkImage(chunkCoordX, chunkCoordY int, filename string
 	WriteImage(img, filename)
 }
 
-func (tr *Terrain) ChunkCoord(pos cm.Vec2) image.Point {
+func (tr *Terrain) ChunkCoord(pos cm.Vec2, blockSize int) image.Point {
 	cs := float64(tr.ChunkSize)
-	return image.Point{int(math.Floor(float64(pos.X) / cs)), int(math.Floor(float64(pos.Y) / cs))}
+	chunkCoord := image.Point{int(math.Floor(float64(pos.X) / cs)), int(math.Floor(float64(pos.Y) / cs))}
+	return chunkCoord.Div(blockSize)
 }
 
 func (tr *Terrain) WriteMapImage() {
@@ -75,17 +76,19 @@ func (tr *Terrain) ChunkImage(chunkCoordX, chunkCoordY int) *image.RGBA {
 	}
 	return img
 }
-func (tr *Terrain) SpawnChunk(coord image.Point, callback func(pos cm.Vec2)) {
+
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)) {
+	translatedCenterCoord := chunkCoord.Add(image.Point{32, 32})
 	for y := 0; y < tr.ChunkSize; y++ {
 		for x := 0; x < tr.ChunkSize; x++ {
-			blockCoordX := x + (tr.ChunkSize * coord.X)
-			blockCoordY := y + (tr.ChunkSize * coord.Y)
+			blockCoordX := x + (tr.ChunkSize * translatedCenterCoord.X)
+			blockCoordY := y + (tr.ChunkSize * translatedCenterCoord.Y)
 			blockNumber := tr.TerrainData1024[blockCoordX][blockCoordY]
-			p := cm.Vec2{float64(blockCoordX), float64(blockCoordY)}
-			p = p.Mult(50) // blok boyutu
-
+			blockPos := cm.Vec2{float64(blockCoordX), float64(blockCoordY)}
+			blockPos = blockPos.Add(cm.Vec2{-512, -512})
+			blockPos = blockPos.Mult(50) // blok boyutu
 			if blockNumber > 128 {
-				callback(p)
+				callback(blockPos)
 			}
 		}
 	}
