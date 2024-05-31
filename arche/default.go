@@ -27,6 +27,9 @@ func SpawnDefaultSnowball(pos cm.Vec2) *donburi.Entry {
 func SpawnDefaultBomb(pos cm.Vec2) {
 	SpawnBomb(1, 0.1, 0, 20, pos)
 }
+func SpawnBlock(pos cm.Vec2) {
+	SpawnWall(pos, 50, 50)
+}
 
 // collectible
 // func SpawnDefaultSnowballCollectible(pos cm.Vec2) {

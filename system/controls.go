@@ -32,7 +32,8 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateWASDDirection()
 
 	// WASD system
-	res.QueryWASDcontrollable.Each(res.World, WASDMovementForce)
+	res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
+	// res.QueryWASDcontrollable.Each(res.World, WASDMovementForce)
 	// res.QueryWASDcontrollable.Each(res.World, WASDMovementVel)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
@@ -121,18 +122,6 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-/* func AddEffect(charData *model.Mobile, effectData *model.EffectData) {
-	charData.SnowballPerCooldown += effectData.ExtraSnowballPerAttack
-	charData.ShootCooldown.Target += effectData.AdditiveShootCooldown
-	charData.Speed += effectData.AdditiveMovementSpeed
-}
-func RemoveEffect(charData *model.Mobile, effectData *model.EffectData) {
-	charData.SnowballPerCooldown -= effectData.ExtraSnowballPerAttack
-	charData.ShootCooldown.Target -= effectData.AdditiveShootCooldown
-	charData.Speed -= effectData.AdditiveMovementSpeed
-}
-*/
-
 func WASDMovementForce(e *donburi.Entry) {
 	vel := cm.Vec2{}
 	body := comp.Body.Get(e)
@@ -169,4 +158,11 @@ func WASDMovementVel(e *donburi.Entry) {
 		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 1200}, body.CenterOfGravity())
 	}
 
+}
+
+func WASD4Directional(e *donburi.Entry) {
+	body := comp.Body.Get(e)
+	mobileData := comp.Mobile.Get(e)
+	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
+	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 }

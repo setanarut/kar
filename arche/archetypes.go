@@ -146,7 +146,6 @@ func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 }
 
 func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
-
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
 	wallShape.Filter = cm.NewShapeFilter(0, types.BitmaskWall, cm.AllCategories)

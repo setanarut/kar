@@ -2,6 +2,7 @@ package cm
 
 import (
 	"fmt"
+	"image"
 	"math"
 )
 
@@ -37,11 +38,6 @@ func (v Vec2) Neg() Vec2 {
 // Mult scales vector
 func (v Vec2) Mult(s float64) Vec2 {
 	return Vec2{v.X * s, v.Y * s}
-}
-
-// MultV scales vector with other
-func (v Vec2) MultV(other Vec2) Vec2 {
-	return Vec2{v.X * other.X, v.Y * other.Y}
 }
 
 // Dot returns dot product
@@ -194,6 +190,11 @@ func (v Vec2) ClosestPointOnSegment(a, b Vec2) Vec2 {
 // Round returns the nearest integer Vector, rounding half away from zero.
 func (v Vec2) Round() Vec2 {
 	return Vec2{math.Round(v.X), math.Round(v.Y)}
+}
+
+// Point returns Vec2 as image.Point
+func (v Vec2) Point() image.Point {
+	return image.Point{int(v.X), int(v.Y)}
 }
 
 func Clamp(f, min, max float64) float64 {

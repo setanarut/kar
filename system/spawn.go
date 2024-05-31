@@ -23,6 +23,7 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (sys *SpawnSystem) Init() {
+	sys.Terr.Generate(true)
 	ResetLevel(&sys.Terr)
 
 }
@@ -58,15 +59,17 @@ func (sys *SpawnSystem) Update() {
 func (sys *SpawnSystem) Draw() {
 }
 
-func ResetLevel(terra *terr.Terrain) {
+func ResetLevel(tr *terr.Terrain) {
 
 	res.Camera.Reset()
+	playerSpawnPosition := cm.Vec2{0, 100}
 
-	if p, ok := comp.PlayerTag.First(res.World); ok {
-		destroyEntryWithBody(p)
-		arche.SpawnDefaultPlayer(cm.Vec2{0, 100})
+	if player, ok := comp.PlayerTag.First(res.World); ok {
+		destroyEntryWithBody(player)
+
+		arche.SpawnDefaultPlayer(playerSpawnPosition)
 	} else {
-		arche.SpawnDefaultPlayer(cm.Vec2{0, 100})
+		arche.SpawnDefaultPlayer(playerSpawnPosition)
 	}
 
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
@@ -77,13 +80,7 @@ func ResetLevel(terra *terr.Terrain) {
 		destroyEntryWithBody(e)
 	})
 
-	// for y := 0; y > -terra.MapSize; y-- {
-	// 	for x := 0; x < terra.MapSize; x++ {
-	// 		if terra.GetBlockValue(x, y) > 0.5 {
-	// 			pos := cm.Vec2{float64(x) * 64, float64(y) * 64}
-	// 			arche.SpawnWall(pos.Round(), 64, 64)
-	// 		}
-	// 	}
-
-	// }
+	chunkCoord := tr.ChunkCoord(playerSpawnPosition)
+	chunkCoord.Y--
+	tr.SpawnChunk(chunkCoord, arche.SpawnBlock)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kar/comp"
 	"kar/res"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -28,14 +29,16 @@ func (hs *DrawHUDSystem) Draw() {
 
 	if ebiten.IsFocused() {
 		// inventory
-		if false {
+		if true {
 			p, ok := comp.PlayerTag.First(res.World)
 			if ok {
-				inv := comp.Inventory.Get(p)
-
-				text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)
+				// inv := comp.Inventory.Get(p)
+				pos := comp.Body.Get(p).Position().Point()
+				fps := int(math.Round(ebiten.ActualFPS()))
+				tps := int(math.Round(ebiten.ActualTPS()))
+				// text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)
+				text.Draw(res.Screen, fmt.Sprintf("FPS %v TPS %v POS %v", fps, tps, pos), res.Futura, res.StatsTextOptions)
 			} else {
-
 				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.FuturaBig, res.CenterTextOptions)
 			}
 		}
@@ -49,8 +52,8 @@ func (hs *DrawHUDSystem) Draw() {
 	}
 
 	// debug
-	if true {
-		text.Draw(res.Screen, fmt.Sprintf("FPS%v | TPS%v", ebiten.ActualFPS(), ebiten.ActualTPS()), res.Futura, res.StatsTextOptions)
+	if false {
+		text.Draw(res.Screen, fmt.Sprintf("FPS=%v TPS=%v", ebiten.ActualFPS(), ebiten.ActualTPS()), res.Futura, res.StatsTextOptions)
 
 	}
 }
