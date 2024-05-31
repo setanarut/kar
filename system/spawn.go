@@ -1,6 +1,7 @@
 package system
 
 import (
+	"image"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
@@ -14,7 +15,7 @@ import (
 )
 
 type SpawnSystem struct {
-	Terr terr.Terrain
+	Terr *terr.Terrain
 }
 
 func NewSpawnSystem() *SpawnSystem {
@@ -23,8 +24,10 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (sys *SpawnSystem) Init() {
-	sys.Terr.Generate(true)
-	ResetLevel(&sys.Terr)
+	sys.Terr = terr.NewTerrain(342)
+	sys.Terr.NoiseOptions.Frequency = 0.2
+	sys.Terr.Generate()
+	ResetLevel(sys.Terr)
 
 }
 
@@ -32,7 +35,7 @@ func (sys *SpawnSystem) Update() {
 
 	// Reset Level
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		ResetLevel(&sys.Terr)
+		ResetLevel(sys.Terr)
 	}
 
 	// worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
@@ -62,7 +65,7 @@ func (sys *SpawnSystem) Draw() {
 func ResetLevel(tr *terr.Terrain) {
 
 	res.Camera.Reset()
-	playerSpawnPosition := cm.Vec2{0, 100}
+	playerSpawnPosition := cm.Vec2{-2 * 50, -2 * 50}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		destroyEntryWithBody(player)
@@ -80,7 +83,10 @@ func ResetLevel(tr *terr.Terrain) {
 		destroyEntryWithBody(e)
 	})
 
-	chunkCoord := tr.ChunkCoord(playerSpawnPosition)
-	chunkCoord.Y--
+	chunkCoord := tr.ChunkCoord(playerSpawnPosition).Div(50)
 	tr.SpawnChunk(chunkCoord, arche.SpawnBlock)
+	tr.SpawnChunk(chunkCoord.Add(image.Point{0, 1}), arche.SpawnBlock)
+	tr.SpawnChunk(chunkCoord.Add(image.Point{0, 2}), arche.SpawnBlock)
+	tr.SpawnChunk(chunkCoord.Add(image.Point{1, 0}), arche.SpawnBlock)
+	tr.SpawnChunk(chunkCoord.Add(image.Point{2, 0}), arche.SpawnBlock)
 }

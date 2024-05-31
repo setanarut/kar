@@ -33,7 +33,7 @@ func (hs *DrawHUDSystem) Draw() {
 			p, ok := comp.PlayerTag.First(res.World)
 			if ok {
 				// inv := comp.Inventory.Get(p)
-				pos := comp.Body.Get(p).Position().Point()
+				pos := comp.Body.Get(p).Position().Point().Div(50)
 				fps := int(math.Round(ebiten.ActualFPS()))
 				tps := int(math.Round(ebiten.ActualTPS()))
 				// text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)

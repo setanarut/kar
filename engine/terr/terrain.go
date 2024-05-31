@@ -1,7 +1,6 @@
 package terr
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -30,15 +29,10 @@ func NewTerrain(seed int64) *Terrain {
 	return terr
 }
 
-func (tr *Terrain) Generate(threshold bool) {
+func (tr *Terrain) Generate() {
 	for y := 0; y < tr.TerrainSize; y++ {
 		for x := 0; x < tr.TerrainSize; x++ {
-			if threshold {
-				tr.TerrainData1024[x][y] = uint8(math.Round(tr.Eval2WithOptions(x, y)) * 255)
-			} else {
-				tr.TerrainData1024[x][y] = uint8(tr.Eval2WithOptions(x, y) * 255)
-			}
-
+			tr.TerrainData1024[x][y] = uint8(tr.Eval2WithOptions(x, y) * 255)
 		}
 	}
 }
@@ -82,18 +76,15 @@ func (tr *Terrain) ChunkImage(chunkCoordX, chunkCoordY int) *image.RGBA {
 	return img
 }
 func (tr *Terrain) SpawnChunk(coord image.Point, callback func(pos cm.Vec2)) {
-	fmt.Println("deneme1")
-
 	for y := 0; y < tr.ChunkSize; y++ {
 		for x := 0; x < tr.ChunkSize; x++ {
-			fmt.Println("deneme2")
 			blockCoordX := x + (tr.ChunkSize * coord.X)
 			blockCoordY := y + (tr.ChunkSize * coord.Y)
 			blockNumber := tr.TerrainData1024[blockCoordX][blockCoordY]
 			p := cm.Vec2{float64(blockCoordX), float64(blockCoordY)}
 			p = p.Mult(50) // blok boyutu
 
-			if blockNumber == 255 {
+			if blockNumber > 128 {
 				callback(p)
 			}
 		}
