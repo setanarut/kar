@@ -1,7 +1,6 @@
 package system
 
 import (
-	"image"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
@@ -13,7 +12,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/yohamta/donburi"
 )
 
 var spawnTick int
@@ -36,32 +34,32 @@ func (sys *SpawnSystem) Init() {
 	sys.Terr = terr.NewTerrain(342)
 	sys.Terr.NoiseOptions.Frequency = 0.2
 	sys.Terr.Generate()
-	ResetLevel(sys.Terr)
+	ResetLevel()
 
 }
 
 func (s *SpawnSystem) Update() {
-	timerUpdate(s.spawnTimerData)
-	if timerIsReady(s.spawnTimerData) {
-		if spawnTick > -32 {
-			spawnTick--
-			s.Terr.SpawnChunk(image.Point{0, spawnTick}, arche.SpawnBlock)
-		}
-		timerReset(s.spawnTimerData)
-	}
+	/* 	timerUpdate(s.spawnTimerData)
+	   	if timerIsReady(s.spawnTimerData) {
+	   		if spawnTick > -32 {
+	   			spawnTick--
+	   			s.Terr.SpawnChunk(image.Point{0, spawnTick}, arche.SpawnBlock)
+	   		}
+	   		timerReset(s.spawnTimerData)
+	   	} */
 	// Reset Level
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		ResetLevel(s.Terr)
+		// ResetLevel()
+		// res.Camera.ZoomFactor = 0
+		comp.WallTag.Each(res.World, destroyEntryWithBody)
 	}
 
-	// worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
-	// cursor := engine.InvPosVectY(worldPos, res.CurrentRoom.T)
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
-
-		for range 4 {
-			// arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.CurrentRoom, 64))
-			arche.SpawnDefaultMob(engine.RandomPointInBB(res.CurrentRoom, 64))
+		if player, ok := comp.PlayerTag.First(res.World); ok {
+			pos := comp.Body.Get(player).Position()
+			chunkPos := s.Terr.ChunkCoord(pos, 50)
+			s.Terr.SpawnChunk(chunkPos, arche.SpawnBlock)
 		}
 
 	}
@@ -78,10 +76,10 @@ func (s *SpawnSystem) Update() {
 func (s *SpawnSystem) Draw() {
 }
 
-func ResetLevel(tr *terr.Terrain) {
+func ResetLevel() {
 
 	res.Camera.Reset()
-	playerSpawnPosition := cm.Vec2{0 * 50, 0 * 50}
+	playerSpawnPosition := cm.Vec2{0, 0}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		destroyEntryWithBody(player)
@@ -91,18 +89,4 @@ func ResetLevel(tr *terr.Terrain) {
 		arche.SpawnDefaultPlayer(playerSpawnPosition)
 	}
 
-	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
-		destroyEntryWithBody(e)
-	})
-
-	comp.BombTag.Each(res.World, func(e *donburi.Entry) {
-		destroyEntryWithBody(e)
-	})
-
-	// chunkCoord := tr.ChunkCoord(playerSpawnPosition, 50)
-	// tr.SpawnChunk(image.Point{0, 0}, arche.SpawnBlock)
-	// tr.SpawnChunk(image.Point{-1, 0}, arche.SpawnBlock)
-	// tr.SpawnChunk(image.Point{1, 0}, arche.SpawnBlock)
-	// tr.SpawnChunk(image.Point{0, -1}, arche.SpawnBlock)
-	// tr.SpawnChunk(image.Point{0, 1}, arche.SpawnBlock)
 }

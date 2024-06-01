@@ -78,14 +78,16 @@ func (tr *Terrain) ChunkImage(chunkCoordX, chunkCoordY int) *image.RGBA {
 }
 
 func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)) {
-	translatedCenterCoord := chunkCoord.Add(image.Point{32, 32})
+	// translatedCenterCoord := chunkCoord.Add(image.Point{32, 32})
 	for y := 0; y < tr.ChunkSize; y++ {
 		for x := 0; x < tr.ChunkSize; x++ {
-			blockCoordX := x + (tr.ChunkSize * translatedCenterCoord.X)
-			blockCoordY := y + (tr.ChunkSize * translatedCenterCoord.Y)
+			blockCoordX := x + (tr.ChunkSize * chunkCoord.X)
+			blockCoordY := y + (tr.ChunkSize * chunkCoord.Y)
+			// blockCoordX := x + (tr.ChunkSize * translatedCenterCoord.X)
+			// blockCoordY := y + (tr.ChunkSize * translatedCenterCoord.Y)
 			blockNumber := tr.TerrainData1024[blockCoordX][blockCoordY]
 			blockPos := cm.Vec2{float64(blockCoordX), float64(blockCoordY)}
-			blockPos = blockPos.Add(cm.Vec2{-512, -512})
+			// blockPos = blockPos.Add(cm.Vec2{-512, -512})
 			blockPos = blockPos.Mult(50) // blok boyutu
 			if blockNumber > 128 {
 				callback(blockPos)
