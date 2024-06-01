@@ -5,73 +5,75 @@ import (
 	"image/color"
 	"image/png"
 	"kar/engine/cm"
+	"math"
 	"os"
 
 	"github.com/ojrac/opensimplex-go"
 )
 
 type Terrain struct {
-	TerrainData1024 [1024][1024]uint8
-	NoiseOptions    NoiseOptions
-	Noise           opensimplex.Noise
-	ChunkSize       float64
-	TerrainSize     float64
+	TerrainImg   *image.Gray
+	NoiseOptions NoiseOptions
+	Noise        opensimplex.Noise
+	ChunkSize    float64
 }
 
-func NewTerrain(seed int64) *Terrain {
+func NewTerrain(seed int64, chunkSize float64) *Terrain {
 	terr := &Terrain{
 		NoiseOptions: DefaultNoiseOptions(),
 		Noise:        opensimplex.NewNormalized(seed),
-		ChunkSize:    16,
-		TerrainSize:  1024,
+		ChunkSize:    chunkSize,
 	}
 	return terr
 }
 
-func (tr *Terrain) Generate() {
-	for y := 0; y < int(tr.TerrainSize); y++ {
-		for x := 0; x < int(tr.TerrainSize); x++ {
-			tr.TerrainData1024[x][y] = uint8(tr.Eval2WithOptions(x, y) * 255)
+func (tr *Terrain) Generate(threshold bool) {
+	tr.TerrainImg = image.NewGray(image.Rect(0, 0, 1024, 1024))
+	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
+		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
+			v := tr.Eval2WithOptions(x, y)
+			if threshold {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(math.Round(v)) * 255})
+			} else {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(v * 255)})
+			}
 		}
 	}
-}
-
-func (tr *Terrain) MapImage() *image.RGBA {
-	terraSize := int(tr.TerrainSize)
-	img := image.NewRGBA(image.Rect(0, 0, int(tr.TerrainSize), int(tr.TerrainSize)))
-	for y := 0; y < terraSize; y++ {
-		for x := 0; x < terraSize; x++ {
-			value := tr.TerrainData1024[x][y]
-			img.Set(x, terraSize-y, color.Gray{value})
-		}
-	}
-	return img
 }
 
 func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
 	img := tr.ChunkImage(chunkCoord)
-	// WriteImage(img, "chunk ("+strconv.Itoa(chunkCoordX)+", "+strconv.Itoa(chunkCoordY)+").png")
 	WriteImage(img, filename)
 }
 
 func (tr *Terrain) ChunkCoord(pos cm.Vec2, blockSize float64) image.Point {
-
 	return pos.Div(tr.ChunkSize).Floor().Div(blockSize).Point()
 }
 
 func (tr *Terrain) WriteMapImage() {
-	img := tr.MapImage()
-	WriteImage(img, "map.png")
+	WriteImage(tr.MapImageInvertY(), "map.png")
 }
 
-func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.RGBA {
+func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.Gray {
 	chunksize := int(tr.ChunkSize)
-	img := image.NewRGBA(image.Rect(0, 0, chunksize, chunksize))
+	img := image.NewGray(image.Rect(0, 0, chunksize, chunksize))
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
-			value := tr.TerrainData1024[x+(chunksize*chunkCoord.X)][y+(chunksize*chunkCoord.Y)]
+			gray := tr.TerrainImg.GrayAt(x+(chunksize*chunkCoord.X), y+(chunksize*chunkCoord.Y))
 			// resim için y eksenini ters çevir
-			img.Set(x, chunksize-y, color.Gray{value})
+			img.Set(x, chunksize-y, gray)
+		}
+	}
+	return img
+}
+func (tr *Terrain) MapImageInvertY() *image.Gray {
+	size := tr.TerrainImg.Bounds().Dx()
+	img := image.NewGray(image.Rect(0, 0, size, size))
+	for y := 0; y < size; y++ {
+		for x := 0; x < size; x++ {
+			gray := tr.TerrainImg.GrayAt(x, y)
+			// resim için y eksenini ters çevir
+			img.Set(x, size-y, gray)
 		}
 	}
 	return img
@@ -81,12 +83,12 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
-			blockCoordX := x + (chunksize * chunkCoord.X)
-			blockCoordY := y + (chunksize * chunkCoord.Y)
-			blockNumber := tr.TerrainData1024[blockCoordX][blockCoordY]
-			blockPos := cm.Vec2{float64(blockCoordX), float64(blockCoordY)}
+			blockX := x + (chunksize * chunkCoord.X)
+			blockY := y + (chunksize * chunkCoord.Y)
+			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
+			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Mult(50) // blok boyutu
-			if blockNumber > 128 {
+			if blockNumber.Y > 128 {
 				callback(blockPos)
 			}
 		}
@@ -97,7 +99,7 @@ func (tr *Terrain) Eval2WithOptions(x, y int) float64 {
 	return eval2WithOpts(x, y, tr.Noise, tr.NoiseOptions)
 }
 
-func WriteImage(img *image.RGBA, filename string) {
+func WriteImage(img *image.Gray, filename string) {
 	file, err := os.Create(filename)
 	if err != nil {
 		panic(err.Error())
@@ -121,7 +123,7 @@ type NoiseOptions struct {
 func DefaultNoiseOptions() NoiseOptions {
 	return NoiseOptions{
 		Amplitude:   1,
-		Frequency:   0.03,
+		Frequency:   0.2,
 		Persistence: 0.,
 		Lacunarity:  0.,
 		Octaves:     1,

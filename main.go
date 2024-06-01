@@ -10,7 +10,6 @@ import (
 var Deneme = "Deneme"
 
 func main() {
-
 	g := NewGame()
 	g.Init()
 	ebiten.SetScreenClearedEveryFrame(false)

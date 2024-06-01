@@ -1,6 +1,8 @@
 package system
 
 import (
+	"fmt"
+	"image"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine"
@@ -15,6 +17,8 @@ import (
 )
 
 var spawnTick int
+var playerChunk image.Point
+var playerChunkTemp image.Point
 
 type SpawnSystem struct {
 	Terr           *terr.Terrain
@@ -31,14 +35,27 @@ func (sys *SpawnSystem) Init() {
 		TimerDuration: time.Second * 2,
 		Elapsed:       0,
 	}
-	sys.Terr = terr.NewTerrain(342)
+	sys.Terr = terr.NewTerrain(342, 16)
 	sys.Terr.NoiseOptions.Frequency = 0.2
-	sys.Terr.Generate()
+	sys.Terr.Generate(true)
 	ResetLevel()
 
 }
 
 func (s *SpawnSystem) Update() {
+
+	if player, ok := comp.PlayerTag.First(res.World); ok {
+		pos := comp.Body.Get(player).Position()
+		playerChunk := s.Terr.ChunkCoord(pos, 50)
+
+		if playerChunkTemp != playerChunk {
+			playerChunkTemp = playerChunk
+			fmt.Println(playerChunkTemp)
+		}
+
+		// s.Terr.SpawnChunk(chunkcoord, arche.SpawnBlock)
+	}
+
 	/* 	timerUpdate(s.spawnTimerData)
 	   	if timerIsReady(s.spawnTimerData) {
 	   		if spawnTick > -32 {
