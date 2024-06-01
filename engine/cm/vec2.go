@@ -25,6 +25,11 @@ func (v Vec2) Add(other Vec2) Vec2 {
 	return Vec2{v.X + other.X, v.Y + other.Y}
 }
 
+// DivScalar divide
+func (v Vec2) Div(number float64) Vec2 {
+	return Vec2{v.X / number, v.Y / number}
+}
+
 // Sub returns this - other
 func (v Vec2) Sub(other Vec2) Vec2 {
 	return Vec2{v.X - other.X, v.Y - other.Y}
@@ -190,6 +195,11 @@ func (v Vec2) ClosestPointOnSegment(a, b Vec2) Vec2 {
 // Round returns the nearest integer Vector, rounding half away from zero.
 func (v Vec2) Round() Vec2 {
 	return Vec2{math.Round(v.X), math.Round(v.Y)}
+}
+
+// Floor vector
+func (v Vec2) Floor() Vec2 {
+	return Vec2{math.Floor(v.X), math.Floor(v.Y)}
 }
 
 // Point returns Vec2 as image.Point

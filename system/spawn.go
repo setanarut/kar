@@ -58,8 +58,8 @@ func (s *SpawnSystem) Update() {
 
 		if player, ok := comp.PlayerTag.First(res.World); ok {
 			pos := comp.Body.Get(player).Position()
-			chunkPos := s.Terr.ChunkCoord(pos, 50)
-			s.Terr.SpawnChunk(chunkPos, arche.SpawnBlock)
+			chunkcoord := s.Terr.ChunkCoord(pos, 50)
+			s.Terr.SpawnChunk(chunkcoord, arche.SpawnBlock)
 		}
 
 	}

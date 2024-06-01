@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"image/png"
 	"kar/engine/cm"
-	"math"
 	"os"
 
 	"github.com/ojrac/opensimplex-go"
@@ -15,8 +14,8 @@ type Terrain struct {
 	TerrainData1024 [1024][1024]uint8
 	NoiseOptions    NoiseOptions
 	Noise           opensimplex.Noise
-	ChunkSize       int
-	TerrainSize     int
+	ChunkSize       float64
+	TerrainSize     float64
 }
 
 func NewTerrain(seed int64) *Terrain {
@@ -30,34 +29,34 @@ func NewTerrain(seed int64) *Terrain {
 }
 
 func (tr *Terrain) Generate() {
-	for y := 0; y < tr.TerrainSize; y++ {
-		for x := 0; x < tr.TerrainSize; x++ {
+	for y := 0; y < int(tr.TerrainSize); y++ {
+		for x := 0; x < int(tr.TerrainSize); x++ {
 			tr.TerrainData1024[x][y] = uint8(tr.Eval2WithOptions(x, y) * 255)
 		}
 	}
 }
 
 func (tr *Terrain) MapImage() *image.RGBA {
-	img := image.NewRGBA(image.Rect(0, 0, tr.TerrainSize, tr.TerrainSize))
-	for y := 0; y < tr.TerrainSize; y++ {
-		for x := 0; x < tr.TerrainSize; x++ {
+	terraSize := int(tr.TerrainSize)
+	img := image.NewRGBA(image.Rect(0, 0, int(tr.TerrainSize), int(tr.TerrainSize)))
+	for y := 0; y < terraSize; y++ {
+		for x := 0; x < terraSize; x++ {
 			value := tr.TerrainData1024[x][y]
-			img.Set(x, tr.TerrainSize-y, color.Gray{value})
+			img.Set(x, terraSize-y, color.Gray{value})
 		}
 	}
 	return img
 }
 
-func (tr *Terrain) WriteChunkImage(chunkCoordX, chunkCoordY int, filename string) {
-	img := tr.ChunkImage(chunkCoordX, chunkCoordY)
+func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
+	img := tr.ChunkImage(chunkCoord)
 	// WriteImage(img, "chunk ("+strconv.Itoa(chunkCoordX)+", "+strconv.Itoa(chunkCoordY)+").png")
 	WriteImage(img, filename)
 }
 
-func (tr *Terrain) ChunkCoord(pos cm.Vec2, blockSize int) image.Point {
-	cs := float64(tr.ChunkSize)
-	chunkCoord := image.Point{int(math.Floor(float64(pos.X) / cs)), int(math.Floor(float64(pos.Y) / cs))}
-	return chunkCoord.Div(blockSize)
+func (tr *Terrain) ChunkCoord(pos cm.Vec2, blockSize float64) image.Point {
+
+	return pos.Div(tr.ChunkSize).Floor().Div(blockSize).Point()
 }
 
 func (tr *Terrain) WriteMapImage() {
@@ -65,29 +64,27 @@ func (tr *Terrain) WriteMapImage() {
 	WriteImage(img, "map.png")
 }
 
-func (tr *Terrain) ChunkImage(chunkCoordX, chunkCoordY int) *image.RGBA {
-	img := image.NewRGBA(image.Rect(0, 0, tr.ChunkSize, tr.ChunkSize))
-	for y := 0; y < tr.ChunkSize; y++ {
-		for x := 0; x < tr.ChunkSize; x++ {
-			value := tr.TerrainData1024[x+(tr.ChunkSize*chunkCoordX)][y+(tr.ChunkSize*chunkCoordY)]
+func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.RGBA {
+	chunksize := int(tr.ChunkSize)
+	img := image.NewRGBA(image.Rect(0, 0, chunksize, chunksize))
+	for y := 0; y < chunksize; y++ {
+		for x := 0; x < chunksize; x++ {
+			value := tr.TerrainData1024[x+(chunksize*chunkCoord.X)][y+(chunksize*chunkCoord.Y)]
 			// resim için y eksenini ters çevir
-			img.Set(x, tr.ChunkSize-y, color.Gray{value})
+			img.Set(x, chunksize-y, color.Gray{value})
 		}
 	}
 	return img
 }
 
 func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)) {
-	// translatedCenterCoord := chunkCoord.Add(image.Point{32, 32})
-	for y := 0; y < tr.ChunkSize; y++ {
-		for x := 0; x < tr.ChunkSize; x++ {
-			blockCoordX := x + (tr.ChunkSize * chunkCoord.X)
-			blockCoordY := y + (tr.ChunkSize * chunkCoord.Y)
-			// blockCoordX := x + (tr.ChunkSize * translatedCenterCoord.X)
-			// blockCoordY := y + (tr.ChunkSize * translatedCenterCoord.Y)
+	chunksize := int(tr.ChunkSize)
+	for y := 0; y < chunksize; y++ {
+		for x := 0; x < chunksize; x++ {
+			blockCoordX := x + (chunksize * chunkCoord.X)
+			blockCoordY := y + (chunksize * chunkCoord.Y)
 			blockNumber := tr.TerrainData1024[blockCoordX][blockCoordY]
 			blockPos := cm.Vec2{float64(blockCoordX), float64(blockCoordY)}
-			// blockPos = blockPos.Add(cm.Vec2{-512, -512})
 			blockPos = blockPos.Mult(50) // blok boyutu
 			if blockNumber > 128 {
 				callback(blockPos)
