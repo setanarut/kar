@@ -56,11 +56,11 @@ func (sys *PlayerControlSystem) Update() {
 				// SHOOTING
 				if inventory.Items[types.ItemSnowball] > 0 {
 
-					if timerIsReady(playerAttackTimer) {
-						timerReset(playerAttackTimer)
+					if TimerIsReady(playerAttackTimer) {
+						TimerReset(playerAttackTimer)
 					}
 
-					if timerIsStart(playerAttackTimer) {
+					if TimerIsStart(playerAttackTimer) {
 						// dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
 						dir := res.Input.ArrowDirection.Normalize().Mult(1000)
 						// spawn snowball

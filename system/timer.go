@@ -37,18 +37,18 @@ func (s *TimersSystem) Draw() {}
 //	func timerRemainingSecondsString(t *comp.DataTimer) string {
 //		return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
 //	}
-func timerUpdate(t *types.DataTimer) {
+func TimerUpdate(t *types.DataTimer) {
 	if t.Elapsed < t.TimerDuration {
 		t.Elapsed += types.TimerTick
 	}
 }
-func timerReset(t *types.DataTimer) {
+func TimerReset(t *types.DataTimer) {
 	t.Elapsed = 0
 }
 
-func timerIsReady(t *types.DataTimer) bool {
+func TimerIsReady(t *types.DataTimer) bool {
 	return t.Elapsed > t.TimerDuration
 }
-func timerIsStart(t *types.DataTimer) bool {
+func TimerIsStart(t *types.DataTimer) bool {
 	return t.Elapsed == 0
 }

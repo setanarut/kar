@@ -1,6 +1,7 @@
 package terr
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -11,11 +12,27 @@ import (
 	"github.com/ojrac/opensimplex-go"
 )
 
+var (
+	dogu      = image.Point{1, 0}
+	kuzeydogu = image.Point{1, 1}
+	kuzey     = image.Point{0, 1}
+	kuzeybati = image.Point{-1, 1}
+	bati      = image.Point{-1, 0}
+	guneybati = image.Point{-1, -1}
+	guney     = image.Point{0, -1}
+	guneydogu = image.Point{1, -1}
+
+	yonler         = [8]image.Point{dogu, kuzeydogu, kuzey, kuzeybati, bati, guneybati, guney, guneydogu}
+	willLoadChunks = [9]image.Point{}
+)
+
 type Terrain struct {
 	TerrainImg   *image.Gray
 	NoiseOptions NoiseOptions
 	Noise        opensimplex.Noise
 	ChunkSize    float64
+
+	loadedChunks [9]image.Point
 }
 
 func NewTerrain(seed int64, chunkSize float64) *Terrain {
@@ -25,6 +42,44 @@ func NewTerrain(seed int64, chunkSize float64) *Terrain {
 		ChunkSize:    chunkSize,
 	}
 	return terr
+}
+
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)) {
+	chunksize := int(tr.ChunkSize)
+	for y := 0; y < chunksize; y++ {
+		for x := 0; x < chunksize; x++ {
+			blockX := x + (chunksize * chunkCoord.X)
+			blockY := y + (chunksize * chunkCoord.Y)
+			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
+			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
+			blockPos = blockPos.Mult(50) // blok boyutu
+			if blockNumber.Y > 128 {
+				callback(blockPos)
+			}
+		}
+	}
+}
+
+func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec2)) {
+	yuklenen := make([]image.Point, 0)
+	willLoadChunks[8] = playerChunk
+	for i, v := range yonler {
+		willLoadChunks[i] = playerChunk.Add(v)
+	}
+
+	for _, willLoad := range willLoadChunks {
+		if !arrayContains(tr.loadedChunks, willLoad) {
+			yuklenen = append(yuklenen, willLoad)
+			tr.SpawnChunk(willLoad, callback)
+		}
+	}
+	fmt.Println(len(yuklenen))
+
+	tr.loadedChunks = willLoadChunks
+}
+
+func (tr *Terrain) LoadedChunks() [9]image.Point {
+	return tr.loadedChunks
 }
 
 func (tr *Terrain) Generate(threshold bool) {
@@ -79,22 +134,6 @@ func (tr *Terrain) MapImageInvertY() *image.Gray {
 	return img
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)) {
-	chunksize := int(tr.ChunkSize)
-	for y := 0; y < chunksize; y++ {
-		for x := 0; x < chunksize; x++ {
-			blockX := x + (chunksize * chunkCoord.X)
-			blockY := y + (chunksize * chunkCoord.Y)
-			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
-			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
-			blockPos = blockPos.Mult(50) // blok boyutu
-			if blockNumber.Y > 128 {
-				callback(blockPos)
-			}
-		}
-	}
-}
-
 func (tr *Terrain) Eval2WithOptions(x, y int) float64 {
 	return eval2WithOpts(x, y, tr.Noise, tr.NoiseOptions)
 }
@@ -138,4 +177,13 @@ func eval2WithOpts(x, y int, nois opensimplex.Noise, o NoiseOptions) float64 {
 		o.Frequency *= o.Lacunarity
 	}
 	return total
+}
+
+func arrayContains(arr [9]image.Point, elem image.Point) bool {
+	for _, v := range arr {
+		if v == elem {
+			return true
+		}
+	}
+	return false
 }

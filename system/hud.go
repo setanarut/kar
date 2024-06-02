@@ -37,7 +37,12 @@ func (hs *DrawHUDSystem) Draw() {
 				fps := int(math.Round(ebiten.ActualFPS()))
 				tps := int(math.Round(ebiten.ActualTPS()))
 				// text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)
-				text.Draw(res.Screen, fmt.Sprintf("FPS %v TPS %v POS %v", fps, tps, pos), res.Futura, res.StatsTextOptions)
+				text.Draw(res.Screen,
+					fmt.Sprintf(
+						"FPS %v TPS %v POS %v Chunk %v",
+						fps, tps, pos, playerChunkTemp,
+					),
+					res.Futura, res.StatsTextOptions)
 			} else {
 				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.FuturaBig, res.CenterTextOptions)
 			}

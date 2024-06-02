@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"image"
 	"kar/arche"
 	"kar/comp"
@@ -16,8 +15,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-var spawnTick int
-var playerChunk image.Point
+// var spawnTick int
 var playerChunkTemp image.Point
 
 type SpawnSystem struct {
@@ -50,7 +48,6 @@ func (s *SpawnSystem) Update() {
 
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
-			fmt.Println(playerChunkTemp)
 		}
 
 		// s.Terr.SpawnChunk(chunkcoord, arche.SpawnBlock)
@@ -76,7 +73,7 @@ func (s *SpawnSystem) Update() {
 		if player, ok := comp.PlayerTag.First(res.World); ok {
 			pos := comp.Body.Get(player).Position()
 			chunkcoord := s.Terr.ChunkCoord(pos, 50)
-			s.Terr.SpawnChunk(chunkcoord, arche.SpawnBlock)
+			s.Terr.SpawnChunks(chunkcoord, arche.SpawnBlock)
 		}
 
 	}
