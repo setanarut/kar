@@ -47,12 +47,9 @@ var (
 )
 
 var (
-	Screen    *ebiten.Image
-	Wall      = ebiten.NewImage(30, 30)
-	Player    = engine.LoadImage("assets/player.png", assets)
-	Items     = engine.LoadImage("assets/items.png", assets)
-	EnemyEyes = engine.LoadImage("assets/enemy_eyes.png", assets)
-	EnemyBody = engine.LoadImage("assets/enemy_body.png", assets)
+	Screen *ebiten.Image
+	Wall   = ebiten.NewImage(30, 30)
+	Player = engine.LoadImage("assets/player.png", assets)
 )
 
 var (

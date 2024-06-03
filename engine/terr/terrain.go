@@ -14,38 +14,48 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-var (
-	dogu      = image.Point{1, 0}
-	kuzeydogu = image.Point{1, 1}
-	kuzey     = image.Point{0, 1}
-	kuzeybati = image.Point{-1, 1}
-	bati      = image.Point{-1, 0}
-	guneybati = image.Point{-1, -1}
-	guney     = image.Point{0, -1}
-	guneydogu = image.Point{1, -1}
-	yonler    = [8]image.Point{dogu, kuzeydogu, kuzey, kuzeybati, bati, guneybati, guney, guneydogu}
-)
+var mooreNeighbours = [8]image.Point{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}
 
 type Terrain struct {
-	TerrainImg   *image.Gray
-	NoiseOptions NoiseOptions
-	Noise        opensimplex.Noise
-	ChunkSize    float64
+	TerrainImg           *image.Gray
+	NoiseOptions         NoiseOptions
+	Noise                opensimplex.Noise
+	ChunkSize, BlockSize float64
 
 	LoadedChunks map[image.Point]bool
+
+	threshold bool
+	mapSize   int
 }
 
-func NewTerrain(seed int64, chunkSize float64) *Terrain {
+func NewTerrain(seed int64, mapSize int, chunkSize int, blockSize int) *Terrain {
 	terr := &Terrain{
 		NoiseOptions: DefaultNoiseOptions(),
 		Noise:        opensimplex.NewNormalized(seed),
-		ChunkSize:    chunkSize,
+		ChunkSize:    float64(chunkSize),
+		BlockSize:    float64(blockSize),
 		LoadedChunks: make(map[image.Point]bool),
+		mapSize:      mapSize,
+		threshold:    true,
 	}
 	return terr
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2, chunkCoord image.Point)) {
+func (tr *Terrain) Generate() {
+	tr.TerrainImg = image.NewGray(image.Rect(0, 0, tr.mapSize, tr.mapSize))
+	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
+		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
+			v := tr.Eval2WithOptions(x, y)
+			if tr.threshold {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(math.Round(v)) * 255})
+			} else {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(v * 255)})
+			}
+		}
+	}
+}
+
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
@@ -53,24 +63,15 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2,
 			blockY := y + (chunksize * chunkCoord.Y)
 			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
 			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
-			blockPos = blockPos.Mult(50) // blok boyutu
+			blockPos = blockPos.Mult(tr.BlockSize)
 			if blockNumber.Y > 128 {
-				callback(blockPos, chunkCoord)
+				blockSpawnCallbackFunc(blockPos, chunkCoord)
 			}
 		}
 	}
 }
 
-func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
-	comp.ChunkCoord.Each(res.World, func(e *donburi.Entry) {
-		if comp.ChunkCoord.Get(e).ChunkCoord == chunkCoord {
-			b := comp.Body.Get(e)
-			DestroyBodyWithEntry(b)
-		}
-	})
-
-}
-func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec2, chunkCoord image.Point)) {
+func (tr *Terrain) SpawnChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
 
 	if !tr.LoadedChunks[playerChunk] {
 		tr.LoadedChunks[playerChunk] = true
@@ -78,7 +79,7 @@ func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec
 		tr.LoadedChunks[playerChunk] = false
 	}
 
-	for _, v := range yonler {
+	for _, v := range mooreNeighbours {
 		chunkCoord := playerChunk.Add(v)
 		if !tr.LoadedChunks[chunkCoord] {
 			tr.LoadedChunks[chunkCoord] = true
@@ -95,28 +96,23 @@ func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec
 
 	for key, v := range tr.LoadedChunks {
 		if v {
-			tr.SpawnChunk(key, callback)
+			tr.SpawnChunk(key, blockSpawnCallbackFunc)
 		} else {
 			if Distance(key, playerChunk) > 2 {
 				tr.DeSpawnChunk(key)
+				delete(tr.LoadedChunks, key)
 			}
-			// tr.DeSpawnChunk(key)
 		}
 	}
 }
 
-func (tr *Terrain) Generate(threshold bool, mapSize int) {
-	tr.TerrainImg = image.NewGray(image.Rect(0, 0, mapSize, mapSize))
-	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
-		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
-			v := tr.Eval2WithOptions(x, y)
-			if threshold {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(math.Round(v)) * 255})
-			} else {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(v * 255)})
-			}
+func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
+	comp.ChunkCoord.Each(res.World, func(e *donburi.Entry) {
+		if comp.ChunkCoord.Get(e).ChunkCoord == chunkCoord {
+			b := comp.Body.Get(e)
+			DestroyBodyWithEntry(b)
 		}
-	}
+	})
 }
 
 func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
@@ -124,12 +120,16 @@ func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
 	WriteImage(img, filename)
 }
 
-func (tr *Terrain) ChunkCoord(pos cm.Vec2, blockSize float64) image.Point {
-	return pos.Div(tr.ChunkSize).Floor().Div(blockSize).Point()
+func (tr *Terrain) ChunkCoord(pos cm.Vec2) image.Point {
+	return pos.Div(tr.ChunkSize).Floor().Div(tr.BlockSize).Point()
 }
 
-func (tr *Terrain) WriteMapImage() {
-	WriteImage(tr.MapImageInvertY(), "map.png")
+func (tr *Terrain) WriteTerrainImage(flipVertical bool) {
+	if flipVertical {
+		WriteImage(tr.TerrainImageFlipVertical(), "map.png")
+	} else {
+		WriteImage(tr.TerrainImg, "map.png")
+	}
 }
 
 func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.Gray {
@@ -144,7 +144,7 @@ func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.Gray {
 	}
 	return img
 }
-func (tr *Terrain) MapImageInvertY() *image.Gray {
+func (tr *Terrain) TerrainImageFlipVertical() *image.Gray {
 	size := tr.TerrainImg.Bounds().Dx()
 	img := image.NewGray(image.Rect(0, 0, size, size))
 	for y := 0; y < size; y++ {

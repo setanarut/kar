@@ -13,8 +13,6 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-var bombDistance float64 = 40
-
 type PlayerControlSystem struct {
 }
 
@@ -30,11 +28,7 @@ func (sys *PlayerControlSystem) Update() {
 
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
-
-	// WASD system
 	res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
-	// res.QueryWASDcontrollable.Each(res.World, WASDMovementForce)
-	// res.QueryWASDcontrollable.Each(res.World, WASDMovementVel)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
@@ -76,15 +70,6 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		if res.CurrentTool == types.ItemBomb {
-			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-				if inventory.Items[types.ItemBomb] > 0 {
-					arche.SpawnDefaultBomb(playerBody.Position().Add(res.Input.ArrowDirection.Mult(bombDistance)))
-					inventory.Items[types.ItemBomb] -= 1
-				}
-			}
-		}
-
 		if inpututil.IsKeyJustPressed(ebiten.KeyU) {
 			comp.AI.Each(res.World, func(e *donburi.Entry) {
 				e.RemoveComponent(comp.AI)
@@ -99,7 +84,7 @@ func (sys *PlayerControlSystem) Update() {
 			res.CurrentTool = types.ItemBomb
 		}
 
-	} // bitiş
+	}
 
 	// Explode all bombs
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -122,7 +107,7 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func WASDMovementForce(e *donburi.Entry) {
+func WASDPlatformerForce(e *donburi.Entry) {
 	vel := cm.Vec2{}
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
@@ -145,7 +130,7 @@ func WASDMovementForce(e *donburi.Entry) {
 	}
 
 }
-func WASDMovementVel(e *donburi.Entry) {
+func WASDPlatformer(e *donburi.Entry) {
 	vel := cm.Vec2{}
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)

@@ -44,32 +44,11 @@ func (ds *DrawCameraSystem) Update() {
 
 func (ds *DrawCameraSystem) Draw() {
 
-	// arka plan
+	// clear color
 	res.Screen.Fill(color.Gray{0})
 
 	comp.WallTag.Each(res.World, ds.DrawEntry)
-
-	comp.Door.Each(res.World, func(e *donburi.Entry) {
-		render := comp.Render.Get(e)
-		doorData := comp.Door.Get(e)
-
-		if doorData.Open {
-			render.ScaleColor = color.RGBA{0, 0, 0, 0}
-		} else {
-			if doorData.PlayerHasKey {
-				render.ScaleColor = color.RGBA{0, 255, 0, 255}
-			} else {
-				render.ScaleColor = color.RGBA{0, 0, 200, 255}
-			}
-		}
-
-		ds.DrawEntry(e)
-
-	})
-
-	comp.BombTag.Each(res.World, ds.DrawEntry)
 	comp.SnowballTag.Each(res.World, ds.DrawEntry)
-	comp.EnemyTag.Each(res.World, ds.DrawEntry)
 	if e, ok := comp.PlayerTag.First(res.World); ok {
 		ds.DrawEntry(e)
 	}
