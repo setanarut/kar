@@ -105,8 +105,8 @@ func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec
 	}
 }
 
-func (tr *Terrain) Generate(threshold bool) {
-	tr.TerrainImg = image.NewGray(image.Rect(0, 0, 1024, 1024))
+func (tr *Terrain) Generate(threshold bool, mapSize int) {
+	tr.TerrainImg = image.NewGray(image.Rect(0, 0, mapSize, mapSize))
 	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
 		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
 			v := tr.Eval2WithOptions(x, y)
