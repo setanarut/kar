@@ -14,7 +14,7 @@ import (
 
 var (
 	Mobile = donburi.NewComponentType[types.DataMobile](types.DataMobile{
-		Speed: 1500,
+		Speed: 500,
 		Accel: 80,
 	})
 
@@ -35,6 +35,7 @@ var (
 	PoisonTimer = donburi.NewComponentType[types.DataTimer](types.DataTimer{TimerDuration: time.Second * 5})
 	AI          = donburi.NewComponentType[types.DataAI](types.DataAI{Follow: false, FollowDistance: 300})
 	Door        = donburi.NewComponentType[types.DataDoor]()
+	ChunkCoord  = donburi.NewComponentType[types.DataBlock]()
 )
 
 // Tags

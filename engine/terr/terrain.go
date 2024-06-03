@@ -1,15 +1,17 @@
 package terr
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
+	"kar/comp"
 	"kar/engine/cm"
+	"kar/res"
 	"math"
 	"os"
 
 	"github.com/ojrac/opensimplex-go"
+	"github.com/yohamta/donburi"
 )
 
 var (
@@ -21,9 +23,7 @@ var (
 	guneybati = image.Point{-1, -1}
 	guney     = image.Point{0, -1}
 	guneydogu = image.Point{1, -1}
-
-	yonler         = [8]image.Point{dogu, kuzeydogu, kuzey, kuzeybati, bati, guneybati, guney, guneydogu}
-	willLoadChunks = [9]image.Point{}
+	yonler    = [8]image.Point{dogu, kuzeydogu, kuzey, kuzeybati, bati, guneybati, guney, guneydogu}
 )
 
 type Terrain struct {
@@ -32,7 +32,7 @@ type Terrain struct {
 	Noise        opensimplex.Noise
 	ChunkSize    float64
 
-	loadedChunks [9]image.Point
+	LoadedChunks map[image.Point]bool
 }
 
 func NewTerrain(seed int64, chunkSize float64) *Terrain {
@@ -40,11 +40,12 @@ func NewTerrain(seed int64, chunkSize float64) *Terrain {
 		NoiseOptions: DefaultNoiseOptions(),
 		Noise:        opensimplex.NewNormalized(seed),
 		ChunkSize:    chunkSize,
+		LoadedChunks: make(map[image.Point]bool),
 	}
 	return terr
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)) {
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2, chunkCoord image.Point)) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
@@ -54,32 +55,54 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, callback func(pos cm.Vec2)
 			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Mult(50) // blok boyutu
 			if blockNumber.Y > 128 {
-				callback(blockPos)
+				callback(blockPos, chunkCoord)
 			}
 		}
 	}
 }
 
-func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec2)) {
-	yuklenen := make([]image.Point, 0)
-	willLoadChunks[8] = playerChunk
-	for i, v := range yonler {
-		willLoadChunks[i] = playerChunk.Add(v)
+func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
+	comp.ChunkCoord.Each(res.World, func(e *donburi.Entry) {
+		if comp.ChunkCoord.Get(e).ChunkCoord == chunkCoord {
+			b := comp.Body.Get(e)
+			DestroyBodyWithEntry(b)
+		}
+	})
+
+}
+func (tr *Terrain) SpawnChunks(playerChunk image.Point, callback func(pos cm.Vec2, chunkCoord image.Point)) {
+
+	if !tr.LoadedChunks[playerChunk] {
+		tr.LoadedChunks[playerChunk] = true
+	} else {
+		tr.LoadedChunks[playerChunk] = false
 	}
 
-	for _, willLoad := range willLoadChunks {
-		if !arrayContains(tr.loadedChunks, willLoad) {
-			yuklenen = append(yuklenen, willLoad)
-			tr.SpawnChunk(willLoad, callback)
+	for _, v := range yonler {
+		chunkCoord := playerChunk.Add(v)
+		if !tr.LoadedChunks[chunkCoord] {
+			tr.LoadedChunks[chunkCoord] = true
+		} else {
+			tr.LoadedChunks[chunkCoord] = false
 		}
 	}
-	fmt.Println(len(yuklenen))
 
-	tr.loadedChunks = willLoadChunks
-}
+	for key := range tr.LoadedChunks {
+		if Distance(key, playerChunk) > 2 {
+			tr.LoadedChunks[key] = false
+		}
+	}
 
-func (tr *Terrain) LoadedChunks() [9]image.Point {
-	return tr.loadedChunks
+	for key, v := range tr.LoadedChunks {
+		if v {
+			tr.SpawnChunk(key, callback)
+		} else {
+			if Distance(key, playerChunk) > 2 {
+				tr.DeSpawnChunk(key)
+			}
+			// tr.DeSpawnChunk(key)
+		}
+	}
 }
 
 func (tr *Terrain) Generate(threshold bool) {
@@ -179,11 +202,19 @@ func eval2WithOpts(x, y int, nois opensimplex.Noise, o NoiseOptions) float64 {
 	return total
 }
 
-func arrayContains(arr [9]image.Point, elem image.Point) bool {
-	for _, v := range arr {
-		if v == elem {
-			return true
-		}
+func Distance(a, b image.Point) float64 {
+	return cm.FromPoint(a).DistanceSq(cm.FromPoint(b))
+}
+
+func DestroyBodyWithEntry(b *cm.Body) {
+	s := b.FirstShape().Space()
+	if s.ContainsBody(b) {
+		e := b.UserData.(*donburi.Entry)
+		e.Remove()
+		s.AddPostStepCallback(removeBodyPostStep, b, false)
 	}
-	return false
+}
+
+func removeBodyPostStep(space *cm.Space, body, data interface{}) {
+	space.RemoveBodyWithShapes(body.(*cm.Body))
 }

@@ -1,9 +1,11 @@
 package arche
 
 import (
+	"image"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/res"
+	"kar/types"
 
 	"github.com/yohamta/donburi"
 )
@@ -27,8 +29,9 @@ func SpawnDefaultSnowball(pos cm.Vec2) *donburi.Entry {
 func SpawnDefaultBomb(pos cm.Vec2) {
 	SpawnBomb(1, 0.1, 0, 20, pos)
 }
-func SpawnBlock(pos cm.Vec2) {
-	SpawnWall(pos, 50, 50)
+func SpawnBlock(pos cm.Vec2, chunkCoord image.Point) {
+	e := SpawnWall(pos, 50, 50)
+	comp.ChunkCoord.Set(e, &types.DataBlock{ChunkCoord: chunkCoord})
 }
 
 // collectible

@@ -49,7 +49,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	render := comp.Render.Get(e)
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
 	render.AnimPlayer.AddStateAnimation("shoot", 0, 0, w, w, 1, false)
-	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
+	render.AnimPlayer.AddStateAnimation("right", 300, 0, w, w, 1, true)
 	render.AnimPlayer.SetFPS(9)
 	render.DIO.Filter = ebiten.FilterNearest
 	render.DrawScale = engine.GetCircleScaleFactor(rad, render.AnimPlayer.CurrentFrame)
@@ -162,6 +162,7 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 		comp.Body,
 		comp.WallTag,
 		comp.Render,
+		comp.ChunkCoord,
 	))
 
 	wallShape.Body().UserData = entry

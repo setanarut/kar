@@ -231,3 +231,8 @@ func LerpConst(f1, f2, d float64) float64 {
 func ForAngle(a float64) Vec2 {
 	return Vec2{math.Cos(a), math.Sin(a)}
 }
+
+// FromPoint converts image.Point to Vec2
+func FromPoint(p image.Point) Vec2 {
+	return Vec2{float64(p.X), float64(p.Y)}
+}

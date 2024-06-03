@@ -63,7 +63,7 @@ func snowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) 
 			enemyHealth := comp.Health.Get(enemy)
 			*enemyHealth -= comp.Damage.GetValue(snowball)
 		}
-		destroyEntryWithBody(snowball)
+		DestroyEntryWithBody(snowball)
 	}
 	return true
 }

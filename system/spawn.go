@@ -48,9 +48,10 @@ func (s *SpawnSystem) Update() {
 
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
-		}
+			// Spawn Chunks
+			s.Terr.SpawnChunks(playerChunk, arche.SpawnBlock)
 
-		// s.Terr.SpawnChunk(chunkcoord, arche.SpawnBlock)
+		}
 	}
 
 	/* 	timerUpdate(s.spawnTimerData)
@@ -61,11 +62,12 @@ func (s *SpawnSystem) Update() {
 	   		}
 	   		timerReset(s.spawnTimerData)
 	   	} */
+
 	// Reset Level
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
 		// ResetLevel()
 		// res.Camera.ZoomFactor = 0
-		comp.WallTag.Each(res.World, destroyEntryWithBody)
+		comp.WallTag.Each(res.World, DestroyEntryWithBody)
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -96,7 +98,7 @@ func ResetLevel() {
 	playerSpawnPosition := cm.Vec2{0, 0}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
-		destroyEntryWithBody(player)
+		DestroyEntryWithBody(player)
 
 		arche.SpawnDefaultPlayer(playerSpawnPosition)
 	} else {

@@ -9,7 +9,7 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-func destroyBodyWithEntry(b *cm.Body) {
+func DestroyBodyWithEntry(b *cm.Body) {
 	s := b.FirstShape().Space()
 	if s.ContainsBody(b) {
 		e := b.UserData.(*donburi.Entry)
@@ -17,11 +17,11 @@ func destroyBodyWithEntry(b *cm.Body) {
 		s.AddPostStepCallback(removeBodyPostStep, b, false)
 	}
 }
-func destroyEntryWithBody(entry *donburi.Entry) {
+func DestroyEntryWithBody(entry *donburi.Entry) {
 	if entry.Valid() {
 		if entry.HasComponent(comp.Body) {
 			body := comp.Body.Get(entry)
-			destroyBodyWithEntry(body)
+			DestroyBodyWithEntry(body)
 		}
 	}
 }
@@ -39,7 +39,7 @@ func explode(bomb *donburi.Entry) {
 				applyRaycastImpulse(queryInfo, 1000)
 				comp.Health.SetValue(enemy, enemyHealth-engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0))
 				if enemyHealth < 0 {
-					destroyEntryWithBody(enemy)
+					DestroyEntryWithBody(enemy)
 				}
 
 			}
@@ -47,7 +47,7 @@ func explode(bomb *donburi.Entry) {
 
 	})
 	res.Camera.AddTrauma(0.2)
-	destroyEntryWithBody(bomb)
+	DestroyEntryWithBody(bomb)
 }
 
 func applyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
@@ -63,7 +63,7 @@ func destroyStopped(e *donburi.Entry) {
 	if e.HasComponent(comp.Body) {
 		b := comp.Body.Get(e)
 		if engine.IsMoving(b.Velocity(), 80) {
-			destroyBodyWithEntry(b)
+			DestroyBodyWithEntry(b)
 		}
 	}
 }
@@ -73,7 +73,7 @@ func destroyOnCollisionAndStopped(e *donburi.Entry) {
 	b.EachArbiter(func(a *cm.Arbiter) {
 		if checkEntries(a) {
 			snow, _ := getEntries(a)
-			destroyEntryWithBody(snow)
+			DestroyEntryWithBody(snow)
 		}
 	})
 	if e.Valid() {
@@ -84,7 +84,7 @@ func destroyOnCollisionAndStopped(e *donburi.Entry) {
 func destroyDead(e *donburi.Entry) {
 	if e.HasComponent(comp.Health) {
 		if comp.Health.GetValue(e) < 1 {
-			destroyEntryWithBody(e)
+			DestroyEntryWithBody(e)
 		}
 	}
 }

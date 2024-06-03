@@ -39,8 +39,8 @@ func (hs *DrawHUDSystem) Draw() {
 				// text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)
 				text.Draw(res.Screen,
 					fmt.Sprintf(
-						"FPS %v TPS %v POS %v Chunk %v",
-						fps, tps, pos, playerChunkTemp,
+						"FPS %v TPS %v POS %v Chunk %v Entities %v",
+						fps, tps, pos, playerChunkTemp, res.World.Len(),
 					),
 					res.Futura, res.StatsTextOptions)
 			} else {

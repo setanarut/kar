@@ -1,6 +1,7 @@
 package types
 
 import (
+	"image"
 	"image/color"
 	"kar/engine"
 	"kar/engine/cm"
@@ -47,4 +48,8 @@ type DataTimer struct {
 }
 type DataInventory struct {
 	Items map[ItemType]int
+}
+
+type DataBlock struct {
+	ChunkCoord image.Point
 }
