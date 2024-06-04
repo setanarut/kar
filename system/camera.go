@@ -48,7 +48,7 @@ func (ds *DrawCameraSystem) Draw() {
 	// clear color
 	res.Screen.Fill(color.Gray{0})
 
-	comp.WallTag.Each(res.World, ds.DrawEntry)
+	comp.BlockTag.Each(res.World, ds.DrawEntry)
 	comp.SnowballTag.Each(res.World, ds.DrawEntry)
 	if e, ok := comp.PlayerTag.First(res.World); ok {
 		ds.DrawEntry(e)

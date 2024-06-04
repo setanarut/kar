@@ -31,7 +31,7 @@ var (
 	Damage      = donburi.NewComponentType[float64](1.0)
 	Health      = donburi.NewComponentType[float64](8.0)
 	Body        = donburi.NewComponentType[cm.Body]()
-	AttackTimer = donburi.NewComponentType[types.DataTimer](types.DataTimer{TimerDuration: time.Second / 4})
+	AttackTimer = donburi.NewComponentType[types.DataTimer](types.DataTimer{TimerDuration: time.Second / 2})
 	AI          = donburi.NewComponentType[types.DataAI](types.DataAI{Follow: false, FollowDistance: 300})
 	ChunkCoord  = donburi.NewComponentType[types.DataBlock]()
 )
@@ -40,7 +40,7 @@ var (
 var (
 	WASDTag     = donburi.NewTag()
 	PlayerTag   = donburi.NewTag()
-	WallTag     = donburi.NewTag()
+	BlockTag    = donburi.NewTag()
 	SnowballTag = donburi.NewTag()
 	BombTag     = donburi.NewTag()
 	EnemyTag    = donburi.NewTag()

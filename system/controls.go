@@ -29,6 +29,8 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
 	res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
+	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
+	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
