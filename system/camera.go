@@ -20,6 +20,7 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 
 func (ds *DrawCameraSystem) Init() {
 	res.Camera.DrawOptions.Filter = ebiten.FilterNearest
+	res.Camera.ZoomFactor = 0
 }
 
 func (ds *DrawCameraSystem) Update() {

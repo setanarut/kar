@@ -13,29 +13,12 @@ func NewDestroySystem() *DestroySystem {
 }
 
 func (s *DestroySystem) Init() {
-	// res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
-	// 	e := world.Entry(entity)
-	// 	if e.HasComponent(comp.EnemyTag) {
-	// 		p := comp.Body.Get(e).Position()
-	// 		i := comp.Inventory.Get(e)
-	// 		for _, v := range i.Keys {
-	// 			arche.SpawnDefaultKeyCollectible(v, p)
-	// 		}
-	// 		for range i.Bombs {
-	// 			arche.SpawnDefaultBomb(p)
-	// 		}
-	// 		for range i.Snowballs {
-	// 			arche.SpawnDefaultSnowball(p)
-	// 		}
-	// 	}
-
-	// })
 
 }
 
 func (s *DestroySystem) Update() {
-	comp.Health.Each(res.World, destroyDead)
-	comp.SnowballTag.Each(res.World, destroyOnCollisionAndStopped)
+	comp.Health.Each(res.World, DestroyDead)
+	comp.SnowballTag.Each(res.World, DestroyOnCollisionAndStopped)
 }
 
 func (s *DestroySystem) Draw() {}

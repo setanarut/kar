@@ -32,9 +32,7 @@ var (
 	Health      = donburi.NewComponentType[float64](8.0)
 	Body        = donburi.NewComponentType[cm.Body]()
 	AttackTimer = donburi.NewComponentType[types.DataTimer](types.DataTimer{TimerDuration: time.Second / 4})
-	PoisonTimer = donburi.NewComponentType[types.DataTimer](types.DataTimer{TimerDuration: time.Second * 5})
 	AI          = donburi.NewComponentType[types.DataAI](types.DataAI{Follow: false, FollowDistance: 300})
-	Door        = donburi.NewComponentType[types.DataDoor]()
 	ChunkCoord  = donburi.NewComponentType[types.DataBlock]()
 )
 

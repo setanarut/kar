@@ -24,12 +24,6 @@ type DataAI struct {
 	FollowDistance float64
 }
 
-type DataDoor struct {
-	LockNumber   int
-	Open         bool
-	PlayerHasKey bool
-}
-
 type DataRender struct {
 	Offset     cm.Vec2
 	DrawScale  cm.Vec2
@@ -51,5 +45,6 @@ type DataInventory struct {
 }
 
 type DataBlock struct {
+	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
 }

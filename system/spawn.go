@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"image"
 	"kar/arche"
 	"kar/comp"
@@ -23,7 +22,7 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (sys *SpawnSystem) Init() {
-	sys.Terr = terr.NewTerrain(342, 1024, 16, 100)
+	sys.Terr = terr.NewTerrain(342, 1024, 16, 50)
 	sys.Terr.NoiseOptions.Frequency = 0.2
 	sys.Terr.Generate()
 	ResetLevel()
@@ -39,7 +38,6 @@ func (s *SpawnSystem) Update() {
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
 			// Spawn Chunks
-			fmt.Println(s.Terr.LoadedChunks)
 			s.Terr.SpawnChunks(playerChunk, arche.SpawnBlock)
 
 		}
@@ -53,7 +51,7 @@ func (s *SpawnSystem) Draw() {
 func ResetLevel() {
 
 	res.Camera.Reset()
-	playerSpawnPosition := cm.Vec2{0, 0}
+	playerSpawnPosition := cm.Vec2{512 * 50, 512 * 50}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		DestroyEntryWithBody(player)

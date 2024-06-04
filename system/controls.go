@@ -35,17 +35,10 @@ func (sys *PlayerControlSystem) Update() {
 		playerAttackTimer := comp.AttackTimer.Get(player)
 		inventory := comp.Inventory.Get(player)
 		playerBody := comp.Body.Get(player)
-		playerRender := comp.Render.Get(player)
-
-		playerRender.AnimPlayer.SetState("right")
-		playerRender.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
 		if res.CurrentTool == types.ItemSnowball {
 
 			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
-
-				playerRender.AnimPlayer.SetState("shoot")
-				playerRender.DrawAngle = res.Input.ArrowDirection.ToAngle()
 
 				// SHOOTING
 				if inventory.Items[types.ItemSnowball] > 0 {
@@ -55,7 +48,6 @@ func (sys *PlayerControlSystem) Update() {
 					}
 
 					if TimerIsStart(playerAttackTimer) {
-						// dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
 						dir := res.Input.ArrowDirection.Normalize().Mult(1000)
 						// spawn snowball
 						bullet := arche.SpawnDefaultSnowball(playerBody.Position())
@@ -70,38 +62,7 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		if inpututil.IsKeyJustPressed(ebiten.KeyU) {
-			comp.AI.Each(res.World, func(e *donburi.Entry) {
-				e.RemoveComponent(comp.AI)
-				e.AddComponent(comp.WASDTag)
-			})
-		}
-		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			res.CurrentTool = types.ItemSnowball
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			res.CurrentTool = types.ItemBomb
-		}
-
 	}
-
-	// Explode all bombs
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		comp.BombTag.Each(res.World, func(e *donburi.Entry) {
-			explode(e)
-		})
-	}
-
-	// AI on/off
-	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		comp.AI.Each(res.World, func(e *donburi.Entry) {
-			ai := comp.AI.Get(e)
-			ai.Follow = !ai.Follow
-		})
-
-	}
-
 }
 
 func (sys *PlayerControlSystem) Draw() {
