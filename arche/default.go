@@ -15,7 +15,7 @@ func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
 
 }
 func SpawnBlock(pos cm.Vec2, chunkCoord image.Point) {
-	e := SpawnWall(pos, 100, 100)
+	e := SpawnWall(pos, 50, 50)
 	comp.ChunkCoord.Set(e, &types.DataBlock{ChunkCoord: chunkCoord})
 }
 func SpawnDefaultMob(pos cm.Vec2) {
