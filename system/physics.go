@@ -1,6 +1,7 @@
 package system
 
 import (
+	"image/color"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/res"
@@ -24,7 +25,7 @@ func (ps *PhysicsSystem) Init() {
 	// res.Space.UseSpatialHash(50, 1000)
 	res.Space.CollisionBias = math.Pow(0.5, 60)
 	res.Space.CollisionSlop = 0.5
-	res.Space.Iterations = 20
+	// res.Space.Iterations = 20
 	res.Space.SetGravity(cm.Vec2{0, -1200})
 	res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollEnemy).BeginFunc = snowballEnemyBegin
@@ -61,11 +62,15 @@ func enemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bo
 func snowballBlockBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	if CheckEntries(arb) {
 		snowball, block := GetEntries(arb)
-		if block.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) && block.HasComponent(comp.Render) {
+		if block.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) {
 			enemyHealth := comp.Health.Get(block)
 			*enemyHealth -= comp.Damage.GetValue(snowball)
 		}
-		DestroyEntryWithBody(snowball)
+		blockBody := comp.Body.Get(block)
+		pos := blockBody.Position().Point().Div(50)
+
+		res.Terrain.Set(pos.X, pos.Y, color.Gray{0})
+		// DestroyEntryWithBody(snowball)
 	}
 	return true
 }

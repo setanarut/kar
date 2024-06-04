@@ -68,7 +68,7 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	render.DIO.GeoM.Rotate(engine.InvertAngle(render.DrawAngle))
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
 
-	if e.HasComponent(comp.EnemyTag) {
+	if e.HasComponent(comp.BlockTag) {
 		v := engine.MapRange(comp.Health.GetValue(e), 0, 8, 0, 1)
 		render.DIO.ColorScale.ScaleWithColor(res.DamageGradient.At(v))
 	} else {

@@ -2,6 +2,7 @@ package res
 
 import (
 	"embed"
+	"image"
 	"image/color"
 	_ "image/png"
 	"kar/comp"
@@ -33,7 +34,7 @@ var (
 	Input             *engine.InputManager = &engine.InputManager{}
 	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskBombRaycast, cm.AllCategories&^types.BitmaskBomb)
 	DamageGradient, _                      = colorgrad.NewGradient().
-				HtmlColors("rgb(0, 229, 255)", "rgb(93, 90, 193)", "rgb(255, 0, 123)").
+				HtmlColors("rgb(175, 54, 54)", "rgb(193, 90, 90)", "rgb(111, 111, 111)").
 				Domain(0, 1).
 				Mode(colorgrad.BlendOklab).
 				Interpolation(colorgrad.InterpolationBasis).
@@ -47,9 +48,10 @@ var (
 )
 
 var (
-	Screen *ebiten.Image
-	Wall   = ebiten.NewImage(30, 30)
-	Player = engine.LoadImage("assets/player.png", assets)
+	Screen  *ebiten.Image
+	Terrain *image.Gray
+	Wall    = ebiten.NewImage(30, 30)
+	Player  = engine.LoadImage("assets/player.png", assets)
 )
 
 var (

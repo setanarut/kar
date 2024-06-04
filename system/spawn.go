@@ -25,6 +25,7 @@ func (sys *SpawnSystem) Init() {
 	sys.Terr = terr.NewTerrain(342, 1024, 16, 50)
 	sys.Terr.NoiseOptions.Frequency = 0.2
 	sys.Terr.Generate()
+	res.Terrain = sys.Terr.TerrainImg
 	ResetLevel()
 
 }

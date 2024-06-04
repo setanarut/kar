@@ -62,7 +62,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	b.SetPosition(pos)
 	comp.Body.Set(e, b)
 	res.CurrentTool = types.ItemSnowball
-	// b.FirstShape().SetSensor(true)
+	b.FirstShape().SetSensor(true)
 	return e
 }
 func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
