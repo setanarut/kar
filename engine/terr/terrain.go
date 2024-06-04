@@ -71,7 +71,8 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 	}
 }
 
-func (tr *Terrain) SpawnChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
+// Spawn/Destroy chunks
+func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
 
 	if !tr.LoadedChunks[playerChunk] {
 		tr.LoadedChunks[playerChunk] = true
@@ -144,6 +145,8 @@ func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.Gray {
 	}
 	return img
 }
+
+// Chipmunk coordinate system conversion
 func (tr *Terrain) TerrainImageFlipVertical() *image.Gray {
 	size := tr.TerrainImg.Bounds().Dx()
 	img := image.NewGray(image.Rect(0, 0, size, size))

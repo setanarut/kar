@@ -37,8 +37,8 @@ func (s *SpawnSystem) Update() {
 
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
-			// Spawn Chunks
-			s.Terr.SpawnChunks(playerChunk, arche.SpawnBlock)
+			// Spawn/Destroy Chunks
+			s.Terr.UpdateChunks(playerChunk, arche.SpawnBlock)
 
 		}
 	}
