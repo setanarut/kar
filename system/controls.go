@@ -10,6 +10,8 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+var currentBlock *donburi.Entry
+
 type PlayerControlSystem struct {
 }
 
@@ -23,8 +25,8 @@ func (sys *PlayerControlSystem) Init() {
 
 func (sys *PlayerControlSystem) Update() {
 
-	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
+	// res.Input.UpdateArrowDirection()
 	// res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
 	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
 	res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
@@ -60,23 +62,28 @@ func (sys *PlayerControlSystem) Update() {
 		// 	}
 
 		// }
-
 		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
 			p := playerBody.Position()
-			queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Mult(200)), 0, res.FilterPlayerRaycast)
+			queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Mult(150)), 0, res.FilterPlayerRaycast)
 			contactShape := queryInfo.Shape
-
 			if contactShape != nil {
 				if CheckEntry(contactShape.Body()) {
-					e := GetEntry(contactShape.Body())
-					if e.HasComponent(comp.BlockTag) && e.HasComponent(comp.Health) {
-						h := comp.Health.GetValue(e)
-						comp.Health.SetValue(e, h-0.1)
-
+					if currentBlock != nil {
+						if currentBlock != GetEntry(contactShape.Body()) {
+							comp.Health.SetValue(currentBlock, 3.0)
+						}
+					}
+					currentBlock = GetEntry(contactShape.Body())
+					if currentBlock.HasComponent(comp.BlockTag) && currentBlock.HasComponent(comp.Health) {
+						h := comp.Health.GetValue(currentBlock)
+						comp.Health.SetValue(currentBlock, h-0.08)
 					}
 				}
 			}
+		}
 
+		if !ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
+			comp.Health.Each(res.World, ResetHealth)
 		}
 	}
 }

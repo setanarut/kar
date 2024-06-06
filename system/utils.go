@@ -68,6 +68,9 @@ func DestroyStopped(e *donburi.Entry) {
 		}
 	}
 }
+func ResetHealth(e *donburi.Entry) {
+	comp.Health.SetValue(e, 3.0)
+}
 
 func DestroyOnCollisionAndStopped(e *donburi.Entry) {
 	b := comp.Body.Get(e)

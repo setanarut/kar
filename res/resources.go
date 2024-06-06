@@ -35,7 +35,7 @@ var (
 	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskBombRaycast, cm.AllCategories&^types.BitmaskBomb)
 	FilterPlayerRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskPlayerRaycast, cm.AllCategories&^types.BitmaskPlayer)
 	DamageGradient, _                        = colorgrad.NewGradient().
-				HtmlColors("rgb(175, 54, 54)", "rgb(193, 90, 90)", "rgb(111, 111, 111)").
+				HtmlColors("rgb(255, 0, 0)", "rgb(255, 225, 0)", "rgb(111, 111, 111)").
 				Domain(0, 1).
 				Mode(colorgrad.BlendOklab).
 				Interpolation(colorgrad.InterpolationBasis).
