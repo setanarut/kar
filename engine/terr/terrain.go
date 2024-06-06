@@ -9,6 +9,7 @@ import (
 	"kar/res"
 	"math"
 	"os"
+	"slices"
 
 	"github.com/ojrac/opensimplex-go"
 	"github.com/yohamta/donburi"
@@ -21,8 +22,7 @@ type Terrain struct {
 	NoiseOptions         NoiseOptions
 	Noise                opensimplex.Noise
 	ChunkSize, BlockSize float64
-
-	LoadedChunks map[image.Point]bool
+	LoadedChunks         []image.Point
 
 	threshold bool
 	mapSize   int
@@ -34,7 +34,6 @@ func NewTerrain(seed int64, mapSize int, chunkSize int, blockSize int) *Terrain 
 		Noise:        opensimplex.NewNormalized(seed),
 		ChunkSize:    float64(chunkSize),
 		BlockSize:    float64(blockSize),
-		LoadedChunks: make(map[image.Point]bool),
 		mapSize:      mapSize,
 		threshold:    true,
 	}
@@ -73,38 +72,22 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 
 // Spawn/Destroy chunks
 func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
+	playerChunks := GetPlayerChunks(playerChunk)
+	intersectionChunks := FindIntersection(playerChunks, tr.LoadedChunks)
 
-	if !tr.LoadedChunks[playerChunk] {
-		tr.LoadedChunks[playerChunk] = true
-	} else {
-		tr.LoadedChunks[playerChunk] = false
-	}
-
-	for _, v := range mooreNeighbours {
-		chunkCoord := playerChunk.Add(v)
-		if !tr.LoadedChunks[chunkCoord] {
-			tr.LoadedChunks[chunkCoord] = true
-		} else {
-			tr.LoadedChunks[chunkCoord] = false
+	for _, toLoad := range playerChunks {
+		if !slices.Contains(intersectionChunks, toLoad) {
+			tr.SpawnChunk(toLoad, blockSpawnCallbackFunc)
 		}
 	}
 
-	for key := range tr.LoadedChunks {
-		if Distance(key, playerChunk) > 2 {
-			tr.LoadedChunks[key] = false
+	for _, toUnload := range tr.LoadedChunks {
+		if !slices.Contains(intersectionChunks, toUnload) {
+			tr.DeSpawnChunk(toUnload)
 		}
 	}
 
-	for key, v := range tr.LoadedChunks {
-		if v {
-			tr.SpawnChunk(key, blockSpawnCallbackFunc)
-		} else {
-			if Distance(key, playerChunk) > 2 {
-				tr.DeSpawnChunk(key)
-				// delete(tr.LoadedChunks, key)
-			}
-		}
-	}
+	tr.LoadedChunks = playerChunks
 }
 
 func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
@@ -220,4 +203,24 @@ func DestroyBodyWithEntry(b *cm.Body) {
 
 func removeBodyPostStep(space *cm.Space, body, data interface{}) {
 	space.RemoveBodyWithShapes(body.(*cm.Body))
+}
+
+func FindIntersection(s1, s2 []image.Point) []image.Point {
+	intersection := make([]image.Point, 0)
+	for _, point := range s2 {
+		if slices.Contains(s1, point) {
+			intersection = append(intersection, point)
+		}
+	}
+	return intersection
+}
+
+func GetPlayerChunks(playerChunk image.Point) []image.Point {
+	playerChunks := make([]image.Point, 0)
+	playerChunks = append(playerChunks, playerChunk)
+
+	for _, neighbor := range mooreNeighbours {
+		playerChunks = append(playerChunks, playerChunk.Add(neighbor))
+	}
+	return playerChunks
 }

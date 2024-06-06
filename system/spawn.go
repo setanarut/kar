@@ -21,13 +21,22 @@ func NewSpawnSystem() *SpawnSystem {
 	return &SpawnSystem{}
 }
 
-func (sys *SpawnSystem) Init() {
-	sys.Terr = terr.NewTerrain(342, 1024, 16, 50)
-	sys.Terr.NoiseOptions.Frequency = 0.2
-	sys.Terr.Generate()
-	res.Terrain = sys.Terr.TerrainImg
+func (s *SpawnSystem) Init() {
+	s.Terr = terr.NewTerrain(342, 1024, 16, 50)
+	s.Terr.NoiseOptions.Frequency = 0.2
+	s.Terr.Generate()
+	res.Terrain = s.Terr.TerrainImg
 	ResetLevel()
 
+	if player, ok := comp.PlayerTag.First(res.World); ok {
+		pos := comp.Body.Get(player).Position()
+		playerChunk := s.Terr.ChunkCoord(pos)
+		s.Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
+
+		for _, coord := range s.Terr.LoadedChunks {
+			s.Terr.SpawnChunk(coord, arche.SpawnBlock)
+		}
+	}
 }
 
 func (s *SpawnSystem) Update() {
