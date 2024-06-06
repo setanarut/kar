@@ -29,11 +29,12 @@ var (
 	ScreenRect, CurrentRoom cm.BB
 	Camera                  *engine.Camera
 
-	CurrentTool       types.ItemType
-	Rooms             []cm.BB              = make([]cm.BB, 0)
-	Input             *engine.InputManager = &engine.InputManager{}
-	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskBombRaycast, cm.AllCategories&^types.BitmaskBomb)
-	DamageGradient, _                      = colorgrad.NewGradient().
+	CurrentTool         types.ItemType
+	Rooms               []cm.BB              = make([]cm.BB, 0)
+	Input               *engine.InputManager = &engine.InputManager{}
+	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskBombRaycast, cm.AllCategories&^types.BitmaskBomb)
+	FilterPlayerRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskPlayerRaycast, cm.AllCategories&^types.BitmaskPlayer)
+	DamageGradient, _                        = colorgrad.NewGradient().
 				HtmlColors("rgb(175, 54, 54)", "rgb(193, 90, 90)", "rgb(111, 111, 111)").
 				Domain(0, 1).
 				Mode(colorgrad.BlendOklab).
@@ -50,7 +51,7 @@ var (
 var (
 	Screen  *ebiten.Image
 	Terrain *image.Gray
-	Wall    = ebiten.NewImage(30, 30)
+	Wall    = ebiten.NewImage(50, 50)
 	Player  = engine.LoadImage("assets/player.png", assets)
 )
 
@@ -76,6 +77,6 @@ var (
 )
 
 func init() {
-	Wall.Fill(color.White)
+	Wall.Fill(color.Gray{128})
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
 }

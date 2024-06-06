@@ -62,7 +62,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	b.SetPosition(pos)
 	comp.Body.Set(e, b)
 	res.CurrentTool = types.ItemSnowball
-	b.FirstShape().SetSensor(true)
+	// b.FirstShape().SetSensor(true)
 	return e
 }
 func SpawnMob(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
@@ -143,11 +143,10 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	render := comp.Render.Get(entry)
 	render.DIO.Filter = ebiten.FilterNearest
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Wall)
-	imW := res.Wall.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1, false)
-	render.DrawScale = engine.GetBoxScaleFactor(float64(imW), float64(imW), boxW, boxH)
-	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
+	// imW := res.Wall.Bounds().Dx()
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 50, 50, 1, false)
+	render.Offset = cm.Vec2{-25, -25}
 	render.AnimPlayer.Paused = true
-	render.ScaleColor = colornames.Gray
+	// render.ScaleColor = colornames.Yellow
 	return entry
 }

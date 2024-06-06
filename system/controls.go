@@ -1,12 +1,9 @@
 package system
 
 import (
-	"kar/arche"
 	"kar/comp"
-	"kar/engine"
 	"kar/engine/cm"
 	"kar/res"
-	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -28,42 +25,59 @@ func (sys *PlayerControlSystem) Update() {
 
 	res.Input.UpdateArrowDirection()
 	res.Input.UpdateWASDDirection()
-	res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
+	// res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
 	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
-	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
+	res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
-		playerAttackTimer := comp.AttackTimer.Get(player)
-		inventory := comp.Inventory.Get(player)
+		// playerAttackTimer := comp.AttackTimer.Get(player)
+		// inventory := comp.Inventory.Get(player)
 		playerBody := comp.Body.Get(player)
 
-		if res.CurrentTool == types.ItemSnowball {
+		// if res.CurrentTool == types.ItemSnowball {
 
-			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
+		// 	if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
 
-				// SHOOTING
-				if inventory.Items[types.ItemSnowball] > 0 {
+		// 		// SHOOTING
+		// 		if inventory.Items[types.ItemSnowball] > 0 {
 
-					if TimerIsReady(playerAttackTimer) {
-						TimerReset(playerAttackTimer)
+		// 			if TimerIsReady(playerAttackTimer) {
+		// 				TimerReset(playerAttackTimer)
+		// 			}
+
+		// 			if TimerIsStart(playerAttackTimer) {
+		// 				dir := res.Input.ArrowDirection.Normalize().Mult(1000)
+		// 				// spawn snowball
+		// 				bullet := arche.SpawnDefaultSnowball(playerBody.Position())
+		// 				inventory.Items[types.ItemSnowball] -= 1
+		// 				bulletBody := comp.Body.Get(bullet)
+		// 				bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
+		// 			}
+
+		// 		}
+
+		// 	}
+
+		// }
+
+		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
+			p := playerBody.Position()
+			queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Mult(200)), 0, res.FilterPlayerRaycast)
+			contactShape := queryInfo.Shape
+
+			if contactShape != nil {
+				if CheckEntry(contactShape.Body()) {
+					e := GetEntry(contactShape.Body())
+					if e.HasComponent(comp.BlockTag) && e.HasComponent(comp.Health) {
+						h := comp.Health.GetValue(e)
+						comp.Health.SetValue(e, h-0.1)
+
 					}
-
-					if TimerIsStart(playerAttackTimer) {
-						dir := res.Input.ArrowDirection.Normalize().Mult(1000)
-						// spawn snowball
-						bullet := arche.SpawnDefaultSnowball(playerBody.Position())
-						inventory.Items[types.ItemSnowball] -= 1
-						bulletBody := comp.Body.Get(bullet)
-						bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
-					}
-
 				}
-
 			}
 
 		}
-
 	}
 }
 

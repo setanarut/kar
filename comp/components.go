@@ -29,7 +29,7 @@ var (
 	Inventory = donburi.NewComponentType[types.DataInventory]()
 
 	Damage      = donburi.NewComponentType[float64](1.0)
-	Health      = donburi.NewComponentType[float64](8.0)
+	Health      = donburi.NewComponentType[float64](3.0)
 	Body        = donburi.NewComponentType[cm.Body]()
 	AttackTimer = donburi.NewComponentType[types.DataTimer](types.DataTimer{TimerDuration: time.Second / 3})
 	AI          = donburi.NewComponentType[types.DataAI](types.DataAI{Follow: false, FollowDistance: 300})

@@ -1,6 +1,7 @@
 package system
 
 import (
+	"image/color"
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
@@ -83,7 +84,14 @@ func DestroyOnCollisionAndStopped(e *donburi.Entry) {
 
 func DestroyDead(e *donburi.Entry) {
 	if e.HasComponent(comp.Health) {
-		if comp.Health.GetValue(e) < 1 {
+
+		if comp.Health.GetValue(e) <= 0 {
+			if e.HasComponent(comp.BlockTag) {
+				blockPos := comp.Body.Get(e).Position().Point().Div(50)
+				res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{0})
+				DestroyEntryWithBody(e)
+			}
+
 			DestroyEntryWithBody(e)
 		}
 	}

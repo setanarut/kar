@@ -101,7 +101,7 @@ func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc 
 		} else {
 			if Distance(key, playerChunk) > 2 {
 				tr.DeSpawnChunk(key)
-				delete(tr.LoadedChunks, key)
+				// delete(tr.LoadedChunks, key)
 			}
 		}
 	}

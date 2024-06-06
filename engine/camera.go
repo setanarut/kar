@@ -15,7 +15,7 @@ type Camera struct {
 	W, H, Rotation, ZoomFactor        float64
 	tempTarget, centerOffset, topLeft cm.Vec2
 	DrawOptions                       *ebiten.DrawImageOptions
-	Lerp                              bool
+	Lerp, TraumaEnabled               bool
 
 	// camera shake options
 	traumaOffset, ShakeSize                              cm.Vec2
@@ -26,12 +26,13 @@ type Camera struct {
 // NewCamera returns new Camera
 func NewCamera(lookAt cm.Vec2, w, h float64) *Camera {
 	c := &Camera{
-		W:           w,
-		H:           h,
-		Rotation:    0,
-		ZoomFactor:  0,
-		DrawOptions: &ebiten.DrawImageOptions{},
-		Lerp:        false,
+		W:             w,
+		H:             h,
+		Rotation:      0,
+		ZoomFactor:    0,
+		DrawOptions:   &ebiten.DrawImageOptions{},
+		Lerp:          false,
+		TraumaEnabled: false,
 
 		// Shake options
 		Trauma:        0,
@@ -64,16 +65,18 @@ func (cam *Camera) LookAt(target cm.Vec2) {
 		cam.topLeft = target
 	}
 
-	if cam.Trauma > 0 {
-		var shake = math.Pow(cam.Trauma, 2)
-		cam.traumaOffset.X = cam.noise.Eval3(cam.tick*cam.TimeScale, 0, 0) * cam.ShakeSize.X * shake
-		cam.traumaOffset.Y = cam.noise.Eval3(0, cam.tick*cam.TimeScale, 0) * cam.ShakeSize.Y * shake
-		cam.Rotation = cam.noise.Eval3(0, 0, cam.tick*cam.TimeScale) * cam.MaxShakeAngle * shake
-		cam.Trauma = Clamp(cam.Trauma-(cam.delta*cam.Decay), 0, 1)
+	if cam.TraumaEnabled {
+		if cam.Trauma > 0 {
+			var shake = math.Pow(cam.Trauma, 2)
+			cam.traumaOffset.X = cam.noise.Eval3(cam.tick*cam.TimeScale, 0, 0) * cam.ShakeSize.X * shake
+			cam.traumaOffset.Y = cam.noise.Eval3(0, cam.tick*cam.TimeScale, 0) * cam.ShakeSize.Y * shake
+			cam.Rotation = cam.noise.Eval3(0, 0, cam.tick*cam.TimeScale) * cam.MaxShakeAngle * shake
+			cam.Trauma = Clamp(cam.Trauma-(cam.delta*cam.Decay), 0, 1)
+		}
+		// offset
+		cam.topLeft = cam.topLeft.Add(cam.traumaOffset)
 	}
 
-	// offset
-	cam.topLeft = cam.topLeft.Add(cam.traumaOffset)
 	cam.topLeft = cam.topLeft.Add(cam.centerOffset)
 	cam.tick += cam.delta
 	if cam.tick > 60000 {

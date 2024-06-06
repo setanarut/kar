@@ -13,7 +13,6 @@ func NewDestroySystem() *DestroySystem {
 }
 
 func (s *DestroySystem) Init() {
-
 }
 
 func (s *DestroySystem) Update() {

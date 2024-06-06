@@ -1,13 +1,13 @@
 package system
 
 import (
-	"image/color"
 	"kar/comp"
 	"kar/engine"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
+	"golang.org/x/image/colornames"
 )
 
 // DrawCameraSystem
@@ -19,8 +19,9 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 }
 
 func (ds *DrawCameraSystem) Init() {
-	res.Camera.DrawOptions.Filter = ebiten.FilterNearest
 	res.Camera.ZoomFactor = 0
+	res.Camera.Lerp = true
+	res.Camera.TraumaEnabled = false
 }
 
 func (ds *DrawCameraSystem) Update() {
@@ -46,7 +47,7 @@ func (ds *DrawCameraSystem) Update() {
 func (ds *DrawCameraSystem) Draw() {
 
 	// clear color
-	res.Screen.Fill(color.Gray{0})
+	res.Screen.Fill(colornames.Black)
 
 	comp.BlockTag.Each(res.World, ds.DrawEntry)
 	comp.SnowballTag.Each(res.World, ds.DrawEntry)
@@ -68,13 +69,14 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	render.DIO.GeoM.Rotate(engine.InvertAngle(render.DrawAngle))
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
 
-	if e.HasComponent(comp.BlockTag) {
-		v := engine.MapRange(comp.Health.GetValue(e), 0, 8, 0, 1)
+	if e.HasComponent(comp.Health) {
+		v := engine.MapRange(comp.Health.GetValue(e), 0, 3, 0, 1)
 		render.DIO.ColorScale.ScaleWithColor(res.DamageGradient.At(v))
 	} else {
-		render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)
+		render.DIO.ColorScale.Reset()
 	}
 
+	// res.Screen.DrawImage(render.AnimPlayer.CurrentFrame, render.DIO)
 	res.Camera.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)
 	render.DIO.ColorScale.Reset()
 }
