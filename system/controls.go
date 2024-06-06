@@ -82,7 +82,7 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if !ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
+		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
 			comp.Health.Each(res.World, ResetHealth)
 		}
 	}
