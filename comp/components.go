@@ -26,6 +26,14 @@ var (
 		ScaleColor: color.White,
 	})
 
+	Sprite = donburi.NewComponentType[types.DataSprite](types.DataSprite{
+		Offset:     cm.Vec2{},
+		DrawScale:  cm.Vec2{1, 1},
+		DrawAngle:  0.0,
+		DIO:        &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest},
+		ScaleColor: color.White,
+	})
+
 	Inventory = donburi.NewComponentType[types.DataInventory]()
 
 	Damage      = donburi.NewComponentType[float64](1.0)

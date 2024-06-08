@@ -10,6 +10,8 @@ import (
 	"golang.org/x/image/colornames"
 )
 
+// var im *ebiten.Image
+
 // DrawCameraSystem
 type DrawCameraSystem struct {
 }
@@ -22,6 +24,7 @@ func (ds *DrawCameraSystem) Init() {
 	res.Camera.ZoomFactor = 0
 	res.Camera.Lerp = true
 	res.Camera.TraumaEnabled = false
+	res.StoneBlockImage.DrawImage(res.BlockBreakingStagesImages[0], nil)
 }
 
 func (ds *DrawCameraSystem) Update() {
@@ -49,15 +52,16 @@ func (ds *DrawCameraSystem) Draw() {
 	// clear color
 	res.Screen.Fill(colornames.Black)
 
-	comp.BlockTag.Each(res.World, ds.DrawEntry)
-	comp.SnowballTag.Each(res.World, ds.DrawEntry)
+	comp.BlockTag.Each(res.World, ds.DrawEntrySprite)
+	// comp.SnowballTag.Each(res.World, ds.DrawEntrySprite)
+
 	if e, ok := comp.PlayerTag.First(res.World); ok {
-		ds.DrawEntry(e)
+		ds.DrawEntrySprite(e)
 	}
 
 }
 
-func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
+func (ds *DrawCameraSystem) DrawEntryAnimation(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
 	render := comp.Render.Get(e)
@@ -79,4 +83,18 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	// res.Screen.DrawImage(render.AnimPlayer.CurrentFrame, render.DIO)
 	res.Camera.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)
 	render.DIO.ColorScale.Reset()
+}
+func (ds *DrawCameraSystem) DrawEntrySprite(e *donburi.Entry) {
+
+	body := comp.Body.Get(e)
+	sprite := comp.Sprite.Get(e)
+	pos := engine.InvPosVectY(body.Position(), res.ScreenRect.T)
+
+	sprite.DIO.GeoM.Reset()
+	sprite.DIO.GeoM.Translate(sprite.Offset.X, sprite.Offset.Y)
+	sprite.DIO.GeoM.Scale(sprite.DrawScale.X, sprite.DrawScale.Y)
+	sprite.DIO.GeoM.Rotate(engine.InvertAngle(sprite.DrawAngle))
+	sprite.DIO.GeoM.Translate(pos.X, pos.Y)
+	res.Camera.Draw(sprite.Image, sprite.DIO, res.Screen)
+	sprite.DIO.ColorScale.Reset()
 }

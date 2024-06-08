@@ -32,6 +32,16 @@ type DataRender struct {
 	DIO        *ebiten.DrawImageOptions
 	ScaleColor color.Color
 }
+
+type DataSprite struct {
+	Image      *ebiten.Image
+	Offset     cm.Vec2
+	DrawScale  cm.Vec2
+	ScaleColor color.Color
+	DrawAngle  float64
+	DIO        *ebiten.DrawImageOptions
+}
+
 type DataMobile struct {
 	Speed, Accel float64
 }

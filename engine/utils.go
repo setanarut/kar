@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"embed"
 	"image"
+	"image/png"
 	"kar/engine/cm"
 	"log"
 	"math"
 	"math/rand/v2"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -114,7 +116,7 @@ func LoadTextFace(fileName string, size float64, assets embed.FS) *text.GoTextFa
 	return gtf
 }
 
-func LoadImage(name string, assets embed.FS) *ebiten.Image {
+func LoadImageFromFS(name string, assets embed.FS) *ebiten.Image {
 
 	f, err := assets.Open(name)
 	if err != nil {
@@ -128,6 +130,19 @@ func LoadImage(name string, assets embed.FS) *ebiten.Image {
 	}
 
 	return ebiten.NewImageFromImage(img)
+}
+
+func LoadImage(filePath string) image.Image {
+	f, err := os.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	return image
 }
 
 // Linspace returns evenly spaced numbers over a specified closed interval.
@@ -171,4 +186,54 @@ func AddComponents(e *donburi.Entry, comps ...donburi.IComponentType) {
 	for _, comp := range comps {
 		e.AddComponent(comp)
 	}
+}
+
+func SubImages(spriteSheet *ebiten.Image, x, y, w, h, subImageCount int, vertical bool) []*ebiten.Image {
+
+	subImages := []*ebiten.Image{}
+	frameRect := image.Rect(x, y, x+w, y+h)
+
+	for i := 0; i < subImageCount; i++ {
+		subImages = append(subImages, spriteSheet.SubImage(frameRect).(*ebiten.Image))
+		if vertical {
+			frameRect.Min.Y += h
+			frameRect.Max.Y += h
+		} else {
+			frameRect.Min.X += w
+			frameRect.Max.X += w
+		}
+	}
+	return subImages
+
+}
+func SubImagesStd(spriteSheet *ebiten.Image, x, y, w, h, subImageCount int, vertical bool) []image.Image {
+
+	subImages := []image.Image{}
+	frameRect := image.Rect(x, y, x+w, y+h)
+
+	for i := 0; i < subImageCount; i++ {
+		subImages = append(subImages, spriteSheet.SubImage(frameRect))
+		if vertical {
+			frameRect.Min.Y += h
+			frameRect.Max.Y += h
+		} else {
+			frameRect.Min.X += w
+			frameRect.Max.X += w
+		}
+	}
+	return subImages
+
+}
+
+func SubImage(spriteSheet *ebiten.Image, x, y, w, h int) *ebiten.Image {
+	return spriteSheet.SubImage(image.Rect(x, y, x+w, y+h)).(*ebiten.Image)
+}
+
+func WriteImage(img image.Image, filename string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer file.Close()
+	png.Encode(file, img)
 }

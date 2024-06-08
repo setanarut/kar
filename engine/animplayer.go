@@ -24,14 +24,19 @@ type AnimationPlayer struct {
 // w and h are the width and height of the first frame's rectangle.
 //
 // The sub-rectangles repeat to the right by the frameCount amount.
-func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frameCount int, pingpong bool) *Animation {
+func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frameCount int, pingpong bool, vertical bool) *Animation {
 
 	subImages := []*ebiten.Image{}
 	frameRect := image.Rect(x, y, x+w, y+h)
 	for i := 0; i < frameCount; i++ {
 		subImages = append(subImages, ap.SpriteSheet.SubImage(frameRect).(*ebiten.Image))
-		frameRect.Min.X += w
-		frameRect.Max.X += w
+		if vertical {
+			frameRect.Min.Y += h
+			frameRect.Max.Y += h
+		} else {
+			frameRect.Min.X += w
+			frameRect.Max.X += w
+		}
 	}
 
 	if pingpong {

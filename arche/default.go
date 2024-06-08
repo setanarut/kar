@@ -20,7 +20,3 @@ func SpawnBlock(pos cm.Vec2, chunkCoord image.Point) {
 	comp.ChunkCoord.Set(e, &types.DataBlock{ChunkCoord: chunkCoord})
 
 }
-
-func SpawnDefaultSnowball(pos cm.Vec2) *donburi.Entry {
-	return SpawnSnowball(0.2, 0.3, 0.5, 7, pos)
-}

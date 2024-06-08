@@ -2,6 +2,7 @@ package system
 
 import (
 	"kar/comp"
+	"kar/engine"
 	"kar/engine/cm"
 	"kar/res"
 
@@ -71,23 +72,37 @@ func (sys *PlayerControlSystem) Update() {
 					if currentBlock != nil {
 						if currentBlock != GetEntry(contactShape.Body()) {
 							comp.Health.SetValue(currentBlock, 3.0)
+							s := comp.Sprite.Get(currentBlock)
+							s.Image = res.StoneBlockImage
 						}
 					}
 					currentBlock = GetEntry(contactShape.Body())
 					if currentBlock.HasComponent(comp.BlockTag) && currentBlock.HasComponent(comp.Health) {
 						h := comp.Health.GetValue(currentBlock)
-						comp.Health.SetValue(currentBlock, h-0.08)
+						s := comp.Sprite.Get(currentBlock)
+						i := int(engine.MapRange(h, 3, 0, 0, 7))
+						s.Image = res.BlockBreakingStagesImages[i]
+						comp.Health.SetValue(currentBlock, h-0.06)
+
 					}
 				}
 			}
 
 			if contactShape == nil {
 				comp.Health.Each(res.World, ResetHealth)
+				comp.BlockTag.Each(res.World, func(e *donburi.Entry) {
+					s := comp.Sprite.Get(e)
+					s.Image = res.StoneBlockImage
+				})
 			}
 		}
 
 		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
 			comp.Health.Each(res.World, ResetHealth)
+			comp.BlockTag.Each(res.World, func(e *donburi.Entry) {
+				s := comp.Sprite.Get(e)
+				s.Image = res.StoneBlockImage
+			})
 		}
 	}
 }

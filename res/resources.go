@@ -3,7 +3,6 @@ package res
 import (
 	"embed"
 	"image"
-	"image/color"
 	_ "image/png"
 	"kar/comp"
 	"kar/engine"
@@ -49,16 +48,16 @@ var (
 )
 
 var (
-	Screen  *ebiten.Image
-	Terrain *image.Gray
-	Wall    = ebiten.NewImage(50, 50)
-	Box     = ebiten.NewImage(25, 25)
-	Player  = engine.LoadImage("assets/player.png", assets)
+	Screen                    *ebiten.Image
+	StoneBlockImage           *ebiten.Image
+	BlockBreakingStagesImages []*ebiten.Image
+	Terrain                   *image.Gray
+	TextureAtlas              = engine.LoadImageFromFS("assets/atlas.png", assets)
+	CrackAtlas                = engine.LoadImageFromFS("assets/cracks.png", assets)
 )
 
 var (
-	Futura = engine.LoadTextFace("assets/futura.ttf", 20, assets)
-	// Miglia    = engine.LoadTextFace("assets/miglia_fur.ttf", 20, assets)
+	Futura    = engine.LoadTextFace("assets/futura.ttf", 20, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
 		Size:     28,
@@ -78,7 +77,7 @@ var (
 )
 
 func init() {
-	Wall.Fill(color.Gray{128})
-	Box.Fill(color.Gray{200})
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
+	StoneBlockImage = engine.SubImage(TextureAtlas, 96, 416, 16, 16)
+	BlockBreakingStagesImages = engine.SubImages(CrackAtlas, 0, 0, 16, 16, 8, true)
 }
