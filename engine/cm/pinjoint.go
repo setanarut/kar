@@ -49,9 +49,9 @@ func (joint *PinJoint) PreStep(dt float64) {
 	delta := b.position.Add(joint.r2.Sub(a.position.Add(joint.r1)))
 	dist := delta.Length()
 	if dist != 0 {
-		joint.n = delta.Mult(1 / dist)
+		joint.n = delta.Scale(1 / dist)
 	} else {
-		joint.n = delta.Mult(1 / Infinity)
+		joint.n = delta.Scale(1 / Infinity)
 	}
 
 	joint.nMass = 1 / k_scalar(a, b, joint.r1, joint.r2, joint.n)
@@ -61,7 +61,7 @@ func (joint *PinJoint) PreStep(dt float64) {
 }
 
 func (joint *PinJoint) ApplyCachedImpulse(dt_coef float64) {
-	j := joint.n.Mult(joint.jnAcc * dt_coef)
+	j := joint.n.Scale(joint.jnAcc * dt_coef)
 	apply_impulses(joint.bodyA, joint.bodyB, joint.r1, joint.r2, j)
 }
 
@@ -79,7 +79,7 @@ func (joint *PinJoint) ApplyImpulse(dt float64) {
 	joint.jnAcc = Clamp(jnOld+jn, -jnMax, jnMax)
 	jn = joint.jnAcc - jnOld
 
-	apply_impulses(a, b, joint.r1, joint.r2, n.Mult(jn))
+	apply_impulses(a, b, joint.r1, joint.r2, n.Scale(jn))
 }
 
 func (joint *PinJoint) GetImpulse() float64 {

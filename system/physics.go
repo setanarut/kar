@@ -22,9 +22,9 @@ func NewPhysicsSystem() *PhysicsSystem {
 
 func (ps *PhysicsSystem) Init() {
 	// res.Space.UseSpatialHash(200, 1000)
-	res.Space.CollisionBias = math.Pow(0.9, 120)
-	res.Space.CollisionSlop = 0.2
-	res.Space.Iterations = 20
+	res.Space.CollisionBias = math.Pow(0.5, 120)
+	res.Space.CollisionSlop = 0.5
+	// res.Space.Iterations = 10
 	res.Space.SetGravity(cm.Vec2{0, -1500})
 	// res.Space.Damping = 0.9
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
@@ -52,7 +52,7 @@ func EnemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bo
 			enemyDamage := comp.Damage.GetValue(a)
 			playerHealth := comp.Health.Get(b)
 			comp.Render.Get(b).ScaleColor = colornames.Red
-			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Mult(500), playerBody.CenterOfGravity())
+			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Scale(500), playerBody.CenterOfGravity())
 			*playerHealth -= enemyDamage
 		}
 	}
@@ -95,7 +95,7 @@ func EnemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 			enemyDamage := comp.Damage.GetValue(enemyEntry)
 			playerHealth := comp.Health.Get(playerEntry)
 			comp.Render.Get(playerEntry).ScaleColor = colornames.Red
-			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Mult(500), playerBody.CenterOfGravity())
+			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Scale(500), playerBody.CenterOfGravity())
 			*playerHealth -= enemyDamage / 60.0
 		}
 	}

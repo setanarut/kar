@@ -5,13 +5,16 @@ import (
 	"kar/engine"
 	"kar/engine/cm"
 	"kar/res"
+	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/yohamta/donburi"
 )
 
-var currentBlock *donburi.Entry
+var HitShape *cm.Shape
+var HitBlockHealth float64
+var RenderScale cm.Vec2
 
 type PlayerControlSystem struct {
 }
@@ -21,7 +24,6 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 }
 
 func (sys *PlayerControlSystem) Init() {
-
 }
 
 func (sys *PlayerControlSystem) Update() {
@@ -33,82 +35,79 @@ func (sys *PlayerControlSystem) Update() {
 	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
-
-		// playerAttackTimer := comp.AttackTimer.Get(player)
-		// inventory := comp.Inventory.Get(player)
 		playerBody := comp.Body.Get(player)
+		r := comp.Render.Get(player)
+		p := playerBody.Position()
 
-		// if res.CurrentTool == types.ItemSnowball {
+		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(50)), 0, res.FilterPlayerRaycast)
 
-		// 	if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
-
-		// 		// SHOOTING
-		// 		if inventory.Items[types.ItemSnowball] > 0 {
-
-		// 			if TimerIsReady(playerAttackTimer) {
-		// 				TimerReset(playerAttackTimer)
-		// 			}
-
-		// 			if TimerIsStart(playerAttackTimer) {
-		// 				dir := res.Input.ArrowDirection.Normalize().Mult(1000)
-		// 				// spawn snowball
-		// 				bullet := arche.SpawnDefaultSnowball(playerBody.Position())
-		// 				inventory.Items[types.ItemSnowball] -= 1
-		// 				bulletBody := comp.Body.Get(bullet)
-		// 				bulletBody.ApplyImpulseAtWorldPoint(dir.Mult(bulletBody.Mass()), playerBody.Position())
-		// 			}
-
-		// 		}
-
-		// 	}
-
-		// }
-		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
-			p := playerBody.Position()
-			queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Mult(50)), 0, res.FilterPlayerRaycast)
-			contactShape := queryInfo.Shape
-			if contactShape != nil {
-				if CheckEntry(contactShape.Body()) {
-					if currentBlock != nil {
-						if currentBlock != GetEntry(contactShape.Body()) {
-							comp.Health.SetValue(currentBlock, 3.0)
-							s := comp.Sprite.Get(currentBlock)
-							s.Image = res.StoneBlockImage
+		// hedef değişti mi?
+		if queryInfo.Shape == nil || queryInfo.Shape != HitShape {
+			if HitShape != nil {
+				if CheckEntry(HitShape.Body()) {
+					e := GetEntry(HitShape.Body())
+					if e.HasComponent(comp.Block) {
+						comp.Health.SetValue(e, 3.0)
+						s := comp.Sprite.Get(e)
+						b := comp.Block.Get(e)
+						if b.BlockType == types.BlockStone {
+							s.Image = res.StoneStages[0]
 						}
-					}
-					currentBlock = GetEntry(contactShape.Body())
-					if currentBlock.HasComponent(comp.BlockTag) && currentBlock.HasComponent(comp.Health) {
-						h := comp.Health.GetValue(currentBlock)
-						s := comp.Sprite.Get(currentBlock)
-						i := int(engine.MapRange(h, 3, 0, 0, 7))
-						s.Image = res.BlockBreakingStagesImages[i]
-						comp.Health.SetValue(currentBlock, h-0.06)
-
 					}
 				}
 			}
+		}
 
-			if contactShape == nil {
-				comp.Health.Each(res.World, ResetHealth)
-				comp.BlockTag.Each(res.World, func(e *donburi.Entry) {
-					s := comp.Sprite.Get(e)
-					s.Image = res.StoneBlockImage
-				})
+		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
+			if queryInfo.Shape != nil && queryInfo.Shape == HitShape {
+				if HitShape != nil {
+					if CheckEntry(HitShape.Body()) {
+						e := GetEntry(HitShape.Body())
+						if e.HasComponent(comp.Block) {
+							h := comp.Health.GetValue(e)
+							b := comp.Block.Get(e)
+							s := comp.Sprite.Get(e)
+							if b.BlockType == types.BlockStone {
+								s.Image = res.StoneStages[int(engine.MapRange(h, 3, 0, 0, 8))]
+							}
+
+							HitBlockHealth = h
+							comp.Health.SetValue(e, h-0.06)
+						}
+					}
+				}
 			}
 		}
 
 		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
-			comp.Health.Each(res.World, ResetHealth)
-			comp.BlockTag.Each(res.World, func(e *donburi.Entry) {
-				s := comp.Sprite.Get(e)
-				s.Image = res.StoneBlockImage
-			})
+			if HitShape != nil {
+				if CheckEntry(HitShape.Body()) {
+					e := GetEntry(HitShape.Body())
+					if e.HasComponent(comp.Block) {
+						comp.Health.SetValue(e, 3.0)
+						s := comp.Sprite.Get(e)
+						b := comp.Block.Get(e)
+						if b.BlockType == types.BlockStone {
+							s.Image = res.StoneStages[0]
+						}
+					}
+				}
+			}
 		}
+
+		if ebiten.IsKeyPressed(ebiten.KeyA) {
+			r.CurrentScale = r.DrawScaleFlipX
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyD) {
+			r.CurrentScale = r.DrawScale
+		}
+
+		HitShape = queryInfo.Shape
 	}
+
 }
 
-func (sys *PlayerControlSystem) Draw() {
-}
+func (sys *PlayerControlSystem) Draw() {}
 
 func WASDPlatformerForce(e *donburi.Entry) {
 
@@ -130,7 +129,9 @@ func WASDPlatformerForce(e *donburi.Entry) {
 
 	// yerde
 	if contactShape != nil {
+
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
+
 			body.ApplyForceAtLocalPoint(cm.Vec2{-1500, 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
@@ -155,7 +156,7 @@ func WASDPlatformer(e *donburi.Entry) {
 	p := body.Position()
 	mobileData := comp.Mobile.Get(e)
 	vel.X = res.Input.WASDDirection.X
-	vel = vel.Mult(mobileData.Speed)
+	vel = vel.Scale(mobileData.Speed)
 	vel = vel.Add(cm.Vec2{0, -500})
 	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
 
@@ -175,6 +176,6 @@ func WASDPlatformer(e *donburi.Entry) {
 func WASD4Directional(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Normalize().Mult(mobileData.Speed)
+	velocity := res.Input.WASDDirection.Normalize().Scale(mobileData.Speed)
 	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 }

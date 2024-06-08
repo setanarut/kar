@@ -40,9 +40,14 @@ func (v Vec2) Neg() Vec2 {
 	return Vec2{-v.X, -v.Y}
 }
 
-// Mult scales vector
-func (v Vec2) Mult(s float64) Vec2 {
+// Scale scales vector
+func (v Vec2) Scale(s float64) Vec2 {
 	return Vec2{v.X * s, v.Y * s}
+}
+
+// Mult scales vector
+func (v Vec2) Mult(other Vec2) Vec2 {
+	return Vec2{v.X * other.X, v.Y * other.Y}
 }
 
 // Dot returns dot product
@@ -69,7 +74,7 @@ func (v Vec2) ReversePerp() Vec2 {
 
 // Returns the vector projection onto other.
 func (v Vec2) Project(other Vec2) Vec2 {
-	return other.Mult(v.Dot(other) / other.Dot(other))
+	return other.Scale(v.Dot(other) / other.Dot(other))
 }
 
 // ToAngle returns the angular direction v is pointing in (in radians).
@@ -103,13 +108,13 @@ func (v Vec2) Length() float64 {
 
 // Lerp linearly interpolates between this and other vector.
 func (v Vec2) Lerp(other Vec2, t float64) Vec2 {
-	return v.Mult(1.0 - t).Add(other.Mult(t))
+	return v.Scale(1.0 - t).Add(other.Scale(t))
 }
 
 // Normalize returns a normalized copy of this vector.
 func (v Vec2) Normalize() Vec2 {
 	// return v.Mult(1.0 / (v.Length() + math.SmallestNonzeroFloat64))
-	return v.Mult(1.0 / (v.Length() + 1e-50))
+	return v.Scale(1.0 / (v.Length() + 1e-50))
 }
 
 // Spherical linearly interpolate between this and other.
@@ -122,7 +127,7 @@ func (v Vec2) LerpSpherical(other Vec2, t float64) Vec2 {
 	}
 
 	denom := 1.0 / math.Sin(omega)
-	return v.Mult(math.Sin((1.0-t)*omega) * denom).Add(other.Mult(math.Sin(t*omega) * denom))
+	return v.Scale(math.Sin((1.0-t)*omega) * denom).Add(other.Scale(math.Sin(t*omega) * denom))
 }
 
 // Spherical linearly interpolate between this towards other by no more than angle a radians.
@@ -135,7 +140,7 @@ func (v Vec2) LerpSphericalClamp(other Vec2, angle float64) Vec2 {
 // ClampLenght clamps this vector lenght to len.
 func (v Vec2) ClampLenght(len float64) Vec2 {
 	if v.Dot(v) > len*len {
-		return v.Normalize().Mult(len)
+		return v.Normalize().Scale(len)
 	}
 	return Vec2{v.X, v.Y}
 }
@@ -179,7 +184,7 @@ func (v Vec2) ClosestT(b Vec2) float64 {
 
 func (v Vec2) LerpT(b Vec2, t float64) Vec2 {
 	ht := 0.5 * t
-	return v.Mult(0.5 - ht).Add(b.Mult(0.5 + ht))
+	return v.Scale(0.5 - ht).Add(b.Scale(0.5 + ht))
 }
 
 func (v Vec2) ClosestDist(v1 Vec2) float64 {
@@ -189,7 +194,7 @@ func (v Vec2) ClosestDist(v1 Vec2) float64 {
 func (v Vec2) ClosestPointOnSegment(a, b Vec2) Vec2 {
 	delta := a.Sub(b)
 	t := Clamp01(delta.Dot(v.Sub(b)) / delta.LengthSq())
-	return b.Add(delta.Mult(t))
+	return b.Add(delta.Scale(t))
 }
 
 // Round returns the nearest integer Vector, rounding half away from zero.

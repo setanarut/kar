@@ -65,8 +65,9 @@ func ResetLevel() {
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		DestroyEntryWithBody(player)
-
-		arche.SpawnDefaultPlayer(playerSpawnPosition)
+		e := arche.SpawnDefaultPlayer(playerSpawnPosition)
+		r := comp.Render.Get(e)
+		RenderScale = r.DrawScale
 	} else {
 		arche.SpawnDefaultPlayer(playerSpawnPosition)
 	}

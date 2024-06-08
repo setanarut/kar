@@ -52,7 +52,7 @@ func Explode(bomb *donburi.Entry) {
 }
 
 func ApplyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
-	impulseVec2 := sqi.Normal.Neg().Mult(power * engine.MapRange(sqi.Alpha, 0.5, 1, 1, 0))
+	impulseVec2 := sqi.Normal.Neg().Scale(power * engine.MapRange(sqi.Alpha, 0.5, 1, 1, 0))
 	sqi.Shape.Body().ApplyImpulseAtWorldPoint(impulseVec2, sqi.Point)
 }
 
@@ -89,7 +89,7 @@ func DestroyDead(e *donburi.Entry) {
 	if e.HasComponent(comp.Health) {
 
 		if comp.Health.GetValue(e) <= 0 {
-			if e.HasComponent(comp.BlockTag) {
+			if e.HasComponent(comp.Block) {
 				blockPos := comp.Body.Get(e).Position().Point().Div(50)
 				res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{0})
 				DestroyEntryWithBody(e)

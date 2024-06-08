@@ -452,7 +452,7 @@ func (tree *BBTree) GetBB(obj *Shape) BB {
 		x := (bb.R - bb.L) * coef
 		y := (bb.T - bb.B) * coef
 
-		v := tree.velocityFunc(obj).Mult(0.1)
+		v := tree.velocityFunc(obj).Scale(0.1)
 		return BB{
 			bb.L + math.Min(-x, v.X),
 			bb.B + math.Min(-y, v.Y),

@@ -10,7 +10,7 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-func spawnCircleBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
+func SpawnCircleBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
 	// body := cm.NewKinematicBody()
 	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewCircle(body, r, cm.Vec2{})
@@ -41,12 +41,12 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 		comp.AttackTimer,
 		comp.Health,
 		comp.Damage,
-		comp.Sprite,
+		comp.Render,
 		comp.Body,
 		comp.Mobile,
 		comp.WASDTag,
 	))
-	comp.Health.SetValue(entry, 100000)
+	comp.Health.SetValue(entry, 10)
 	comp.Inventory.Set(entry, &types.DataInventory{
 		Items: make(map[types.ItemType]int),
 	})
@@ -54,18 +54,19 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	i := comp.Inventory.Get(entry)
 	i.Items[types.ItemSnowball] = 1000
 
-	sprite := comp.Sprite.Get(entry)
-	sprite.Image = res.StoneBlockImage
-	sprite.Offset = engine.GetEbitenImageOffset(sprite.Image)
-	sprite.DrawScale = engine.GetBoxScaleFactor(16, 16, 25, 25)
+	render := comp.Render.Get(entry)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.PlayerAtlas)
+	render.AnimPlayer.AddStateAnimation("dig_right", 0, 32, 16, 16, 6, false, false)
+	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
+	render.CurrentScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
+	render.DrawScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
+	render.DrawScaleFlipX = engine.GetBoxScaleFactorFlipX(16, 16, 50, 50)
 
-	b := spawnBoxBody(mass, el, fr, 25, 25, rad, entry)
+	b := spawnBoxBody(mass, el, fr, 25, 40, rad, entry)
 	b.FirstShape().SetCollisionType(types.CollPlayer)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskPlayer, cm.AllCategories&^types.BitmaskSnowball)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskPlayer, cm.AllCategories&^types.BitmaskPlayerRaycast)
 	b.SetPosition(pos)
 	comp.Body.Set(entry, b)
-	res.CurrentTool = types.ItemSnowball
-	// b.FirstShape().SetSensor(true)
 	return entry
 }
 
@@ -104,21 +105,11 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	sbody.SetPosition(boxCenter)
 	res.Space.AddShape(wallShape)
 	res.Space.AddBody(wallShape.Body())
-
 	// components
 	entry := res.World.Entry(res.World.Create(
 		comp.Body,
-		comp.Sprite,
-		comp.ChunkCoord,
 	))
-
 	wallShape.Body().UserData = entry
 	comp.Body.Set(entry, wallShape.Body())
-
-	sprite := comp.Sprite.Get(entry)
-	sprite.Image = res.StoneBlockImage
-	sprite.Offset = engine.GetEbitenImageOffset(sprite.Image)
-	sprite.DrawScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
-
 	return entry
 }

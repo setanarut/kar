@@ -52,11 +52,11 @@ func (joint *PivotJoint) PreStep(dt float64) {
 
 	// calculate bias velocity
 	delta := b.position.Add(joint.r2).Sub(a.position.Add(joint.r1))
-	joint.bias = delta.Mult(-bias_coef(joint.Constraint.errorBias, dt) / dt).ClampLenght(joint.Constraint.maxBias)
+	joint.bias = delta.Scale(-bias_coef(joint.Constraint.errorBias, dt) / dt).ClampLenght(joint.Constraint.maxBias)
 }
 
 func (joint *PivotJoint) ApplyCachedImpulse(dt_coef float64) {
-	apply_impulses(joint.bodyA, joint.bodyB, joint.r1, joint.r2, joint.jAcc.Mult(dt_coef))
+	apply_impulses(joint.bodyA, joint.bodyB, joint.r1, joint.r2, joint.jAcc.Scale(dt_coef))
 }
 
 func (joint *PivotJoint) ApplyImpulse(dt float64) {

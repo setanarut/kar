@@ -94,11 +94,11 @@ func CircleToCircle(info *CollisionInfo) {
 	if distsq < mindist*mindist {
 		dist := math.Sqrt(distsq)
 		if dist != 0 {
-			info.n = delta.Mult(1.0 / dist)
+			info.n = delta.Scale(1.0 / dist)
 		} else {
 			info.n = Vec2{1, 0}
 		}
-		info.PushContact(c1.transformC.Add(info.n.Mult(c1.radius)), c2.transformC.Add(info.n.Mult(-c2.radius)), 0)
+		info.PushContact(c1.transformC.Add(info.n.Scale(c1.radius)), c2.transformC.Add(info.n.Scale(-c2.radius)), 0)
 	}
 }
 
@@ -116,7 +116,7 @@ func CircleToSegment(info *CollisionInfo) {
 
 	segDelta := segB.Sub(segA)
 	closestT := Clamp01(segDelta.Dot(center.Sub(segA)) / segDelta.LengthSq())
-	closest := segA.Add(segDelta.Mult(closestT))
+	closest := segA.Add(segDelta.Scale(closestT))
 
 	mindist := circle.radius + segment.radius
 	delta := closest.Sub(center)
@@ -124,7 +124,7 @@ func CircleToSegment(info *CollisionInfo) {
 	if distsq < mindist*mindist {
 		dist := math.Sqrt(distsq)
 		if dist != 0 {
-			info.n = delta.Mult(1 / dist)
+			info.n = delta.Scale(1 / dist)
 		} else {
 			info.n = segment.transformN
 		}
@@ -133,7 +133,7 @@ func CircleToSegment(info *CollisionInfo) {
 		rot := segment.Shape.body.Rotation()
 		if (closestT != 0.0 || n.Dot(segment.aTangent.Rotate(rot)) >= 0.0) &&
 			(closestT != 1.0 || n.Dot(segment.bTangent.Rotate(rot)) >= 0.0) {
-			info.PushContact(center.Add(n.Mult(circle.radius)), closest.Add(n.Mult(-segment.radius)), 0)
+			info.PushContact(center.Add(n.Scale(circle.radius)), closest.Add(n.Scale(-segment.radius)), 0)
 		}
 	}
 }
@@ -170,7 +170,7 @@ func CircleToPoly(info *CollisionInfo) {
 
 	if points.d <= circle.radius+poly.radius {
 		info.n = points.n
-		info.PushContact(points.a.Add(info.n.Mult(circle.radius)), points.b.Add(info.n.Mult(poly.radius)), 0)
+		info.PushContact(points.a.Add(info.n.Scale(circle.radius)), points.b.Add(info.n.Scale(poly.radius)), 0)
 	}
 }
 
@@ -245,7 +245,7 @@ func (v0 MinkowskiPoint) ClosestPoints(v1 MinkowskiPoint) ClosestPoints {
 
 	// Vertex/vertex collisions need special treatment since the MSA won't be shared with an axis of the minkowski difference.
 	d2 := p.Length()
-	n2 := p.Mult(1 / (d2 + math.SmallestNonzeroFloat64))
+	n2 := p.Scale(1 / (d2 + math.SmallestNonzeroFloat64))
 
 	return ClosestPoints{pa, pb, n2, d2, id}
 }
@@ -331,8 +331,8 @@ func ContactPoints(e1, e2 Edge, points ClosestPoints, info *CollisionInfo) {
 	// Project the endpoints of the two edges onto the opposing edge, clamping them as necessary.
 	// Compare the projected points to the collision normal to see if the shapes overlap there.
 	{
-		p1 := n.Mult(e1.r).Add(e1.a.p.Lerp(e1.b.p, Clamp01((dE2B-dE1A)*e1Denom)))
-		p2 := n.Mult(-e2.r).Add(e2.a.p.Lerp(e2.b.p, Clamp01((dE1A-dE2A)*e2Denom)))
+		p1 := n.Scale(e1.r).Add(e1.a.p.Lerp(e1.b.p, Clamp01((dE2B-dE1A)*e1Denom)))
+		p2 := n.Scale(-e2.r).Add(e2.a.p.Lerp(e2.b.p, Clamp01((dE1A-dE2A)*e2Denom)))
 		dist := p2.Sub(p1).Dot(n)
 		if dist <= 0 {
 			hash1a2b := HashPair(e1.a.hash, e2.b.hash)
@@ -340,8 +340,8 @@ func ContactPoints(e1, e2 Edge, points ClosestPoints, info *CollisionInfo) {
 		}
 	}
 	{
-		p1 := n.Mult(e1.r).Add(e1.a.p.Lerp(e1.b.p, Clamp01((dE2A-dE1A)*e1Denom)))
-		p2 := n.Mult(-e2.r).Add(e2.a.p.Lerp(e2.b.p, Clamp01((dE1B-dE2A)*e2Denom)))
+		p1 := n.Scale(e1.r).Add(e1.a.p.Lerp(e1.b.p, Clamp01((dE2A-dE1A)*e1Denom)))
+		p2 := n.Scale(-e2.r).Add(e2.a.p.Lerp(e2.b.p, Clamp01((dE1B-dE2A)*e2Denom)))
 		dist := p2.Sub(p1).Dot(n)
 		if dist <= 0 {
 			hash1b2a := HashPair(e1.b.hash, e2.a.hash)

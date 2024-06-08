@@ -7,6 +7,7 @@ import (
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/res"
+	"kar/types"
 	"math"
 	"os"
 	"slices"
@@ -54,7 +55,7 @@ func (tr *Terrain) Generate() {
 	}
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
@@ -62,16 +63,16 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 			blockY := y + (chunksize * chunkCoord.Y)
 			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
 			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
-			blockPos = blockPos.Mult(tr.BlockSize)
+			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockNumber.Y > 128 {
-				blockSpawnCallbackFunc(blockPos, chunkCoord)
+				blockSpawnCallbackFunc(blockPos, chunkCoord, types.BlockStone)
 			}
 		}
 	}
 }
 
 // Spawn/Destroy chunks
-func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point)) {
+func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
 	playerChunks := GetPlayerChunks(playerChunk)
 	intersectionChunks := FindIntersection(playerChunks, tr.LoadedChunks)
 
@@ -91,8 +92,8 @@ func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc 
 }
 
 func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
-	comp.ChunkCoord.Each(res.World, func(e *donburi.Entry) {
-		if comp.ChunkCoord.Get(e).ChunkCoord == chunkCoord {
+	comp.Block.Each(res.World, func(e *donburi.Entry) {
+		if comp.Block.Get(e).ChunkCoord == chunkCoord {
 			b := comp.Body.Get(e)
 			DestroyBodyWithEntry(b)
 		}

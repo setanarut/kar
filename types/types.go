@@ -17,6 +17,7 @@ type System interface {
 	Draw()
 }
 type ItemType int
+type BlockType int
 
 type DataAI struct {
 	Target         *donburi.Entry
@@ -25,12 +26,14 @@ type DataAI struct {
 }
 
 type DataRender struct {
-	Offset     cm.Vec2
-	DrawScale  cm.Vec2
-	DrawAngle  float64
-	AnimPlayer *engine.AnimationPlayer
-	DIO        *ebiten.DrawImageOptions
-	ScaleColor color.Color
+	Offset         cm.Vec2
+	DrawScale      cm.Vec2
+	DrawScaleFlipX cm.Vec2
+	CurrentScale   cm.Vec2
+	DrawAngle      float64
+	AnimPlayer     *engine.AnimationPlayer
+	DIO            *ebiten.DrawImageOptions
+	ScaleColor     color.Color
 }
 
 type DataSprite struct {
@@ -57,4 +60,5 @@ type DataInventory struct {
 type DataBlock struct {
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
+	BlockType  BlockType
 }

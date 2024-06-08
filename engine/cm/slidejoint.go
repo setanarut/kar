@@ -59,7 +59,7 @@ func (joint *SlideJoint) ApplyCachedImpulse(dt_coef float64) {
 	a := joint.bodyA
 	b := joint.bodyB
 
-	j := joint.n.Mult(joint.jnAcc * dt_coef)
+	j := joint.n.Scale(joint.jnAcc * dt_coef)
 	apply_impulses(a, b, joint.r1, joint.r2, j)
 }
 
@@ -82,7 +82,7 @@ func (joint *SlideJoint) ApplyImpulse(dt float64) {
 	joint.jnAcc = Clamp(jnOld+jn, -joint.maxForce*dt, 0)
 	jn = joint.jnAcc - jnOld
 
-	apply_impulses(a, b, joint.r1, joint.r2, n.Mult(jn))
+	apply_impulses(a, b, joint.r1, joint.r2, n.Scale(jn))
 }
 
 func (joint *SlideJoint) GetImpulse() float64 {

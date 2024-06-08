@@ -49,20 +49,20 @@ func (joint *GrooveJoint) PreStep(dt float64) {
 		joint.r1 = tb.Sub(a.position)
 	} else {
 		joint.clamp = 0
-		joint.r1 = n.Perp().Mult(-td).Add(n.Mult(d)).Sub(a.position)
+		joint.r1 = n.Perp().Scale(-td).Add(n.Scale(d)).Sub(a.position)
 	}
 
 	joint.k = k_tensor(a, b, joint.r1, joint.r2)
 
 	delta := b.position.Add(joint.r2).Sub(a.position.Add(joint.r1))
-	joint.bias = delta.Mult(-bias_coef(joint.errorBias, dt) / dt).ClampLenght(joint.maxBias)
+	joint.bias = delta.Scale(-bias_coef(joint.errorBias, dt) / dt).ClampLenght(joint.maxBias)
 }
 
 func (joint *GrooveJoint) ApplyCachedImpulse(dt_coef float64) {
 	a := joint.bodyA
 	b := joint.bodyB
 
-	apply_impulses(a, b, joint.r1, joint.r2, joint.jAcc.Mult(dt_coef))
+	apply_impulses(a, b, joint.r1, joint.r2, joint.jAcc.Scale(dt_coef))
 }
 
 func (joint *GrooveJoint) grooveConstrain(j Vec2, dt float64) Vec2 {

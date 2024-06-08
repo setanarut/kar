@@ -55,11 +55,11 @@ func (circle *Circle) PointQuery(p Vec2, info *PointQueryInfo) {
 	r := circle.radius
 
 	info.Shape = circle.Shape
-	info.Point = circle.transformC.Add(delta.Mult(r / d))
+	info.Point = circle.transformC.Add(delta.Scale(r / d))
 	info.Distance = d - r
 
 	if d > MagicEpsilon {
-		info.Gradient = delta.Mult(1 / d)
+		info.Gradient = delta.Scale(1 / d)
 	} else {
 		info.Gradient = Vec2{0, 1}
 	}
@@ -84,7 +84,7 @@ func CircleSegmentQuery(shape *Shape, center Vec2, r1 float64, a, b Vec2, r2 flo
 			n := da.Lerp(db, t).Normalize()
 
 			info.Shape = shape
-			info.Point = a.Lerp(b, t).Sub(n.Mult(r2))
+			info.Point = a.Lerp(b, t).Sub(n.Scale(r2))
 			info.Normal = n
 			info.Alpha = t
 		}

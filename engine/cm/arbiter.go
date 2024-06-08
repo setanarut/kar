@@ -121,7 +121,7 @@ func (arbiter *Arbiter) ApplyCachedImpulse(dt_coef float64) {
 	for i := 0; i < arbiter.count; i++ {
 		contact := arbiter.contacts[i]
 		j := arbiter.normal.Rotate(Vec2{contact.jnAcc, contact.jtAcc})
-		apply_impulses(arbiter.body_a, arbiter.body_b, contact.r1, contact.r2, j.Mult(dt_coef))
+		apply_impulses(arbiter.body_a, arbiter.body_b, contact.r1, contact.r2, j.Scale(dt_coef))
 	}
 }
 
@@ -138,8 +138,8 @@ func (arbiter *Arbiter) ApplyImpulse() {
 		r1 := con.r1
 		r2 := con.r2
 
-		vb1 := a.v_bias.Add(r1.Perp().Mult(a.w_bias))
-		vb2 := b.v_bias.Add(r2.Perp().Mult(b.w_bias))
+		vb1 := a.v_bias.Add(r1.Perp().Scale(a.w_bias))
+		vb2 := b.v_bias.Add(r2.Perp().Scale(b.w_bias))
 		vr := relative_velocity(a, b, r1, r2).Add(surface_vr)
 
 		vbn := vb2.Sub(vb1).Dot(n)
@@ -159,7 +159,7 @@ func (arbiter *Arbiter) ApplyImpulse() {
 		jtOld := con.jtAcc
 		con.jtAcc = Clamp(jtOld+jt, -jtMax, jtMax)
 
-		apply_bias_impulses(a, b, r1, r2, n.Mult(con.jBias-jbnOld))
+		apply_bias_impulses(a, b, r1, r2, n.Scale(con.jBias-jbnOld))
 		apply_impulses(a, b, r1, r2, n.Rotate(Vec2{con.jnAcc - jnOld, con.jtAcc - jtOld}))
 	}
 }
@@ -234,7 +234,7 @@ func (arb *Arbiter) Update(info *CollisionInfo, space *Space) {
 	arb.u = a.friction * b.friction
 
 	surfaceVr := b.surfaceVelocity.Sub(a.surfaceVelocity)
-	arb.surface_vr = surfaceVr.Sub(info.n.Mult(surfaceVr.Dot(info.n)))
+	arb.surface_vr = surfaceVr.Sub(info.n.Scale(surfaceVr.Dot(info.n)))
 
 	typeA := info.a.CollisionType
 	typeB := info.b.CollisionType
@@ -357,7 +357,7 @@ func apply_bias_impulses(a, b *Body, r1, r2, j Vec2) {
 }
 
 func relative_velocity(a, b *Body, r1, r2 Vec2) Vec2 {
-	return r2.Perp().Mult(b.w).Add(b.vel).Sub(r1.Perp().Mult(a.w).Add(a.vel))
+	return r2.Perp().Scale(b.w).Add(b.vel).Sub(r1.Perp().Scale(a.w).Add(a.vel))
 }
 
 var CollisionHandlerDoNothing = CollisionHandler{
@@ -450,7 +450,7 @@ func (arb *Arbiter) Bodies() (*Body, *Body) {
 
 func (arb *Arbiter) Normal() Vec2 {
 	if arb.swapped {
-		return arb.normal.Mult(-1)
+		return arb.normal.Scale(-1)
 	} else {
 		return arb.normal
 	}

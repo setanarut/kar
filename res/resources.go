@@ -48,16 +48,16 @@ var (
 )
 
 var (
-	Screen                    *ebiten.Image
-	StoneBlockImage           *ebiten.Image
-	BlockBreakingStagesImages []*ebiten.Image
-	Terrain                   *image.Gray
-	TextureAtlas              = engine.LoadImageFromFS("assets/atlas.png", assets)
-	CrackAtlas                = engine.LoadImageFromFS("assets/cracks.png", assets)
+	Screen      *ebiten.Image
+	StoneStages []*ebiten.Image
+	Terrain     *image.Gray
+	Atlas       = engine.LoadImageFromFS("assets/atlas.png", assets)
+	PlayerAtlas = engine.LoadImageFromFS("assets/player_atlas.png", assets)
+	StoneAtlas  = engine.LoadImageFromFS("assets/stone_atlas.png", assets)
 )
 
 var (
-	Futura    = engine.LoadTextFace("assets/futura.ttf", 20, assets)
+	Futura    = engine.LoadTextFace("assets/futura.ttf", 18, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
 		Size:     28,
@@ -78,6 +78,5 @@ var (
 
 func init() {
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	StoneBlockImage = engine.SubImage(TextureAtlas, 96, 416, 16, 16)
-	BlockBreakingStagesImages = engine.SubImages(CrackAtlas, 0, 0, 16, 16, 8, true)
+	StoneStages = engine.SubImages(StoneAtlas, 0, 0, 16, 16, 9, true)
 }

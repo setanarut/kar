@@ -100,10 +100,10 @@ func (poly *PolyShape) PointQuery(p Vec2, info *PointQueryInfo) {
 	} else {
 		dist = -minDist
 	}
-	g := p.Sub(closestPoint).Mult(1.0 / dist)
+	g := p.Sub(closestPoint).Scale(1.0 / dist)
 
 	info.Shape = poly.Shape
-	info.Point = closestPoint.Add(g.Mult(r))
+	info.Point = closestPoint.Add(g.Scale(r))
 	info.Distance = dist - r
 
 	if minDist > MagicEpsilon {
@@ -140,7 +140,7 @@ func (poly *PolyShape) SegmentQuery(a, b Vec2, r2 float64, info *SegmentQueryInf
 
 		if dtMin <= dt && dt <= dtMax {
 			info.Shape = poly.Shape
-			info.Point = a.Lerp(b, t).Sub(n.Mult(r2))
+			info.Point = a.Lerp(b, t).Sub(n.Scale(r2))
 			info.Normal = n
 			info.Alpha = t
 		}

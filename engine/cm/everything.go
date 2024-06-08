@@ -213,7 +213,7 @@ func MomentForBox(mass, width, height float64) float64 {
 func MomentForBox2(mass float64, box BB) float64 {
 	width := box.R - box.L
 	height := box.T - box.B
-	offset := Vec2{box.L + box.R, box.B + box.T}.Mult(0.5)
+	offset := Vec2{box.L + box.R, box.B + box.T}.Scale(0.5)
 
 	// TODO: NaN when offset is 0 and m is INFINITY
 	return MomentForBox(mass, width, height) + mass*offset.LengthSq()
@@ -298,10 +298,10 @@ func CentroidForPoly(count int, verts []Vec2) Vec2 {
 		cross := v1.Cross(v2)
 
 		sum += cross
-		vsum = vsum.Add(v1.Add(v2).Mult(cross))
+		vsum = vsum.Add(v1.Add(v2).Scale(cross))
 	}
 
-	return vsum.Mult(1.0 / (3.0 * sum))
+	return vsum.Scale(1.0 / (3.0 * sum))
 }
 
 // DebugInfo returns info of space

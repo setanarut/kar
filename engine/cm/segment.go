@@ -88,11 +88,11 @@ func (seg *Segment) PointQuery(p Vec2, info *PointQueryInfo) {
 	delta := p.Sub(closest)
 	d := delta.Length()
 	r := seg.radius
-	g := delta.Mult(1 / d)
+	g := delta.Scale(1 / d)
 
 	info.Shape = seg.Shape
 	if d != 0 {
-		info.Point = closest.Add(g.Mult(r))
+		info.Point = closest.Add(g.Scale(r))
 	} else {
 		info.Point = closest
 	}
@@ -117,7 +117,7 @@ func (seg *Segment) SegmentQuery(a, b Vec2, r2 float64, info *SegmentQueryInfo) 
 	} else {
 		flippedN = n
 	}
-	segOffset := flippedN.Mult(r).Sub(a)
+	segOffset := flippedN.Scale(r).Sub(a)
 
 	// Make the endpoints relative to 'a' and move them by the thickness of the segment.
 	segA := seg.transformA.Add(segOffset)
@@ -138,7 +138,7 @@ func (seg *Segment) SegmentQuery(a, b Vec2, r2 float64, info *SegmentQueryInfo) 
 			t := ad / (ad - bd)
 
 			info.Shape = seg.Shape
-			info.Point = a.Lerp(b, t).Sub(flippedN.Mult(r2))
+			info.Point = a.Lerp(b, t).Sub(flippedN.Scale(r2))
 			info.Normal = flippedN
 			info.Alpha = t
 		}

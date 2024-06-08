@@ -334,7 +334,7 @@ func (body *Body) UpdateVelocity(gravity Vec2, damping, dt float64) {
 	// 	log.Fatalln("Body's mass and moment must be positive")
 	// }
 
-	body.vel = body.vel.Mult(damping).Add(gravity.Add(body.force.Mult(body.m_inv)).Mult(dt))
+	body.vel = body.vel.Scale(damping).Add(gravity.Add(body.force.Scale(body.m_inv)).Scale(dt))
 	body.w = body.w*damping + body.torque*body.moi_inv*dt
 
 	body.force = Vec2{}
@@ -558,7 +558,7 @@ func (body *Body) ApplyImpulseAtLocalPoint(impulse, point Vec2) {
 // Get the world (absolute) velocity of a point on a rigid body specified in body local coordinates.
 func (body *Body) VelocityAtLocalPoint(point Vec2) Vec2 {
 	r := body.transform.Vect(point.Sub(body.cog))
-	return body.vel.Add(r.Perp().Mult(body.w))
+	return body.vel.Add(r.Perp().Scale(body.w))
 }
 
 // VelocityAtWorldPoint returns the velocity of a point on a body.
@@ -566,7 +566,7 @@ func (body *Body) VelocityAtLocalPoint(point Vec2) Vec2 {
 // Get the world (absolute) velocity of a point on a rigid body specified in world coordinates.
 func (body *Body) VelocityAtWorldPoint(point Vec2) Vec2 {
 	r := point.Sub(body.transform.Point(body.cog))
-	return body.vel.Add(r.Perp().Mult(body.w))
+	return body.vel.Add(r.Perp().Scale(body.w))
 }
 
 // RemoveConstraint removes constraint from the body.
@@ -650,7 +650,7 @@ func BodyUpdateVelocity(body *Body, gravity Vec2, damping, dt float64) {
 		return
 	}
 
-	body.vel = body.vel.Mult(damping).Add(gravity.Add(body.force.Mult(body.m_inv)).Mult(dt))
+	body.vel = body.vel.Scale(damping).Add(gravity.Add(body.force.Scale(body.m_inv)).Scale(dt))
 	body.w = body.w*damping + body.torque*body.moi_inv*dt
 
 	body.force = Vec2{}
@@ -659,7 +659,7 @@ func BodyUpdateVelocity(body *Body, gravity Vec2, damping, dt float64) {
 
 // BodyUpdatePosition is default position integration function.
 func BodyUpdatePosition(body *Body, dt float64) {
-	body.position = body.position.Add(body.vel.Add(body.v_bias).Mult(dt))
+	body.position = body.position.Add(body.vel.Add(body.v_bias).Scale(dt))
 	body.angle = body.angle + (body.w+body.w_bias)*dt
 	body.SetTransform(body.position, body.angle)
 

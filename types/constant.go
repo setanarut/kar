@@ -15,6 +15,9 @@ const (
 	ItemAxe
 	ItemShovel
 )
+const (
+	BlockStone BlockType = iota
+)
 
 // Collision Bitmask Category
 const (
