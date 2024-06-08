@@ -5,7 +5,6 @@ import (
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/res"
-	"kar/types"
 	"math"
 
 	"golang.org/x/image/colornames"
@@ -22,12 +21,13 @@ func NewPhysicsSystem() *PhysicsSystem {
 }
 
 func (ps *PhysicsSystem) Init() {
-	// res.Space.UseSpatialHash(50, 1000)
-	res.Space.CollisionBias = math.Pow(0.5, 60)
-	res.Space.CollisionSlop = 0.5
-	// res.Space.Iterations = 20
-	res.Space.SetGravity(cm.Vec2{0, -1200})
-	res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
+	// res.Space.UseSpatialHash(200, 1000)
+	res.Space.CollisionBias = math.Pow(0.9, 120)
+	res.Space.CollisionSlop = 0.2
+	res.Space.Iterations = 20
+	res.Space.SetGravity(cm.Vec2{0, -1500})
+	// res.Space.Damping = 0.9
+	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollEnemy).BeginFunc = snowballEnemyBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
@@ -44,7 +44,7 @@ func (ps *PhysicsSystem) Update() {
 func (ps *PhysicsSystem) Draw() {}
 
 // Enemy <-> Player begin
-func enemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+func EnemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	_, playerBody := arb.Bodies()
 	if CheckEntries(arb) {
 		a, b := GetEntries(arb)
@@ -59,7 +59,7 @@ func enemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bo
 	return true
 }
 
-func snowballBlockBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+func SnowballBlockBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	if CheckEntries(arb) {
 		snowball, block := GetEntries(arb)
 		if block.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) {
@@ -74,7 +74,7 @@ func snowballBlockBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) 
 	}
 	return true
 }
-func snowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+func SnowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	if CheckEntries(arb) {
 		snowball, enemy := GetEntries(arb)
 		if enemy.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) && enemy.HasComponent(comp.Render) {
@@ -87,7 +87,7 @@ func snowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) 
 }
 
 // Enemy <-> Player postsolve
-func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
+func EnemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 	if CheckEntries(arb) {
 		_, playerBody := arb.Bodies()
 		enemyEntry, playerEntry := GetEntries(arb)
@@ -102,7 +102,7 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 }
 
 // oyuncu düşmandan ayrılınca rengini beyaz yap
-func playerEnemySep(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
+func PlayerEnemySep(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 	_, a := arb.Bodies()
 	if CheckEntry(a) {
 		e := GetEntry(a)

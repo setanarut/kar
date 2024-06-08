@@ -28,8 +28,8 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateWASDDirection()
 	// res.Input.UpdateArrowDirection()
 	// res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
-	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
-	res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
+	res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
+	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
@@ -64,7 +64,7 @@ func (sys *PlayerControlSystem) Update() {
 		// }
 		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
 			p := playerBody.Position()
-			queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Mult(150)), 0, res.FilterPlayerRaycast)
+			queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Mult(50)), 0, res.FilterPlayerRaycast)
 			contactShape := queryInfo.Shape
 			if contactShape != nil {
 				if CheckEntry(contactShape.Body()) {
@@ -80,6 +80,10 @@ func (sys *PlayerControlSystem) Update() {
 					}
 				}
 			}
+
+			if contactShape == nil {
+				comp.Health.Each(res.World, ResetHealth)
+			}
 		}
 
 		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
@@ -92,14 +96,16 @@ func (sys *PlayerControlSystem) Draw() {
 }
 
 func WASDPlatformerForce(e *donburi.Entry) {
-	vel := cm.Vec2{}
-	body := comp.Body.Get(e)
-	mobileData := comp.Mobile.Get(e)
 
-	vel.X = res.Input.WASDDirection.X
-	vel = vel.Mult(mobileData.Speed)
+	body := comp.Body.Get(e)
+	p := body.Position()
+
+	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -30}), 0, res.FilterPlayerRaycast)
+	contactShape := queryInfo.Shape
+
 	bv := body.Velocity()
 	body.SetVelocity(bv.X*0.9, bv.Y)
+	// body.SetVelocityVector(body.Velocity().ClampLenght(500))
 	if bv.X > 500 {
 		body.SetVelocity(500, bv.Y)
 	}
@@ -107,16 +113,31 @@ func WASDPlatformerForce(e *donburi.Entry) {
 		body.SetVelocity(-500, bv.Y)
 	}
 
-	body.ApplyForceAtLocalPoint(vel, body.CenterOfGravity())
-
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 400}, body.CenterOfGravity())
+	// yerde
+	if contactShape != nil {
+		if ebiten.IsKeyPressed(ebiten.KeyA) {
+			body.ApplyForceAtLocalPoint(cm.Vec2{-1500, 0}, body.CenterOfGravity())
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyD) {
+			body.ApplyForceAtLocalPoint(cm.Vec2{1500, 0}, body.CenterOfGravity())
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 500}, body.CenterOfGravity())
+		}
+	} else {
+		if ebiten.IsKeyPressed(ebiten.KeyA) {
+			body.ApplyForceAtLocalPoint(cm.Vec2{-800, 0}, body.CenterOfGravity())
+		}
+		if ebiten.IsKeyPressed(ebiten.KeyD) {
+			body.ApplyForceAtLocalPoint(cm.Vec2{800, 0}, body.CenterOfGravity())
+		}
 	}
 
 }
 func WASDPlatformer(e *donburi.Entry) {
 	vel := cm.Vec2{}
 	body := comp.Body.Get(e)
+	p := body.Position()
 	mobileData := comp.Mobile.Get(e)
 	vel.X = res.Input.WASDDirection.X
 	vel = vel.Mult(mobileData.Speed)
@@ -124,7 +145,14 @@ func WASDPlatformer(e *donburi.Entry) {
 	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 1200}, body.CenterOfGravity())
+
+		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -50}), 0, res.FilterPlayerRaycast)
+		contactShape := queryInfo.Shape
+
+		if contactShape != nil {
+			body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 900}, body.CenterOfGravity())
+		}
+
 	}
 
 }

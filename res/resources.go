@@ -52,6 +52,7 @@ var (
 	Screen  *ebiten.Image
 	Terrain *image.Gray
 	Wall    = ebiten.NewImage(50, 50)
+	Box     = ebiten.NewImage(25, 25)
 	Player  = engine.LoadImage("assets/player.png", assets)
 )
 
@@ -78,5 +79,6 @@ var (
 
 func init() {
 	Wall.Fill(color.Gray{128})
+	Box.Fill(color.Gray{200})
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
 }
