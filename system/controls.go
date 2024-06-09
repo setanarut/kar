@@ -20,12 +20,15 @@ var (
 	FacingLeft  bool
 	FacingRight bool
 	FacingDown  bool
+	FacingUp    bool
+	DigUp       bool
 	IsGround    bool
 	Idle        bool
 	Walking     bool
 	WalkRight   bool
 	WalkLeft    bool
 	Attacking   bool
+	IdleAttack  bool
 	NoWASD      bool
 	DigDown     bool
 )
@@ -44,9 +47,10 @@ func (sys *PlayerControlSystem) Update() {
 
 	res.Input.UpdateWASDDirection()
 
-	FacingRight = res.Input.LastPressedDirection.Equal(engine.RightDirection)
-	FacingLeft = res.Input.LastPressedDirection.Equal(engine.LeftDirection)
-	FacingDown = res.Input.LastPressedDirection.Equal(engine.DownDirection)
+	FacingRight = res.Input.LastPressedDirection.Equal(engine.RightDirection) || res.Input.WASDDirection.Equal(engine.RightDirection)
+	FacingLeft = res.Input.LastPressedDirection.Equal(engine.LeftDirection) || res.Input.WASDDirection.Equal(engine.LeftDirection)
+	FacingDown = res.Input.LastPressedDirection.Equal(engine.DownDirection) || res.Input.WASDDirection.Equal(engine.DownDirection)
+	FacingUp = res.Input.LastPressedDirection.Equal(engine.UpDirection) || res.Input.WASDDirection.Equal(engine.UpDirection)
 	NoWASD = res.Input.WASDDirection.Equal(engine.NoDirection)
 	WalkRight = res.Input.WASDDirection.Equal(engine.RightDirection)
 	WalkLeft = res.Input.WASDDirection.Equal(engine.LeftDirection)
@@ -54,6 +58,8 @@ func (sys *PlayerControlSystem) Update() {
 	Walking = WalkLeft || WalkRight
 	Idle = NoWASD && !Attacking && IsGround
 	DigDown = FacingDown && Attacking
+	DigUp = FacingUp && Attacking
+	IdleAttack = NoWASD && Attacking && IsGround
 
 	res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
 
@@ -126,6 +132,9 @@ func (sys *PlayerControlSystem) Update() {
 
 		if DigDown {
 			r.AnimPlayer.SetState("dig_down")
+		}
+		if DigUp {
+			r.AnimPlayer.SetState("dig_right")
 		}
 
 		if Attacking && FacingRight {

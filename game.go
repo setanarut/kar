@@ -6,6 +6,7 @@ import (
 	"kar/res"
 	"kar/system"
 	"kar/types"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -22,9 +23,9 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 
-	w, h := 1280, 720
+	w, h := 900.0, math.Round(900.0*0.618)
 
-	res.Screen = ebiten.NewImage(w, h)
+	res.Screen = ebiten.NewImage(int(w), int(h))
 	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))
 	res.Camera = engine.NewCamera(res.ScreenRect.Center(), res.ScreenRect.R, res.ScreenRect.T)
 	res.Camera.Lerp = true
