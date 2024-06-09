@@ -14,7 +14,21 @@ import (
 
 var HitShape *cm.Shape
 var HitBlockHealth float64
-var RenderScale cm.Vec2
+var AttackSegmentQuery cm.SegmentQueryInfo
+
+var (
+	FacingLeft  bool
+	FacingRight bool
+	FacingDown  bool
+	IsGround    bool
+	Idle        bool
+	Walking     bool
+	WalkRight   bool
+	WalkLeft    bool
+	Attacking   bool
+	NoWASD      bool
+	DigDown     bool
+)
 
 type PlayerControlSystem struct {
 }
@@ -29,20 +43,30 @@ func (sys *PlayerControlSystem) Init() {
 func (sys *PlayerControlSystem) Update() {
 
 	res.Input.UpdateWASDDirection()
-	// res.Input.UpdateArrowDirection()
-	// res.QueryWASDcontrollable.Each(res.World, WASD4Directional)
+
+	FacingRight = res.Input.LastPressedDirection.Equal(engine.RightDirection)
+	FacingLeft = res.Input.LastPressedDirection.Equal(engine.LeftDirection)
+	FacingDown = res.Input.LastPressedDirection.Equal(engine.DownDirection)
+	NoWASD = res.Input.WASDDirection.Equal(engine.NoDirection)
+	WalkRight = res.Input.WASDDirection.Equal(engine.RightDirection)
+	WalkLeft = res.Input.WASDDirection.Equal(engine.LeftDirection)
+	Attacking = ebiten.IsKeyPressed(ebiten.KeyShiftRight)
+	Walking = WalkLeft || WalkRight
+	Idle = NoWASD && !Attacking && IsGround
+	DigDown = FacingDown && Attacking
+
 	res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
-	// res.QueryWASDcontrollable.Each(res.World, WASDPlatformer)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
+
 		playerBody := comp.Body.Get(player)
 		r := comp.Render.Get(player)
 		p := playerBody.Position()
 
-		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(50)), 0, res.FilterPlayerRaycast)
+		AttackSegmentQuery = res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(50)), 0, res.FilterPlayerRaycast)
 
 		// hedef değişti mi?
-		if queryInfo.Shape == nil || queryInfo.Shape != HitShape {
+		if AttackSegmentQuery.Shape == nil || AttackSegmentQuery.Shape != HitShape {
 			if HitShape != nil {
 				if CheckEntry(HitShape.Body()) {
 					e := GetEntry(HitShape.Body())
@@ -58,8 +82,9 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
+		// kaz
 		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
-			if queryInfo.Shape != nil && queryInfo.Shape == HitShape {
+			if AttackSegmentQuery.Shape != nil && AttackSegmentQuery.Shape == HitShape {
 				if HitShape != nil {
 					if CheckEntry(HitShape.Body()) {
 						e := GetEntry(HitShape.Body())
@@ -95,14 +120,33 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			r.CurrentScale = r.DrawScaleFlipX
-		}
-		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			r.CurrentScale = r.DrawScale
+		if Idle {
+			r.AnimPlayer.SetState("idle")
 		}
 
-		HitShape = queryInfo.Shape
+		if DigDown {
+			r.AnimPlayer.SetState("dig_down")
+		}
+
+		if Attacking && FacingRight {
+			r.AnimPlayer.SetState("dig_right")
+			r.CurrentScale = r.DrawScale
+		}
+		if Attacking && FacingLeft {
+			r.AnimPlayer.SetState("dig_right")
+			r.CurrentScale = r.DrawScaleFlipX
+		}
+
+		if WalkRight && !Attacking {
+			r.AnimPlayer.SetState("walk_right")
+			r.CurrentScale = r.DrawScale
+		}
+		if WalkLeft && !Attacking {
+			r.AnimPlayer.SetState("walk_right")
+			r.CurrentScale = r.DrawScaleFlipX
+		}
+
+		HitShape = AttackSegmentQuery.Shape
 	}
 
 }
@@ -113,8 +157,9 @@ func WASDPlatformerForce(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
 	p := body.Position()
-
-	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -30}), 0, res.FilterPlayerRaycast)
+	// p.Add(cm.Vec2{0, -25}
+	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
+	// queryInfoRight := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
 	contactShape := queryInfo.Shape
 
 	bv := body.Velocity()
@@ -129,9 +174,8 @@ func WASDPlatformerForce(e *donburi.Entry) {
 
 	// yerde
 	if contactShape != nil {
-
+		IsGround = true
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
-
 			body.ApplyForceAtLocalPoint(cm.Vec2{-1500, 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
@@ -141,6 +185,7 @@ func WASDPlatformerForce(e *donburi.Entry) {
 			body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 500}, body.CenterOfGravity())
 		}
 	} else {
+		IsGround = false
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
 			body.ApplyForceAtLocalPoint(cm.Vec2{-800, 0}, body.CenterOfGravity())
 		}

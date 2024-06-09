@@ -34,7 +34,7 @@ func spawnBoxBody(m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
 }
 
 func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
-
+	// 26, 40
 	entry := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
 		comp.Inventory,
@@ -56,44 +56,22 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 
 	render := comp.Render.Get(entry)
 	render.AnimPlayer = engine.NewAnimationPlayer(res.PlayerAtlas)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 3
 	render.AnimPlayer.AddStateAnimation("dig_right", 0, 32, 16, 16, 6, false, false)
+	render.AnimPlayer.AddStateAnimation("dig_down", 0, 48, 16, 16, 6, false, false)
+	render.AnimPlayer.AddStateAnimation("walk_right", 0, 64, 16, 16, 6, false, false)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.CurrentScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
 	render.DrawScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
 	render.DrawScaleFlipX = engine.GetBoxScaleFactorFlipX(16, 16, 50, 50)
 
-	b := spawnBoxBody(mass, el, fr, 25, 40, rad, entry)
+	b := spawnBoxBody(mass, el, fr, 30, 40, rad, entry)
 	b.FirstShape().SetCollisionType(types.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskPlayer, cm.AllCategories&^types.BitmaskPlayerRaycast)
 	b.SetPosition(pos)
 	comp.Body.Set(entry, b)
 	return entry
 }
-
-// func SpawnSnowball(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-// 	entry := res.World.Entry(res.World.Create(
-// 		comp.SnowballTag,
-// 		comp.Render,
-// 		comp.Damage,
-// 		comp.Body,
-// 	))
-
-// 	render := comp.Render.Get(entry)
-// 	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
-// 	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false, false)
-// 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
-// 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-// 	render.AnimPlayer.Paused = true
-
-// 	b := spawnCircleBody(m, e, f, r, entry)
-// 	b.SetPosition(pos)
-// 	b.FirstShape().SetCollisionType(types.CollSnowball)
-// 	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskSnowball, cm.AllCategories&^types.BitmaskPlayer&^types.BitmaskSnowball)
-// 	// b.FirstShape().SetSensor(true)
-// 	comp.Body.Set(entry, b)
-
-// 	return entry
-// }
 
 func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	sbody := cm.NewStaticBody()

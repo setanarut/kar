@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"image"
+	"image/draw"
 	"image/png"
 	"kar/engine/cm"
 	"log"
@@ -240,4 +241,15 @@ func WriteImage(img image.Image, filename string) {
 	}
 	defer file.Close()
 	png.Encode(file, img)
+}
+
+func DrawOver(src, dst image.Image) {
+	draw.Draw(dst.(draw.Image), dst.Bounds(), src, image.Point{0, 0}, draw.Over)
+}
+
+func CloneImage(img image.Image) image.Image {
+	copyImage := image.NewRGBA(img.Bounds())
+	draw.Draw(copyImage, img.Bounds(), img, image.Point{0, 0}, draw.Src)
+	return copyImage
+
 }
