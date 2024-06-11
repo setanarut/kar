@@ -1,6 +1,7 @@
 package arche
 
 import (
+	"image"
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
@@ -35,33 +36,34 @@ func spawnBoxBody(m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
 
 func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	// 26, 40
-	entry := res.World.Entry(res.World.Create(
+	e := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
-		comp.AttackTimer,
 		comp.Health,
-		comp.Render,
+		comp.DrawOptions,
+		comp.AnimationPlayer,
 		comp.Body,
 		comp.Mobile,
 		comp.WASDTag,
 	))
 
-	render := comp.Render.Get(entry)
-	render.AnimPlayer = engine.NewAnimationPlayer(res.PlayerAtlas)
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 3
-	render.AnimPlayer.AddStateAnimation("dig_right", 0, 32, 16, 16, 6, false, false)
-	render.AnimPlayer.AddStateAnimation("dig_down", 0, 48, 16, 16, 6, false, false)
-	render.AnimPlayer.AddStateAnimation("walk_right", 0, 64, 16, 16, 6, false, false)
-	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-	render.CurrentScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
-	render.DrawScale = engine.GetBoxScaleFactor(16, 16, 50, 50)
-	render.DrawScaleFlipX = engine.GetBoxScaleFactorFlipX(16, 16, 50, 50)
+	ap := engine.NewAnimationPlayer(res.PlayerAtlas)
+	ap.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 3
+	ap.AddStateAnimation("dig_right", 0, 32, 16, 16, 6, false, false)
+	ap.AddStateAnimation("dig_down", 0, 48, 16, 16, 6, false, false)
+	ap.AddStateAnimation("walk_right", 0, 64, 16, 16, 6, false, false)
+	comp.AnimationPlayer.Set(e, ap)
 
-	b := spawnBoxBody(mass, el, fr, 30, 40, rad, entry)
+	comp.DrawOptions.Set(e, &types.DataDrawOptions{
+		CenterOffset: engine.GetEbitenImageOffset(ap.CurrentFrame),
+		Scale:        engine.GetBoxScaleFactor(16, 16, 50, 50),
+	})
+
+	b := spawnBoxBody(mass, el, fr, 30, 40, rad, e)
 	b.FirstShape().SetCollisionType(types.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskPlayer, cm.AllCategories&^types.BitmaskPlayerRaycast)
 	b.SetPosition(pos)
-	comp.Body.Set(entry, b)
-	return entry
+	comp.Body.Set(e, b)
+	return e
 }
 
 func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
@@ -81,4 +83,34 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	wallShape.Body().UserData = entry
 	comp.Body.Set(entry, wallShape.Body())
 	return entry
+}
+
+func SpawnBlock(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType) {
+	e := SpawnWall(pos, 50, 50)
+	e.AddComponent(comp.Health)
+	e.AddComponent(comp.Block)
+	e.AddComponent(comp.DrawOptions)
+
+	// e.AddComponent(comp.AnimationPlayer)
+	// ap := engine.NewAnimationPlayer(res.StoneAtlas)
+	// ap.AddStateAnimation("idle", 0, 0, 16, 16, 9, false, true)
+	// ap.Paused = true
+	// comp.AnimationPlayer.Set(e, ap)
+
+	comp.DrawOptions.Set(e, &types.DataDrawOptions{
+		CenterOffset: cm.Vec2{-8, -8},
+		Scale:        engine.GetBoxScaleFactor(16, 16, 50, 50),
+	})
+
+	comp.Block.Set(e,
+		&types.DataBlock{
+			ChunkCoord: chunkCoord,
+			BlockType:  blockType,
+		})
+
+}
+
+func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
+	return SpawnPlayer(1, 0, 0, 5, pos)
+
 }

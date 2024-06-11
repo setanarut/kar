@@ -5,7 +5,6 @@ import (
 	"kar/engine"
 	"kar/engine/cm"
 	"kar/res"
-	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -13,7 +12,6 @@ import (
 )
 
 var HitShape *cm.Shape
-var HitBlockHealth float64
 var AttackSegmentQuery cm.SegmentQueryInfo
 
 var (
@@ -66,29 +64,36 @@ func (sys *PlayerControlSystem) Update() {
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
 		playerBody := comp.Body.Get(player)
-		r := comp.Render.Get(player)
+		playerAnimation := comp.AnimationPlayer.Get(player)
+		playerDrawOptions := comp.DrawOptions.Get(player)
 		p := playerBody.Position()
-
 		AttackSegmentQuery = res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(50)), 0, res.FilterPlayerRaycast)
 
-		// hedef değişti mi?
+		// Reset block health
+		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
+			if HitShape != nil {
+				if CheckEntry(HitShape.Body()) {
+					e := GetEntry(HitShape.Body())
+					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
+						ResetHealthComponent(e)
+					}
+				}
+			}
+		}
+
+		// reset block health
 		if AttackSegmentQuery.Shape == nil || AttackSegmentQuery.Shape != HitShape {
 			if HitShape != nil {
 				if CheckEntry(HitShape.Body()) {
 					e := GetEntry(HitShape.Body())
 					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
 						ResetHealthComponent(e)
-						s := comp.Sprite.Get(e)
-						b := comp.Block.Get(e)
-						if b.BlockType == types.BlockStone {
-							s.Image = res.StoneStages[0]
-						}
 					}
 				}
 			}
 		}
 
-		// kaz
+		// Attack
 		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
 			if AttackSegmentQuery.Shape != nil && AttackSegmentQuery.Shape == HitShape {
 				if HitShape != nil {
@@ -96,13 +101,6 @@ func (sys *PlayerControlSystem) Update() {
 						e := GetEntry(HitShape.Body())
 						if e.HasComponent(comp.Block) {
 							h := comp.Health.Get(e)
-							b := comp.Block.Get(e)
-							s := comp.Sprite.Get(e)
-							if b.BlockType == types.BlockStone {
-								s.Image = res.StoneStages[int(engine.MapRange(h.Health, 10, 0, 0, 8))]
-							}
-
-							HitBlockHealth = h.Health
 							h.Health -= 0.1
 						}
 					}
@@ -110,49 +108,33 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
-			if HitShape != nil {
-				if CheckEntry(HitShape.Body()) {
-					e := GetEntry(HitShape.Body())
-					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
-						ResetHealthComponent(e)
-						s := comp.Sprite.Get(e)
-						b := comp.Block.Get(e)
-						if b.BlockType == types.BlockStone {
-							s.Image = res.StoneStages[0]
-						}
-					}
-				}
-			}
-		}
-
 		if Idle {
-			r.AnimPlayer.SetState("idle")
+			playerAnimation.SetState("idle")
 		}
 
 		if DigDown {
-			r.AnimPlayer.SetState("dig_down")
+			playerAnimation.SetState("dig_down")
 		}
 		if DigUp {
-			r.AnimPlayer.SetState("dig_right")
+			playerAnimation.SetState("dig_right")
 		}
 
 		if Attacking && FacingRight {
-			r.AnimPlayer.SetState("dig_right")
-			r.CurrentScale = r.DrawScale
+			playerAnimation.SetState("dig_right")
+			playerDrawOptions.FlipX = false
 		}
 		if Attacking && FacingLeft {
-			r.AnimPlayer.SetState("dig_right")
-			r.CurrentScale = r.DrawScaleFlipX
+			playerAnimation.SetState("dig_right")
+			playerDrawOptions.FlipX = true
 		}
 
 		if WalkRight && !Attacking {
-			r.AnimPlayer.SetState("walk_right")
-			r.CurrentScale = r.DrawScale
+			playerAnimation.SetState("walk_right")
+			playerDrawOptions.FlipX = false
 		}
 		if WalkLeft && !Attacking {
-			r.AnimPlayer.SetState("walk_right")
-			r.CurrentScale = r.DrawScaleFlipX
+			playerAnimation.SetState("walk_right")
+			playerDrawOptions.FlipX = true
 		}
 
 		HitShape = AttackSegmentQuery.Shape

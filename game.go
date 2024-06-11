@@ -31,9 +31,9 @@ func (g *Game) Init() {
 	res.Camera.Lerp = true
 	g.systems = []types.System{
 		system.NewSpawnSystem(),
-		system.NewTimersSystem(),
+		// system.NewTimersSystem(),
+		// system.NewAISystem(),
 		system.NewPhysicsSystem(),
-		system.NewAISystem(),
 		system.NewPlayerControlSystem(),
 		system.NewDrawCameraSystem(),
 		system.NewDrawHUDSystem(),
