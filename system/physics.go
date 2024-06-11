@@ -53,7 +53,7 @@ func EnemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bo
 			playerHealth := comp.Health.Get(b)
 			comp.Render.Get(b).ScaleColor = colornames.Red
 			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Scale(500), playerBody.CenterOfGravity())
-			*playerHealth -= enemyDamage
+			playerHealth.Health -= enemyDamage
 		}
 	}
 	return true
@@ -64,7 +64,7 @@ func SnowballBlockBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) 
 		snowball, block := GetEntries(arb)
 		if block.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) {
 			enemyHealth := comp.Health.Get(block)
-			*enemyHealth -= comp.Damage.GetValue(snowball)
+			enemyHealth.Health -= comp.Damage.GetValue(snowball)
 		}
 		blockBody := comp.Body.Get(block)
 		pos := blockBody.Position().Point().Div(50)
@@ -79,7 +79,7 @@ func SnowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) 
 		snowball, enemy := GetEntries(arb)
 		if enemy.HasComponent(comp.Health) && snowball.HasComponent(comp.Damage) && enemy.HasComponent(comp.Render) {
 			enemyHealth := comp.Health.Get(enemy)
-			*enemyHealth -= comp.Damage.GetValue(snowball)
+			enemyHealth.Health -= comp.Damage.GetValue(snowball)
 		}
 		DestroyEntryWithBody(snowball)
 	}
@@ -96,7 +96,7 @@ func EnemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 			playerHealth := comp.Health.Get(playerEntry)
 			comp.Render.Get(playerEntry).ScaleColor = colornames.Red
 			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Scale(500), playerBody.CenterOfGravity())
-			*playerHealth -= enemyDamage / 60.0
+			playerHealth.Health -= enemyDamage / 60.0
 		}
 	}
 }

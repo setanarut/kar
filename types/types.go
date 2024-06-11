@@ -54,11 +54,16 @@ type DataTimer struct {
 	Elapsed       time.Duration
 }
 type DataInventory struct {
-	Items map[ItemType]int
+	CurrentItem *donburi.Entry
+	Items       []*donburi.Entry
 }
 
 type DataBlock struct {
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
 	BlockType  BlockType
+}
+type DataHealth struct {
+	Health    float64
+	MaxHealth float64
 }

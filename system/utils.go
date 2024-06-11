@@ -31,15 +31,16 @@ func Explode(bomb *donburi.Entry) {
 	bombBody := comp.Body.Get(bomb)
 	space := bombBody.FirstShape().Space()
 	comp.EnemyTag.Each(bomb.World, func(enemy *donburi.Entry) {
-		enemyHealth := comp.Health.GetValue(enemy)
+		enemyHealth := comp.Health.Get(enemy)
 		enemyBody := comp.Body.Get(enemy)
 		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, res.FilterBombRaycast)
 		contactShape := queryInfo.Shape
 		if contactShape != nil {
 			if contactShape.Body() == enemyBody {
 				ApplyRaycastImpulse(queryInfo, 1000)
-				comp.Health.SetValue(enemy, enemyHealth-engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0))
-				if enemyHealth < 0 {
+
+				enemyHealth.Health -= engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0)
+				if enemyHealth.Health < 0 {
 					DestroyEntryWithBody(enemy)
 				}
 
@@ -68,8 +69,9 @@ func DestroyStopped(e *donburi.Entry) {
 		}
 	}
 }
-func ResetHealth(e *donburi.Entry) {
-	comp.Health.SetValue(e, 3.0)
+func ResetHealthComponent(e *donburi.Entry) {
+	h := comp.Health.Get(e)
+	h.Health = h.MaxHealth
 }
 
 func DestroyOnCollisionAndStopped(e *donburi.Entry) {
@@ -88,7 +90,7 @@ func DestroyOnCollisionAndStopped(e *donburi.Entry) {
 func DestroyDead(e *donburi.Entry) {
 	if e.HasComponent(comp.Health) {
 
-		if comp.Health.GetValue(e) <= 0 {
+		if comp.Health.Get(e).Health <= 0 {
 			if e.HasComponent(comp.Block) {
 				blockPos := comp.Body.Get(e).Position().Point().Div(50)
 				res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{0})

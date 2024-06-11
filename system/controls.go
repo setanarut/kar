@@ -76,8 +76,8 @@ func (sys *PlayerControlSystem) Update() {
 			if HitShape != nil {
 				if CheckEntry(HitShape.Body()) {
 					e := GetEntry(HitShape.Body())
-					if e.HasComponent(comp.Block) {
-						comp.Health.SetValue(e, 3.0)
+					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
+						ResetHealthComponent(e)
 						s := comp.Sprite.Get(e)
 						b := comp.Block.Get(e)
 						if b.BlockType == types.BlockStone {
@@ -95,15 +95,15 @@ func (sys *PlayerControlSystem) Update() {
 					if CheckEntry(HitShape.Body()) {
 						e := GetEntry(HitShape.Body())
 						if e.HasComponent(comp.Block) {
-							h := comp.Health.GetValue(e)
+							h := comp.Health.Get(e)
 							b := comp.Block.Get(e)
 							s := comp.Sprite.Get(e)
 							if b.BlockType == types.BlockStone {
-								s.Image = res.StoneStages[int(engine.MapRange(h, 3, 0, 0, 8))]
+								s.Image = res.StoneStages[int(engine.MapRange(h.Health, 10, 0, 0, 8))]
 							}
 
-							HitBlockHealth = h
-							comp.Health.SetValue(e, h-0.06)
+							HitBlockHealth = h.Health
+							h.Health -= 0.1
 						}
 					}
 				}
@@ -114,8 +114,8 @@ func (sys *PlayerControlSystem) Update() {
 			if HitShape != nil {
 				if CheckEntry(HitShape.Body()) {
 					e := GetEntry(HitShape.Body())
-					if e.HasComponent(comp.Block) {
-						comp.Health.SetValue(e, 3.0)
+					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
+						ResetHealthComponent(e)
 						s := comp.Sprite.Get(e)
 						b := comp.Block.Get(e)
 						if b.BlockType == types.BlockStone {

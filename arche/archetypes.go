@@ -37,22 +37,13 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	// 26, 40
 	entry := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
-		comp.Inventory,
 		comp.AttackTimer,
 		comp.Health,
-		comp.Damage,
 		comp.Render,
 		comp.Body,
 		comp.Mobile,
 		comp.WASDTag,
 	))
-	comp.Health.SetValue(entry, 10)
-	comp.Inventory.Set(entry, &types.DataInventory{
-		Items: make(map[types.ItemType]int),
-	})
-
-	i := comp.Inventory.Get(entry)
-	i.Items[types.ItemSnowball] = 1000
 
 	render := comp.Render.Get(entry)
 	render.AnimPlayer = engine.NewAnimationPlayer(res.PlayerAtlas)
