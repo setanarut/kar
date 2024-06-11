@@ -91,12 +91,6 @@ func SpawnBlock(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType) 
 	e.AddComponent(comp.Block)
 	e.AddComponent(comp.DrawOptions)
 
-	// e.AddComponent(comp.AnimationPlayer)
-	// ap := engine.NewAnimationPlayer(res.StoneAtlas)
-	// ap.AddStateAnimation("idle", 0, 0, 16, 16, 9, false, true)
-	// ap.Paused = true
-	// comp.AnimationPlayer.Set(e, ap)
-
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: cm.Vec2{-8, -8},
 		Scale:        engine.GetBoxScaleFactor(16, 16, 50, 50),
