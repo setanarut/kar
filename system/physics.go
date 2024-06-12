@@ -7,13 +7,10 @@ import (
 )
 
 type PhysicsSystem struct {
-	DT float64
 }
 
 func NewPhysicsSystem() *PhysicsSystem {
-	return &PhysicsSystem{
-		DT: 1.0 / 60.0,
-	}
+	return &PhysicsSystem{}
 }
 
 func (ps *PhysicsSystem) Init() {
@@ -28,11 +25,11 @@ func (ps *PhysicsSystem) Init() {
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
 	// res.Space.NewCollisionHandler(types.CollPlayer, types.CollEnemy).SeparateFunc = playerEnemySep
-	res.Space.Step(ps.DT)
+	res.Space.Step(res.DeltaTime)
 }
 
 func (ps *PhysicsSystem) Update() {
-	res.Space.Step(ps.DT)
+	res.Space.Step(res.DeltaTime)
 
 }
 

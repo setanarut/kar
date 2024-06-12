@@ -3,8 +3,8 @@ package system
 import (
 	"image/color"
 	"kar/comp"
-	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/util"
 	"kar/res"
 
 	"github.com/yohamta/donburi"
@@ -39,7 +39,7 @@ func Explode(bomb *donburi.Entry) {
 			if contactShape.Body() == enemyBody {
 				ApplyRaycastImpulse(queryInfo, 1000)
 
-				enemyHealth.Health -= engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0)
+				enemyHealth.Health -= util.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0)
 				if enemyHealth.Health < 0 {
 					DestroyEntryWithBody(enemy)
 				}
@@ -53,7 +53,7 @@ func Explode(bomb *donburi.Entry) {
 }
 
 func ApplyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
-	impulseVec2 := sqi.Normal.Neg().Scale(power * engine.MapRange(sqi.Alpha, 0.5, 1, 1, 0))
+	impulseVec2 := sqi.Normal.Neg().Scale(power * util.MapRange(sqi.Alpha, 0.5, 1, 1, 0))
 	sqi.Shape.Body().ApplyImpulseAtWorldPoint(impulseVec2, sqi.Point)
 }
 
@@ -64,7 +64,7 @@ func RemoveBodyPostStep(space *cm.Space, body, data interface{}) {
 func DestroyStopped(e *donburi.Entry) {
 	if e.HasComponent(comp.Body) {
 		b := comp.Body.Get(e)
-		if engine.IsMoving(b.Velocity(), 80) {
+		if util.IsMoving(b.Velocity(), 80) {
 			DestroyBodyWithEntry(b)
 		}
 	}

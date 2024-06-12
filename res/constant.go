@@ -1,14 +1,16 @@
-package types
+package res
 
 import (
 	"kar/engine/cm"
+	"kar/types"
 	"time"
 )
 
-const TimerTick = time.Second / 60
+const TimerTick time.Duration = time.Second / 60
+const DeltaTime float64 = 1.0 / 60.0
 
 const (
-	ItemSnowball ItemType = iota
+	ItemSnowball types.ItemType = iota
 	ItemBomb
 	ItemKey
 	ItemPotion
@@ -16,7 +18,7 @@ const (
 	ItemShovel
 )
 const (
-	BlockStone BlockType = iota
+	BlockStone types.BlockType = iota
 )
 
 // Collision Bitmask Category

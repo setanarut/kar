@@ -12,7 +12,7 @@ import (
 )
 
 type Game struct {
-	systems []types.System
+	systems []types.ISystem
 }
 
 func NewGame() *Game {
@@ -29,7 +29,7 @@ func (g *Game) Init() {
 	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))
 	res.Camera = engine.NewCamera(res.ScreenRect.Center(), res.ScreenRect.R, res.ScreenRect.T)
 	res.Camera.Lerp = true
-	g.systems = []types.System{
+	g.systems = []types.ISystem{
 		system.NewSpawnSystem(),
 		// system.NewTimersSystem(),
 		// system.NewAISystem(),

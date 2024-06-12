@@ -1,4 +1,4 @@
-package engine
+package util
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func GetEbitenImageOffset(img *ebiten.Image) cm.Vec2 {
+func GetEbitenImageCenterOffset(img *ebiten.Image) cm.Vec2 {
 	return cm.Vec2{float64(img.Bounds().Dx()), float64(img.Bounds().Dy())}.Scale(0.5).Neg()
 }
 
@@ -30,7 +30,7 @@ func Radians(degrees float64) float64 {
 	return degrees * math.Pi / 180.0
 }
 
-func Degree(radians float64) float64 {
+func Degrees(radians float64) float64 {
 	return radians * 180.0 / math.Pi
 }
 
@@ -178,12 +178,9 @@ func Clamp(f, low, high float64) float64 {
 func GetBoxScaleFactor(imageW, imageH, targetW, targetH float64) cm.Vec2 {
 	return cm.Vec2{(targetW / imageW), (targetH / imageH)}
 }
-func GetBoxScaleFactorFlipX(imageW, imageH, targetW, targetH float64) cm.Vec2 {
-	return cm.Vec2{-(targetW / imageW), (targetH / imageH)}
-}
 
-func GetCircleScaleFactor(radius float64, image *ebiten.Image) cm.Vec2 {
-	scaleX := 2 * radius / float64(image.Bounds().Dx())
+func GetCircleScaleFactor(radius float64, imageWidth int) cm.Vec2 {
+	scaleX := 2 * radius / float64(imageWidth)
 	return cm.Vec2{scaleX, scaleX}
 }
 

@@ -7,6 +7,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/util"
 	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -31,8 +32,8 @@ var (
 	CurrentTool         types.ItemType
 	Rooms               []cm.BB              = make([]cm.BB, 0)
 	Input               *engine.InputManager = &engine.InputManager{}
-	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskBombRaycast, cm.AllCategories&^types.BitmaskBomb)
-	FilterPlayerRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, types.BitmaskPlayerRaycast, cm.AllCategories&^types.BitmaskPlayer)
+	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskBombRaycast, cm.AllCategories&^BitmaskBomb)
+	FilterPlayerRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskPlayerRaycast, cm.AllCategories&^BitmaskPlayer)
 	DamageGradient, _                        = colorgrad.NewGradient().
 				HtmlColors("rgb(255, 0, 0)", "rgb(255, 225, 0)", "rgb(111, 111, 111)").
 				Domain(0, 1).
@@ -51,13 +52,13 @@ var (
 	Screen      *ebiten.Image
 	StoneStages []*ebiten.Image
 	Terrain     *image.Gray
-	Atlas       = engine.LoadImageFromFS("assets/atlas.png", assets)
-	PlayerAtlas = engine.LoadImageFromFS("assets/player_atlas.png", assets)
-	StoneAtlas  = engine.LoadImageFromFS("assets/stone_atlas.png", assets)
+	Atlas       = util.LoadImageFromFS("assets/atlas.png", assets)
+	PlayerAtlas = util.LoadImageFromFS("assets/player_atlas.png", assets)
+	StoneAtlas  = util.LoadImageFromFS("assets/stone_atlas.png", assets)
 )
 
 var (
-	Futura    = engine.LoadTextFace("assets/futura.ttf", 18, assets)
+	Futura    = util.LoadTextFace("assets/futura.ttf", 18, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
 		Size:     28,
@@ -78,5 +79,5 @@ var (
 
 func init() {
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	StoneStages = engine.SubImages(StoneAtlas, 0, 0, 16, 16, 9, true)
+	StoneStages = util.SubImages(StoneAtlas, 0, 0, 16, 16, 9, true)
 }

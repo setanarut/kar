@@ -65,7 +65,7 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockNumber.Y > 128 {
-				blockSpawnCallbackFunc(blockPos, chunkCoord, types.BlockStone)
+				blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockStone)
 			}
 		}
 	}

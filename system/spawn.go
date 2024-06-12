@@ -5,8 +5,8 @@ import (
 	"kar/arche"
 	"kar/comp"
 	"kar/engine/cm"
-	"kar/engine/terr"
 	"kar/res"
+	"kar/terr"
 )
 
 // var spawnTick int

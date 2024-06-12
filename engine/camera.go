@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"kar/engine/cm"
+	"kar/engine/util"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -71,7 +72,7 @@ func (cam *Camera) LookAt(target cm.Vec2) {
 			cam.traumaOffset.X = cam.noise.Eval3(cam.tick*cam.TimeScale, 0, 0) * cam.ShakeSize.X * shake
 			cam.traumaOffset.Y = cam.noise.Eval3(0, cam.tick*cam.TimeScale, 0) * cam.ShakeSize.Y * shake
 			cam.Rotation = cam.noise.Eval3(0, 0, cam.tick*cam.TimeScale) * cam.MaxShakeAngle * shake
-			cam.Trauma = Clamp(cam.Trauma-(cam.delta*cam.Decay), 0, 1)
+			cam.Trauma = util.Clamp(cam.Trauma-(cam.delta*cam.Decay), 0, 1)
 		}
 		// offset
 		cam.topLeft = cam.topLeft.Add(cam.traumaOffset)
@@ -84,7 +85,7 @@ func (cam *Camera) LookAt(target cm.Vec2) {
 	}
 }
 func (cam *Camera) AddTrauma(trauma_in float64) {
-	cam.Trauma = Clamp(cam.Trauma+trauma_in, 0, 1)
+	cam.Trauma = util.Clamp(cam.Trauma+trauma_in, 0, 1)
 }
 
 // SetSize returns center point of the camera

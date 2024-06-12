@@ -38,7 +38,7 @@ func TimerRemainingSecondsString(t *types.DataTimer) string {
 }
 func TimerUpdate(t *types.DataTimer) {
 	if t.Elapsed < t.TimerDuration {
-		t.Elapsed += types.TimerTick
+		t.Elapsed += res.TimerTick
 	}
 }
 func TimerReset(t *types.DataTimer) {

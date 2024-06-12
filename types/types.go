@@ -9,7 +9,7 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-type System interface {
+type ISystem interface {
 	Init()
 	Update()
 	Draw()

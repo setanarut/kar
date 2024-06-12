@@ -5,6 +5,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/util"
 	"kar/res"
 	"kar/types"
 
@@ -47,20 +48,20 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	))
 
 	ap := engine.NewAnimationPlayer(res.PlayerAtlas)
-	ap.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 3
+	ap.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 1
 	ap.AddStateAnimation("dig_right", 0, 32, 16, 16, 6, false, false)
 	ap.AddStateAnimation("dig_down", 0, 48, 16, 16, 6, false, false)
 	ap.AddStateAnimation("walk_right", 0, 64, 16, 16, 6, false, false)
 	comp.AnimationPlayer.Set(e, ap)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
-		CenterOffset: engine.GetEbitenImageOffset(ap.CurrentFrame),
-		Scale:        engine.GetBoxScaleFactor(16, 16, 50, 50),
+		CenterOffset: util.GetEbitenImageCenterOffset(ap.CurrentFrame),
+		Scale:        util.GetBoxScaleFactor(16, 16, 50, 50),
 	})
 
 	b := spawnBoxBody(mass, el, fr, 30, 40, rad, e)
-	b.FirstShape().SetCollisionType(types.CollPlayer)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, types.BitmaskPlayer, cm.AllCategories&^types.BitmaskPlayerRaycast)
+	b.FirstShape().SetCollisionType(res.CollPlayer)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskPlayerRaycast)
 	b.SetPosition(pos)
 	comp.Body.Set(e, b)
 	return e
@@ -69,8 +70,8 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
-	wallShape.Filter = cm.NewShapeFilter(0, types.BitmaskWall, cm.AllCategories)
-	wallShape.CollisionType = types.CollWall
+	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskWall, cm.AllCategories)
+	wallShape.CollisionType = res.CollWall
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
 	sbody.SetPosition(boxCenter)
@@ -93,7 +94,7 @@ func SpawnBlock(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType) 
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: cm.Vec2{-8, -8},
-		Scale:        engine.GetBoxScaleFactor(16, 16, 50, 50),
+		Scale:        util.GetBoxScaleFactor(16, 16, 50, 50),
 	})
 
 	comp.Block.Set(e,
