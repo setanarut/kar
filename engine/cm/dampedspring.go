@@ -1,6 +1,7 @@
 package cm
 
 import (
+	"kar/engine/vec"
 	"math"
 )
 
@@ -9,20 +10,20 @@ type DampedSpringForceFunc func(spring *DampedSpring, dist float64) float64
 type DampedSpring struct {
 	*Constraint
 
-	AnchorA, AnchorB               Vec2
+	AnchorA, AnchorB               vec.Vec2
 	RestLength, Stiffness, Damping float64
 	SpringForceFunc                DampedSpringForceFunc
 
 	targetVrn, vCoef float64
 
-	r1, r2 Vec2
+	r1, r2 vec.Vec2
 	nMass  float64
-	n      Vec2
+	n      vec.Vec2
 
 	jAcc float64
 }
 
-func NewDampedSpring(a, b *Body, anchorA, anchorB Vec2, restLength, stiffness, damping float64) *Constraint {
+func NewDampedSpring(a, b *Body, anchorA, anchorB vec.Vec2, restLength, stiffness, damping float64) *Constraint {
 	spring := &DampedSpring{
 		AnchorA:         anchorA,
 		AnchorB:         anchorB,

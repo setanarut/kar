@@ -1,6 +1,7 @@
 package cm
 
 import (
+	"kar/engine/vec"
 	"log"
 	"math"
 )
@@ -12,25 +13,25 @@ const (
 )
 
 type SupportPoint struct {
-	p Vec2
+	p vec.Vec2
 	// Save an index of the point so it can be cheaply looked up as a starting point for the next frame.
 	index uint32
 }
 
-func NewSupportPoint(p Vec2, index uint32) SupportPoint {
+func NewSupportPoint(p vec.Vec2, index uint32) SupportPoint {
 	return SupportPoint{p, index}
 }
 
-type SupportPointFunc func(shape *Shape, n Vec2) SupportPoint
+type SupportPointFunc func(shape *Shape, n vec.Vec2) SupportPoint
 
-func PolySupportPoint(shape *Shape, n Vec2) SupportPoint {
+func PolySupportPoint(shape *Shape, n vec.Vec2) SupportPoint {
 	poly := shape.Class.(*PolyShape)
 	planes := poly.planes
 	i := PolySupportPointIndex(poly.count, planes, n)
 	return NewSupportPoint(planes[i].v0, uint32(i))
 }
 
-func SegmentSupportPoint(shape *Shape, n Vec2) SupportPoint {
+func SegmentSupportPoint(shape *Shape, n vec.Vec2) SupportPoint {
 	seg := shape.Class.(*Segment)
 	if seg.transformA.Dot(n) > seg.transformB.Dot(n) {
 		return NewSupportPoint(seg.transformA, 0)
@@ -39,11 +40,11 @@ func SegmentSupportPoint(shape *Shape, n Vec2) SupportPoint {
 	}
 }
 
-func CircleSupportPoint(shape *Shape, _ Vec2) SupportPoint {
+func CircleSupportPoint(shape *Shape, _ vec.Vec2) SupportPoint {
 	return NewSupportPoint(shape.Class.(*Circle).transformC, 0)
 }
 
-func PolySupportPointIndex(count int, planes []SplittingPlane, n Vec2) int {
+func PolySupportPointIndex(count int, planes []SplittingPlane, n vec.Vec2) int {
 	max := -Infinity
 	var index int
 	for i := 0; i < count; i++ {
@@ -64,7 +65,7 @@ type SupportContext struct {
 }
 
 // Support calculates the maximal point on the minkowski difference of two shapes along a particular axis.
-func (ctx *SupportContext) Support(n Vec2) MinkowskiPoint {
+func (ctx *SupportContext) Support(n vec.Vec2) MinkowskiPoint {
 	a := ctx.func1(ctx.shape1, n.Neg())
 	b := ctx.func2(ctx.shape2, n)
 	return NewMinkowskiPoint(a, b)
@@ -72,9 +73,9 @@ func (ctx *SupportContext) Support(n Vec2) MinkowskiPoint {
 
 type ClosestPoints struct {
 	// Surface points in absolute coordinates.
-	a, b Vec2
+	a, b vec.Vec2
 	// Minimum separating axis of the two shapes.
-	n Vec2
+	n vec.Vec2
 	// Signed distance between the points.
 	d float64
 	// Concatenation of the id's of the minkoski points.
@@ -96,7 +97,7 @@ func CircleToCircle(info *CollisionInfo) {
 		if dist != 0 {
 			info.n = delta.Scale(1.0 / dist)
 		} else {
-			info.n = Vec2{1, 0}
+			info.n = vec.Vec2{1, 0}
 		}
 		info.PushContact(c1.transformC.Add(info.n.Scale(c1.radius)), c2.transformC.Add(info.n.Scale(-c2.radius)), 0)
 	}
@@ -115,7 +116,7 @@ func CircleToSegment(info *CollisionInfo) {
 	center := circle.transformC
 
 	segDelta := segB.Sub(segA)
-	closestT := Clamp01(segDelta.Dot(center.Sub(segA)) / segDelta.LengthSq())
+	closestT := clamp01(segDelta.Dot(center.Sub(segA)) / segDelta.LengthSq())
 	closest := segA.Add(segDelta.Scale(closestT))
 
 	mindist := circle.radius + segment.radius
@@ -131,8 +132,8 @@ func CircleToSegment(info *CollisionInfo) {
 		n := info.n
 
 		rot := segment.Shape.body.Rotation()
-		if (closestT != 0.0 || n.Dot(segment.aTangent.Rotate(rot)) >= 0.0) &&
-			(closestT != 1.0 || n.Dot(segment.bTangent.Rotate(rot)) >= 0.0) {
+		if (closestT != 0.0 || n.Dot(segment.aTangent.RotateComplex(rot)) >= 0.0) &&
+			(closestT != 1.0 || n.Dot(segment.bTangent.RotateComplex(rot)) >= 0.0) {
 			info.PushContact(center.Add(n.Scale(circle.radius)), closest.Add(n.Scale(-segment.radius)), 0)
 		}
 	}
@@ -153,10 +154,10 @@ func SegmentToSegment(info *CollisionInfo) {
 		return
 	}
 
-	if (!points.a.Equal(seg1.transformA) || n.Dot(seg1.aTangent.Rotate(rot1)) <= 0) &&
-		(!points.a.Equal(seg1.transformB) || n.Dot(seg1.bTangent.Rotate(rot1)) <= 0) &&
-		(!points.b.Equal(seg2.transformA) || n.Dot(seg2.aTangent.Rotate(rot2)) >= 0) &&
-		(!points.b.Equal(seg2.transformB) || n.Dot(seg2.bTangent.Rotate(rot2)) >= 0) {
+	if (!points.a.Equal(seg1.transformA) || n.Dot(seg1.aTangent.RotateComplex(rot1)) <= 0) &&
+		(!points.a.Equal(seg1.transformB) || n.Dot(seg1.bTangent.RotateComplex(rot1)) <= 0) &&
+		(!points.b.Equal(seg2.transformA) || n.Dot(seg2.aTangent.RotateComplex(rot2)) >= 0) &&
+		(!points.b.Equal(seg2.transformB) || n.Dot(seg2.bTangent.RotateComplex(rot2)) >= 0) {
 		ContactPoints(SupportEdgeForSegment(seg1, n), SupportEdgeForSegment(seg2, n.Neg()), points, info)
 	}
 }
@@ -187,8 +188,8 @@ func SegmentToPoly(info *CollisionInfo) {
 	// If the closest points are nearer than the sum of the radii...
 	if points.d-segment.radius-polyshape.radius <= 0 && (
 	// Reject endcap collisions if tangents are provided.
-	(!points.a.Equal(segment.transformA) || n.Dot(segment.aTangent.Rotate(rot)) <= 0) &&
-		(!points.a.Equal(segment.transformB) || n.Dot(segment.bTangent.Rotate(rot)) <= 0)) {
+	(!points.a.Equal(segment.transformA) || n.Dot(segment.aTangent.RotateComplex(rot)) <= 0) &&
+		(!points.a.Equal(segment.transformB) || n.Dot(segment.bTangent.RotateComplex(rot)) <= 0)) {
 		ContactPoints(SupportEdgeForSegment(segment, n), SupportEdgeForPoly(polyshape, n.Neg()), points, info)
 	}
 }
@@ -209,9 +210,9 @@ func PolyToPoly(info *CollisionInfo) {
 // MinkowskiPoint is a point on the surface of two shapes' minkowski difference.
 type MinkowskiPoint struct {
 	// Cache the two original support points.
-	a, b Vec2
+	a, b vec.Vec2
 	// b - a
-	ab Vec2
+	ab vec.Vec2
 	// Concatenate the two support point indexes.
 	collisionId uint32
 }
@@ -251,7 +252,7 @@ func (v0 MinkowskiPoint) ClosestPoints(v1 MinkowskiPoint) ClosestPoints {
 }
 
 type EdgePoint struct {
-	p Vec2
+	p vec.Vec2
 	// Keep a hash value for Chipmunk's collision hashing mechanism.
 	hash HashValue
 }
@@ -259,10 +260,10 @@ type EdgePoint struct {
 type Edge struct {
 	a, b EdgePoint
 	r    float64
-	n    Vec2
+	n    vec.Vec2
 }
 
-func SupportEdgeForSegment(seg *Segment, n Vec2) Edge {
+func SupportEdgeForSegment(seg *Segment, n vec.Vec2) Edge {
 	hashid := seg.Shape.hashid
 	if seg.transformN.Dot(n) > 0 {
 		return Edge{
@@ -281,7 +282,7 @@ func SupportEdgeForSegment(seg *Segment, n Vec2) Edge {
 	}
 }
 
-func SupportEdgeForPoly(poly *PolyShape, n Vec2) Edge {
+func SupportEdgeForPoly(poly *PolyShape, n vec.Vec2) Edge {
 	count := poly.count
 	i1 := PolySupportPointIndex(poly.count, poly.planes, n)
 
@@ -331,8 +332,8 @@ func ContactPoints(e1, e2 Edge, points ClosestPoints, info *CollisionInfo) {
 	// Project the endpoints of the two edges onto the opposing edge, clamping them as necessary.
 	// Compare the projected points to the collision normal to see if the shapes overlap there.
 	{
-		p1 := n.Scale(e1.r).Add(e1.a.p.Lerp(e1.b.p, Clamp01((dE2B-dE1A)*e1Denom)))
-		p2 := n.Scale(-e2.r).Add(e2.a.p.Lerp(e2.b.p, Clamp01((dE1A-dE2A)*e2Denom)))
+		p1 := n.Scale(e1.r).Add(e1.a.p.Lerp(e1.b.p, clamp01((dE2B-dE1A)*e1Denom)))
+		p2 := n.Scale(-e2.r).Add(e2.a.p.Lerp(e2.b.p, clamp01((dE1A-dE2A)*e2Denom)))
 		dist := p2.Sub(p1).Dot(n)
 		if dist <= 0 {
 			hash1a2b := HashPair(e1.a.hash, e2.b.hash)
@@ -340,8 +341,8 @@ func ContactPoints(e1, e2 Edge, points ClosestPoints, info *CollisionInfo) {
 		}
 	}
 	{
-		p1 := n.Scale(e1.r).Add(e1.a.p.Lerp(e1.b.p, Clamp01((dE2A-dE1A)*e1Denom)))
-		p2 := n.Scale(-e2.r).Add(e2.a.p.Lerp(e2.b.p, Clamp01((dE1B-dE2A)*e2Denom)))
+		p1 := n.Scale(e1.r).Add(e1.a.p.Lerp(e1.b.p, clamp01((dE2A-dE1A)*e1Denom)))
+		p2 := n.Scale(-e2.r).Add(e2.a.p.Lerp(e2.b.p, clamp01((dE1B-dE2A)*e2Denom)))
 		dist := p2.Sub(p1).Dot(n)
 		if dist <= 0 {
 			hash1b2a := HashPair(e1.b.hash, e2.a.hash)
@@ -382,12 +383,12 @@ func GJKRecurse(ctx SupportContext, v0, v1 MinkowskiPoint, iteration int) Closes
 		return v0.ClosestPoints(v1)
 	}
 
-	if v1.ab.PointGreater(v0.ab, Vec2{}) {
+	if v1.ab.PointGreater(v0.ab, vec.Vec2{}) {
 		// Origin is behind axis. Flip and try again.
 		return GJKRecurse(ctx, v1, v0, iteration)
 	}
 	t := v0.ab.ClosestT(v1.ab)
-	var n Vec2
+	var n vec.Vec2
 	if -1.0 < t && t < 1.0 {
 		n = v1.ab.Sub(v0.ab).Perp()
 	} else {
@@ -397,7 +398,7 @@ func GJKRecurse(ctx SupportContext, v0, v1 MinkowskiPoint, iteration int) Closes
 
 	// Draw debug
 
-	if p.ab.PointGreater(v0.ab, Vec2{}) && v1.ab.PointGreater(p.ab, Vec2{}) {
+	if p.ab.PointGreater(v0.ab, vec.Vec2{}) && v1.ab.PointGreater(p.ab, vec.Vec2{}) {
 		return EPA(ctx, v0, p, v1)
 	}
 
@@ -459,7 +460,7 @@ func EPARecurse(ctx SupportContext, count int, hull []MinkowskiPoint, iteration 
 
 			h0 := hull2[count2-1].ab
 			h1 := hull[index].ab
-			var h2 Vec2
+			var h2 vec.Vec2
 			if i+1 < count {
 				h2 = hull[(index+1)%count].ab
 			} else {

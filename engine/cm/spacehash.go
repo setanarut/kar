@@ -1,6 +1,7 @@
 package cm
 
 import (
+	"kar/engine/vec"
 	"math"
 	"sync"
 )
@@ -243,7 +244,7 @@ restart:
 }
 
 // modified from http://playtechs.blogspot.com/2007/03/raytracing-on-grid.html
-func (hash *SpaceHash) SegmentQuery(obj interface{}, a, b Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{}) {
+func (hash *SpaceHash) SegmentQuery(obj interface{}, a, b vec.Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{}) {
 	a = a.Scale(1.0 / hash.celldim)
 	b = b.Scale(1.0 / hash.celldim)
 

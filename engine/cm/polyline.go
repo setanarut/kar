@@ -1,9 +1,12 @@
 package cm
 
-import "math"
+import (
+	"kar/engine/vec"
+	"math"
+)
 
 type PolyLine struct {
-	Verts []Vec2
+	Verts []vec.Vec2
 }
 
 type PolyLineSet struct {
@@ -14,17 +17,17 @@ func Next(i, count int) int {
 	return (i + 1) % count
 }
 
-func Sharpness(a, b, c Vec2) float64 {
+func Sharpness(a, b, c vec.Vec2) float64 {
 	return a.Sub(b).Normalize().Dot(c.Sub(b).Normalize())
 }
 
-func (pl *PolyLine) Push(v Vec2) *PolyLine {
+func (pl *PolyLine) Push(v vec.Vec2) *PolyLine {
 	pl.Verts = append(pl.Verts, v)
 	return pl
 }
 
-func (pl *PolyLine) Enqueue(v Vec2) *PolyLine {
-	pl.Verts = append([]Vec2{v}, pl.Verts...)
+func (pl *PolyLine) Enqueue(v vec.Vec2) *PolyLine {
+	pl.Verts = append([]vec.Vec2{v}, pl.Verts...)
 	return pl
 }
 
@@ -47,7 +50,7 @@ func (pl *PolyLine) IsShort(count, start, end int, min float64) bool {
 // Join similar adjacent line segments together. Works well for hard edged shapes.
 // 'tol' is the minimum anglular difference in radians of a vertex.
 func (pl *PolyLine) SimplifyVertexes(tol float64) *PolyLine {
-	reduced := PolyLine{Verts: []Vec2{pl.Verts[0], pl.Verts[1]}}
+	reduced := PolyLine{Verts: []vec.Vec2{pl.Verts[0], pl.Verts[1]}}
 	minSharp := -math.Cos(tol)
 
 	for i := 2; i < len(pl.Verts); i++ {
@@ -67,7 +70,7 @@ func (pl *PolyLine) SimplifyVertexes(tol float64) *PolyLine {
 }
 
 // Recursive function used by PolylineSimplifyCurves().
-func DouglasPeucker(verts []Vec2, reduced *PolyLine, length, start, end int, min, tol float64) *PolyLine {
+func DouglasPeucker(verts []vec.Vec2, reduced *PolyLine, length, start, end int, min, tol float64) *PolyLine {
 	// Early exit if the points are adjacent
 	if (end-start+length)%length < 2 {
 		return reduced
@@ -132,7 +135,7 @@ func (pl *PolyLine) SimplifyCurves(tol float64) *PolyLine {
 }
 
 // Find the polyline that ends with v.
-func (pls *PolyLineSet) FindEnds(v Vec2) int {
+func (pls *PolyLineSet) FindEnds(v vec.Vec2) int {
 	for i, line := range pls.Lines {
 		if line.Verts != nil && line.Verts[len(line.Verts)-1].Equal(v) {
 			return i
@@ -142,7 +145,7 @@ func (pls *PolyLineSet) FindEnds(v Vec2) int {
 }
 
 // Find the polyline that starts with v.
-func (pls *PolyLineSet) FindStarts(v Vec2) int {
+func (pls *PolyLineSet) FindStarts(v vec.Vec2) int {
 	for i, line := range pls.Lines {
 		if line.Verts != nil && line.Verts[0].Equal(v) {
 			return i
@@ -167,7 +170,7 @@ func (pls *PolyLineSet) Join(before, after int) {
 
 // Add a segment to a polyline set.
 // A segment will either start a new polyline, join two others, or add to or loop an existing polyline.
-func PolyLineCollectSegment(v0, v1 Vec2, pls *PolyLineSet) {
+func PolyLineCollectSegment(v0, v1 vec.Vec2, pls *PolyLineSet) {
 
 	before := pls.FindEnds(v0)
 	after := pls.FindStarts(v1)
@@ -183,6 +186,6 @@ func PolyLineCollectSegment(v0, v1 Vec2, pls *PolyLineSet) {
 	} else if after >= 0 {
 		pls.Lines[after].Enqueue(v0)
 	} else {
-		pls.Push(&PolyLine{Verts: []Vec2{v0, v1}})
+		pls.Push(&PolyLine{Verts: []vec.Vec2{v0, v1}})
 	}
 }

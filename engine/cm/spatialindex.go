@@ -1,5 +1,7 @@
 package cm
 
+import "kar/engine/vec"
+
 type SpatialIndexBB func(obj *Shape) BB
 type SpatialIndexIterator func(obj *Shape)
 type SpatialIndexQuery func(obj1 interface{}, obj2 *Shape, collisionId uint32, data interface{}) uint32
@@ -16,7 +18,7 @@ type SpatialIndexer interface {
 	ReindexObject(obj *Shape, hashId HashValue)
 	ReindexQuery(f SpatialIndexQuery, data interface{})
 	Query(obj interface{}, bb BB, f SpatialIndexQuery, data interface{})
-	SegmentQuery(obj interface{}, a, b Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{})
+	SegmentQuery(obj interface{}, a, b vec.Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{})
 }
 
 func ShapeGetBB(obj *Shape) BB {

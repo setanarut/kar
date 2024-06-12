@@ -1,7 +1,7 @@
 package system
 
 import (
-	"kar/engine/cm"
+	"kar/engine/vec"
 	"kar/res"
 	"math"
 )
@@ -14,7 +14,7 @@ func NewPhysicsSystem() *PhysicsSystem {
 }
 
 func (ps *PhysicsSystem) Init() {
-	res.Space.SetGravity(cm.Vec2{0, -1500})
+	res.Space.SetGravity(vec.Vec2{0, -1500})
 	res.Space.CollisionBias = math.Pow(0.5, 120)
 	res.Space.CollisionSlop = 0.5
 	// res.Space.UseSpatialHash(200, 1000)

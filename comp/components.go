@@ -3,6 +3,7 @@ package comp
 import (
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/vec"
 	"kar/types"
 	"time"
 
@@ -19,7 +20,7 @@ var (
 
 	AnimationPlayer = donburi.NewComponentType[engine.AnimationPlayer]()
 	Body            = donburi.NewComponentType[cm.Body]()
-	DrawOptions     = donburi.NewComponentType[types.DataDrawOptions](types.DataDrawOptions{Scale: cm.Vec2{1, 1}})
+	DrawOptions     = donburi.NewComponentType[types.DataDrawOptions](types.DataDrawOptions{Scale: vec.Vec2{1, 1}})
 	Inventory       = donburi.NewComponentType[types.DataInventory]()
 	Damage          = donburi.NewComponentType[float64](1.0)
 	Health          = donburi.NewComponentType[types.DataHealth](types.DataHealth{Health: 10.0, MaxHealth: 10.0})

@@ -1,8 +1,11 @@
 package cm
 
-import "math"
+import (
+	"kar/engine/vec"
+	"math"
+)
 
-type BBTreeVelocityFunc func(obj interface{}) Vec2
+type BBTreeVelocityFunc func(obj interface{}) vec.Vec2
 
 type Node struct {
 	obj    *Shape
@@ -411,7 +414,7 @@ func (subtree *Node) SubtreeQuery(obj interface{}, bb BB, query SpatialIndexQuer
 	}
 }
 
-func (subtree *Node) SubtreeSegmentQuery(obj interface{}, a, b Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{}) float64 {
+func (subtree *Node) SubtreeSegmentQuery(obj interface{}, a, b vec.Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{}) float64 {
 	if subtree.IsLeaf() {
 		return f(obj, subtree.obj, data)
 	}
@@ -438,7 +441,7 @@ func (subtree *Node) SubtreeSegmentQuery(obj interface{}, a, b Vec2, t_exit floa
 	return t_exit
 }
 
-func (tree *BBTree) SegmentQuery(obj interface{}, a, b Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{}) {
+func (tree *BBTree) SegmentQuery(obj interface{}, a, b vec.Vec2, t_exit float64, f SpatialIndexSegmentQuery, data interface{}) {
 	root := tree.root
 	if root != nil {
 		root.SubtreeSegmentQuery(obj, a, b, t_exit, f, data)

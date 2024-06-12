@@ -1,25 +1,17 @@
 package engine
 
 import (
-	"kar/engine/cm"
+	"kar/engine/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-var (
-	NoDirection    = cm.Vec2{0, 0}
-	RightDirection = cm.Vec2{1, 0}
-	LeftDirection  = cm.Vec2{-1, 0}
-	UpDirection    = cm.Vec2{0, 1}
-	DownDirection  = cm.Vec2{0, -1}
-)
-
 type InputManager struct {
-	WASDDirection        cm.Vec2
-	ArrowDirection       cm.Vec2
-	ArrowDirectionTemp   cm.Vec2
-	LastPressedDirection cm.Vec2
+	WASDDirection        vec.Vec2
+	ArrowDirection       vec.Vec2
+	ArrowDirectionTemp   vec.Vec2
+	LastPressedDirection vec.Vec2
 }
 
 func (i *InputManager) UpdateJustArrowDirection() {
@@ -53,7 +45,7 @@ func (i *InputManager) UpdateJustArrowDirection() {
 }
 func (i *InputManager) UpdateArrowDirection() {
 
-	i.ArrowDirection = cm.Vec2{}
+	i.ArrowDirection = vec.Vec2{}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
 		i.ArrowDirection.Y += 1
 	}
@@ -67,14 +59,14 @@ func (i *InputManager) UpdateArrowDirection() {
 		i.ArrowDirection.X += 1
 	}
 
-	if !i.ArrowDirection.Equal(NoDirection) {
+	if !i.ArrowDirection.Equal(vec.Zero) {
 		i.LastPressedDirection = i.ArrowDirection
 	}
 
 }
 
 func (i *InputManager) UpdateWASDDirection() {
-	i.WASDDirection = cm.Vec2{}
+	i.WASDDirection = vec.Vec2{}
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
 		i.WASDDirection.Y += 1
 	}
@@ -88,7 +80,7 @@ func (i *InputManager) UpdateWASDDirection() {
 		i.WASDDirection.X += 1
 	}
 
-	if !i.WASDDirection.Equal(NoDirection) {
+	if !i.WASDDirection.Equal(vec.Zero) {
 		i.LastPressedDirection = i.WASDDirection
 	}
 

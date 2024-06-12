@@ -3,7 +3,7 @@ package types
 import (
 	"image"
 	"image/color"
-	"kar/engine/cm"
+	"kar/engine/vec"
 	"time"
 
 	"github.com/yohamta/donburi"
@@ -25,8 +25,8 @@ type DataAI struct {
 }
 
 type DataDrawOptions struct {
-	CenterOffset cm.Vec2
-	Scale        cm.Vec2
+	CenterOffset vec.Vec2
+	Scale        vec.Vec2
 	Rotation     float64
 	FlipX        bool
 	ScaleColor   color.Color

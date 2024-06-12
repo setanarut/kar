@@ -4,7 +4,7 @@ import (
 	"image"
 	"kar/arche"
 	"kar/comp"
-	"kar/engine/cm"
+	"kar/engine/vec"
 	"kar/res"
 	"kar/terr"
 )
@@ -61,7 +61,7 @@ func (s *SpawnSystem) Draw() {
 func ResetLevel() {
 
 	res.Camera.Reset()
-	playerSpawnPosition := cm.Vec2{512 * 50, 512 * 50}
+	playerSpawnPosition := vec.Vec2{512 * 50, 512 * 50}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		DestroyEntryWithBody(player)

@@ -7,6 +7,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/io"
 	"kar/engine/util"
 	"kar/types"
 
@@ -52,13 +53,13 @@ var (
 	Screen      *ebiten.Image
 	StoneStages []*ebiten.Image
 	Terrain     *image.Gray
-	Atlas       = util.LoadImageFromFS("assets/atlas.png", assets)
-	PlayerAtlas = util.LoadImageFromFS("assets/player_atlas.png", assets)
-	StoneAtlas  = util.LoadImageFromFS("assets/stone_atlas.png", assets)
+	Atlas       = io.LoadImageFromFS("assets/atlas.png", assets)
+	PlayerAtlas = io.LoadImageFromFS("assets/player_atlas.png", assets)
+	StoneAtlas  = io.LoadImageFromFS("assets/stone_atlas.png", assets)
 )
 
 var (
-	Futura    = util.LoadTextFace("assets/futura.ttf", 18, assets)
+	Futura    = io.LoadGoTextFaceFromFS("assets/futura.ttf", 18, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
 		Size:     28,

@@ -1,9 +1,17 @@
-package cm
+package vec
 
 import (
 	"fmt"
 	"image"
 	"math"
+)
+
+var (
+	Zero  = Vec2{0, 0}
+	Right = Vec2{1, 0}
+	Left  = Vec2{-1, 0}
+	Up    = Vec2{0, 1}
+	Down  = Vec2{0, -1}
 )
 
 type Vec2 struct {
@@ -38,6 +46,11 @@ func (v Vec2) Sub(other Vec2) Vec2 {
 // Neg negates a vector.
 func (v Vec2) Neg() Vec2 {
 	return Vec2{-v.X, -v.Y}
+}
+
+// NegY negates Y of vector.
+func (v Vec2) NegY() Vec2 {
+	return Vec2{v.X, -v.Y}
 }
 
 // Scale scales vector
@@ -82,15 +95,23 @@ func (v Vec2) ToAngle() float64 {
 	return math.Atan2(v.Y, v.X)
 }
 
-// Rotate uses complex number multiplication to rotate this by other.
+// RotateComplex uses complex number multiplication to rotate this by other.
 //
 // Scaling will occur if this is not a unit vector.
-func (v Vec2) Rotate(other Vec2) Vec2 {
+func (v Vec2) RotateComplex(other Vec2) Vec2 {
 	return Vec2{v.X*other.X - v.Y*other.Y, v.X*other.Y + v.Y*other.X}
 }
 
-// Unrotate is inverse of Vector.Rotate().
-func (v Vec2) Unrotate(other Vec2) Vec2 {
+// Rotate a vector by an angle in radians
+func (v Vec2) Rotate(angle float64) Vec2 {
+	return Vec2{
+		X: v.X*math.Cos(angle) - v.Y*math.Sin(angle),
+		Y: v.X*math.Sin(angle) + v.Y*math.Cos(angle),
+	}
+}
+
+// UnrotateComplex is inverse of Vector.Rotate().
+func (v Vec2) UnrotateComplex(other Vec2) Vec2 {
 	return Vec2{v.X*other.X + v.Y*other.Y, v.Y*other.X - v.X*other.Y}
 }
 
@@ -120,7 +141,7 @@ func (v Vec2) Normalize() Vec2 {
 // Spherical linearly interpolate between this and other.
 func (v Vec2) LerpSpherical(other Vec2, t float64) Vec2 {
 	dot := v.Normalize().Dot(other.Normalize())
-	omega := math.Acos(Clamp(dot, -1, 1))
+	omega := math.Acos(clamp(dot, -1, 1))
 
 	if omega < 1e-3 {
 		return v.Lerp(other, t)
@@ -133,7 +154,7 @@ func (v Vec2) LerpSpherical(other Vec2, t float64) Vec2 {
 // Spherical linearly interpolate between this towards other by no more than angle a radians.
 func (v Vec2) LerpSphericalClamp(other Vec2, angle float64) Vec2 {
 	dot := v.Normalize().Dot(other.Normalize())
-	omega := math.Acos(Clamp(dot, -1, 1))
+	omega := math.Acos(clamp(dot, -1, 1))
 	return v.LerpSpherical(other, math.Min(angle, omega)/omega)
 }
 
@@ -179,7 +200,8 @@ func (v Vec2) CheckAxis(v1, p, n Vec2) bool {
 
 func (v Vec2) ClosestT(b Vec2) float64 {
 	delta := b.Sub(v)
-	return -Clamp(delta.Dot(v.Add(b))/delta.LengthSq(), -1.0, 1.0)
+
+	return -clamp(delta.Dot(v.Add(b))/delta.LengthSq(), -1.0, 1.0)
 }
 
 func (v Vec2) LerpT(b Vec2, t float64) Vec2 {
@@ -193,7 +215,7 @@ func (v Vec2) ClosestDist(v1 Vec2) float64 {
 
 func (v Vec2) ClosestPointOnSegment(a, b Vec2) Vec2 {
 	delta := a.Sub(b)
-	t := Clamp01(delta.Dot(v.Sub(b)) / delta.LengthSq())
+	t := clamp01(delta.Dot(v.Sub(b)) / delta.LengthSq())
 	return b.Add(delta.Scale(t))
 }
 
@@ -212,24 +234,9 @@ func (v Vec2) Point() image.Point {
 	return image.Point{int(v.X), int(v.Y)}
 }
 
-func Clamp(f, min, max float64) float64 {
-	if f > min {
-		return math.Min(f, max)
-	} else {
-		return math.Min(min, max)
-	}
-}
-
-func Clamp01(f float64) float64 {
-	return math.Max(0, math.Min(f, 1))
-}
-
-func Lerp(f1, f2, t float64) float64 {
-	return f1*(1.0-t) + f2*t
-}
-
-func LerpConst(f1, f2, d float64) float64 {
-	return f1 + Clamp(f2-f1, -d, d)
+// FlipVertical inverts position Y axis beetween bottom-left and top-left coordinate systems
+func (v Vec2) FlipVertical(screenbHeight float64) Vec2 {
+	return Vec2{v.X, screenbHeight - v.Y}
 }
 
 // ForAngle returns the unit length vector for the given angle (in radians).
@@ -240,4 +247,15 @@ func ForAngle(a float64) Vec2 {
 // FromPoint converts image.Point to Vec2
 func FromPoint(p image.Point) Vec2 {
 	return Vec2{float64(p.X), float64(p.Y)}
+}
+func clamp(f, min, max float64) float64 {
+	if f > min {
+		return math.Min(f, max)
+	} else {
+		return math.Min(min, max)
+	}
+}
+
+func clamp01(f float64) float64 {
+	return math.Max(0, math.Min(f, 1))
 }

@@ -5,7 +5,9 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/mathutil"
 	"kar/engine/util"
+	"kar/engine/vec"
 	"kar/res"
 	"kar/types"
 
@@ -15,7 +17,7 @@ import (
 func SpawnCircleBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
 	// body := cm.NewKinematicBody()
 	body := cm.NewBody(m, cm.Infinity)
-	shape := cm.NewCircle(body, r, cm.Vec2{})
+	shape := cm.NewCircle(body, r, vec.Vec2{})
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
 	res.Space.AddShape(shape)
@@ -35,7 +37,7 @@ func spawnBoxBody(m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
 	return body
 }
 
-func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
+func SpawnPlayer(mass, el, fr, rad float64, pos vec.Vec2) *donburi.Entry {
 	// 26, 40
 	e := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
@@ -55,8 +57,8 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	comp.AnimationPlayer.Set(e, ap)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
-		CenterOffset: util.GetEbitenImageCenterOffset(ap.CurrentFrame),
-		Scale:        util.GetBoxScaleFactor(16, 16, 50, 50),
+		CenterOffset: util.EbitenImageCenterOffset(ap.CurrentFrame),
+		Scale:        mathutil.RectangleScaleFactor(16, 16, 50, 50),
 	})
 
 	b := spawnBoxBody(mass, el, fr, 30, 40, rad, e)
@@ -67,7 +69,7 @@ func SpawnPlayer(mass, el, fr, rad float64, pos cm.Vec2) *donburi.Entry {
 	return e
 }
 
-func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
+func SpawnWall(boxCenter vec.Vec2, boxW, boxH float64) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
 	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskWall, cm.AllCategories)
@@ -86,15 +88,15 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	return entry
 }
 
-func SpawnBlock(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType) {
+func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType) {
 	e := SpawnWall(pos, 50, 50)
 	e.AddComponent(comp.Health)
 	e.AddComponent(comp.Block)
 	e.AddComponent(comp.DrawOptions)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
-		CenterOffset: cm.Vec2{-8, -8},
-		Scale:        util.GetBoxScaleFactor(16, 16, 50, 50),
+		CenterOffset: vec.Vec2{-8, -8},
+		Scale:        mathutil.RectangleScaleFactor(16, 16, 50, 50),
 	})
 
 	comp.Block.Set(e,
@@ -105,7 +107,7 @@ func SpawnBlock(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType) 
 
 }
 
-func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
+func SpawnDefaultPlayer(pos vec.Vec2) *donburi.Entry {
 	return SpawnPlayer(1, 0, 0, 5, pos)
 
 }

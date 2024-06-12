@@ -45,7 +45,7 @@ func (motor *SimpleMotor) ApplyImpulse(dt float64) {
 
 	j := -wr * motor.iSum
 	jOld := motor.jAcc
-	motor.jAcc = Clamp(jOld+j, -jMax, jMax)
+	motor.jAcc = clamp(jOld+j, -jMax, jMax)
 	j = motor.jAcc - jOld
 
 	a.w -= j * a.moi_inv

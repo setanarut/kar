@@ -1,20 +1,23 @@
 package cm
 
-import "math"
+import (
+	"kar/engine/vec"
+	"math"
+)
 
 type SlideJoint struct {
 	*Constraint
 
-	AnchorA, AnchorB Vec2
+	AnchorA, AnchorB vec.Vec2
 	Min, Max         float64
 
-	r1, r2, n Vec2
+	r1, r2, n vec.Vec2
 	nMass     float64
 
 	jnAcc, bias float64
 }
 
-func NewSlideJoint(a, b *Body, anchorA, anchorB Vec2, min, max float64) *Constraint {
+func NewSlideJoint(a, b *Body, anchorA, anchorB vec.Vec2, min, max float64) *Constraint {
 	joint := &SlideJoint{
 		AnchorA: anchorA,
 		AnchorB: anchorB,
@@ -43,7 +46,7 @@ func (joint *SlideJoint) PreStep(dt float64) {
 		pdist = joint.Min - dist
 		joint.n = delta.Normalize().Neg()
 	} else {
-		joint.n = Vec2{}
+		joint.n = vec.Vec2{}
 		joint.jnAcc = 0
 	}
 
@@ -52,7 +55,7 @@ func (joint *SlideJoint) PreStep(dt float64) {
 
 	// calculate bias velocity
 	maxBias := joint.maxBias
-	joint.bias = Clamp(-bias_coef(joint.errorBias, dt)*pdist/dt, -maxBias, maxBias)
+	joint.bias = clamp(-bias_coef(joint.errorBias, dt)*pdist/dt, -maxBias, maxBias)
 }
 
 func (joint *SlideJoint) ApplyCachedImpulse(dt_coef float64) {
@@ -64,7 +67,7 @@ func (joint *SlideJoint) ApplyCachedImpulse(dt_coef float64) {
 }
 
 func (joint *SlideJoint) ApplyImpulse(dt float64) {
-	if joint.n.Equal(Vec2{}) {
+	if joint.n.Equal(vec.Vec2{}) {
 		return
 	}
 
@@ -79,7 +82,7 @@ func (joint *SlideJoint) ApplyImpulse(dt float64) {
 
 	jn := (joint.bias - vrn) * joint.nMass
 	jnOld := joint.jnAcc
-	joint.jnAcc = Clamp(jnOld+jn, -joint.maxForce*dt, 0)
+	joint.jnAcc = clamp(jnOld+jn, -joint.maxForce*dt, 0)
 	jn = joint.jnAcc - jnOld
 
 	apply_impulses(a, b, joint.r1, joint.r2, n.Scale(jn))

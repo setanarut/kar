@@ -2,8 +2,8 @@ package engine
 
 import (
 	"fmt"
-	"kar/engine/cm"
-	"kar/engine/util"
+	"kar/engine/mathutil"
+	"kar/engine/vec"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -14,18 +14,18 @@ import (
 type Camera struct {
 	// Use the `Camera.LookAt()` function to align the center of the camera to the target.
 	W, H, Rotation, ZoomFactor        float64
-	tempTarget, centerOffset, topLeft cm.Vec2
+	tempTarget, centerOffset, topLeft vec.Vec2
 	DrawOptions                       *ebiten.DrawImageOptions
 	Lerp, TraumaEnabled               bool
 
 	// camera shake options
-	traumaOffset, ShakeSize                              cm.Vec2
+	traumaOffset, ShakeSize                              vec.Vec2
 	Trauma, TimeScale, MaxShakeAngle, Decay, delta, tick float64
 	noise                                                opensimplex.Noise
 }
 
 // NewCamera returns new Camera
-func NewCamera(lookAt cm.Vec2, w, h float64) *Camera {
+func NewCamera(lookAt vec.Vec2, w, h float64) *Camera {
 	c := &Camera{
 		W:             w,
 		H:             h,
@@ -37,16 +37,16 @@ func NewCamera(lookAt cm.Vec2, w, h float64) *Camera {
 
 		// Shake options
 		Trauma:        0,
-		ShakeSize:     cm.Vec2{150, 150},
+		ShakeSize:     vec.Vec2{150, 150},
 		MaxShakeAngle: 30,
 		TimeScale:     16,
 		Decay:         0.333,
 
 		// private
-		traumaOffset: cm.Vec2{},
-		topLeft:      cm.Vec2{},
-		centerOffset: cm.Vec2{-(w * 0.5), -(h * 0.5)},
-		tempTarget:   cm.Vec2{},
+		traumaOffset: vec.Vec2{},
+		topLeft:      vec.Vec2{},
+		centerOffset: vec.Vec2{-(w * 0.5), -(h * 0.5)},
+		tempTarget:   vec.Vec2{},
 		noise:        opensimplex.New(1),
 		delta:        1.0 / 60.0,
 		tick:         0,
@@ -57,7 +57,7 @@ func NewCamera(lookAt cm.Vec2, w, h float64) *Camera {
 }
 
 // LookAt aligns the midpoint of the camera viewport to the target.
-func (cam *Camera) LookAt(target cm.Vec2) {
+func (cam *Camera) LookAt(target vec.Vec2) {
 
 	if cam.Lerp {
 		cam.tempTarget = cam.tempTarget.Lerp(target, 0.1)
@@ -72,7 +72,7 @@ func (cam *Camera) LookAt(target cm.Vec2) {
 			cam.traumaOffset.X = cam.noise.Eval3(cam.tick*cam.TimeScale, 0, 0) * cam.ShakeSize.X * shake
 			cam.traumaOffset.Y = cam.noise.Eval3(0, cam.tick*cam.TimeScale, 0) * cam.ShakeSize.Y * shake
 			cam.Rotation = cam.noise.Eval3(0, 0, cam.tick*cam.TimeScale) * cam.MaxShakeAngle * shake
-			cam.Trauma = util.Clamp(cam.Trauma-(cam.delta*cam.Decay), 0, 1)
+			cam.Trauma = mathutil.Clamp(cam.Trauma-(cam.delta*cam.Decay), 0, 1)
 		}
 		// offset
 		cam.topLeft = cam.topLeft.Add(cam.traumaOffset)
@@ -85,17 +85,17 @@ func (cam *Camera) LookAt(target cm.Vec2) {
 	}
 }
 func (cam *Camera) AddTrauma(trauma_in float64) {
-	cam.Trauma = util.Clamp(cam.Trauma+trauma_in, 0, 1)
+	cam.Trauma = mathutil.Clamp(cam.Trauma+trauma_in, 0, 1)
 }
 
 // SetSize returns center point of the camera
 func (cam *Camera) SetSize(w, h float64) {
 	cam.W, cam.H = w, h
-	cam.centerOffset = cm.Vec2{-(w * 0.5), -(h * 0.5)}
+	cam.centerOffset = vec.Vec2{-(w * 0.5), -(h * 0.5)}
 }
 
 // Center returns center point of the camera
-func (cam *Camera) Center() cm.Vec2 {
+func (cam *Camera) Center() vec.Vec2 {
 	fmt.Println("offset", cam.centerOffset)
 	return cam.topLeft.Sub(cam.centerOffset)
 }
@@ -115,16 +115,16 @@ func (cam *Camera) String() string {
 }
 
 // ScreenToWorld converts screen-space coordinates to world-space
-func (cam *Camera) ScreenToWorld(screenX, screenY int) cm.Vec2 {
+func (cam *Camera) ScreenToWorld(screenX, screenY int) vec.Vec2 {
 	g := ebiten.GeoM{}
 	cam.ApplyCameraTransform(&g)
 	if g.IsInvertible() {
 		g.Invert()
 		worldX, worldY := g.Apply(float64(screenX), float64(screenY))
-		return cm.Vec2{worldX, worldY}
+		return vec.Vec2{worldX, worldY}
 	} else {
 		// When scaling it can happened that matrix is not invertable
-		return cm.Vec2{math.NaN(), math.NaN()}
+		return vec.Vec2{math.NaN(), math.NaN()}
 	}
 }
 

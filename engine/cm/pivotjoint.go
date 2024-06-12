@@ -1,18 +1,20 @@
 package cm
 
+import "kar/engine/vec"
+
 type PivotJoint struct {
 	*Constraint
-	AnchorA, AnchorB Vec2
+	AnchorA, AnchorB vec.Vec2
 
-	r1, r2 Vec2
+	r1, r2 vec.Vec2
 	k      Mat2x2
 
-	jAcc, bias Vec2
+	jAcc, bias vec.Vec2
 }
 
-func NewPivotJoint(a, b *Body, pivot Vec2) *Constraint {
-	var anchorA Vec2
-	var anchorB Vec2
+func NewPivotJoint(a, b *Body, pivot vec.Vec2) *Constraint {
+	var anchorA vec.Vec2
+	var anchorB vec.Vec2
 
 	if a != nil {
 		anchorA = a.WorldToLocal(pivot)
@@ -29,11 +31,11 @@ func NewPivotJoint(a, b *Body, pivot Vec2) *Constraint {
 	return NewPivotJoint2(a, b, anchorA, anchorB)
 }
 
-func NewPivotJoint2(a, b *Body, anchorA, anchorB Vec2) *Constraint {
+func NewPivotJoint2(a, b *Body, anchorA, anchorB vec.Vec2) *Constraint {
 	joint := &PivotJoint{
 		AnchorA: anchorA,
 		AnchorB: anchorB,
-		jAcc:    Vec2{},
+		jAcc:    vec.Vec2{},
 	}
 	constraint := NewConstraint(joint, a, b)
 	joint.Constraint = constraint

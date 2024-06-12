@@ -3,13 +3,13 @@ package terr
 import (
 	"image"
 	"image/color"
-	"image/png"
 	"kar/comp"
 	"kar/engine/cm"
+	"kar/engine/io"
+	"kar/engine/vec"
 	"kar/res"
 	"kar/types"
 	"math"
-	"os"
 	"slices"
 
 	"github.com/ojrac/opensimplex-go"
@@ -55,14 +55,14 @@ func (tr *Terrain) Generate() {
 	}
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
 			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
-			blockPos := cm.Vec2{float64(blockX), float64(blockY)}
+			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockNumber.Y > 128 {
 				blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockStone)
@@ -72,7 +72,7 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 }
 
 // Spawn/Destroy chunks
-func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos cm.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
+func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
 	playerChunks := GetPlayerChunks(playerChunk)
 	intersectionChunks := FindIntersection(playerChunks, tr.LoadedChunks)
 
@@ -95,25 +95,25 @@ func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
 	comp.Block.Each(res.World, func(e *donburi.Entry) {
 		if comp.Block.Get(e).ChunkCoord == chunkCoord {
 			b := comp.Body.Get(e)
-			DestroyBodyWithEntry(b)
+			destroyBodyWithEntry(b)
 		}
 	})
 }
 
 func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
 	img := tr.ChunkImage(chunkCoord)
-	WriteImage(img, filename)
+	io.WriteImage(img, filename)
 }
 
-func (tr *Terrain) ChunkCoord(pos cm.Vec2) image.Point {
+func (tr *Terrain) ChunkCoord(pos vec.Vec2) image.Point {
 	return pos.Div(tr.ChunkSize).Floor().Div(tr.BlockSize).Point()
 }
 
 func (tr *Terrain) WriteTerrainImage(flipVertical bool) {
 	if flipVertical {
-		WriteImage(tr.TerrainImageFlipVertical(), "map.png")
+		io.WriteImage(tr.TerrainImageFlipVertical(), "map.png")
 	} else {
-		WriteImage(tr.TerrainImg, "map.png")
+		io.WriteImage(tr.TerrainImg, "map.png")
 	}
 }
 
@@ -148,15 +148,6 @@ func (tr *Terrain) Eval2WithOptions(x, y int) float64 {
 	return eval2WithOpts(x, y, tr.Noise, tr.NoiseOptions)
 }
 
-func WriteImage(img *image.Gray, filename string) {
-	file, err := os.Create(filename)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer file.Close()
-	png.Encode(file, img)
-}
-
 type NoiseOptions struct {
 	Amplitude float64
 	// Distance to view the noisemap.
@@ -189,23 +180,6 @@ func eval2WithOpts(x, y int, nois opensimplex.Noise, o NoiseOptions) float64 {
 	return total
 }
 
-func Distance(a, b image.Point) float64 {
-	return cm.FromPoint(a).DistanceSq(cm.FromPoint(b))
-}
-
-func DestroyBodyWithEntry(b *cm.Body) {
-	s := b.FirstShape().Space()
-	if s.ContainsBody(b) {
-		e := b.UserData.(*donburi.Entry)
-		e.Remove()
-		s.AddPostStepCallback(removeBodyPostStep, b, false)
-	}
-}
-
-func removeBodyPostStep(space *cm.Space, body, data interface{}) {
-	space.RemoveBodyWithShapes(body.(*cm.Body))
-}
-
 func FindIntersection(s1, s2 []image.Point) []image.Point {
 	intersection := make([]image.Point, 0)
 	for _, point := range s2 {
@@ -224,4 +198,17 @@ func GetPlayerChunks(playerChunk image.Point) []image.Point {
 		playerChunks = append(playerChunks, playerChunk.Add(neighbor))
 	}
 	return playerChunks
+}
+
+func destroyBodyWithEntry(b *cm.Body) {
+	s := b.FirstShape().Space()
+	if s.ContainsBody(b) {
+		e := b.UserData.(*donburi.Entry)
+		e.Remove()
+		s.AddPostStepCallback(removeBodyPostStep, b, false)
+	}
+}
+
+func removeBodyPostStep(space *cm.Space, body, data interface{}) {
+	space.RemoveBodyWithShapes(body.(*cm.Body))
 }

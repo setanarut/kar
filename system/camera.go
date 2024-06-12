@@ -2,7 +2,7 @@ package system
 
 import (
 	"kar/comp"
-	"kar/engine/util"
+	"kar/engine/mathutil"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -32,7 +32,7 @@ func (ds *DrawCameraSystem) Update() {
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Camera.LookAt(util.InvPosVectY(pos, res.ScreenRect.T))
+		res.Camera.LookAt(pos.FlipVertical(res.ScreenRect.T))
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
@@ -61,7 +61,7 @@ func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
 	drawopt := comp.DrawOptions.Get(e)
 	ap := comp.AnimationPlayer.Get(e)
 
-	pos := util.InvPosVectY(body.Position(), res.ScreenRect.T)
+	pos := body.Position().FlipVertical(res.ScreenRect.T)
 	scl := drawopt.Scale
 	if drawopt.FlipX {
 		scl.X *= -1
@@ -70,7 +70,7 @@ func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
 	ds.dio.GeoM.Reset()
 	ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
 	ds.dio.GeoM.Scale(scl.X, scl.Y)
-	ds.dio.GeoM.Rotate(util.InvertAngle(drawopt.Rotation))
+	ds.dio.GeoM.Rotate(-drawopt.Rotation)
 	ds.dio.GeoM.Translate(pos.X, pos.Y)
 	res.Camera.Draw(ap.CurrentFrame, ds.dio, res.Screen)
 	ds.dio.ColorScale.Reset()
@@ -78,19 +78,20 @@ func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
 func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
-	b := comp.Block.Get(e)
-	drawopt := comp.DrawOptions.Get(e)
-	h := comp.Health.Get(e)
-	pos := util.InvPosVectY(body.Position(), res.ScreenRect.T)
+	blockData := comp.Block.Get(e)
+	drawOpt := comp.DrawOptions.Get(e)
+	healthData := comp.Health.Get(e)
+	pos := body.Position().FlipVertical(res.ScreenRect.T)
 
-	if b.BlockType == res.BlockStone {
-		ds.currentFrame = res.StoneStages[int(util.MapRange(h.Health, 10, 0, 0, 8))]
+	if blockData.BlockType == res.BlockStone {
+		blockSpriteStageIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
+		ds.currentFrame = res.StoneStages[blockSpriteStageIndex]
 	}
 
 	ds.dio.GeoM.Reset()
-	ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
-	ds.dio.GeoM.Scale(drawopt.Scale.X, drawopt.Scale.Y)
-	ds.dio.GeoM.Rotate(util.InvertAngle(drawopt.Rotation))
+	ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
+	ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)
+	ds.dio.GeoM.Rotate(-drawOpt.Rotation)
 	ds.dio.GeoM.Translate(pos.X, pos.Y)
 	ds.dio.ColorScale.Reset()
 

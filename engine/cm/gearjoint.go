@@ -1,6 +1,8 @@
 package cm
 
-import "math"
+import (
+	"math"
+)
 
 type GearJoint struct {
 	*Constraint
@@ -33,7 +35,7 @@ func (joint *GearJoint) PreStep(dt float64) {
 
 	// calculate bias velocity
 	maxBias := joint.Constraint.maxBias
-	joint.bias = Clamp(-bias_coef(joint.errorBias, dt)*(b.angle*joint.ratio-a.angle-joint.phase)/dt, -maxBias, maxBias)
+	joint.bias = clamp(-bias_coef(joint.errorBias, dt)*(b.angle*joint.ratio-a.angle-joint.phase)/dt, -maxBias, maxBias)
 }
 
 func (joint *GearJoint) ApplyCachedImpulse(dt_coef float64) {
@@ -57,7 +59,7 @@ func (joint *GearJoint) ApplyImpulse(dt float64) {
 	// compute normal impulse
 	j := (joint.bias - wr) * joint.iSum
 	jOld := joint.jAcc
-	joint.jAcc = Clamp(jOld+j, -jMax, jMax)
+	joint.jAcc = clamp(jOld+j, -jMax, jMax)
 	j = joint.jAcc - jOld
 
 	// apply impulse

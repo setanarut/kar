@@ -34,7 +34,7 @@ func (joint *RotaryLimitJoint) PreStep(dt float64) {
 	joint.iSum = 1.0 / (a.moi_inv + b.moi_inv)
 
 	maxBias := joint.maxBias
-	joint.bias = Clamp(-bias_coef(joint.errorBias, dt)*pdist/dt, -maxBias, maxBias)
+	joint.bias = clamp(-bias_coef(joint.errorBias, dt)*pdist/dt, -maxBias, maxBias)
 
 	if joint.bias == 0 {
 		joint.jAcc = 0
@@ -65,9 +65,9 @@ func (joint *RotaryLimitJoint) ApplyImpulse(dt float64) {
 	j := -(joint.bias + wr) * joint.iSum
 	jOld := joint.jAcc
 	if joint.bias < 0 {
-		joint.jAcc = Clamp(jOld+j, 0, jMax)
+		joint.jAcc = clamp(jOld+j, 0, jMax)
 	} else {
-		joint.jAcc = Clamp(jOld+j, -jMax, 0)
+		joint.jAcc = clamp(jOld+j, -jMax, 0)
 	}
 	j = joint.jAcc - jOld
 

@@ -2,8 +2,8 @@ package system
 
 import (
 	"kar/comp"
-	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/vec"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -45,13 +45,13 @@ func (sys *PlayerControlSystem) Update() {
 
 	res.Input.UpdateWASDDirection()
 
-	FacingRight = res.Input.LastPressedDirection.Equal(engine.RightDirection) || res.Input.WASDDirection.Equal(engine.RightDirection)
-	FacingLeft = res.Input.LastPressedDirection.Equal(engine.LeftDirection) || res.Input.WASDDirection.Equal(engine.LeftDirection)
-	FacingDown = res.Input.LastPressedDirection.Equal(engine.DownDirection) || res.Input.WASDDirection.Equal(engine.DownDirection)
-	FacingUp = res.Input.LastPressedDirection.Equal(engine.UpDirection) || res.Input.WASDDirection.Equal(engine.UpDirection)
-	NoWASD = res.Input.WASDDirection.Equal(engine.NoDirection)
-	WalkRight = res.Input.WASDDirection.Equal(engine.RightDirection)
-	WalkLeft = res.Input.WASDDirection.Equal(engine.LeftDirection)
+	FacingRight = res.Input.LastPressedDirection.Equal(vec.Right) || res.Input.WASDDirection.Equal(vec.Right)
+	FacingLeft = res.Input.LastPressedDirection.Equal(vec.Left) || res.Input.WASDDirection.Equal(vec.Left)
+	FacingDown = res.Input.LastPressedDirection.Equal(vec.Down) || res.Input.WASDDirection.Equal(vec.Down)
+	FacingUp = res.Input.LastPressedDirection.Equal(vec.Up) || res.Input.WASDDirection.Equal(vec.Up)
+	NoWASD = res.Input.WASDDirection.Equal(vec.Zero)
+	WalkRight = res.Input.WASDDirection.Equal(vec.Right)
+	WalkLeft = res.Input.WASDDirection.Equal(vec.Left)
 	Attacking = ebiten.IsKeyPressed(ebiten.KeyShiftRight)
 	Walking = WalkLeft || WalkRight
 	Idle = NoWASD && !Attacking && IsGround
@@ -148,9 +148,9 @@ func WASDPlatformerForce(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
 	p := body.Position()
-	// p.Add(cm.Vec2{0, -25}
-	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
-	// queryInfoRight := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
+	// p.Add(vec.Vec2{0, -25}
+	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
+	// queryInfoRight := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
 	contactShape := queryInfo.Shape
 
 	bv := body.Velocity()
@@ -167,42 +167,42 @@ func WASDPlatformerForce(e *donburi.Entry) {
 	if contactShape != nil {
 		IsGround = true
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			body.ApplyForceAtLocalPoint(cm.Vec2{-1500, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{-1500, 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			body.ApplyForceAtLocalPoint(cm.Vec2{1500, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{1500, 0}, body.CenterOfGravity())
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 500}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, 500}, body.CenterOfGravity())
 		}
 	} else {
 		IsGround = false
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			body.ApplyForceAtLocalPoint(cm.Vec2{-800, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{-800, 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			body.ApplyForceAtLocalPoint(cm.Vec2{800, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{800, 0}, body.CenterOfGravity())
 		}
 	}
 
 }
 func WASDPlatformer(e *donburi.Entry) {
-	vel := cm.Vec2{}
+	vel := vec.Vec2{}
 	body := comp.Body.Get(e)
 	p := body.Position()
 	mobileData := comp.Mobile.Get(e)
 	vel.X = res.Input.WASDDirection.X
 	vel = vel.Scale(mobileData.Speed)
-	vel = vel.Add(cm.Vec2{0, -500})
+	vel = vel.Add(vec.Vec2{0, -500})
 	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 
-		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(cm.Vec2{0, -50}), 0, res.FilterPlayerRaycast)
+		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -50}), 0, res.FilterPlayerRaycast)
 		contactShape := queryInfo.Shape
 
 		if contactShape != nil {
-			body.ApplyImpulseAtLocalPoint(cm.Vec2{0, 900}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, 900}, body.CenterOfGravity())
 		}
 
 	}

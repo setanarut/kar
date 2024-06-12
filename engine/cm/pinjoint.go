@@ -1,24 +1,27 @@
 package cm
 
-import "math"
+import (
+	"kar/engine/vec"
+	"math"
+)
 
 type PinJoint struct {
 	*Constraint
-	AnchorA, AnchorB Vec2
+	AnchorA, AnchorB vec.Vec2
 	Dist             float64
 
-	r1, r2, n          Vec2
+	r1, r2, n          vec.Vec2
 	nMass, jnAcc, bias float64
 }
 
-func NewPinJoint(a, b *Body, anchorA, anchorB Vec2) *Constraint {
+func NewPinJoint(a, b *Body, anchorA, anchorB vec.Vec2) *Constraint {
 	joint := &PinJoint{
 		AnchorA: anchorA,
 		AnchorB: anchorB,
 	}
 
 	// static body check
-	var p1, p2 Vec2
+	var p1, p2 vec.Vec2
 	if a != nil {
 		p1 = a.transform.Point(anchorA)
 	} else {
@@ -57,7 +60,7 @@ func (joint *PinJoint) PreStep(dt float64) {
 	joint.nMass = 1 / k_scalar(a, b, joint.r1, joint.r2, joint.n)
 
 	maxBias := joint.maxBias
-	joint.bias = Clamp(-bias_coef(joint.errorBias, dt)*(dist-joint.Dist)/dt, -maxBias, maxBias)
+	joint.bias = clamp(-bias_coef(joint.errorBias, dt)*(dist-joint.Dist)/dt, -maxBias, maxBias)
 }
 
 func (joint *PinJoint) ApplyCachedImpulse(dt_coef float64) {
@@ -76,7 +79,7 @@ func (joint *PinJoint) ApplyImpulse(dt float64) {
 
 	jn := (joint.bias - vrn) * joint.nMass
 	jnOld := joint.jnAcc
-	joint.jnAcc = Clamp(jnOld+jn, -jnMax, jnMax)
+	joint.jnAcc = clamp(jnOld+jn, -jnMax, jnMax)
 	jn = joint.jnAcc - jnOld
 
 	apply_impulses(a, b, joint.r1, joint.r2, n.Scale(jn))

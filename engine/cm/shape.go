@@ -2,6 +2,7 @@ package cm
 
 import (
 	"fmt"
+	"kar/engine/vec"
 )
 
 type Shaper interface {
@@ -16,8 +17,8 @@ type Shaper interface {
 
 type ShapeClass interface {
 	CacheData(transform Transform) BB
-	PointQuery(p Vec2, info *PointQueryInfo)
-	SegmentQuery(a, b Vec2, radius float64, info *SegmentQueryInfo)
+	PointQuery(p vec.Vec2, info *PointQueryInfo)
+	SegmentQuery(a, b vec.Vec2, radius float64, info *SegmentQueryInfo)
 }
 
 const (
@@ -41,7 +42,7 @@ type Shape struct {
 	elasticity, friction float64
 	// The surface velocity of the object. Useful for creating conveyor belts or players that move around.
 	// This value is only used when calculating friction, not resolving the collision.
-	surfaceVelocity Vec2
+	surfaceVelocity vec.Vec2
 
 	hashid HashValue
 }
@@ -115,7 +116,7 @@ func (s *Shape) Area() float64 {
 	return s.massInfo.area
 }
 
-func (s *Shape) CenterOfGravity() Vec2 {
+func (s *Shape) CenterOfGravity() vec.Vec2 {
 	return s.massInfo.cog
 }
 
@@ -160,13 +161,13 @@ func (s *Shape) SetFriction(u float64) {
 }
 
 // SurfaceVelocity returns the surface velocity of this shape.
-func (s *Shape) SurfaceVelocity() Vec2 {
+func (s *Shape) SurfaceVelocity() vec.Vec2 {
 	return s.surfaceVelocity
 }
 
 // SetSurfaceVelocity sets the surface velocity of the object. Useful for creating conveyor belts or players that move around.
 // This value is only used when calculating friction, not resolving the collision.
-func (s *Shape) SetSurfaceVelocity(surfaceV Vec2) {
+func (s *Shape) SetSurfaceVelocity(surfaceV vec.Vec2) {
 	s.surfaceVelocity = surfaceV
 }
 
@@ -216,7 +217,7 @@ func (s *Shape) Point(i uint32) SupportPoint {
 		}
 		return NewSupportPoint(poly.planes[index].v0, uint32(index))
 	default:
-		return NewSupportPoint(Vec2{}, 0)
+		return NewSupportPoint(vec.Vec2{}, 0)
 	}
 }
 
@@ -225,8 +226,8 @@ func (s *Shape) Point(i uint32) SupportPoint {
 // It finds the closest point on the surface of shape to a specific point.
 // The value returned is the distance between the points.
 // A negative distance means the point is inside the shape.
-func (s *Shape) PointQuery(p Vec2) PointQueryInfo {
-	info := PointQueryInfo{nil, Vec2{}, Infinity, Vec2{}}
+func (s *Shape) PointQuery(p vec.Vec2) PointQueryInfo {
+	info := PointQueryInfo{nil, vec.Vec2{}, Infinity, vec.Vec2{}}
 	s.Class.PointQuery(p, &info)
 	return info
 }
@@ -234,8 +235,8 @@ func (s *Shape) PointQuery(p Vec2) PointQueryInfo {
 // Perform a segment query against a shape.
 //
 // info must be a pointer to a valid SegmentQueryInfo structure.
-func (shape *Shape) SegmentQuery(a, b Vec2, radius float64, info *SegmentQueryInfo) bool {
-	blank := SegmentQueryInfo{nil, b, Vec2{}, 1}
+func (shape *Shape) SegmentQuery(a, b vec.Vec2, radius float64, info *SegmentQueryInfo) bool {
+	blank := SegmentQueryInfo{nil, b, vec.Vec2{}, 1}
 	if info != nil {
 		*info = blank
 	} else {
@@ -261,7 +262,7 @@ func NewShape(class ShapeClass, body *Body, massInfo *ShapeMassInfo) *Shape {
 		body:     body,
 		massInfo: massInfo,
 
-		surfaceVelocity: Vec2{},
+		surfaceVelocity: vec.Vec2{},
 		Filter: ShapeFilter{
 			Group:      NoGroup,
 			Categories: AllCategories,
