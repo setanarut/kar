@@ -3,7 +3,6 @@ package system
 import (
 	"kar/engine/vec"
 	"kar/res"
-	"math"
 )
 
 type PhysicsSystem struct {
@@ -15,10 +14,10 @@ func NewPhysicsSystem() *PhysicsSystem {
 
 func (ps *PhysicsSystem) Init() {
 	res.Space.SetGravity(vec.Vec2{0, -1500})
-	res.Space.CollisionBias = math.Pow(0.5, 120)
-	res.Space.CollisionSlop = 0.5
+	// res.Space.CollisionBias = math.Pow(0.4, 60)
+	// res.Space.CollisionSlop = 0.4
 	// res.Space.UseSpatialHash(200, 1000)
-	// res.Space.Iterations = 10
+	// res.Space.Iterations = 20
 	// res.Space.Damping = 0.9
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollEnemy).BeginFunc = snowballEnemyBegin

@@ -29,31 +29,31 @@ func init() {
 
 }
 
-func DrawChipmunkShape(screen *ebiten.Image, s *cm.Shape, c color.Color, screenHeight float64) {
+func DrawChipmunkShape(screen *ebiten.Image, s *cm.Shape, clr color.Color, screenHeight float64) {
 	switch s.Class.(type) {
 	case *cm.Circle:
-		StrokeCircle(screen, s.Class.(*cm.Circle).Radius(), 1, s.Body().Position().FlipVertical(screenHeight), c)
+		StrokeCircle(screen, s.Class.(*cm.Circle).Radius(), 1, s.Body().Position().FlipVertical(screenHeight), clr)
 		// FillCircle(screen, s.Class.(*cm.Circle).Radius(), InvPosVectY(s.Body().Position(), screenHeight), c)
 	case *cm.Segment:
 		r := s.Class.(*cm.Segment).Radius()
 		a := s.Class.(*cm.Segment).TransformA().FlipVertical(screenHeight)
 		b := s.Class.(*cm.Segment).TransformB().FlipVertical(screenHeight)
 		if r < 1 {
-			DrawLine(screen, a, b, 1, c)
+			DrawLine(screen, a, b, 1, clr)
 		} else {
 			DrawLine2(screen, a, b, r*2)
 		}
 	case *cm.PolyShape:
-		DrawChipmunkBB(screen, s.BB(), screenHeight)
+		DrawChipmunkBB(screen, s.BB(), screenHeight, clr)
 	}
 }
-func DrawChipmunkShapeGEOM(screen *ebiten.Image, s *cm.Shape, c color.Color, screenHeight float64, geom *ebiten.GeoM) {
+func DrawChipmunkShapeGEOM(screen *ebiten.Image, s *cm.Shape, clr color.Color, screenHeight float64, geom *ebiten.GeoM) {
 
 	switch s.Class.(type) {
 
 	case *cm.Circle:
 		pos := ApplyGeoM2Vec2(s.Body().Position().FlipVertical(screenHeight), geom)
-		StrokeCircle(screen, s.Class.(*cm.Circle).Radius(), 1, pos, c)
+		StrokeCircle(screen, s.Class.(*cm.Circle).Radius(), 1, pos, clr)
 		// FillCircle(screen, s.Class.(*cm.Circle).Radius(), InvPosVectY(pos, screenHeight), c)
 
 	case *cm.Segment:
@@ -62,13 +62,13 @@ func DrawChipmunkShapeGEOM(screen *ebiten.Image, s *cm.Shape, c color.Color, scr
 		b := ApplyGeoM2Vec2(s.Class.(*cm.Segment).TransformB().FlipVertical(screenHeight), geom)
 
 		if r < 1 {
-			DrawLine(screen, a, b, 1, c)
+			DrawLine(screen, a, b, 1, clr)
 		} else {
 			DrawLine2(screen, a, b, r*2)
 		}
 
 	case *cm.PolyShape:
-		DrawChipmunkBB(screen, s.BB(), screenHeight)
+		DrawChipmunkBB(screen, s.BB(), screenHeight, clr)
 	}
 }
 
@@ -112,11 +112,11 @@ func FillCircle(screen *ebiten.Image, radius float64, pos vec.Vec2, c color.Colo
 		float32(radius), c, true)
 }
 
-func DrawChipmunkBB(screen *ebiten.Image, bb cm.BB, screenHeight float64) {
+func DrawChipmunkBB(screen *ebiten.Image, bb cm.BB, screenHeight float64, clr color.Color) {
 	w := float32(bb.R - bb.L)
 	h := float32(bb.T - bb.B)
 	topLeft := vec.Vec2{bb.L, bb.T}.FlipVertical(screenHeight)
-	vector.StrokeRect(screen, float32(topLeft.X), float32(topLeft.Y), w, h, 3, color.RGBA{255, 0, 0, 0}, false)
+	vector.StrokeRect(screen, float32(topLeft.X), float32(topLeft.Y), w, h, 3, clr, false)
 }
 func DrawChipmunkBBGEOM(screen *ebiten.Image, bb cm.BB, screenHeight float64, geom *ebiten.GeoM) {
 	w := float32(bb.R - bb.L)

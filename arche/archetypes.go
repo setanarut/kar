@@ -37,7 +37,7 @@ func SpawnBoxBody(m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
 	return body
 }
 func SpawnDefaultPlayer(pos vec.Vec2) *donburi.Entry {
-	return SpawnPlayer(1, 0, 0, 5, pos)
+	return SpawnPlayer(1, 0, 0, 1, pos)
 
 }
 func SpawnPlayer(mass, el, fr, rad float64, pos vec.Vec2) *donburi.Entry {
@@ -60,11 +60,12 @@ func SpawnPlayer(mass, el, fr, rad float64, pos vec.Vec2) *donburi.Entry {
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: util.EbitenImageCenterOffset(ap.CurrentFrame),
-		Scale:        mathutil.RectangleScaleFactor(16, 16, 32, 32),
+		Scale:        vec.Vec2{2, 2},
+		// Scale:        mathutil.RectangleScaleFactor(16, 16, 16, 16),
 	})
 
-	b := SpawnBoxBody(mass, el, fr, 32, 32, rad, e)
-	// b := SpawnCircleBody(mass, el, fr, 25, e)
+	// b := SpawnBoxBody(mass, el, fr, 16, 16, rad, e)
+	b := SpawnCircleBody(mass, el, fr, 12, e)
 	b.FirstShape().SetCollisionType(res.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskPlayerRaycast)
 	b.SetPosition(pos)

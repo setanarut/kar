@@ -7,7 +7,6 @@ import (
 	"kar/system"
 	"kar/types"
 	"log"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -34,7 +33,7 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 
-	w, h := 900.0, math.Round(900.0*0.618)
+	w, h := 800.0, 800.0
 
 	res.Screen = ebiten.NewImage(int(w), int(h))
 	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))

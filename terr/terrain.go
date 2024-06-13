@@ -67,7 +67,7 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 
 			if tr.threshold {
 				if blockNumber.Y != 0 {
-					blockPos.X -= res.BlockSize / 2
+					blockPos.X += res.BlockSize / 2
 					blockSpawnCallbackFunc(blockPos.NegY(), chunkCoord, res.BlockStone)
 				}
 			} else {
