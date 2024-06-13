@@ -59,7 +59,8 @@ func (sys *PlayerControlSystem) Update() {
 	DigUp = FacingUp && Attacking
 	IdleAttack = NoWASD && Attacking && IsGround
 
-	res.QueryWASDcontrollable.Each(res.World, WASDPlatformerForce)
+	comp.WASDTag.Each(res.World, WASDPlatformerForce)
+	comp.WASDFlyTag.Each(res.World, WASDFly)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 
@@ -69,6 +70,20 @@ func (sys *PlayerControlSystem) Update() {
 		p := playerBody.Position()
 		AttackSegmentQuery = res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(50)), 0, res.FilterPlayerRaycast)
 
+		// Fly Mode
+		if inpututil.IsKeyJustPressed(ebiten.KeyG) {
+			if player.HasComponent(comp.WASDTag) {
+				player.RemoveComponent(comp.WASDTag)
+				player.AddComponent(comp.WASDFlyTag)
+				playerBody.SetVelocity(0, 0)
+				playerBody.FirstShape().SetSensor(true)
+			} else {
+				playerBody.SetVelocity(0, 0)
+				player.RemoveComponent(comp.WASDFlyTag)
+				player.AddComponent(comp.WASDTag)
+				playerBody.FirstShape().SetSensor(false)
+			}
+		}
 		// Reset block health
 		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
 			if HitShape != nil {
@@ -211,6 +226,12 @@ func WASDPlatformer(e *donburi.Entry) {
 }
 
 func WASD4Directional(e *donburi.Entry) {
+	body := comp.Body.Get(e)
+	mobileData := comp.Mobile.Get(e)
+	velocity := res.Input.WASDDirection.Normalize().Scale(mobileData.Speed)
+	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
+}
+func WASDFly(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
 	velocity := res.Input.WASDDirection.Normalize().Scale(mobileData.Speed)

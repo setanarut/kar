@@ -16,7 +16,7 @@ func (s *DestroySystem) Init() {
 }
 
 func (s *DestroySystem) Update() {
-	comp.Health.Each(res.World, DestroyDead)
+	comp.Health.Each(res.World, DestroyZeroHealthSetMapBlockState)
 	// comp.SnowballTag.Each(res.World, DestroyOnCollisionAndStopped)
 }
 

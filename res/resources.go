@@ -23,6 +23,11 @@ import (
 //go:embed assets/*
 var assets embed.FS
 
+// GameSettings
+var (
+	BlockSize float64 = 48.0
+)
+
 var (
 	PlayerAtlas         = io.LoadEbitenImageFromFS(assets, "assets/player_atlas.png")
 	Atlas               = io.LoadEbitenImageFromFS(assets, "assets/atlas.png")

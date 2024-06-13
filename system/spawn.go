@@ -22,20 +22,21 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (s *SpawnSystem) Init() {
-	s.Terr = terr.NewTerrain(342, 1024, 16, 50)
+
+	s.Terr = terr.NewTerrain(342, 1000, 13, res.BlockSize)
 	s.Terr.NoiseOptions.Frequency = 0.2
 	s.Terr.Generate()
 	res.Terrain = s.Terr.TerrainImg
-	playerSpawnPosition := vec.Vec2{512 * 50, 512 * 50}
-	playerChunk := s.Terr.ChunkCoord(playerSpawnPosition)
+
+	playerSpawnPosition := vec.Vec2{
+		(float64(s.Terr.MapSize) / 2) * s.Terr.BlockSize,
+		s.Terr.BlockSize * 2}
+
+	playerChunk := s.Terr.WorldPosToChunkCoord(playerSpawnPosition)
 	s.Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
 	for _, coord := range s.Terr.LoadedChunks {
 		s.Terr.SpawnChunk(coord, arche.SpawnBlock)
 	}
-
-	// oyuncunun olduğu chunkı boşalt
-	s.Terr.DeSpawnChunk(playerChunk)
-
 	arche.SpawnDefaultPlayer(playerSpawnPosition)
 }
 
@@ -43,7 +44,7 @@ func (s *SpawnSystem) Update() {
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		pos := comp.Body.Get(player).Position()
-		playerChunk := s.Terr.ChunkCoord(pos)
+		playerChunk := s.Terr.WorldPosToChunkCoord(pos)
 
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
@@ -56,17 +57,4 @@ func (s *SpawnSystem) Update() {
 }
 
 func (s *SpawnSystem) Draw() {
-}
-
-func ResetLevel() {
-
-	res.Camera.Reset()
-	playerSpawnPosition := vec.Vec2{512 * 50, 512 * 50}
-
-	if player, ok := comp.PlayerTag.First(res.World); ok {
-		DestroyEntryWithBody(player)
-	} else {
-		arche.SpawnDefaultPlayer(playerSpawnPosition)
-	}
-
 }

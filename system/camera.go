@@ -6,6 +6,7 @@ import (
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 )
@@ -40,6 +41,9 @@ func (ds *DrawCameraSystem) Update() {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
 		res.Camera.ZoomFactor += 5
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		res.Camera.ZoomFactor = 0
 	}
 
 	comp.AnimationPlayer.Each(res.World, func(e *donburi.Entry) {

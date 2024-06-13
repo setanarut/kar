@@ -5,6 +5,7 @@ import (
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/mathutil"
+	"kar/engine/vec"
 	"kar/res"
 
 	"github.com/yohamta/donburi"
@@ -23,6 +24,15 @@ func DestroyEntryWithBody(entry *donburi.Entry) {
 		if entry.HasComponent(comp.Body) {
 			body := comp.Body.Get(entry)
 			DestroyBodyWithEntry(body)
+		}
+	}
+}
+func TeleportBody(p vec.Vec2, entry *donburi.Entry) {
+	if entry.Valid() {
+		if entry.HasComponent(comp.Body) {
+			body := comp.Body.Get(entry)
+			body.SetVelocity(0, 0)
+			body.SetPosition(p)
 		}
 	}
 }
@@ -87,18 +97,20 @@ func DestroyOnCollisionAndStopped(e *donburi.Entry) {
 	}
 }
 
-func DestroyDead(e *donburi.Entry) {
-	if e.HasComponent(comp.Health) {
+func DestroyZeroHealth(e *donburi.Entry) {
+	if comp.Health.Get(e).Health <= 0 {
+		DestroyEntryWithBody(e)
+	}
+}
 
-		if comp.Health.Get(e).Health <= 0 {
-			if e.HasComponent(comp.Block) {
-				blockPos := comp.Body.Get(e).Position().Point().Div(50)
-				res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{0})
-				DestroyEntryWithBody(e)
-			}
-
+func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
+	if comp.Health.Get(e).Health <= 0 {
+		if e.HasComponent(comp.Block) {
+			blockPos := comp.Body.Get(e).Position().NegY().Point().Div(50)
+			res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{0})
 			DestroyEntryWithBody(e)
 		}
+		DestroyEntryWithBody(e)
 	}
 }
 

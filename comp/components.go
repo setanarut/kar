@@ -31,7 +31,8 @@ var (
 
 // Tags
 var (
-	WASDTag   = donburi.NewTag()
-	PlayerTag = donburi.NewTag().SetName("PlayerTag")
-	EnemyTag  = donburi.NewTag()
+	WASDTag    = donburi.NewTag()
+	WASDFlyTag = donburi.NewTag()
+	PlayerTag  = donburi.NewTag().SetName("PlayerTag")
+	EnemyTag   = donburi.NewTag()
 )

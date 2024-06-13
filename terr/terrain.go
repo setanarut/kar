@@ -24,25 +24,25 @@ type Terrain struct {
 	Noise                opensimplex.Noise
 	ChunkSize, BlockSize float64
 	LoadedChunks         []image.Point
-
-	threshold bool
-	mapSize   int
+	threshold            bool
+	MapSize              int
 }
 
-func NewTerrain(seed int64, mapSize int, chunkSize int, blockSize int) *Terrain {
+func NewTerrain(seed int64, mapSize int, chunkSize float64, blockSize float64) *Terrain {
 	terr := &Terrain{
 		NoiseOptions: DefaultNoiseOptions(),
 		Noise:        opensimplex.NewNormalized(seed),
-		ChunkSize:    float64(chunkSize),
-		BlockSize:    float64(blockSize),
-		mapSize:      mapSize,
-		threshold:    false,
+		ChunkSize:    chunkSize,
+		BlockSize:    blockSize,
+		MapSize:      mapSize,
+
+		threshold: true,
 	}
 	return terr
 }
 
 func (tr *Terrain) Generate() {
-	tr.TerrainImg = image.NewGray(image.Rect(0, 0, tr.mapSize, tr.mapSize))
+	tr.TerrainImg = image.NewGray(image.Rect(0, 0, tr.MapSize, tr.MapSize))
 	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
 		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
 			v := tr.Eval2WithOptions(x, y)
@@ -64,14 +64,38 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-			if blockNumber.Y < 85 {
-				blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockStone)
+
+			if tr.threshold {
+				if blockNumber.Y != 0 {
+					blockPos.X -= res.BlockSize / 2
+					blockSpawnCallbackFunc(blockPos.NegY(), chunkCoord, res.BlockStone)
+				}
+			} else {
+				if blockNumber.Y < 85 {
+					blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockStone)
+				}
+				if blockNumber.Y > 85 && blockNumber.Y < 100 {
+					blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockDirt)
+				}
+
 			}
-			if blockNumber.Y > 85 && blockNumber.Y < 100 {
-				blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockDirt)
-			}
+
 		}
 	}
+}
+func (tr *Terrain) EmptyBlockInChunk(chunkCoord image.Point) (bool, image.Point) {
+	chunksize := int(tr.ChunkSize)
+	for y := 0; y < chunksize; y++ {
+		for x := 0; x < chunksize; x++ {
+			blockX := x + (chunksize * chunkCoord.X)
+			blockY := y + (chunksize * chunkCoord.Y)
+			if tr.TerrainImg.GrayAt(blockX, blockY).Y == 0 {
+				return true, image.Point{blockX, blockY}
+			}
+
+		}
+	}
+	return false, image.Point{}
 }
 
 // Spawn/Destroy chunks
@@ -81,13 +105,17 @@ func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc 
 
 	for _, toLoad := range playerChunks {
 		if !slices.Contains(intersectionChunks, toLoad) {
-			tr.SpawnChunk(toLoad, blockSpawnCallbackFunc)
+			flip := toLoad
+			flip.Y *= -1
+			tr.SpawnChunk(flip, blockSpawnCallbackFunc)
 		}
 	}
 
 	for _, toUnload := range tr.LoadedChunks {
 		if !slices.Contains(intersectionChunks, toUnload) {
-			tr.DeSpawnChunk(toUnload)
+			flip := toUnload
+			flip.Y *= -1
+			tr.DeSpawnChunk(flip)
 		}
 	}
 
@@ -108,8 +136,17 @@ func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
 	io.WriteImage(img, filename)
 }
 
-func (tr *Terrain) ChunkCoord(pos vec.Vec2) image.Point {
-	return pos.Div(tr.ChunkSize).Floor().Div(tr.BlockSize).Point()
+func (tr *Terrain) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
+	return worldPos.Div(tr.ChunkSize).Floor().Div(tr.BlockSize).Point()
+}
+
+func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
+	s := float64(tr.MapSize) * tr.BlockSize
+	return worldPos.X > s || worldPos.Y > s
+}
+
+func (tr *Terrain) WorldSpaceToMapSpace(worldPos vec.Vec2) image.Point {
+	return worldPos.Div(tr.BlockSize).Point()
 }
 
 func (tr *Terrain) WriteTerrainImage(flipVertical bool) {
@@ -135,7 +172,7 @@ func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.Gray {
 
 // Chipmunk coordinate system conversion
 func (tr *Terrain) TerrainImageFlipVertical() *image.Gray {
-	size := tr.TerrainImg.Bounds().Dx()
+	size := tr.TerrainImg.Bounds().Dy()
 	img := image.NewGray(image.Rect(0, 0, size, size))
 	for y := 0; y < size; y++ {
 		for x := 0; x < size; x++ {
