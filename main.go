@@ -33,7 +33,7 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 
-	w, h := 800.0, 800.0
+	w, h := 720*1.77, 720.0
 
 	res.Screen = ebiten.NewImage(int(w), int(h))
 	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))

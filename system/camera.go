@@ -11,9 +11,6 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-// var DebugImg = ebiten.NewImage(32, 32)
-// var DebugImgCenterOffset = vec.Vec2{-16, -16}
-
 // DrawCameraSystem
 type DrawCameraSystem struct {
 	dio          *ebiten.DrawImageOptions
@@ -27,7 +24,6 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 }
 
 func (ds *DrawCameraSystem) Init() {
-	// DebugImg.Fill(color.RGBA{0, 0, 255, 40})
 	res.Camera.ZoomFactor = 0
 	res.Camera.Lerp = true
 	res.Camera.TraumaEnabled = false
@@ -85,12 +81,6 @@ func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
 
 	res.Camera.Draw(ap.CurrentFrame, ds.dio, res.Screen)
 	ds.dio.ColorScale.Reset()
-
-	// //debug
-	// dioDebug := &ebiten.DrawImageOptions{}
-	// dioDebug.GeoM.Translate(DebugImgCenterOffset.X, DebugImgCenterOffset.Y)
-	// dioDebug.GeoM.Translate(pos.X, pos.Y)
-	// res.Camera.Draw(DebugImg, dioDebug, res.Screen)
 
 }
 

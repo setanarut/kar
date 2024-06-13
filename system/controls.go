@@ -68,7 +68,7 @@ func (sys *PlayerControlSystem) Update() {
 		playerAnimation := comp.AnimationPlayer.Get(player)
 		playerDrawOptions := comp.DrawOptions.Get(player)
 		p := playerBody.Position()
-		AttackSegmentQuery = res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(50)), 0, res.FilterPlayerRaycast)
+		AttackSegmentQuery = res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(res.BlockSize)), 0, res.FilterPlayerRaycast)
 
 		// Fly Mode
 		if inpututil.IsKeyJustPressed(ebiten.KeyG) {
@@ -116,7 +116,7 @@ func (sys *PlayerControlSystem) Update() {
 						e := GetEntry(HitShape.Body())
 						if e.HasComponent(comp.Block) {
 							h := comp.Health.Get(e)
-							h.Health -= 0.3
+							h.Health -= 0.66
 						}
 					}
 				}
@@ -164,7 +164,7 @@ func WASDPlatformerForce(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	p := body.Position()
 	// p.Add(vec.Vec2{0, -25}
-	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
+	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -(res.BlockSize / 2)}), 0, res.FilterPlayerRaycast)
 	// queryInfoRight := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
 	contactShape := queryInfo.Shape
 

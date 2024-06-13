@@ -25,7 +25,7 @@ var assets embed.FS
 
 // GameSettings
 var (
-	BlockSize float64 = 48.0
+	BlockSize float64 = 80.0
 )
 
 var (
