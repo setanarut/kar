@@ -2,7 +2,6 @@ package main
 
 import (
 	"kar/engine"
-	"kar/engine/cm"
 	"kar/res"
 	"kar/system"
 	"kar/types"
@@ -32,12 +31,8 @@ func NewGame() *Game {
 }
 
 func (g *Game) Init() {
-
-	w, h := 720*1.77, 720.0
-
-	res.Screen = ebiten.NewImage(int(w), int(h))
-	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))
-	res.Camera = engine.NewCamera(res.ScreenRect.Center(), res.ScreenRect.R, res.ScreenRect.T)
+	res.Screen = ebiten.NewImage(res.ScreenSize.X, res.ScreenSize.Y)
+	res.Camera = engine.NewCamera(res.ScreenSizeF.Scale(0.5), res.ScreenSize.X, res.ScreenSize.Y)
 	res.Camera.Lerp = true
 
 	g.systems = []types.ISystem{

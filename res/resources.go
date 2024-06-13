@@ -7,8 +7,10 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/cm"
+	"kar/engine/displayres"
 	"kar/engine/io"
 	"kar/engine/util"
+	"kar/engine/vec"
 	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -25,7 +27,12 @@ var assets embed.FS
 
 // GameSettings
 var (
-	BlockSize float64 = 80.0
+	MapSize    float64 = 1024
+	BlockSize  float64 = 64.0
+	ChunkSize  float64 = 8
+	ScreenSize         = displayres.QuarterHD
+
+	ScreenSizeF = vec.Vec2{float64(ScreenSize.X), float64(ScreenSize.Y)}
 )
 
 var (
@@ -40,7 +47,6 @@ var (
 	World               donburi.World = donburi.NewWorld()
 	Space               *cm.Space     = cm.NewSpace()
 	Camera              *engine.Camera
-	ScreenRect          cm.BB
 	CurrentItem         types.ItemType
 	Input               *engine.InputManager = &engine.InputManager{}
 	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskBombRaycast, cm.AllCategories&^BitmaskBomb)

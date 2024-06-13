@@ -23,7 +23,7 @@ func NewSpawnSystem() *SpawnSystem {
 
 func (s *SpawnSystem) Init() {
 
-	s.Terr = terr.NewTerrain(342, 1000, 10, res.BlockSize)
+	s.Terr = terr.NewTerrain(342, res.MapSize, res.ChunkSize, res.BlockSize)
 	s.Terr.NoiseOptions.Frequency = 0.2
 	s.Terr.Generate()
 	res.Terrain = s.Terr.TerrainImg

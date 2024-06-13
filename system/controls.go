@@ -167,37 +167,37 @@ func WASDPlatformerForce(e *donburi.Entry) {
 	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -(res.BlockSize / 2)}), 0, res.FilterPlayerRaycast)
 	// queryInfoRight := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
 	contactShape := queryInfo.Shape
+	speed := res.BlockSize * 30
 
 	bv := body.Velocity()
 	body.SetVelocity(bv.X*0.9, bv.Y)
 	// body.SetVelocityVector(body.Velocity().ClampLenght(500))
-	if bv.X > 500 {
-		body.SetVelocity(500, bv.Y)
-	}
-	if bv.X < -500 {
-		body.SetVelocity(-500, bv.Y)
-	}
-
+	// if bv.X > res.BlockSize*5 {
+	// 	body.SetVelocity(500, bv.Y)
+	// }
+	// if bv.X < -(res.BlockSize * 5) {
+	// 	body.SetVelocity(-500, bv.Y)
+	// }
 	// yerde
 	if contactShape != nil {
 		IsGround = true
 		// Zıpla
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, 500}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, speed * 0.25}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			body.ApplyForceAtLocalPoint(vec.Vec2{-1500, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{-speed, 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			body.ApplyForceAtLocalPoint(vec.Vec2{1500, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
 		}
 	} else {
 		IsGround = false
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
-			body.ApplyForceAtLocalPoint(vec.Vec2{-800, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{-(speed), 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
-			body.ApplyForceAtLocalPoint(vec.Vec2{800, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
 		}
 	}
 

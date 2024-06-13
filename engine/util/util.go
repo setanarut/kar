@@ -74,3 +74,10 @@ func AddComponents(e *donburi.Entry, comps ...donburi.IComponentType) {
 func EbitenImageCenterOffset(img *ebiten.Image) vec.Vec2 {
 	return vec.Vec2{float64(img.Bounds().Dx()), float64(img.Bounds().Dy())}.Scale(0.5).Neg()
 }
+
+func UnpackPoint(p image.Point) (int, int) {
+	return p.X, p.Y
+}
+func UnpackVec2(v vec.Vec2) (float64, float64) {
+	return v.X, v.Y
+}

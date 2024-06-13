@@ -33,7 +33,7 @@ func (ds *DrawCameraSystem) Update() {
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Camera.LookAt(pos.FlipVertical(res.ScreenRect.T))
+		res.Camera.LookAt(pos.FlipVertical(res.ScreenSizeF.Y))
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
@@ -67,7 +67,7 @@ func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
 	drawopt := comp.DrawOptions.Get(e)
 	ap := comp.AnimationPlayer.Get(e)
 
-	pos := body.Position().FlipVertical(res.ScreenRect.T)
+	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
 	scl := drawopt.Scale
 	if drawopt.FlipX {
 		scl.X *= -1
@@ -90,7 +90,7 @@ func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 	blockData := comp.Block.Get(e)
 	drawOpt := comp.DrawOptions.Get(e)
 	healthData := comp.Health.Get(e)
-	pos := body.Position().FlipVertical(res.ScreenRect.T)
+	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
 
 	if blockData.BlockType == res.BlockStone {
 		blockSpriteStageIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))

@@ -25,10 +25,10 @@ type Terrain struct {
 	ChunkSize, BlockSize float64
 	LoadedChunks         []image.Point
 	threshold            bool
-	MapSize              int
+	MapSize              float64
 }
 
-func NewTerrain(seed int64, mapSize int, chunkSize float64, blockSize float64) *Terrain {
+func NewTerrain(seed int64, mapSize float64, chunkSize float64, blockSize float64) *Terrain {
 	terr := &Terrain{
 		NoiseOptions: DefaultNoiseOptions(),
 		Noise:        opensimplex.NewNormalized(seed),
@@ -42,7 +42,7 @@ func NewTerrain(seed int64, mapSize int, chunkSize float64, blockSize float64) *
 }
 
 func (tr *Terrain) Generate() {
-	tr.TerrainImg = image.NewGray(image.Rect(0, 0, tr.MapSize, tr.MapSize))
+	tr.TerrainImg = image.NewGray(image.Rect(0, 0, int(tr.MapSize), int(tr.MapSize)))
 	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
 		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
 			v := tr.Eval2WithOptions(x, y)
@@ -141,7 +141,7 @@ func (tr *Terrain) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
 }
 
 func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
-	s := float64(tr.MapSize) * tr.BlockSize
+	s := tr.MapSize * tr.BlockSize
 	return worldPos.X > s || worldPos.Y > s
 }
 

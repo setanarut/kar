@@ -25,10 +25,10 @@ type Camera struct {
 }
 
 // NewCamera returns new Camera
-func NewCamera(lookAt vec.Vec2, w, h float64) *Camera {
+func NewCamera(lookAt vec.Vec2, w, h int) *Camera {
 	c := &Camera{
-		W:             w,
-		H:             h,
+		W:             float64(w),
+		H:             float64(h),
 		Rotation:      0,
 		ZoomFactor:    0,
 		DrawOptions:   &ebiten.DrawImageOptions{},
@@ -45,7 +45,7 @@ func NewCamera(lookAt vec.Vec2, w, h float64) *Camera {
 		// private
 		traumaOffset: vec.Vec2{},
 		topLeft:      vec.Vec2{},
-		centerOffset: vec.Vec2{-(w * 0.5), -(h * 0.5)},
+		centerOffset: vec.Vec2{-(float64(w) * 0.5), -(float64(h) * 0.5)},
 		tempTarget:   vec.Vec2{},
 		noise:        opensimplex.New(1),
 		delta:        1.0 / 60.0,
