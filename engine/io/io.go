@@ -13,24 +13,12 @@ import (
 	"golang.org/x/text/language"
 )
 
-func LoadImageFromFS(name string, assets embed.FS) *ebiten.Image {
-
-	f, err := assets.Open(name)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	img, _, err := image.Decode(f)
-	if err != nil {
-		panic(err)
-	}
-
-	return ebiten.NewImageFromImage(img)
+func LoadEbitenImageFromFS(fs embed.FS, filePath string) *ebiten.Image {
+	return ebiten.NewImageFromImage(LoadStandartImageFromFS(fs, filePath))
 }
 
-func LoadImage(filePath string) image.Image {
-	f, err := os.Open(filePath)
+func LoadStandartImageFromFS(fs embed.FS, filePath string) image.Image {
+	f, err := fs.Open(filePath)
 	if err != nil {
 		panic(err)
 	}

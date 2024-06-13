@@ -24,14 +24,19 @@ import (
 var assets embed.FS
 
 var (
-	World donburi.World = donburi.NewWorld()
-	Space *cm.Space     = cm.NewSpace()
+	PlayerAtlas         = io.LoadEbitenImageFromFS(assets, "assets/player_atlas.png")
+	Atlas               = io.LoadEbitenImageFromFS(assets, "assets/atlas.png")
+	CracksOverlayFrames = util.SubImages(io.LoadEbitenImageFromFS(assets, "assets/cracks.png"), 0, 0, 16, 16, 8, true)
+	DirtStages          = makeBlockBreakingSpriteFrames(CracksOverlayFrames, 336, 208)
+	StoneStages         = makeBlockBreakingSpriteFrames(CracksOverlayFrames, 96, 416)
+)
 
-	ScreenRect, CurrentRoom cm.BB
-	Camera                  *engine.Camera
-
-	CurrentTool         types.ItemType
-	Rooms               []cm.BB              = make([]cm.BB, 0)
+var (
+	World               donburi.World = donburi.NewWorld()
+	Space               *cm.Space     = cm.NewSpace()
+	Camera              *engine.Camera
+	ScreenRect          cm.BB
+	CurrentItem         types.ItemType
 	Input               *engine.InputManager = &engine.InputManager{}
 	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskBombRaycast, cm.AllCategories&^BitmaskBomb)
 	FilterPlayerRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskPlayerRaycast, cm.AllCategories&^BitmaskPlayer)
@@ -41,6 +46,14 @@ var (
 				Mode(colorgrad.BlendOklab).
 				Interpolation(colorgrad.InterpolationBasis).
 				Build()
+)
+var (
+	Screen  *ebiten.Image
+	Terrain *image.Gray
+)
+
+// Donburi queries
+var (
 	QueryWASDcontrollable = donburi.NewQuery(filter.And(
 		filter.Contains(comp.Mobile, comp.WASDTag, comp.Body),
 		filter.Not(filter.Contains(comp.AI))))
@@ -49,15 +62,7 @@ var (
 		filter.Not(filter.Contains(comp.WASDTag))))
 )
 
-var (
-	Screen      *ebiten.Image
-	StoneStages []*ebiten.Image
-	Terrain     *image.Gray
-	Atlas       = io.LoadImageFromFS("assets/atlas.png", assets)
-	PlayerAtlas = io.LoadImageFromFS("assets/player_atlas.png", assets)
-	StoneAtlas  = io.LoadImageFromFS("assets/stone_atlas.png", assets)
-)
-
+// text
 var (
 	Futura    = io.LoadGoTextFaceFromFS("assets/futura.ttf", 18, assets)
 	FuturaBig = &text.GoTextFace{
@@ -80,5 +85,20 @@ var (
 
 func init() {
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	StoneStages = util.SubImages(StoneAtlas, 0, 0, 16, 16, 9, true)
+}
+
+func makeBlockBreakingSpriteFrames(cracksOverlayFrames []*ebiten.Image, x, y int) []*ebiten.Image {
+	blockImage := util.SubImage(Atlas, x, y, 16, 16)
+	blockStages := make([]*ebiten.Image, 9)
+	for i := range blockStages {
+		blockStages[i] = ebiten.NewImage(16, 16)
+		blockStages[i].DrawImage(blockImage, nil)
+	}
+	dio := &ebiten.DrawImageOptions{
+		Blend: ebiten.BlendSourceOver,
+	}
+	for i := 1; i < 9; i++ {
+		blockStages[i].DrawImage(cracksOverlayFrames[i-1], dio)
+	}
+	return blockStages
 }

@@ -2,6 +2,7 @@ package util
 
 import (
 	"image"
+	"image/color"
 	"image/draw"
 	"kar/engine/vec"
 
@@ -9,13 +10,16 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+func FillImage(img image.Image, c color.RGBA) {
+	draw.Draw(img.(draw.Image), img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
+}
 func DrawOver(src, dst image.Image) {
-	draw.Draw(dst.(draw.Image), dst.Bounds(), src, image.Point{0, 0}, draw.Over)
+	draw.Draw(dst.(draw.Image), dst.Bounds(), src, image.Point{}, draw.Over)
 }
 
 func CloneImage(img image.Image) image.Image {
 	copyImage := image.NewRGBA(img.Bounds())
-	draw.Draw(copyImage, img.Bounds(), img, image.Point{0, 0}, draw.Src)
+	draw.Draw(copyImage, img.Bounds(), img, image.Point{}, draw.Src)
 	return copyImage
 
 }

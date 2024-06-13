@@ -36,7 +36,7 @@ func NewTerrain(seed int64, mapSize int, chunkSize int, blockSize int) *Terrain 
 		ChunkSize:    float64(chunkSize),
 		BlockSize:    float64(blockSize),
 		mapSize:      mapSize,
-		threshold:    true,
+		threshold:    false,
 	}
 	return terr
 }
@@ -64,8 +64,11 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-			if blockNumber.Y > 128 {
+			if blockNumber.Y < 85 {
 				blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockStone)
+			}
+			if blockNumber.Y > 85 && blockNumber.Y < 100 {
+				blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockDirt)
 			}
 		}
 	}

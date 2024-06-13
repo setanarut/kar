@@ -87,6 +87,10 @@ func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 		blockSpriteStageIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
 		ds.currentFrame = res.StoneStages[blockSpriteStageIndex]
 	}
+	if blockData.BlockType == res.BlockDirt {
+		blockSpriteStageIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
+		ds.currentFrame = res.DirtStages[blockSpriteStageIndex]
+	}
 
 	ds.dio.GeoM.Reset()
 	ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)

@@ -31,10 +31,8 @@ func NewAnimationPlayer(spriteSheet *ebiten.Image) *AnimationPlayer {
 // AddStateAnimation adds new Animation to this AnimationPlayer and returns the added animation.
 //
 // x and y are top-left coordinates of the first frame's rectangle.
-//
 // w and h are the width and height of the first frame's rectangle.
-//
-// The sub-rectangles repeat to the right by the frameCount amount.
+// The sub-rectangles repeat (vertical or horizontal) to the by the frameCount amount.
 func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frameCount int, pingpong bool, vertical bool) *Animation {
 
 	subImages := []*ebiten.Image{}

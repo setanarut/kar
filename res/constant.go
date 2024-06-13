@@ -19,6 +19,7 @@ const (
 )
 const (
 	BlockStone types.BlockType = iota
+	BlockDirt  types.BlockType = iota
 )
 
 // Collision Bitmask Category

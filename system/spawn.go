@@ -26,17 +26,17 @@ func (s *SpawnSystem) Init() {
 	s.Terr.NoiseOptions.Frequency = 0.2
 	s.Terr.Generate()
 	res.Terrain = s.Terr.TerrainImg
-	ResetLevel()
-
-	if player, ok := comp.PlayerTag.First(res.World); ok {
-		pos := comp.Body.Get(player).Position()
-		playerChunk := s.Terr.ChunkCoord(pos)
-		s.Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
-
-		for _, coord := range s.Terr.LoadedChunks {
-			s.Terr.SpawnChunk(coord, arche.SpawnBlock)
-		}
+	playerSpawnPosition := vec.Vec2{512 * 50, 512 * 50}
+	playerChunk := s.Terr.ChunkCoord(playerSpawnPosition)
+	s.Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
+	for _, coord := range s.Terr.LoadedChunks {
+		s.Terr.SpawnChunk(coord, arche.SpawnBlock)
 	}
+
+	// oyuncunun olduğu chunkı boşalt
+	s.Terr.DeSpawnChunk(playerChunk)
+
+	arche.SpawnDefaultPlayer(playerSpawnPosition)
 }
 
 func (s *SpawnSystem) Update() {

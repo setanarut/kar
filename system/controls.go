@@ -101,7 +101,7 @@ func (sys *PlayerControlSystem) Update() {
 						e := GetEntry(HitShape.Body())
 						if e.HasComponent(comp.Block) {
 							h := comp.Health.Get(e)
-							h.Health -= 0.1
+							h.Health -= 0.3
 						}
 					}
 				}
@@ -166,14 +166,15 @@ func WASDPlatformerForce(e *donburi.Entry) {
 	// yerde
 	if contactShape != nil {
 		IsGround = true
+		// Zıpla
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, 500}, body.CenterOfGravity())
+		}
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
 			body.ApplyForceAtLocalPoint(vec.Vec2{-1500, 0}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyD) {
 			body.ApplyForceAtLocalPoint(vec.Vec2{1500, 0}, body.CenterOfGravity())
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, 500}, body.CenterOfGravity())
 		}
 	} else {
 		IsGround = false
