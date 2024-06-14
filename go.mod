@@ -3,7 +3,7 @@ module kar
 go 1.22.4
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.7.4
+	github.com/hajimehoshi/ebiten/v2 v2.7.5
 	golang.org/x/image v0.17.0
 )
 
