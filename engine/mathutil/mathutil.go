@@ -12,6 +12,11 @@ func MapRange(v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
 }
 
+// InRange returns true if v is in range [min..max], else false
+func InRange(v, min, max float64) bool {
+	return v >= min && v <= max
+}
+
 func Radians(degrees float64) float64 {
 	return degrees * math.Pi / 180.0
 }

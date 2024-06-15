@@ -51,7 +51,7 @@ func SpawnPlayer(mass, el, fr float64, pos vec.Vec2) *donburi.Entry {
 		comp.WASDTag,
 	))
 
-	ap := engine.NewAnimationPlayer(res.PlayerAtlas)
+	ap := engine.NewAnimationPlayer(res.AtlasPlayer)
 	ap.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 1
 	ap.AddStateAnimation("dig_right", 0, 32, 16, 16, 6, false, false)
 	ap.AddStateAnimation("dig_down", 0, 48, 16, 16, 6, false, false)
@@ -95,6 +95,12 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType)
 	e.AddComponent(comp.Health)
 	e.AddComponent(comp.Block)
 	e.AddComponent(comp.DrawOptions)
+
+	// set max health
+	comp.Health.Set(e, &types.DataHealth{
+		Health:    res.BlockMaxHealth[blockType],
+		MaxHealth: res.BlockMaxHealth[blockType],
+	})
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},

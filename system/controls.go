@@ -116,7 +116,7 @@ func (sys *PlayerControlSystem) Update() {
 						e := GetEntry(HitShape.Body())
 						if e.HasComponent(comp.Block) {
 							h := comp.Health.Get(e)
-							h.Health -= 0.66
+							h.Health -= 0.2
 						}
 					}
 				}

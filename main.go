@@ -1,7 +1,6 @@
 package main
 
 import (
-	"kar/engine"
 	"kar/res"
 	"kar/system"
 	"kar/types"
@@ -32,9 +31,6 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 	res.Screen = ebiten.NewImage(res.ScreenSize.X, res.ScreenSize.Y)
-	res.Camera = engine.NewCamera(res.ScreenSizeF.Scale(0.5), res.ScreenSize.X, res.ScreenSize.Y)
-	res.Camera.Lerp = true
-
 	g.systems = []types.ISystem{
 		system.NewSpawnSystem(),
 		// system.NewTimersSystem(),

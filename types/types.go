@@ -16,7 +16,7 @@ type ISystem interface {
 }
 
 type ItemType int
-type BlockType int
+type BlockType uint8
 
 type DataAI struct {
 	Target         *donburi.Entry

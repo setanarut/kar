@@ -2,6 +2,7 @@ package system
 
 import (
 	"kar/comp"
+	"kar/engine"
 	"kar/engine/mathutil"
 	"kar/res"
 
@@ -24,6 +25,14 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 }
 
 func (ds *DrawCameraSystem) Init() {
+
+	p, ok := comp.PlayerTag.First(res.World)
+	if ok {
+		pos := comp.Body.Get(p).Position()
+		res.Camera = engine.NewCamera(pos.FlipVertical(res.ScreenSizeF.Y), res.ScreenSize.X, res.ScreenSize.Y)
+	} else {
+		res.Camera = engine.NewCamera(res.ScreenSizeF.Scale(0.5), res.ScreenSize.X, res.ScreenSize.Y)
+	}
 	res.Camera.ZoomFactor = 0
 	res.Camera.Lerp = true
 	res.Camera.TraumaEnabled = false
@@ -92,14 +101,8 @@ func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 	healthData := comp.Health.Get(e)
 	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
 
-	if blockData.BlockType == res.BlockStone {
-		blockSpriteStageIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
-		ds.currentFrame = res.StoneStages[blockSpriteStageIndex]
-	}
-	if blockData.BlockType == res.BlockDirt {
-		blockSpriteStageIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
-		ds.currentFrame = res.DirtStages[blockSpriteStageIndex]
-	}
+	blockSpriteFrameIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
+	ds.currentFrame = res.BlockFrames[blockData.BlockType][blockSpriteFrameIndex]
 
 	ds.dio.GeoM.Reset()
 	ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)

@@ -6,10 +6,10 @@ import (
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/io"
+	"kar/engine/mathutil"
 	"kar/engine/vec"
 	"kar/res"
 	"kar/types"
-	"math"
 	"slices"
 
 	"github.com/ojrac/opensimplex-go"
@@ -24,7 +24,6 @@ type Terrain struct {
 	Noise                opensimplex.Noise
 	ChunkSize, BlockSize float64
 	LoadedChunks         []image.Point
-	threshold            bool
 	MapSize              float64
 }
 
@@ -35,8 +34,6 @@ func NewTerrain(seed int64, mapSize float64, chunkSize float64, blockSize float6
 		ChunkSize:    chunkSize,
 		BlockSize:    blockSize,
 		MapSize:      mapSize,
-
-		threshold: true,
 	}
 	return terr
 }
@@ -45,11 +42,15 @@ func (tr *Terrain) Generate() {
 	tr.TerrainImg = image.NewGray(image.Rect(0, 0, int(tr.MapSize), int(tr.MapSize)))
 	for y := 0; y < tr.TerrainImg.Bounds().Dy(); y++ {
 		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
-			v := tr.Eval2WithOptions(x, y)
-			if tr.threshold {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(math.Round(v)) * 255})
-			} else {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(v * 255)})
+			noiseValue := tr.Eval2WithOptions(x, y)
+			if noiseValue < 0.33 {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(res.BlockAir)})
+			}
+			if mathutil.InRange(noiseValue, 0.33, 0.66) {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(res.BlockDirt)})
+			}
+			if noiseValue > 0.66 {
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(res.BlockStone)})
 			}
 		}
 	}
@@ -61,25 +62,13 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
-			blockNumber := tr.TerrainImg.GrayAt(blockX, blockY)
+			blockType := types.BlockType(tr.TerrainImg.GrayAt(blockX, blockY).Y)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-
-			if tr.threshold {
-				if blockNumber.Y != 0 {
-					blockPos.X += res.BlockSize / 2
-					blockSpawnCallbackFunc(blockPos.NegY(), chunkCoord, res.BlockStone)
-				}
-			} else {
-				if blockNumber.Y < 85 {
-					blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockStone)
-				}
-				if blockNumber.Y > 85 && blockNumber.Y < 100 {
-					blockSpawnCallbackFunc(blockPos, chunkCoord, res.BlockDirt)
-				}
-
+			blockPos.X += res.BlockSize / 2
+			if blockType != res.BlockAir {
+				blockSpawnCallbackFunc(blockPos.NegY(), chunkCoord, blockType)
 			}
-
 		}
 	}
 }

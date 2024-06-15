@@ -18,8 +18,9 @@ const (
 	ItemShovel
 )
 const (
-	BlockStone types.BlockType = iota
-	BlockDirt  types.BlockType = iota
+	BlockAir types.BlockType = iota
+	BlockDirt
+	BlockStone
 )
 
 // Collision Bitmask Category

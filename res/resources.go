@@ -33,14 +33,17 @@ var (
 	ScreenSize         = displayres.QuarterHD
 
 	ScreenSizeF = vec.Vec2{float64(ScreenSize.X), float64(ScreenSize.Y)}
+
+	BlockMaxHealth = map[types.BlockType]float64{
+		BlockDirt:  5.0,
+		BlockStone: 10.0,
+	}
 )
 
 var (
-	PlayerAtlas         = io.LoadEbitenImageFromFS(assets, "assets/player_atlas.png")
-	Atlas               = io.LoadEbitenImageFromFS(assets, "assets/atlas.png")
-	CracksOverlayFrames = util.SubImages(io.LoadEbitenImageFromFS(assets, "assets/cracks.png"), 0, 0, 16, 16, 8, true)
-	DirtStages          = makeBlockBreakingSpriteFrames(CracksOverlayFrames, 336, 208)
-	StoneStages         = makeBlockBreakingSpriteFrames(CracksOverlayFrames, 96, 416)
+	AtlasPlayer = io.LoadEbitenImageFromFS(assets, "assets/player.png")
+	AtlasBlock  = io.LoadEbitenImageFromFS(assets, "assets/blocks.png")
+	BlockFrames = make(map[types.BlockType][]*ebiten.Image)
 )
 
 var (
@@ -95,21 +98,7 @@ var (
 )
 
 func init() {
+	BlockFrames[BlockStone] = util.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
+	BlockFrames[BlockDirt] = util.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-}
-
-func makeBlockBreakingSpriteFrames(cracksOverlayFrames []*ebiten.Image, x, y int) []*ebiten.Image {
-	blockImage := util.SubImage(Atlas, x, y, 16, 16)
-	blockStages := make([]*ebiten.Image, 9)
-	for i := range blockStages {
-		blockStages[i] = ebiten.NewImage(16, 16)
-		blockStages[i].DrawImage(blockImage, nil)
-	}
-	dio := &ebiten.DrawImageOptions{
-		Blend: ebiten.BlendSourceOver,
-	}
-	for i := 1; i < 9; i++ {
-		blockStages[i].DrawImage(cracksOverlayFrames[i-1], dio)
-	}
-	return blockStages
 }

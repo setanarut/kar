@@ -27,10 +27,8 @@ func (s *SpawnSystem) Init() {
 	s.Terr.NoiseOptions.Frequency = 0.2
 	s.Terr.Generate()
 	res.Terrain = s.Terr.TerrainImg
-	playerSpawnPosition := vec.Vec2{0, s.Terr.BlockSize * 5}
-	// playerSpawnPosition := vec.Vec2{
-	// 	(float64(s.Terr.MapSize) / 2) * s.Terr.BlockSize,
-	// 	s.Terr.BlockSize * 2}
+
+	playerSpawnPosition := vec.Vec2{(res.MapSize * 0.5) * res.BlockSize, s.Terr.BlockSize * 5}
 
 	playerChunk := s.Terr.WorldPosToChunkCoord(playerSpawnPosition)
 	s.Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
