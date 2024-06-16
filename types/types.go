@@ -16,7 +16,6 @@ type ISystem interface {
 }
 
 type ItemType int
-type BlockType uint8
 
 type DataAI struct {
 	Target         *donburi.Entry
@@ -48,7 +47,7 @@ type DataInventory struct {
 type DataBlock struct {
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
-	BlockType  BlockType
+	BlockType  ItemType
 }
 type DataHealth struct {
 	Health    float64

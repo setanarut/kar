@@ -106,7 +106,7 @@ func DestroyZeroHealth(e *donburi.Entry) {
 func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
 	if comp.Health.Get(e).Health <= 0 {
 		if e.HasComponent(comp.Block) {
-			blockPos := comp.Body.Get(e).Position().NegY().Point().Div(50)
+			blockPos := comp.Body.Get(e).Position().NegY().Point().Div(int(res.BlockSize))
 			res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{0})
 			DestroyEntryWithBody(e)
 		}

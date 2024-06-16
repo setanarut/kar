@@ -11,6 +11,7 @@ import (
 	"kar/engine/io"
 	"kar/engine/util"
 	"kar/engine/vec"
+	"kar/items"
 	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -34,16 +35,16 @@ var (
 
 	ScreenSizeF = vec.Vec2{float64(ScreenSize.X), float64(ScreenSize.Y)}
 
-	BlockMaxHealth = map[types.BlockType]float64{
-		BlockDirt:  5.0,
-		BlockStone: 10.0,
+	BlockMaxHealth = map[types.ItemType]float64{
+		items.Dirt:  5.0,
+		items.Stone: 10.0,
 	}
 )
 
 var (
 	AtlasPlayer = io.LoadEbitenImageFromFS(assets, "assets/player.png")
 	AtlasBlock  = io.LoadEbitenImageFromFS(assets, "assets/blocks.png")
-	BlockFrames = make(map[types.BlockType][]*ebiten.Image)
+	BlockFrames = make(map[types.ItemType][]*ebiten.Image)
 )
 
 var (
@@ -98,7 +99,7 @@ var (
 )
 
 func init() {
-	BlockFrames[BlockStone] = util.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
-	BlockFrames[BlockDirt] = util.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
+	BlockFrames[items.Stone] = util.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
+	BlockFrames[items.Dirt] = util.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
 }

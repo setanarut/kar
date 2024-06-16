@@ -8,6 +8,7 @@ import (
 	"kar/engine/io"
 	"kar/engine/mathutil"
 	"kar/engine/vec"
+	"kar/items"
 	"kar/res"
 	"kar/types"
 	"slices"
@@ -44,29 +45,29 @@ func (tr *Terrain) Generate() {
 		for x := 0; x < tr.TerrainImg.Bounds().Dx(); x++ {
 			noiseValue := tr.Eval2WithOptions(x, y)
 			if noiseValue < 0.33 {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(res.BlockAir)})
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(items.Air)})
 			}
 			if mathutil.InRange(noiseValue, 0.33, 0.66) {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(res.BlockDirt)})
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(items.Dirt)})
 			}
 			if noiseValue > 0.66 {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(res.BlockStone)})
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(items.Stone)})
 			}
 		}
 	}
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType)) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
-			blockType := types.BlockType(tr.TerrainImg.GrayAt(blockX, blockY).Y)
+			blockType := types.ItemType(tr.TerrainImg.GrayAt(blockX, blockY).Y)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			blockPos.X += res.BlockSize / 2
-			if blockType != res.BlockAir {
+			if blockType != items.Air {
 				blockSpawnCallbackFunc(blockPos.NegY(), chunkCoord, blockType)
 			}
 		}
@@ -88,7 +89,7 @@ func (tr *Terrain) EmptyBlockInChunk(chunkCoord image.Point) (bool, image.Point)
 }
 
 // Spawn/Destroy chunks
-func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType)) {
+func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType)) {
 	playerChunks := GetPlayerChunks(playerChunk)
 	intersectionChunks := FindIntersection(playerChunks, tr.LoadedChunks)
 

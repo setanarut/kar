@@ -90,7 +90,7 @@ func SpawnWall(boxCenter vec.Vec2, boxW, boxH float64) *donburi.Entry {
 	return entry
 }
 
-func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.BlockType) {
+func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType) {
 	e := SpawnWall(pos, float64(res.BlockSize), float64(res.BlockSize))
 	e.AddComponent(comp.Health)
 	e.AddComponent(comp.Block)
