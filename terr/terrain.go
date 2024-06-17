@@ -137,8 +137,8 @@ func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
 }
 
 func (tr *Terrain) WorldSpaceToMapSpace(worldPos vec.Vec2) image.Point {
-	// return worldPos.Div(tr.BlockSize).Point()
-	return worldPos.NegY().Point().Div(int(res.BlockSize))
+	return worldPos.Div(tr.BlockSize).Point()
+	// return worldPos.NegY().Point().Div(int(res.BlockSize))
 }
 
 func (tr *Terrain) WriteTerrainImage(flipVertical bool) {
