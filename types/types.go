@@ -14,8 +14,9 @@ type ISystem interface {
 	Update()
 	Draw()
 }
+type ItemType uint8
 
-type ItemType int
+type BlockSpawnFunc func(pos vec.Vec2, chunkCoord image.Point, blockType ItemType)
 
 type DataAI struct {
 	Target         *donburi.Entry
@@ -44,10 +45,10 @@ type DataInventory struct {
 	Items       []*donburi.Entry
 }
 
-type DataBlock struct {
+type DataItem struct {
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
-	BlockType  ItemType
+	Item       ItemType
 }
 type DataHealth struct {
 	Health    float64

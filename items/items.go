@@ -10,6 +10,11 @@ const (
 	GoldOre
 	IronOre
 	DiamondOre
+
+	Coal
+	RawIron
+	RawGold
+
 	DeepSlateStone
 	DeepSlateCoalOre
 	DeepSlateGoldOre

@@ -11,9 +11,9 @@ import (
 
 // var spawnTick int
 var playerChunkTemp image.Point
+var Terr *terr.Terrain
 
 type SpawnSystem struct {
-	Terr *terr.Terrain
 }
 
 func NewSpawnSystem() *SpawnSystem {
@@ -23,17 +23,17 @@ func NewSpawnSystem() *SpawnSystem {
 
 func (s *SpawnSystem) Init() {
 
-	s.Terr = terr.NewTerrain(342, res.MapSize, res.ChunkSize, res.BlockSize)
-	s.Terr.NoiseOptions.Frequency = 0.2
-	s.Terr.Generate()
-	res.Terrain = s.Terr.TerrainImg
+	Terr = terr.NewTerrain(342, res.MapSize, res.ChunkSize, res.BlockSize)
+	Terr.NoiseOptions.Frequency = 0.2
+	Terr.Generate()
+	res.Terrain = Terr.TerrainImg
 
-	playerSpawnPosition := vec.Vec2{(res.MapSize * 0.5) * res.BlockSize, s.Terr.BlockSize * 5}
+	playerSpawnPosition := vec.Vec2{(res.MapSize * 0.5) * res.BlockSize, Terr.BlockSize * 5}
 
-	playerChunk := s.Terr.WorldPosToChunkCoord(playerSpawnPosition)
-	s.Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
-	for _, coord := range s.Terr.LoadedChunks {
-		s.Terr.SpawnChunk(coord, arche.SpawnBlock)
+	playerChunk := Terr.WorldPosToChunkCoord(playerSpawnPosition)
+	Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
+	for _, coord := range Terr.LoadedChunks {
+		Terr.SpawnChunk(coord, arche.SpawnItem)
 	}
 	arche.SpawnDefaultPlayer(playerSpawnPosition)
 }
@@ -42,12 +42,12 @@ func (s *SpawnSystem) Update() {
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		pos := comp.Body.Get(player).Position()
-		playerChunk := s.Terr.WorldPosToChunkCoord(pos)
+		playerChunk := Terr.WorldPosToChunkCoord(pos)
 
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
 			// Spawn/Destroy Chunks
-			s.Terr.UpdateChunks(playerChunk, arche.SpawnBlock)
+			Terr.UpdateChunks(playerChunk, arche.SpawnItem)
 
 		}
 	}

@@ -51,13 +51,13 @@ func (tr *Terrain) Generate() {
 				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(items.Dirt)})
 			}
 			if noiseValue > 0.66 {
-				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(items.Stone)})
+				tr.TerrainImg.SetGray(x, y, color.Gray{Y: uint8(items.IronOre)})
 			}
 		}
 	}
 }
 
-func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType)) {
+func (tr *Terrain) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnFunc) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
@@ -68,11 +68,12 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, blockSpawnCallbackFunc fun
 			blockPos = blockPos.Scale(tr.BlockSize)
 			blockPos.X += res.BlockSize / 2
 			if blockType != items.Air {
-				blockSpawnCallbackFunc(blockPos.NegY(), chunkCoord, blockType)
+				spawnBlock(blockPos.NegY(), chunkCoord, blockType)
 			}
 		}
 	}
 }
+
 func (tr *Terrain) EmptyBlockInChunk(chunkCoord image.Point) (bool, image.Point) {
 	chunksize := int(tr.ChunkSize)
 	for y := 0; y < chunksize; y++ {
@@ -89,7 +90,7 @@ func (tr *Terrain) EmptyBlockInChunk(chunkCoord image.Point) (bool, image.Point)
 }
 
 // Spawn/Destroy chunks
-func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc func(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType)) {
+func (tr *Terrain) UpdateChunks(playerChunk image.Point, spawnBlock types.BlockSpawnFunc) {
 	playerChunks := GetPlayerChunks(playerChunk)
 	intersectionChunks := FindIntersection(playerChunks, tr.LoadedChunks)
 
@@ -97,7 +98,7 @@ func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc 
 		if !slices.Contains(intersectionChunks, toLoad) {
 			flip := toLoad
 			flip.Y *= -1
-			tr.SpawnChunk(flip, blockSpawnCallbackFunc)
+			tr.SpawnChunk(flip, spawnBlock)
 		}
 	}
 
@@ -113,8 +114,8 @@ func (tr *Terrain) UpdateChunks(playerChunk image.Point, blockSpawnCallbackFunc 
 }
 
 func (tr *Terrain) DeSpawnChunk(chunkCoord image.Point) {
-	comp.Block.Each(res.World, func(e *donburi.Entry) {
-		if comp.Block.Get(e).ChunkCoord == chunkCoord {
+	comp.Item.Each(res.World, func(e *donburi.Entry) {
+		if comp.Item.Get(e).ChunkCoord == chunkCoord {
 			b := comp.Body.Get(e)
 			destroyBodyWithEntry(b)
 		}
@@ -136,7 +137,8 @@ func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
 }
 
 func (tr *Terrain) WorldSpaceToMapSpace(worldPos vec.Vec2) image.Point {
-	return worldPos.Div(tr.BlockSize).Point()
+	// return worldPos.Div(tr.BlockSize).Point()
+	return worldPos.NegY().Point().Div(int(res.BlockSize))
 }
 
 func (tr *Terrain) WriteTerrainImage(flipVertical bool) {

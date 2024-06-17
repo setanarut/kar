@@ -36,14 +36,16 @@ var (
 	ScreenSizeF = vec.Vec2{float64(ScreenSize.X), float64(ScreenSize.Y)}
 
 	BlockMaxHealth = map[types.ItemType]float64{
-		items.Dirt:  5.0,
-		items.Stone: 10.0,
+		items.Dirt:    5.0,
+		items.Stone:   10.0,
+		items.IronOre: 10.0,
 	}
 )
 
 var (
 	AtlasPlayer = io.LoadEbitenImageFromFS(assets, "assets/player.png")
 	AtlasBlock  = io.LoadEbitenImageFromFS(assets, "assets/blocks.png")
+	RawIron     = util.SubImage(AtlasBlock, 80, 144, 16, 16)
 	BlockFrames = make(map[types.ItemType][]*ebiten.Image)
 )
 
@@ -99,7 +101,8 @@ var (
 )
 
 func init() {
-	BlockFrames[items.Stone] = util.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
 	BlockFrames[items.Dirt] = util.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
+	BlockFrames[items.Stone] = util.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
+	BlockFrames[items.IronOre] = util.SubImages(AtlasBlock, 80, 0, 16, 16, 9, true)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
 }

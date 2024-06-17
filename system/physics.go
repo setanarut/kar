@@ -1,7 +1,10 @@
 package system
 
 import (
+	"image/color"
+	"kar/engine/cm"
 	"kar/engine/vec"
+	"kar/items"
 	"kar/res"
 )
 
@@ -20,7 +23,7 @@ func (ps *PhysicsSystem) Init() {
 	// res.Space.Iterations = 20
 	// res.Space.Damping = 0.9
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
-	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollEnemy).BeginFunc = snowballEnemyBegin
+	res.Space.NewCollisionHandler(res.CollPlayer, res.CollCollectible).BeginFunc = playerCollectibleBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
 	// res.Space.NewCollisionHandler(types.CollPlayer, types.CollEnemy).SeparateFunc = playerEnemySep
@@ -34,21 +37,16 @@ func (ps *PhysicsSystem) Update() {
 
 func (ps *PhysicsSystem) Draw() {}
 
-// // Enemy <-> Player begin
-// func EnemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-// 	_, playerBody := arb.Bodies()
-// 	if CheckEntries(arb) {
-// 		a, b := GetEntries(arb)
-// 		if b.HasComponent(comp.Health) && a.HasComponent(comp.Damage) && b.HasComponent(comp.DrawOptions) {
-// 			enemyDamage := comp.Damage.GetValue(a)
-// 			playerHealth := comp.Health.Get(b)
-// 			comp.DrawOptions.Get(b).ScaleColor = colornames.Red
-// 			playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Scale(500), playerBody.CenterOfGravity())
-// 			playerHealth.Health -= enemyDamage
-// 		}
-// 	}
-// 	return true
-// }
+// Player <-> Collectible begin
+func playerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	_, collectible := arb.Bodies()
+	if CheckEntry(collectible) {
+		p := Terr.WorldSpaceToMapSpace(collectible.Position())
+		res.Terrain.SetGray(p.X, p.Y, color.Gray{uint8(items.Air)})
+		DestroyBodyWithEntry(collectible)
+	}
+	return true
+}
 
 // func SnowballEnemyBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 // 	if CheckEntries(arb) {

@@ -4,6 +4,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/mathutil"
+	"kar/items"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -64,8 +65,9 @@ func (ds *DrawCameraSystem) Update() {
 func (ds *DrawCameraSystem) Draw() {
 	// clear color
 	res.Screen.Fill(colornames.Black)
-	comp.Block.Each(res.World, ds.DrawBlock)
 
+	comp.BlockItemTag.Each(res.World, ds.DrawBlock)
+	comp.DropItemTag.Each(res.World, ds.DrawDropItem)
 	comp.AnimationPlayer.Each(res.World, ds.DrawAnimationPlayer)
 
 }
@@ -96,13 +98,13 @@ func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
 func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
-	blockData := comp.Block.Get(e)
+	itemData := comp.Item.Get(e)
 	drawOpt := comp.DrawOptions.Get(e)
 	healthData := comp.Health.Get(e)
 	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
 
 	blockSpriteFrameIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
-	ds.currentFrame = res.BlockFrames[blockData.BlockType][blockSpriteFrameIndex]
+	ds.currentFrame = res.BlockFrames[itemData.Item][blockSpriteFrameIndex]
 
 	ds.dio.GeoM.Reset()
 	ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
@@ -113,5 +115,24 @@ func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 
 	if ds.currentFrame != nil {
 		res.Camera.Draw(ds.currentFrame, ds.dio, res.Screen)
+	}
+}
+func (ds *DrawCameraSystem) DrawDropItem(e *donburi.Entry) {
+
+	itemData := comp.Item.Get(e)
+
+	if itemData.Item == items.RawIron {
+		body := comp.Body.Get(e)
+		drawOpt := comp.DrawOptions.Get(e)
+		pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
+		ds.dio.GeoM.Reset()
+		ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
+		ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)
+		ds.dio.GeoM.Rotate(-drawOpt.Rotation)
+		ds.dio.GeoM.Translate(pos.X, pos.Y)
+		ds.dio.ColorScale.Reset()
+		if ds.currentFrame != nil {
+			res.Camera.Draw(res.RawIron, ds.dio, res.Screen)
+		}
 	}
 }

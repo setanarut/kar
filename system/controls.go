@@ -89,7 +89,7 @@ func (sys *PlayerControlSystem) Update() {
 			if HitShape != nil {
 				if CheckEntry(HitShape.Body()) {
 					e := GetEntry(HitShape.Body())
-					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
+					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
 						ResetHealthComponent(e)
 					}
 				}
@@ -101,7 +101,7 @@ func (sys *PlayerControlSystem) Update() {
 			if HitShape != nil {
 				if CheckEntry(HitShape.Body()) {
 					e := GetEntry(HitShape.Body())
-					if e.HasComponent(comp.Block) && e.HasComponent(comp.Health) {
+					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
 						ResetHealthComponent(e)
 					}
 				}
@@ -114,7 +114,7 @@ func (sys *PlayerControlSystem) Update() {
 				if HitShape != nil {
 					if CheckEntry(HitShape.Body()) {
 						e := GetEntry(HitShape.Body())
-						if e.HasComponent(comp.Block) {
+						if e.HasComponent(comp.Item) {
 							h := comp.Health.Get(e)
 							h.Health -= 0.2
 						}
