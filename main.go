@@ -2,7 +2,6 @@ package main
 
 import (
 	"kar/res"
-	"kar/system"
 	"kar/types"
 	"log"
 
@@ -32,14 +31,14 @@ func NewGame() *Game {
 func (g *Game) Init() {
 	res.Screen = ebiten.NewImage(res.ScreenSize.X, res.ScreenSize.Y)
 	g.systems = []types.ISystem{
-		system.NewSpawnSystem(),
+		// system.NewSpawnSystem(),
 		// system.NewTimersSystem(),
 		// system.NewAISystem(),
-		system.NewPhysicsSystem(),
-		system.NewPlayerControlSystem(),
-		system.NewDrawCameraSystem(),
-		system.NewDrawHUDSystem(),
-		system.NewDestroySystem(),
+		// system.NewPhysicsSystem(),
+		// system.NewPlayerControlSystem(),
+		// system.NewDrawCameraSystem(),
+		// system.NewDrawHUDSystem(),
+		// system.NewDestroySystem(),
 	}
 
 	// Initalize systems
@@ -60,7 +59,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(s *ebiten.Image) {
-
+	s.DrawImage(res.RawIron, nil)
 	for _, s := range g.systems {
 		s.Draw()
 	}

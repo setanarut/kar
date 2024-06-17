@@ -1,10 +1,9 @@
 package system
 
 import (
-	"image/color"
+	"fmt"
 	"kar/engine/cm"
 	"kar/engine/vec"
-	"kar/items"
 	"kar/res"
 )
 
@@ -23,7 +22,7 @@ func (ps *PhysicsSystem) Init() {
 	// res.Space.Iterations = 20
 	// res.Space.Damping = 0.9
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
-	res.Space.NewCollisionHandler(res.CollPlayer, res.CollCollectible).BeginFunc = playerCollectibleBegin
+	res.Space.NewCollisionHandler(res.CollPlayer, res.CollCollectible).BeginFunc = PlayerCollectibleBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
 	// res.Space.NewCollisionHandler(types.CollPlayer, types.CollEnemy).SeparateFunc = playerEnemySep
@@ -38,12 +37,13 @@ func (ps *PhysicsSystem) Update() {
 func (ps *PhysicsSystem) Draw() {}
 
 // Player <-> Collectible begin
-func playerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+func PlayerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	_, collectible := arb.Bodies()
 	if CheckEntry(collectible) {
-		p := Terr.WorldSpaceToMapSpace(collectible.Position())
-		res.Terrain.SetGray(p.X, p.Y, color.Gray{uint8(items.Air)})
-		DestroyBodyWithEntry(collectible)
+		// p := Terr.WorldSpaceToMapSpace(collectible.Position())
+		fmt.Println(collectible)
+		// res.Terrain.SetGray(p.X, p.Y, color.Gray{uint8(items.Air)})
+		// DestroyBodyWithEntry(collectible)
 	}
 	return true
 }

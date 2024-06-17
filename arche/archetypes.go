@@ -129,19 +129,20 @@ func SpawnDropItem(pos vec.Vec2, chunkCoord image.Point, item types.ItemType) {
 	e := res.World.Entry(res.World.Create(
 		comp.DrawOptions,
 		comp.Body,
+		comp.Item,
 		comp.DropItemTag,
 	))
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.RectangleScaleFactor(16, 16, res.BlockSize/2, res.BlockSize/2),
+		Scale:        vec.Vec2{1, 1},
 	})
 	comp.Item.Set(e,
 		&types.DataItem{
 			ChunkCoord: chunkCoord,
 			Item:       item,
 		})
-	body := SpawnBoxBody(1, 0, 0, res.BlockSize/2, res.BlockSize/2, 0, e)
+	body := SpawnBoxBody(1, 0, 0, 12, 12, 0, e)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories)
 	body.FirstShape().CollisionType = res.CollCollectible
 	body.FirstShape().SetSensor(true)

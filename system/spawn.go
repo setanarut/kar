@@ -5,6 +5,7 @@ import (
 	"kar/arche"
 	"kar/comp"
 	"kar/engine/vec"
+	"kar/items"
 	"kar/res"
 	"kar/terr"
 )
@@ -28,7 +29,7 @@ func (s *SpawnSystem) Init() {
 	Terr.Generate()
 	res.Terrain = Terr.TerrainImg
 
-	playerSpawnPosition := vec.Vec2{(res.MapSize * 0.5) * res.BlockSize, Terr.BlockSize * 5}
+	playerSpawnPosition := vec.Vec2{(res.MapSize * 0.5) * res.BlockSize, Terr.BlockSize * 2}
 
 	playerChunk := Terr.WorldPosToChunkCoord(playerSpawnPosition)
 	Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
@@ -36,6 +37,7 @@ func (s *SpawnSystem) Init() {
 		Terr.SpawnChunk(coord, arche.SpawnItem)
 	}
 	arche.SpawnDefaultPlayer(playerSpawnPosition)
+	arche.SpawnItem(vec.Vec2{}, playerChunk, items.RawIron)
 }
 
 func (s *SpawnSystem) Update() {

@@ -112,8 +112,8 @@ func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
 		blockPos := Terr.WorldSpaceToMapSpace(pos)
 
 		if i.Item == items.IronOre {
-			arche.SpawnItem(pos, Terr.WorldPosToChunkCoord(pos), items.RawIron)
 			DestroyEntryWithBody(e)
+			arche.SpawnItem(pos.Add(vec.Vec2{25, 0}), Terr.WorldPosToChunkCoord(pos), items.RawIron)
 		} else {
 			res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
 			DestroyEntryWithBody(e)

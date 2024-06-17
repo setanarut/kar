@@ -53,6 +53,7 @@ func (ds *DrawCameraSystem) Update() {
 		res.Camera.ZoomFactor += 5
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		res.Screen.DrawImage(res.RawIron, nil)
 		res.Camera.ZoomFactor = 0
 	}
 
@@ -103,7 +104,8 @@ func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
 	healthData := comp.Health.Get(e)
 	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
 
-	blockSpriteFrameIndex := int(mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 8))
+	health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
+	blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
 	ds.currentFrame = res.BlockFrames[itemData.Item][blockSpriteFrameIndex]
 
 	ds.dio.GeoM.Reset()
@@ -131,8 +133,6 @@ func (ds *DrawCameraSystem) DrawDropItem(e *donburi.Entry) {
 		ds.dio.GeoM.Rotate(-drawOpt.Rotation)
 		ds.dio.GeoM.Translate(pos.X, pos.Y)
 		ds.dio.ColorScale.Reset()
-		if ds.currentFrame != nil {
-			res.Camera.Draw(res.RawIron, ds.dio, res.Screen)
-		}
+		res.Camera.Draw(res.RawIron, ds.dio, res.Screen)
 	}
 }
