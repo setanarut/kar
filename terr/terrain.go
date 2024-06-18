@@ -66,9 +66,9 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpaw
 			blockType := types.ItemType(tr.TerrainImg.GrayAt(blockX, blockY).Y)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-			blockPos.X += res.BlockSize / 2
+			// blockPos.X += res.BlockSize
 			if blockType != items.Air {
-				spawnBlock(blockPos.NegY(), chunkCoord, blockType)
+				spawnBlock(blockPos, chunkCoord, blockType)
 			}
 		}
 	}
@@ -96,17 +96,13 @@ func (tr *Terrain) UpdateChunks(playerChunk image.Point, spawnBlock types.BlockS
 
 	for _, toLoad := range playerChunks {
 		if !slices.Contains(intersectionChunks, toLoad) {
-			flip := toLoad
-			flip.Y *= -1
-			tr.SpawnChunk(flip, spawnBlock)
+			tr.SpawnChunk(toLoad, spawnBlock)
 		}
 	}
 
 	for _, toUnload := range tr.LoadedChunks {
 		if !slices.Contains(intersectionChunks, toUnload) {
-			flip := toUnload
-			flip.Y *= -1
-			tr.DeSpawnChunk(flip)
+			tr.DeSpawnChunk(toUnload)
 		}
 	}
 
@@ -128,7 +124,7 @@ func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
 }
 
 func (tr *Terrain) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
-	return worldPos.Div(tr.ChunkSize).Floor().Div(tr.BlockSize).Point()
+	return worldPos.Div(tr.ChunkSize).Div(tr.BlockSize).Point()
 }
 
 func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
@@ -138,7 +134,7 @@ func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
 
 func (tr *Terrain) WorldSpaceToMapSpace(worldPos vec.Vec2) image.Point {
 	// return worldPos.Div(tr.BlockSize).Point()
-	return worldPos.NegY().Point().Div(int(res.BlockSize))
+	return worldPos.Point().Div(int(res.BlockSize))
 }
 
 func (tr *Terrain) WriteTerrainImage(flipVertical bool) {

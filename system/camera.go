@@ -30,7 +30,7 @@ func (ds *DrawCameraSystem) Init() {
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Camera = engine.NewCamera(pos.FlipVertical(res.ScreenSizeF.Y), res.ScreenSize.X, res.ScreenSize.Y)
+		res.Camera = engine.NewCamera(pos, res.ScreenSize.X, res.ScreenSize.Y)
 	} else {
 		res.Camera = engine.NewCamera(res.ScreenSizeF.Scale(0.5), res.ScreenSize.X, res.ScreenSize.Y)
 	}
@@ -43,7 +43,7 @@ func (ds *DrawCameraSystem) Update() {
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Camera.LookAt(pos.FlipVertical(res.ScreenSizeF.Y))
+		res.Camera.LookAt(pos)
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
@@ -63,62 +63,55 @@ func (ds *DrawCameraSystem) Update() {
 
 }
 
-func (ds *DrawCameraSystem) Draw() {
+func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 	// clear color
-	res.Screen.Fill(colornames.Black)
+	screen.Fill(colornames.Black)
 
-	comp.BlockItemTag.Each(res.World, ds.DrawBlock)
-	comp.DropItemTag.Each(res.World, ds.DrawDropItem)
-	comp.AnimationPlayer.Each(res.World, ds.DrawAnimationPlayer)
+	comp.BlockItemTag.Each(res.World, func(e *donburi.Entry) {
+		body := comp.Body.Get(e)
+		itemData := comp.Item.Get(e)
+		drawOpt := comp.DrawOptions.Get(e)
+		healthData := comp.Health.Get(e)
+		pos := body.Position()
+
+		health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
+		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
+		ds.currentFrame = res.BlockFrames[itemData.Item][blockSpriteFrameIndex]
+
+		ds.dio.GeoM.Reset()
+		ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
+		ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)
+		ds.dio.GeoM.Rotate(-drawOpt.Rotation)
+		ds.dio.GeoM.Translate(pos.X, pos.Y)
+		ds.dio.ColorScale.Reset()
+
+		if ds.currentFrame != nil {
+			res.Camera.Draw(ds.currentFrame, ds.dio, screen)
+		}
+	})
+	comp.AnimationPlayer.Each(res.World, func(e *donburi.Entry) {
+		body := comp.Body.Get(e)
+		drawopt := comp.DrawOptions.Get(e)
+		ap := comp.AnimationPlayer.Get(e)
+
+		pos := body.Position()
+		scl := drawopt.Scale
+		if drawopt.FlipX {
+			scl.X *= -1
+		}
+
+		ds.dio.GeoM.Reset()
+		ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
+		ds.dio.GeoM.Scale(scl.X, scl.Y)
+		ds.dio.GeoM.Rotate(-drawopt.Rotation)
+		ds.dio.GeoM.Translate(pos.X, pos.Y)
+
+		res.Camera.Draw(ap.CurrentFrame, ds.dio, screen)
+		ds.dio.ColorScale.Reset()
+	})
 
 }
 
-func (ds *DrawCameraSystem) DrawAnimationPlayer(e *donburi.Entry) {
-
-	body := comp.Body.Get(e)
-	drawopt := comp.DrawOptions.Get(e)
-	ap := comp.AnimationPlayer.Get(e)
-
-	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
-	scl := drawopt.Scale
-	if drawopt.FlipX {
-		scl.X *= -1
-	}
-
-	ds.dio.GeoM.Reset()
-	ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
-	ds.dio.GeoM.Scale(scl.X, scl.Y)
-	ds.dio.GeoM.Rotate(-drawopt.Rotation)
-	ds.dio.GeoM.Translate(pos.X, pos.Y)
-
-	res.Camera.Draw(ap.CurrentFrame, ds.dio, res.Screen)
-	ds.dio.ColorScale.Reset()
-
-}
-
-func (ds *DrawCameraSystem) DrawBlock(e *donburi.Entry) {
-
-	body := comp.Body.Get(e)
-	itemData := comp.Item.Get(e)
-	drawOpt := comp.DrawOptions.Get(e)
-	healthData := comp.Health.Get(e)
-	pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
-
-	health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
-	blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
-	ds.currentFrame = res.BlockFrames[itemData.Item][blockSpriteFrameIndex]
-
-	ds.dio.GeoM.Reset()
-	ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
-	ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)
-	ds.dio.GeoM.Rotate(-drawOpt.Rotation)
-	ds.dio.GeoM.Translate(pos.X, pos.Y)
-	ds.dio.ColorScale.Reset()
-
-	if ds.currentFrame != nil {
-		res.Camera.Draw(ds.currentFrame, ds.dio, res.Screen)
-	}
-}
 func (ds *DrawCameraSystem) DrawDropItem(e *donburi.Entry) {
 
 	itemData := comp.Item.Get(e)
@@ -126,7 +119,7 @@ func (ds *DrawCameraSystem) DrawDropItem(e *donburi.Entry) {
 	if itemData.Item == items.RawIron {
 		body := comp.Body.Get(e)
 		drawOpt := comp.DrawOptions.Get(e)
-		pos := body.Position().FlipVertical(res.ScreenSizeF.Y)
+		pos := body.Position()
 		ds.dio.GeoM.Reset()
 		ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
 		ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)

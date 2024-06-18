@@ -35,11 +35,11 @@ func (g *Game) Init() {
 		system.NewSpawnSystem(),
 		// system.NewTimersSystem(),
 		// system.NewAISystem(),
-		// system.NewPhysicsSystem(),
-		// system.NewPlayerControlSystem(),
+		system.NewPhysicsSystem(),
+		system.NewPlayerControlSystem(),
 		system.NewDrawCameraSystem(),
-		// system.NewDrawHUDSystem(),
-		// system.NewDestroySystem(),
+		system.NewDrawHUDSystem(),
+		system.NewDestroySystem(),
 	}
 
 	// Initalize systems
@@ -59,11 +59,10 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func (g *Game) Draw(s *ebiten.Image) {
+func (g *Game) Draw(screen *ebiten.Image) {
 	for _, s := range g.systems {
-		s.Draw()
+		s.Draw(screen)
 	}
-	s.DrawImage(res.Screen, nil)
 }
 
 func (g *Game) Layout(w, h int) (int, int) {

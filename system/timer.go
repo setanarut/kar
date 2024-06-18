@@ -7,6 +7,7 @@ import (
 	"kar/types"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
 )
 
@@ -27,7 +28,7 @@ func (s *TimersSystem) Update() {
 
 }
 
-func (s *TimersSystem) Draw() {}
+func (s *TimersSystem) Draw(screen *ebiten.Image) {}
 
 func TimerRemaining(t *types.DataTimer) time.Duration {
 	return t.TimerDuration - t.Elapsed

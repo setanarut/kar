@@ -157,14 +157,14 @@ func (sys *PlayerControlSystem) Update() {
 
 }
 
-func (sys *PlayerControlSystem) Draw() {}
+func (sys *PlayerControlSystem) Draw(screen *ebiten.Image) {}
 
 func WASDPlatformerForce(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
 	p := body.Position()
 	// p.Add(vec.Vec2{0, -25}
-	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -(res.BlockSize / 2)}), 0, res.FilterPlayerRaycast)
+	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, res.BlockSize / 2}), 0, res.FilterPlayerRaycast)
 	// queryInfoRight := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -25}), 0, res.FilterPlayerRaycast)
 	contactShape := queryInfo.Shape
 	speed := res.BlockSize * 30
@@ -183,7 +183,7 @@ func WASDPlatformerForce(e *donburi.Entry) {
 		IsGround = true
 		// Zıpla
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, speed * 0.25}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -(speed * 0.25)}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
 			body.ApplyForceAtLocalPoint(vec.Vec2{-speed, 0}, body.CenterOfGravity())

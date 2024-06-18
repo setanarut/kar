@@ -6,14 +6,16 @@ import (
 	"kar/engine/vec"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
 )
 
 type ISystem interface {
 	Init()
 	Update()
-	Draw()
+	Draw(screen *ebiten.Image)
 }
+
 type ItemType uint8
 
 type BlockSpawnFunc func(pos vec.Vec2, chunkCoord image.Point, blockType ItemType)

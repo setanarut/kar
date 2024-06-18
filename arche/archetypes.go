@@ -8,7 +8,6 @@ import (
 	"kar/engine/mathutil"
 	"kar/engine/util"
 	"kar/engine/vec"
-	"kar/items"
 	"kar/res"
 	"kar/types"
 
@@ -117,31 +116,23 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType) 
 
 }
 
-func SpawnItem(pos vec.Vec2, chunkCoord image.Point, item types.ItemType) {
-	if item == items.RawIron {
-		SpawnDropItem(pos, chunkCoord, item)
-	} else {
-		SpawnBlock(pos, chunkCoord, item)
-	}
-
-}
-func SpawnDropItem(pos vec.Vec2, chunkCoord image.Point, item types.ItemType) {
+func SpawnRawIron(pos vec.Vec2) {
 	e := res.World.Entry(res.World.Create(
 		comp.DrawOptions,
 		comp.Body,
-		comp.Item,
-		comp.DropItemTag,
+		comp.AnimationPlayer,
 	))
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
 		Scale:        vec.Vec2{1, 1},
 	})
-	comp.Item.Set(e,
-		&types.DataItem{
-			ChunkCoord: chunkCoord,
-			Item:       item,
-		})
+
+	ap := engine.NewAnimationPlayer(res.RawIron)
+	ap.AddStateAnimation("idle", 0, 0, 16, 16, 1, false, false)
+	ap.Paused = true
+	comp.AnimationPlayer.Set(e, ap)
+
 	body := SpawnBoxBody(1, 0, 0, 16, 16, 0, e)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories)
 	body.FirstShape().CollisionType = res.CollCollectible

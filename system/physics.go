@@ -5,6 +5,8 @@ import (
 	"kar/engine/cm"
 	"kar/engine/vec"
 	"kar/res"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type PhysicsSystem struct {
@@ -15,7 +17,7 @@ func NewPhysicsSystem() *PhysicsSystem {
 }
 
 func (ps *PhysicsSystem) Init() {
-	res.Space.SetGravity(vec.Vec2{0, -(res.BlockSize * 20)})
+	res.Space.SetGravity(vec.Vec2{0, (res.BlockSize * 20)})
 	// res.Space.CollisionBias = math.Pow(0.4, 60)
 	// res.Space.CollisionSlop = 0.4
 	// res.Space.UseSpatialHash(200, 1000)
@@ -34,7 +36,7 @@ func (ps *PhysicsSystem) Update() {
 
 }
 
-func (ps *PhysicsSystem) Draw() {}
+func (ps *PhysicsSystem) Draw(screen *ebiten.Image) {}
 
 // Player <-> Collectible begin
 func PlayerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {

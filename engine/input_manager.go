@@ -4,7 +4,6 @@ import (
 	"kar/engine/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type InputManager struct {
@@ -14,43 +13,14 @@ type InputManager struct {
 	LastPressedDirection vec.Vec2
 }
 
-func (i *InputManager) UpdateJustArrowDirection() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		i.ArrowDirectionTemp.Y = 1
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		i.ArrowDirectionTemp.Y = -1
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-		i.ArrowDirectionTemp.X = -1
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-		i.ArrowDirectionTemp.X = 1
-	}
-
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) && i.ArrowDirectionTemp.Y > 0 {
-		i.ArrowDirectionTemp.Y = 0
-	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowDown) && i.ArrowDirectionTemp.Y < 0 {
-		i.ArrowDirectionTemp.Y = 0
-	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) && i.ArrowDirectionTemp.X < 0 {
-		i.ArrowDirectionTemp.X = 0
-	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) && i.ArrowDirectionTemp.X > 0 {
-		i.ArrowDirectionTemp.X = 0
-	}
-
-	i.ArrowDirection = i.ArrowDirectionTemp
-}
 func (i *InputManager) UpdateArrowDirection() {
 
 	i.ArrowDirection = vec.Vec2{}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
-		i.ArrowDirection.Y += 1
+		i.ArrowDirection.Y -= 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
-		i.ArrowDirection.Y -= 1
+		i.ArrowDirection.Y += 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
 		i.ArrowDirection.X -= 1
@@ -68,10 +38,10 @@ func (i *InputManager) UpdateArrowDirection() {
 func (i *InputManager) UpdateWASDDirection() {
 	i.WASDDirection = vec.Vec2{}
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		i.WASDDirection.Y += 1
+		i.WASDDirection.Y -= 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		i.WASDDirection.Y -= 1
+		i.WASDDirection.Y += 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
 		i.WASDDirection.X -= 1

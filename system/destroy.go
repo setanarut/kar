@@ -3,6 +3,8 @@ package system
 import (
 	"kar/comp"
 	"kar/res"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type DestroySystem struct {
@@ -21,4 +23,4 @@ func (s *DestroySystem) Update() {
 	// comp.SnowballTag.Each(res.World, DestroyOnCollisionAndStopped)
 }
 
-func (s *DestroySystem) Draw() {}
+func (s *DestroySystem) Draw(screen *ebiten.Image) {}

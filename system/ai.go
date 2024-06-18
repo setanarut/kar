@@ -6,6 +6,7 @@ import (
 	"kar/res"
 	"kar/types"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
 )
 
@@ -23,7 +24,7 @@ func (s *AISystem) Update() {
 	res.QueryAI.Each(res.World, followAI)
 }
 
-func (s *AISystem) Draw() {}
+func (s *AISystem) Draw(screen *ebiten.Image) {}
 
 func followAI(e *donburi.Entry) {
 	ai := comp.AI.Get(e)

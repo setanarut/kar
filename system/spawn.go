@@ -3,8 +3,10 @@ package system
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"kar/arche"
 	"kar/comp"
+	"kar/engine/mathutil"
 	"kar/engine/vec"
 	"kar/items"
 	"kar/res"
@@ -28,19 +30,20 @@ func NewSpawnSystem() *SpawnSystem {
 
 func (s *SpawnSystem) Init() {
 
-	Terr = terr.NewTerrain(342, res.MapSize, res.ChunkSize, res.BlockSize)
+	Terr = terr.NewTerrain(int64(mathutil.RandRangeInt(0, 100)), res.MapSize, res.ChunkSize, res.BlockSize)
 	Terr.NoiseOptions.Frequency = 0.2
 	Terr.Generate()
 	res.Terrain = Terr.TerrainImg
-
-	playerSpawnPosition := vec.Vec2{0, Terr.BlockSize * 2}
+	res.Terrain.SetGray(0, 0, color.Gray{uint8(items.IronOre)})
+	playerSpawnPosition := vec.Vec2{100, -100}
 
 	playerChunk := Terr.WorldPosToChunkCoord(playerSpawnPosition)
 	Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
 	for _, coord := range Terr.LoadedChunks {
-		Terr.SpawnChunk(coord, arche.SpawnItem)
+		Terr.SpawnChunk(coord, arche.SpawnBlock)
 	}
 	arche.SpawnDefaultPlayer(playerSpawnPosition)
+
 }
 
 func (s *SpawnSystem) Update() {
@@ -48,8 +51,9 @@ func (s *SpawnSystem) Update() {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
 		fmt.Println(cursor)
-		arche.SpawnDropItem(cursor.FlipVertical(res.ScreenSizeF.Y), Terr.WorldPosToChunkCoord(cursor), items.RawIron)
+		arche.SpawnRawIron(cursor)
 	}
+
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		pos := comp.Body.Get(player).Position()
 		playerChunk := Terr.WorldPosToChunkCoord(pos)
@@ -64,5 +68,5 @@ func (s *SpawnSystem) Update() {
 
 }
 
-func (s *SpawnSystem) Draw() {
+func (s *SpawnSystem) Draw(screen *ebiten.Image) {
 }

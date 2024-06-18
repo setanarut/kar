@@ -31,7 +31,7 @@ var (
 	MapSize    float64 = 1024
 	BlockSize  float64 = 64.0
 	ChunkSize  float64 = 8
-	ScreenSize         = displayres.QuarterHD
+	ScreenSize         = displayres.FullWideVGA
 
 	ScreenSizeF = vec.Vec2{float64(ScreenSize.X), float64(ScreenSize.Y)}
 
@@ -77,6 +77,8 @@ var (
 	QueryAI = donburi.NewQuery(filter.And(
 		filter.Contains(comp.Mobile, comp.AI, comp.Body),
 		filter.Not(filter.Contains(comp.WASDTag))))
+
+	QueryDraw = donburi.NewQuery(filter.Contains(comp.DrawOptions, comp.Body))
 )
 
 // text
