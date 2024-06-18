@@ -45,13 +45,13 @@ func (sys *PlayerControlSystem) Update() {
 
 	res.Input.UpdateWASDDirection()
 
-	FacingRight = res.Input.LastPressedDirection.Equal(vec.Right) || res.Input.WASDDirection.Equal(vec.Right)
-	FacingLeft = res.Input.LastPressedDirection.Equal(vec.Left) || res.Input.WASDDirection.Equal(vec.Left)
-	FacingDown = res.Input.LastPressedDirection.Equal(vec.Down) || res.Input.WASDDirection.Equal(vec.Down)
-	FacingUp = res.Input.LastPressedDirection.Equal(vec.Up) || res.Input.WASDDirection.Equal(vec.Up)
-	NoWASD = res.Input.WASDDirection.Equal(vec.Zero)
-	WalkRight = res.Input.WASDDirection.Equal(vec.Right)
-	WalkLeft = res.Input.WASDDirection.Equal(vec.Left)
+	FacingRight = res.Input.LastPressedDirection.Equal(res.Right) || res.Input.WASDDirection.Equal(res.Right)
+	FacingLeft = res.Input.LastPressedDirection.Equal(res.Left) || res.Input.WASDDirection.Equal(res.Left)
+	FacingDown = res.Input.LastPressedDirection.Equal(res.Down) || res.Input.WASDDirection.Equal(res.Down)
+	FacingUp = res.Input.LastPressedDirection.Equal(res.Up) || res.Input.WASDDirection.Equal(res.Up)
+	NoWASD = res.Input.WASDDirection.Equal(res.Zero)
+	WalkRight = res.Input.WASDDirection.Equal(res.Right)
+	WalkLeft = res.Input.WASDDirection.Equal(res.Left)
 	Attacking = ebiten.IsKeyPressed(ebiten.KeyShiftRight)
 	Walking = WalkLeft || WalkRight
 	Idle = NoWASD && !Attacking && IsGround

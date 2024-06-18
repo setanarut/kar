@@ -29,7 +29,7 @@ func (i *InputManager) UpdateArrowDirection() {
 		i.ArrowDirection.X += 1
 	}
 
-	if !i.ArrowDirection.Equal(vec.Zero) {
+	if !i.ArrowDirection.Equal(vec.Vec2{}) {
 		i.LastPressedDirection = i.ArrowDirection
 	}
 
@@ -50,7 +50,7 @@ func (i *InputManager) UpdateWASDDirection() {
 		i.WASDDirection.X += 1
 	}
 
-	if !i.WASDDirection.Equal(vec.Zero) {
+	if !i.WASDDirection.Equal(vec.Vec2{}) {
 		i.LastPressedDirection = i.WASDDirection
 	}
 

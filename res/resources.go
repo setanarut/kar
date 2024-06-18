@@ -26,6 +26,14 @@ import (
 //go:embed assets/*
 var assets embed.FS
 
+var (
+	Zero  = vec.Vec2{0, 0}
+	Right = vec.Vec2{1, 0}
+	Left  = vec.Vec2{-1, 0}
+	Up    = vec.Vec2{0, -1}
+	Down  = vec.Vec2{0, 1}
+)
+
 // GameSettings
 var (
 	MapSize    float64 = 1024

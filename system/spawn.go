@@ -3,12 +3,10 @@ package system
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/vec"
-	"kar/items"
 	"kar/res"
 	"kar/terr"
 
@@ -34,7 +32,6 @@ func (s *SpawnSystem) Init() {
 	Terr.NoiseOptions.Frequency = 0.2
 	Terr.Generate()
 	res.Terrain = Terr.TerrainImg
-	res.Terrain.SetGray(0, 0, color.Gray{uint8(items.IronOre)})
 	playerSpawnPosition := vec.Vec2{100, -100}
 
 	playerChunk := Terr.WorldPosToChunkCoord(playerSpawnPosition)
@@ -42,7 +39,7 @@ func (s *SpawnSystem) Init() {
 	for _, coord := range Terr.LoadedChunks {
 		Terr.SpawnChunk(coord, arche.SpawnBlock)
 	}
-	arche.SpawnDefaultPlayer(playerSpawnPosition)
+	arche.SpawnPlayer(playerSpawnPosition, 1, 0, 0)
 
 }
 
@@ -51,7 +48,7 @@ func (s *SpawnSystem) Update() {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
 		fmt.Println(cursor)
-		arche.SpawnRawIron(cursor)
+		arche.SpawnDebug(cursor)
 	}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {

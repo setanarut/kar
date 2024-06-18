@@ -4,7 +4,6 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/mathutil"
-	"kar/items"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -53,7 +52,6 @@ func (ds *DrawCameraSystem) Update() {
 		res.Camera.ZoomFactor += 5
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		res.Screen.DrawImage(res.RawIron, nil)
 		res.Camera.ZoomFactor = 0
 	}
 
@@ -105,27 +103,10 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		ds.dio.GeoM.Scale(scl.X, scl.Y)
 		ds.dio.GeoM.Rotate(-drawopt.Rotation)
 		ds.dio.GeoM.Translate(pos.X, pos.Y)
-
-		res.Camera.Draw(ap.CurrentFrame, ds.dio, screen)
+		if ap.CurrentFrame != nil {
+			res.Camera.Draw(ap.CurrentFrame, ds.dio, screen)
+		}
 		ds.dio.ColorScale.Reset()
 	})
 
-}
-
-func (ds *DrawCameraSystem) DrawDropItem(e *donburi.Entry) {
-
-	itemData := comp.Item.Get(e)
-
-	if itemData.Item == items.RawIron {
-		body := comp.Body.Get(e)
-		drawOpt := comp.DrawOptions.Get(e)
-		pos := body.Position()
-		ds.dio.GeoM.Reset()
-		ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
-		ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)
-		ds.dio.GeoM.Rotate(-drawOpt.Rotation)
-		ds.dio.GeoM.Translate(pos.X, pos.Y)
-		ds.dio.ColorScale.Reset()
-		res.Camera.Draw(res.RawIron, ds.dio, res.Screen)
-	}
 }

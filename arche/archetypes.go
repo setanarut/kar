@@ -14,33 +14,32 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-func SpawnCircleBody(m, e, f, r float64, userData *donburi.Entry) *cm.Body {
+func SpawnCircleBody(pos vec.Vec2, m, e, f, r float64, userData *donburi.Entry) *cm.Body {
 	// body := cm.NewKinematicBody()
 	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewCircle(body, r, vec.Vec2{})
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
+	body.SetPosition(pos)
 	res.Space.AddShape(shape)
 	res.Space.AddBody(shape.Body())
 	body.UserData = userData
 	return body
 }
-func SpawnBoxBody(m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
+func SpawnBoxBody(pos vec.Vec2, m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
 	// body := cm.NewKinematicBody()
 	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewBox(body, w, h, r)
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
+	body.SetPosition(pos)
 	res.Space.AddShape(shape)
 	res.Space.AddBody(shape.Body())
 	body.UserData = userData
 	return body
 }
-func SpawnDefaultPlayer(pos vec.Vec2) *donburi.Entry {
-	return SpawnPlayer(1, 0, 0, pos)
 
-}
-func SpawnPlayer(mass, el, fr float64, pos vec.Vec2) *donburi.Entry {
+func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 	e := res.World.Entry(res.World.Create(
 		comp.PlayerTag,
 		comp.Health,
@@ -63,22 +62,21 @@ func SpawnPlayer(mass, el, fr float64, pos vec.Vec2) *donburi.Entry {
 		Scale:        mathutil.CircleScaleFactor(res.BlockSize/2, 16),
 	})
 	// b := SpawnBoxBody(mass, el, fr, 16, 16, rad, e)
-	b := SpawnCircleBody(mass, el, fr, (res.BlockSize/2)*0.8, e)
+	b := SpawnCircleBody(pos, mass, el, fr, (res.BlockSize/2)*0.8, e)
 	b.FirstShape().SetCollisionType(res.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskPlayerRaycast)
-	b.SetPosition(pos)
 	comp.Body.Set(e, b)
 	return e
 }
 
-func SpawnWall(boxCenter vec.Vec2, boxW, boxH float64) *donburi.Entry {
+func SpawnWall(pos vec.Vec2, boxW, boxH float64) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
 	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskWall, cm.AllCategories)
 	wallShape.CollisionType = res.CollWall
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
-	sbody.SetPosition(boxCenter)
+	sbody.SetPosition(pos)
 	res.Space.AddShape(wallShape)
 	res.Space.AddBody(wallShape.Body())
 	// components
@@ -116,7 +114,7 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType) 
 
 }
 
-func SpawnRawIron(pos vec.Vec2) {
+func SpawnDebug(pos vec.Vec2) {
 	e := res.World.Entry(res.World.Create(
 		comp.DrawOptions,
 		comp.Body,
@@ -125,17 +123,17 @@ func SpawnRawIron(pos vec.Vec2) {
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        vec.Vec2{1, 1},
+		Scale:        vec.Vec2{2, 2},
 	})
-
-	ap := engine.NewAnimationPlayer(res.RawIron)
-	ap.AddStateAnimation("idle", 0, 0, 16, 16, 1, false, false)
+	ap := engine.NewAnimationPlayer(res.AtlasBlock)
+	ap.AddStateAnimation("idle", 16, 0, 16, 16, 1, false, false)
+	ap.SetState("idle")
 	ap.Paused = true
 	comp.AnimationPlayer.Set(e, ap)
 
-	body := SpawnBoxBody(1, 0, 0, 16, 16, 0, e)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories)
-	body.FirstShape().CollisionType = res.CollCollectible
-	body.FirstShape().SetSensor(true)
+	b := SpawnBoxBody(pos, 1, 0, 0, 32, 32, 0, e)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories)
+	b.FirstShape().CollisionType = res.CollCollectible
+	comp.Body.Set(e, b)
 
 }

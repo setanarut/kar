@@ -6,14 +6,6 @@ import (
 	"math"
 )
 
-var (
-	Zero  = Vec2{0, 0}
-	Right = Vec2{1, 0}
-	Left  = Vec2{-1, 0}
-	Up    = Vec2{0, 1}
-	Down  = Vec2{0, -1}
-)
-
 type Vec2 struct {
 	X, Y float64
 }
