@@ -2,7 +2,6 @@ package system
 
 import (
 	"image/color"
-	"kar/arche"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/mathutil"
@@ -106,19 +105,20 @@ func DestroyZeroHealth(e *donburi.Entry) {
 }
 
 func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
-	i := comp.Item.Get(e)
+	// i := comp.Item.Get(e)
 	pos := comp.Body.Get(e).Position()
 	if comp.Health.Get(e).Health <= 0 {
+
+		// if i.Item == items.IronOre {
+		// 	DestroyEntryWithBody(e)
+		// 	arche.SpawnItem(pos.Add(vec.Vec2{25, 0}), Terr.WorldPosToChunkCoord(pos), items.RawIron)
+		// } else {
+		// 	DestroyEntryWithBody(e)
+
+		// }
 		blockPos := Terr.WorldSpaceToMapSpace(pos)
-
-		if i.Item == items.IronOre {
-			DestroyEntryWithBody(e)
-			arche.SpawnItem(pos.Add(vec.Vec2{25, 0}), Terr.WorldPosToChunkCoord(pos), items.RawIron)
-		} else {
-			res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
-			DestroyEntryWithBody(e)
-
-		}
+		res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
+		DestroyEntryWithBody(e)
 
 	}
 }

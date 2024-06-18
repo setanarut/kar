@@ -142,7 +142,7 @@ func SpawnDropItem(pos vec.Vec2, chunkCoord image.Point, item types.ItemType) {
 			ChunkCoord: chunkCoord,
 			Item:       item,
 		})
-	body := SpawnBoxBody(1, 0, 0, 12, 12, 0, e)
+	body := SpawnBoxBody(1, 0, 0, 16, 16, 0, e)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories)
 	body.FirstShape().CollisionType = res.CollCollectible
 	body.FirstShape().SetSensor(true)

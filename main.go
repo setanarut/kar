@@ -35,11 +35,11 @@ func (g *Game) Init() {
 		system.NewSpawnSystem(),
 		// system.NewTimersSystem(),
 		// system.NewAISystem(),
-		system.NewPhysicsSystem(),
-		system.NewPlayerControlSystem(),
+		// system.NewPhysicsSystem(),
+		// system.NewPlayerControlSystem(),
 		system.NewDrawCameraSystem(),
-		system.NewDrawHUDSystem(),
-		system.NewDestroySystem(),
+		// system.NewDrawHUDSystem(),
+		// system.NewDestroySystem(),
 	}
 
 	// Initalize systems

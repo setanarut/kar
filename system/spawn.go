@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"image"
 	"kar/arche"
 	"kar/comp"
@@ -8,6 +9,9 @@ import (
 	"kar/items"
 	"kar/res"
 	"kar/terr"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 // var spawnTick int
@@ -29,7 +33,7 @@ func (s *SpawnSystem) Init() {
 	Terr.Generate()
 	res.Terrain = Terr.TerrainImg
 
-	playerSpawnPosition := vec.Vec2{(res.MapSize * 0.5) * res.BlockSize, Terr.BlockSize * 2}
+	playerSpawnPosition := vec.Vec2{0, Terr.BlockSize * 2}
 
 	playerChunk := Terr.WorldPosToChunkCoord(playerSpawnPosition)
 	Terr.LoadedChunks = terr.GetPlayerChunks(playerChunk)
@@ -37,11 +41,15 @@ func (s *SpawnSystem) Init() {
 		Terr.SpawnChunk(coord, arche.SpawnItem)
 	}
 	arche.SpawnDefaultPlayer(playerSpawnPosition)
-	arche.SpawnItem(vec.Vec2{}, playerChunk, items.RawIron)
 }
 
 func (s *SpawnSystem) Update() {
 
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+		cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
+		fmt.Println(cursor)
+		arche.SpawnDropItem(cursor.FlipVertical(res.ScreenSizeF.Y), Terr.WorldPosToChunkCoord(cursor), items.RawIron)
+	}
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		pos := comp.Body.Get(player).Position()
 		playerChunk := Terr.WorldPosToChunkCoord(pos)
@@ -49,7 +57,7 @@ func (s *SpawnSystem) Update() {
 		if playerChunkTemp != playerChunk {
 			playerChunkTemp = playerChunk
 			// Spawn/Destroy Chunks
-			Terr.UpdateChunks(playerChunk, arche.SpawnItem)
+			Terr.UpdateChunks(playerChunk, arche.SpawnBlock)
 
 		}
 	}
