@@ -53,7 +53,8 @@ var (
 var (
 	AtlasPlayer = io.LoadEbitenImageFromFS(assets, "assets/player.png")
 	AtlasBlock  = io.LoadEbitenImageFromFS(assets, "assets/blocks.png")
-	RawIron     = util.SubImage(AtlasBlock, 80, 144, 16, 16)
+	// RawIron     = util.SubImage(AtlasBlock, 80, 144, 16, 16)
+	// BlockFrames = make(map[types.ItemType][]*ebiten.Image)
 	BlockFrames = make(map[types.ItemType][]*ebiten.Image)
 )
 

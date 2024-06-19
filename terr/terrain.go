@@ -66,7 +66,6 @@ func (tr *Terrain) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpaw
 			blockType := types.ItemType(tr.TerrainImg.GrayAt(blockX, blockY).Y)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-			// blockPos.X += res.BlockSize
 			if blockType != items.Air {
 				spawnBlock(blockPos, chunkCoord, blockType)
 			}

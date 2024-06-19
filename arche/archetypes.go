@@ -126,14 +126,15 @@ func SpawnDebug(pos vec.Vec2) {
 		Scale:        vec.Vec2{2, 2},
 	})
 	ap := engine.NewAnimationPlayer(res.AtlasBlock)
-	ap.AddStateAnimation("idle", 16, 0, 16, 16, 1, false, false)
-	ap.SetState("idle")
+	ap.AddStateAnimation("idle", 80, 144, 16, 16, 1, false, false)
 	ap.Paused = true
 	comp.AnimationPlayer.Set(e, ap)
 
-	b := SpawnBoxBody(pos, 1, 0, 0, 32, 32, 0, e)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories)
+	b := SpawnCircleBody(pos, 0.8, 0.5, 0, 16, e)
+	// b.SetType(cm.BODY_STATIC)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories&^res.BitmaskPlayer&^res.BitmaskPlayerRaycast)
 	b.FirstShape().CollisionType = res.CollCollectible
+	// b.FirstShape().SetSensor(true)
 	comp.Body.Set(e, b)
 
 }

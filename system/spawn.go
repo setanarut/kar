@@ -5,7 +5,6 @@ import (
 	"image"
 	"kar/arche"
 	"kar/comp"
-	"kar/engine/mathutil"
 	"kar/engine/vec"
 	"kar/res"
 	"kar/terr"
@@ -28,7 +27,7 @@ func NewSpawnSystem() *SpawnSystem {
 
 func (s *SpawnSystem) Init() {
 
-	Terr = terr.NewTerrain(int64(mathutil.RandRangeInt(0, 100)), res.MapSize, res.ChunkSize, res.BlockSize)
+	Terr = terr.NewTerrain(221, res.MapSize, res.ChunkSize, res.BlockSize)
 	Terr.NoiseOptions.Frequency = 0.2
 	Terr.Generate()
 	res.Terrain = Terr.TerrainImg
