@@ -1,10 +1,15 @@
 package system
 
 import (
+	"fmt"
+	"image/color"
+	"kar/arche"
 	"kar/comp"
+	"kar/items"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/yohamta/donburi"
 )
 
 type DestroySystem struct {
@@ -24,3 +29,20 @@ func (s *DestroySystem) Update() {
 }
 
 func (s *DestroySystem) Draw(screen *ebiten.Image) {}
+
+func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
+	if comp.Health.Get(e).Health <= 0 {
+		body := comp.Body.Get(e)
+		pos := body.Position()
+		i := comp.Item.Get(e)
+		body.FirstShape().SetSensor(true)
+		DestroyEntryWithBody(e)
+		if i.Item == items.IronOre {
+			arche.SpawnDebug(pos)
+			fmt.Println(pos, i.Item)
+		}
+		blockPos := Terr.WorldSpaceToMapSpace(pos)
+		res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
+
+	}
+}

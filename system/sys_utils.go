@@ -1,14 +1,10 @@
 package system
 
 import (
-	"fmt"
-	"image/color"
-	"kar/arche"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/mathutil"
 	"kar/engine/vec"
-	"kar/items"
 	"kar/res"
 
 	"github.com/yohamta/donburi"
@@ -103,21 +99,6 @@ func DestroyOnCollisionAndStopped(e *donburi.Entry) {
 func DestroyZeroHealth(e *donburi.Entry) {
 	if comp.Health.Get(e).Health <= 0 {
 		DestroyEntryWithBody(e)
-	}
-}
-
-func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
-	if comp.Health.Get(e).Health <= 0 {
-		pos := comp.Body.Get(e).Position()
-		i := comp.Item.Get(e)
-		if i.Item == items.IronOre {
-			arche.SpawnDebug(pos)
-			fmt.Println(pos, i.Item)
-		}
-		blockPos := Terr.WorldSpaceToMapSpace(pos)
-		res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
-		DestroyEntryWithBody(e)
-
 	}
 }
 

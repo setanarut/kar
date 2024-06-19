@@ -19,7 +19,7 @@ func NewPhysicsSystem() *PhysicsSystem {
 
 func (ps *PhysicsSystem) Init() {
 	res.Space.SetGravity(vec.Vec2{0, (res.BlockSize * 20)})
-	res.Space.CollisionBias = math.Pow(0.4, 60)
+	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.4
 	// res.Space.UseSpatialHash(200, 1000)
 	// res.Space.Iterations = 20

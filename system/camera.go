@@ -88,11 +88,10 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		}
 	})
 	comp.AnimationPlayer.Each(res.World, func(e *donburi.Entry) {
-		body := comp.Body.Get(e)
+		pos := comp.Body.Get(e).Position()
 		drawopt := comp.DrawOptions.Get(e)
 		ap := comp.AnimationPlayer.Get(e)
 
-		pos := body.Position()
 		scl := drawopt.Scale
 		if drawopt.FlipX {
 			scl.X *= -1

@@ -5,6 +5,7 @@ import (
 	"image"
 	"kar/arche"
 	"kar/comp"
+	"kar/engine/mathutil"
 	"kar/engine/vec"
 	"kar/res"
 	"kar/terr"
@@ -26,8 +27,9 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (s *SpawnSystem) Init() {
-
-	Terr = terr.NewTerrain(221, res.MapSize, res.ChunkSize, res.BlockSize)
+	seed := mathutil.RandRangeInt(0, 1000)
+	fmt.Println("Seed: ", seed)
+	Terr = terr.NewTerrain(seed, res.MapSize, res.ChunkSize, res.BlockSize)
 	Terr.NoiseOptions.Frequency = 0.2
 	Terr.Generate()
 	res.Terrain = Terr.TerrainImg
@@ -47,7 +49,7 @@ func (s *SpawnSystem) Update() {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
 		cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
 		fmt.Println(cursor)
-		arche.SpawnDebug(cursor)
+		// arche.SpawnDebug(cursor)
 	}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {

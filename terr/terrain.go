@@ -28,10 +28,10 @@ type Terrain struct {
 	MapSize              float64
 }
 
-func NewTerrain(seed int64, mapSize float64, chunkSize float64, blockSize float64) *Terrain {
+func NewTerrain(seed int, mapSize float64, chunkSize float64, blockSize float64) *Terrain {
 	terr := &Terrain{
 		NoiseOptions: DefaultNoiseOptions(),
-		Noise:        opensimplex.NewNormalized(seed),
+		Noise:        opensimplex.NewNormalized(int64(seed)),
 		ChunkSize:    chunkSize,
 		BlockSize:    blockSize,
 		MapSize:      mapSize,
