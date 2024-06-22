@@ -131,7 +131,8 @@ func SpawnDebug(pos vec.Vec2) {
 
 	b := SpawnCircleBody(pos, 0.8, 0.5, 0, 16, e)
 	// b.SetType(cm.BODY_STATIC)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories&^res.BitmaskPlayer&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
+	// b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories&^res.BitmaskPlayer&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
 	b.FirstShape().CollisionType = res.CollCollectible
 	// b.FirstShape().SetSensor(true)
 	comp.Body.Set(e, b)

@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"image/color"
 	"kar/arche"
 	"kar/comp"
@@ -39,7 +38,6 @@ func DestroyZeroHealthSetMapBlockState(e *donburi.Entry) {
 		DestroyEntryWithBody(e)
 		if i.Item == items.IronOre {
 			arche.SpawnDebug(pos)
-			fmt.Println(pos, i.Item)
 		}
 		blockPos := Terr.WorldSpaceToMapSpace(pos)
 		res.Terrain.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})

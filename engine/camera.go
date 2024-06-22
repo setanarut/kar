@@ -96,7 +96,6 @@ func (cam *Camera) SetSize(w, h float64) {
 
 // Center returns center point of the camera
 func (cam *Camera) Center() vec.Vec2 {
-	fmt.Println("offset", cam.centerOffset)
 	return cam.topLeft.Sub(cam.centerOffset)
 }
 

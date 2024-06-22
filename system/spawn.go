@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"image"
 	"kar/arche"
 	"kar/comp"
@@ -11,7 +10,6 @@ import (
 	"kar/terr"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 // var spawnTick int
@@ -28,7 +26,6 @@ func NewSpawnSystem() *SpawnSystem {
 
 func (s *SpawnSystem) Init() {
 	seed := mathutil.RandRangeInt(0, 1000)
-	fmt.Println("Seed: ", seed)
 	Terr = terr.NewTerrain(seed, res.MapSize, res.ChunkSize, res.BlockSize)
 	Terr.NoiseOptions.Frequency = 0.2
 	Terr.Generate()
@@ -46,11 +43,11 @@ func (s *SpawnSystem) Init() {
 
 func (s *SpawnSystem) Update() {
 
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
-		cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
-		fmt.Println(cursor)
-		// arche.SpawnDebug(cursor)
-	}
+	// if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+	// 	cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
+	// 	fmt.Println(cursor)
+	// 	// arche.SpawnDebug(cursor)
+	// }
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		pos := comp.Body.Get(player).Position()

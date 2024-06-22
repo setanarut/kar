@@ -25,7 +25,7 @@ func (ps *PhysicsSystem) Init() {
 	// res.Space.Iterations = 20
 	// res.Space.Damping = 0.9
 	// res.Space.NewCollisionHandler(types.CollSnowball, types.CollWall).BeginFunc = snowballBlockBegin
-	// res.Space.NewCollisionHandler(res.CollPlayer, res.CollCollectible).BeginFunc = PlayerCollectibleBegin
+	res.Space.NewCollisionHandler(res.CollPlayer, res.CollCollectible).BeginFunc = PlayerCollectibleBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).BeginFunc = enemyPlayerBegin
 	// res.Space.NewCollisionHandler(types.CollEnemy, types.CollPlayer).PostSolveFunc = enemyPlayerPostSolve
 	// res.Space.NewCollisionHandler(types.CollPlayer, types.CollEnemy).SeparateFunc = playerEnemySep
@@ -46,7 +46,7 @@ func PlayerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface
 		// p := Terr.WorldSpaceToMapSpace(collectible.Position())
 		fmt.Println(collectible)
 		// res.Terrain.SetGray(p.X, p.Y, color.Gray{uint8(items.Air)})
-		// DestroyBodyWithEntry(collectible)
+		DestroyBodyWithEntry(collectible)
 	}
 	return true
 }
