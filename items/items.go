@@ -5,6 +5,7 @@ import "kar/types"
 const (
 	Air types.ItemType = iota
 	Dirt
+	Sand
 	Stone
 	CoalOre
 	GoldOre
@@ -12,8 +13,10 @@ const (
 	DiamondOre
 
 	Coal
-	RawIron
+	RawCopper
 	RawGold
+	RawIron
+	Diamond
 
 	DeepSlateStone
 	DeepSlateCoalOre
