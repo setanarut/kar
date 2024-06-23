@@ -9,7 +9,6 @@ import (
 	"kar/engine/cm"
 	"kar/engine/displayres"
 	"kar/engine/io"
-	"kar/engine/util"
 	"kar/engine/vec"
 	"kar/items"
 	"kar/types"
@@ -51,22 +50,20 @@ var (
 )
 
 var (
-	AtlasPlayer = io.LoadEbitenImageFromFS(assets, "assets/player.png")
-	AtlasBlock  = io.LoadEbitenImageFromFS(assets, "assets/blocks.png")
-	// RawIron     = util.SubImage(AtlasBlock, 80, 144, 16, 16)
-	// BlockFrames = make(map[types.ItemType][]*ebiten.Image)
-	BlockFrames = make(map[types.ItemType][]*ebiten.Image)
-)
-
-var (
-	World               donburi.World = donburi.NewWorld()
-	Space               *cm.Space     = cm.NewSpace()
-	Camera              *engine.Camera
-	CurrentItem         types.ItemType
-	Input               *engine.InputManager = &engine.InputManager{}
-	FilterBombRaycast   cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskBombRaycast, cm.AllCategories&^BitmaskBomb)
-	FilterPlayerRaycast cm.ShapeFilter       = cm.NewShapeFilter(0, BitmaskPlayerRaycast, cm.AllCategories&^BitmaskPlayer)
-	DamageGradient, _                        = colorgrad.NewGradient().
+	World             donburi.World = donburi.NewWorld()
+	Space             *cm.Space     = cm.NewSpace()
+	Camera            *engine.Camera
+	CurrentItem       types.ItemType
+	Input             *engine.InputManager = &engine.InputManager{}
+	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(
+		0,
+		BitmaskBombRaycast,
+		cm.AllCategories&^BitmaskBomb)
+	FilterPlayerRaycast cm.ShapeFilter = cm.NewShapeFilter(
+		0,
+		BitmaskPlayerRaycast,
+		cm.AllCategories&^BitmaskPlayer)
+	DamageGradient, _ = colorgrad.NewGradient().
 				HtmlColors("rgb(255, 0, 0)", "rgb(255, 225, 0)", "rgb(111, 111, 111)").
 				Domain(0, 1).
 				Mode(colorgrad.BlendOklab).
@@ -112,8 +109,5 @@ var (
 )
 
 func init() {
-	BlockFrames[items.Dirt] = util.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
-	BlockFrames[items.Stone] = util.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
-	BlockFrames[items.IronOre] = util.SubImages(AtlasBlock, 80, 0, 16, 16, 9, true)
 	StatsTextOptions.ColorScale.ScaleWithColor(colornames.White)
 }

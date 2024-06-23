@@ -130,11 +130,39 @@ func SpawnDebug(pos vec.Vec2) {
 	comp.AnimationPlayer.Set(e, ap)
 
 	b := SpawnCircleBody(pos, 0.8, 0.5, 0, 16, e)
-	// b.SetType(cm.BODY_STATIC)
-	// b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories&^res.BitmaskPlayer&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskCollectible, cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
+	b.FirstShape().Filter = cm.NewShapeFilter(
+		0,
+		res.BitmaskCollectible,
+		cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
 	b.FirstShape().CollisionType = res.CollCollectible
-	// b.FirstShape().SetSensor(true)
+	comp.Body.Set(e, b)
+
+}
+func SpawnItem(pos vec.Vec2, i types.ItemType, chunkCoord image.Point) {
+	e := res.World.Entry(res.World.Create(
+		comp.DrawOptions,
+		comp.Body,
+		comp.Item,
+		comp.DropItemTag,
+	))
+
+	comp.DrawOptions.Set(e, &types.DataDrawOptions{
+		CenterOffset: vec.Vec2{-8, -8},
+		Scale:        vec.Vec2{1, 1},
+	})
+
+	comp.Item.Set(e,
+		&types.DataItem{
+			ChunkCoord: chunkCoord,
+			Item:       i,
+		})
+
+	b := SpawnCircleBody(pos, 0.8, 0.5, 0, 8, e)
+	b.FirstShape().Filter = cm.NewShapeFilter(
+		0,
+		res.BitmaskCollectible,
+		cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
+	b.FirstShape().CollisionType = res.CollCollectible
 	comp.Body.Set(e, b)
 
 }

@@ -74,7 +74,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 
 		health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
 		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
-		ds.currentFrame = res.BlockFrames[itemData.Item][blockSpriteFrameIndex]
+		ds.currentFrame = res.SpriteFrames[itemData.Item][blockSpriteFrameIndex]
 
 		ds.dio.GeoM.Reset()
 		ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
@@ -87,7 +87,28 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 			res.Camera.Draw(ds.currentFrame, ds.dio, screen)
 		}
 	})
-	comp.AnimationPlayer.Each(res.World, func(e *donburi.Entry) {
+	comp.DropItemTag.Each(res.World, func(e *donburi.Entry) {
+		pos := comp.Body.Get(e).Position()
+		drawopt := comp.DrawOptions.Get(e)
+		itemData := comp.Item.Get(e)
+
+		scl := drawopt.Scale
+		if drawopt.FlipX {
+			scl.X *= -1
+		}
+
+		ds.dio.GeoM.Reset()
+		ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
+		ds.dio.GeoM.Scale(scl.X, scl.Y)
+		ds.dio.GeoM.Rotate(-drawopt.Rotation)
+		ds.dio.GeoM.Translate(pos.X, pos.Y)
+		res.Camera.Draw(res.SpriteFrames[itemData.Item][0], ds.dio, screen)
+		ds.dio.ColorScale.Reset()
+	})
+
+	e, ok := comp.PlayerTag.First(res.World)
+
+	if ok {
 		pos := comp.Body.Get(e).Position()
 		drawopt := comp.DrawOptions.Get(e)
 		ap := comp.AnimationPlayer.Get(e)
@@ -106,6 +127,6 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 			res.Camera.Draw(ap.CurrentFrame, ds.dio, screen)
 		}
 		ds.dio.ColorScale.Reset()
-	})
+	}
 
 }
