@@ -4,7 +4,9 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/mathutil"
+	"kar/engine/vec"
 	"kar/res"
+	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -12,19 +14,18 @@ import (
 	"golang.org/x/image/colornames"
 )
 
+var dio *ebiten.DrawImageOptions
+
 // DrawCameraSystem
 type DrawCameraSystem struct {
-	dio          *ebiten.DrawImageOptions
-	currentFrame *ebiten.Image
 }
 
 func NewDrawCameraSystem() *DrawCameraSystem {
-	return &DrawCameraSystem{
-		dio: &ebiten.DrawImageOptions{},
-	}
+	return &DrawCameraSystem{}
 }
 
 func (ds *DrawCameraSystem) Init() {
+	dio = &ebiten.DrawImageOptions{}
 
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
@@ -71,62 +72,47 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		drawOpt := comp.DrawOptions.Get(e)
 		healthData := comp.Health.Get(e)
 		pos := body.Position()
-
 		health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
 		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
-		ds.currentFrame = res.SpriteFrames[itemData.Item][blockSpriteFrameIndex]
 
-		ds.dio.GeoM.Reset()
-		ds.dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
-		ds.dio.GeoM.Scale(drawOpt.Scale.X, drawOpt.Scale.Y)
-		ds.dio.GeoM.Rotate(-drawOpt.Rotation)
-		ds.dio.GeoM.Translate(pos.X, pos.Y)
-		ds.dio.ColorScale.Reset()
-
-		if ds.currentFrame != nil {
-			res.Camera.Draw(ds.currentFrame, ds.dio, screen)
-		}
+		ApplyDIO(drawOpt, pos)
+		res.Camera.Draw(res.SpriteFrames[itemData.Item][blockSpriteFrameIndex], dio, screen)
 	})
+
 	comp.DropItemTag.Each(res.World, func(e *donburi.Entry) {
 		pos := comp.Body.Get(e).Position()
-		drawopt := comp.DrawOptions.Get(e)
+		drawOpt := comp.DrawOptions.Get(e)
 		itemData := comp.Item.Get(e)
 
-		scl := drawopt.Scale
-		if drawopt.FlipX {
-			scl.X *= -1
-		}
-
-		ds.dio.GeoM.Reset()
-		ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
-		ds.dio.GeoM.Scale(scl.X, scl.Y)
-		ds.dio.GeoM.Rotate(-drawopt.Rotation)
-		ds.dio.GeoM.Translate(pos.X, pos.Y)
-		res.Camera.Draw(res.SpriteFrames[itemData.Item][0], ds.dio, screen)
-		ds.dio.ColorScale.Reset()
+		ApplyDIO(drawOpt, pos)
+		res.Camera.Draw(res.SpriteFrames[itemData.Item][0], dio, screen)
 	})
 
 	e, ok := comp.PlayerTag.First(res.World)
 
 	if ok {
 		pos := comp.Body.Get(e).Position()
-		drawopt := comp.DrawOptions.Get(e)
+		drawOpt := comp.DrawOptions.Get(e)
 		ap := comp.AnimationPlayer.Get(e)
 
-		scl := drawopt.Scale
-		if drawopt.FlipX {
-			scl.X *= -1
-		}
-
-		ds.dio.GeoM.Reset()
-		ds.dio.GeoM.Translate(drawopt.CenterOffset.X, drawopt.CenterOffset.Y)
-		ds.dio.GeoM.Scale(scl.X, scl.Y)
-		ds.dio.GeoM.Rotate(-drawopt.Rotation)
-		ds.dio.GeoM.Translate(pos.X, pos.Y)
+		ApplyDIO(drawOpt, pos)
 		if ap.CurrentFrame != nil {
-			res.Camera.Draw(ap.CurrentFrame, ds.dio, screen)
+			res.Camera.Draw(ap.CurrentFrame, dio, screen)
 		}
-		ds.dio.ColorScale.Reset()
 	}
 
+}
+
+func ApplyDIO(drawOpt *types.DataDrawOptions, pos vec.Vec2) {
+
+	scl := drawOpt.Scale
+	if drawOpt.FlipX {
+		scl.X *= -1
+	}
+	dio.GeoM.Reset()
+	dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
+	dio.GeoM.Scale(scl.X, scl.Y)
+	dio.GeoM.Rotate(-drawOpt.Rotation)
+	dio.GeoM.Translate(pos.X, pos.Y)
+	dio.ColorScale.Reset()
 }
