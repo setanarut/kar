@@ -47,8 +47,14 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 		comp.AnimationPlayer,
 		comp.Body,
 		comp.Mobile,
+		comp.Inventory,
 		comp.WASDTag,
 	))
+	inv := &types.DataInventory{
+		CurrentItem: nil,
+		Items:       make(map[types.ItemType]int),
+	}
+	comp.Inventory.Set(e, inv)
 
 	ap := engine.NewAnimationPlayer(res.AtlasPlayer)
 	ap.AddStateAnimation("idle", 0, 0, 16, 16, 3, false, false).FPS = 1

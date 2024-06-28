@@ -44,7 +44,7 @@ type DataTimer struct {
 }
 type DataInventory struct {
 	CurrentItem *donburi.Entry
-	Items       []*donburi.Entry
+	Items       map[ItemType]int
 }
 
 type DataItem struct {

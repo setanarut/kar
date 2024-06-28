@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/vec"
 	"kar/res"
@@ -42,10 +43,12 @@ func (ps *PhysicsSystem) Draw(screen *ebiten.Image) {}
 // Player <-> Collectible begin
 func PlayerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	_, collectible := arb.Bodies()
-	if CheckEntry(collectible) {
-		// p := Terr.WorldSpaceToMapSpace(collectible.Position())
-		fmt.Println(collectible)
-		// res.Terrain.SetGray(p.X, p.Y, color.Gray{uint8(items.Air)})
+	if CheckEntries(arb) {
+		p, i := GetEntries(arb)
+		inv := comp.Inventory.Get(p)
+		itemData := comp.Item.Get(i)
+		inv.Items[itemData.Item]++
+		fmt.Println(inv.Items)
 		DestroyBodyWithEntry(collectible)
 	}
 	return true
