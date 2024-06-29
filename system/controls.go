@@ -1,9 +1,11 @@
 package system
 
 import (
+	"kar/arche"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/vec"
+	"kar/items"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -67,8 +69,13 @@ func (sys *PlayerControlSystem) Update() {
 		playerBody := comp.Body.Get(player)
 		playerAnimation := comp.AnimationPlayer.Get(player)
 		playerDrawOptions := comp.DrawOptions.Get(player)
-		p := playerBody.Position()
-		AttackSegmentQuery = res.Space.SegmentQueryFirst(p, p.Add(res.Input.LastPressedDirection.Scale(res.BlockSize)), 0, res.FilterPlayerRaycast)
+		playerPosition := playerBody.Position()
+
+		AttackSegmentQuery = res.Space.SegmentQueryFirst(
+			playerPosition,
+			playerPosition.Add(res.Input.LastPressedDirection.Scale(res.BlockSize*3.5)),
+			0,
+			res.FilterPlayerRaycast)
 
 		// Fly Mode
 		if inpututil.IsKeyJustPressed(ebiten.KeyG) {
@@ -82,6 +89,21 @@ func (sys *PlayerControlSystem) Update() {
 				player.RemoveComponent(comp.WASDFlyTag)
 				player.AddComponent(comp.WASDTag)
 				playerBody.FirstShape().SetSensor(false)
+			}
+		}
+		// Place Block
+		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+			if AttackSegmentQuery.Shape != nil {
+				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+				dist := AttackSegmentQuery.Point.Distance(playerPosition) - r
+				if dist > res.BlockSize {
+					centerDistance := AttackSegmentQuery.Normal.Normalize().Scale(res.BlockSize / 2)
+					blockPos := AttackSegmentQuery.Point.Add(centerDistance)
+					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+					blockPosCenter := mapPos.Scale(res.BlockSize)
+					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+				}
+
 			}
 		}
 		// Reset block health
