@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/draw"
 	"kar/engine/vec"
+	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
@@ -80,4 +81,10 @@ func UnpackPoint(p image.Point) (int, int) {
 }
 func UnpackVec2(v vec.Vec2) (float64, float64) {
 	return v.X, v.Y
+}
+
+// HexColor converts hex color to color.RGBA with "#FFFFFF" format
+func HexColor(hex string) color.RGBA {
+	values, _ := strconv.ParseUint(string(hex[1:]), 16, 32)
+	return color.RGBA{R: uint8(values >> 16), G: uint8((values >> 8) & 0xFF), B: uint8(values & 0xFF), A: 255}
 }
