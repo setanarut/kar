@@ -3,9 +3,9 @@ module kar
 go 1.22.4
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.7.5
+	github.com/hajimehoshi/ebiten/v2 v2.7.6
 	github.com/yohamta/donburi v1.4.4
-	golang.org/x/image v0.17.0
+	golang.org/x/image v0.18.0
 )
 
 require (

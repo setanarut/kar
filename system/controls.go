@@ -92,13 +92,83 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 		// Place Block
-		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			if AttackSegmentQuery.Shape != nil {
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
+
+			seg := res.Space.SegmentQueryFirst(
+				playerPosition,
+				playerPosition.Add(res.Right.Scale(res.BlockSize*3.5)),
+				0,
+				res.FilterPlayerRaycast)
+
+			if seg.Shape != nil {
 				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-				dist := AttackSegmentQuery.Point.Distance(playerPosition) - r
+				dist := seg.Point.Distance(playerPosition) - r
 				if dist > res.BlockSize {
-					centerDistance := AttackSegmentQuery.Normal.Normalize().Scale(res.BlockSize / 2)
-					blockPos := AttackSegmentQuery.Point.Add(centerDistance)
+					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+					blockPos := seg.Point.Add(centerDistance)
+					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+					blockPosCenter := mapPos.Scale(res.BlockSize)
+					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+				}
+
+			}
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
+
+			seg := res.Space.SegmentQueryFirst(
+				playerPosition,
+				playerPosition.Add(res.Left.Scale(res.BlockSize*3.5)),
+				0,
+				res.FilterPlayerRaycast)
+
+			if seg.Shape != nil {
+				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+				dist := seg.Point.Distance(playerPosition) - r
+				if dist > res.BlockSize {
+					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+					blockPos := seg.Point.Add(centerDistance)
+					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+					blockPosCenter := mapPos.Scale(res.BlockSize)
+					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+				}
+
+			}
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+
+			seg := res.Space.SegmentQueryFirst(
+				playerPosition,
+				playerPosition.Add(res.Up.Scale(res.BlockSize*3.5)),
+				0,
+				res.FilterPlayerRaycast)
+
+			if seg.Shape != nil {
+				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+				dist := seg.Point.Distance(playerPosition) - r
+				if dist > res.BlockSize {
+					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+					blockPos := seg.Point.Add(centerDistance)
+					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+					blockPosCenter := mapPos.Scale(res.BlockSize)
+					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+				}
+
+			}
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+
+			seg := res.Space.SegmentQueryFirst(
+				playerPosition,
+				playerPosition.Add(res.Down.Scale(res.BlockSize*3.5)),
+				0,
+				res.FilterPlayerRaycast)
+
+			if seg.Shape != nil {
+				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+				dist := seg.Point.Distance(playerPosition) - r
+				if dist > res.BlockSize {
+					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+					blockPos := seg.Point.Add(centerDistance)
 					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
 					blockPosCenter := mapPos.Scale(res.BlockSize)
 					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
