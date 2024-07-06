@@ -1,12 +1,15 @@
 package system
 
 import (
+	"image/color"
 	"kar/arche"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/vec"
 	"kar/items"
 	"kar/res"
+	"kar/types"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -15,6 +18,7 @@ import (
 
 var HitShape *cm.Shape
 var AttackSegmentQuery cm.SegmentQueryInfo
+var BlockPlaceTimerData *types.DataTimer
 
 var (
 	FacingLeft  bool
@@ -41,16 +45,20 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 }
 
 func (sys *PlayerControlSystem) Init() {
+	BlockPlaceTimerData = &types.DataTimer{
+		TimerDuration: time.Second / 8,
+	}
 }
 
 func (sys *PlayerControlSystem) Update() {
-
+	TimerUpdate(BlockPlaceTimerData)
 	res.Input.UpdateWASDDirection()
+	res.Input.UpdateArrowDirection()
 
-	FacingRight = res.Input.LastPressedDirection.Equal(res.Right) || res.Input.WASDDirection.Equal(res.Right)
-	FacingLeft = res.Input.LastPressedDirection.Equal(res.Left) || res.Input.WASDDirection.Equal(res.Left)
-	FacingDown = res.Input.LastPressedDirection.Equal(res.Down) || res.Input.WASDDirection.Equal(res.Down)
-	FacingUp = res.Input.LastPressedDirection.Equal(res.Up) || res.Input.WASDDirection.Equal(res.Up)
+	FacingRight = res.Input.LastPressedWASDDirection.Equal(res.Right) || res.Input.WASDDirection.Equal(res.Right)
+	FacingLeft = res.Input.LastPressedWASDDirection.Equal(res.Left) || res.Input.WASDDirection.Equal(res.Left)
+	FacingDown = res.Input.LastPressedWASDDirection.Equal(res.Down) || res.Input.WASDDirection.Equal(res.Down)
+	FacingUp = res.Input.LastPressedWASDDirection.Equal(res.Up) || res.Input.WASDDirection.Equal(res.Up)
 	NoWASD = res.Input.WASDDirection.Equal(res.Zero)
 	WalkRight = res.Input.WASDDirection.Equal(res.Right)
 	WalkLeft = res.Input.WASDDirection.Equal(res.Left)
@@ -73,7 +81,7 @@ func (sys *PlayerControlSystem) Update() {
 
 		AttackSegmentQuery = res.Space.SegmentQueryFirst(
 			playerPosition,
-			playerPosition.Add(res.Input.LastPressedDirection.Scale(res.BlockSize*3.5)),
+			playerPosition.Add(res.Input.LastPressedWASDDirection.Scale(res.BlockSize*3.5)),
 			0,
 			res.FilterPlayerRaycast)
 
@@ -91,91 +99,149 @@ func (sys *PlayerControlSystem) Update() {
 				playerBody.FirstShape().SetSensor(false)
 			}
 		}
-		// Place Block
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
 
-			seg := res.Space.SegmentQueryFirst(
-				playerPosition,
-				playerPosition.Add(res.Right.Scale(res.BlockSize*3.5)),
-				0,
-				res.FilterPlayerRaycast)
+		if res.Input.IsPressedAndNotABC(ebiten.KeyArrowUp, ebiten.KeyArrowDown, ebiten.KeyArrowLeft, ebiten.KeyArrowRight) {
 
-			if seg.Shape != nil {
-				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-				dist := seg.Point.Distance(playerPosition) - r
-				if dist > res.BlockSize {
-					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
-					blockPos := seg.Point.Add(centerDistance)
-					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
-					blockPosCenter := mapPos.Scale(res.BlockSize)
-					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
-				}
-
+			if TimerIsReady(BlockPlaceTimerData) {
+				TimerReset(BlockPlaceTimerData)
 			}
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
 
-			seg := res.Space.SegmentQueryFirst(
-				playerPosition,
-				playerPosition.Add(res.Left.Scale(res.BlockSize*3.5)),
-				0,
-				res.FilterPlayerRaycast)
+			if TimerIsStart(BlockPlaceTimerData) {
+				end := playerPosition.Add(res.Up.Scale(res.BlockSize * 3.5))
+				// end.X = end.X + res.BlockSize
 
-			if seg.Shape != nil {
-				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-				dist := seg.Point.Distance(playerPosition) - r
-				if dist > res.BlockSize {
-					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
-					blockPos := seg.Point.Add(centerDistance)
-					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
-					blockPosCenter := mapPos.Scale(res.BlockSize)
-					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+				seg := res.Space.SegmentQueryFirst(
+					playerPosition,
+					end,
+					0,
+					res.FilterPlayerRaycast)
+
+				if seg.Shape != nil {
+					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+					dist := seg.Point.Distance(playerPosition) - r
+					if dist > res.BlockSize {
+						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						blockPos := seg.Point.Add(centerDistance)
+						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						blockPosCenter := mapPos.Scale(res.BlockSize)
+
+						air := color.Gray{uint8(items.Air)}
+						if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
+							arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+							res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
+						}
+
+					}
+
 				}
-
 			}
+
 		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 
-			seg := res.Space.SegmentQueryFirst(
-				playerPosition,
-				playerPosition.Add(res.Up.Scale(res.BlockSize*3.5)),
-				0,
-				res.FilterPlayerRaycast)
+		if res.Input.IsPressedAndNotABC(ebiten.KeyArrowDown, ebiten.KeyArrowUp, ebiten.KeyArrowLeft, ebiten.KeyArrowRight) {
 
-			if seg.Shape != nil {
-				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-				dist := seg.Point.Distance(playerPosition) - r
-				if dist > res.BlockSize {
-					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
-					blockPos := seg.Point.Add(centerDistance)
-					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
-					blockPosCenter := mapPos.Scale(res.BlockSize)
-					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+			if TimerIsReady(BlockPlaceTimerData) {
+				TimerReset(BlockPlaceTimerData)
+			}
+
+			if TimerIsStart(BlockPlaceTimerData) {
+				seg := res.Space.SegmentQueryFirst(
+					playerPosition,
+					playerPosition.Add(res.Down.Scale(res.BlockSize*3.5)),
+					0,
+					res.FilterPlayerRaycast)
+
+				if seg.Shape != nil {
+					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+					dist := seg.Point.Distance(playerPosition) - r
+					if dist > res.BlockSize {
+						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						blockPos := seg.Point.Add(centerDistance)
+						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						blockPosCenter := mapPos.Scale(res.BlockSize)
+
+						air := color.Gray{uint8(items.Air)}
+						if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
+							arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+							res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
+						}
+					}
+
 				}
-
 			}
+
 		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		if res.Input.IsPressedAndNotABC(ebiten.KeyArrowLeft, ebiten.KeyArrowRight, ebiten.KeyArrowUp, ebiten.KeyArrowDown) {
 
-			seg := res.Space.SegmentQueryFirst(
-				playerPosition,
-				playerPosition.Add(res.Down.Scale(res.BlockSize*3.5)),
-				0,
-				res.FilterPlayerRaycast)
+			if TimerIsReady(BlockPlaceTimerData) {
+				TimerReset(BlockPlaceTimerData)
+			}
 
-			if seg.Shape != nil {
-				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-				dist := seg.Point.Distance(playerPosition) - r
-				if dist > res.BlockSize {
-					centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
-					blockPos := seg.Point.Add(centerDistance)
-					mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
-					blockPosCenter := mapPos.Scale(res.BlockSize)
-					arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+			if TimerIsStart(BlockPlaceTimerData) {
+				seg := res.Space.SegmentQueryFirst(
+					playerPosition,
+					playerPosition.Add(res.Left.Scale(res.BlockSize*3.5)),
+					0,
+					res.FilterPlayerRaycast)
+
+				if seg.Shape != nil {
+					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+					dist := seg.Point.Distance(playerPosition) - r
+					if dist > res.BlockSize {
+						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						blockPos := seg.Point.Add(centerDistance)
+						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						blockPosCenter := mapPos.Scale(res.BlockSize)
+
+						air := color.Gray{uint8(items.Air)}
+						if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
+							arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+							res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
+						}
+					}
+
 				}
-
 			}
+
 		}
+		if res.Input.IsPressedAndNotABC(ebiten.KeyArrowRight, ebiten.KeyArrowDown, ebiten.KeyArrowLeft, ebiten.KeyArrowUp) {
+
+			if TimerIsReady(BlockPlaceTimerData) {
+				TimerReset(BlockPlaceTimerData)
+			}
+
+			if TimerIsStart(BlockPlaceTimerData) {
+				seg := res.Space.SegmentQueryFirst(
+					playerPosition,
+					playerPosition.Add(res.Right.Scale(res.BlockSize*3.5)),
+					0,
+					res.FilterPlayerRaycast)
+
+				if seg.Shape != nil {
+					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+					dist := seg.Point.Distance(playerPosition) - r
+					if dist > res.BlockSize {
+						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						blockPos := seg.Point.Add(centerDistance)
+						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						blockPosCenter := mapPos.Scale(res.BlockSize)
+
+						air := color.Gray{uint8(items.Air)}
+						if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
+							arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+							res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
+						}
+					}
+
+				}
+			}
+
+		}
+
+		if res.Input.ArrowDirection.Equal(vec.Vec2{}) {
+			TimerReset(BlockPlaceTimerData)
+		}
+
 		// Reset block health
 		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
 			if HitShape != nil {
@@ -275,7 +341,7 @@ func WASDPlatformerForce(e *donburi.Entry) {
 		IsGround = true
 		// Zıpla
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -(speed * 0.25)}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -(speed * 0.30)}, body.CenterOfGravity())
 		}
 		if ebiten.IsKeyPressed(ebiten.KeyA) {
 			body.ApplyForceAtLocalPoint(vec.Vec2{-speed, 0}, body.CenterOfGravity())

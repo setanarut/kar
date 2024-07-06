@@ -7,10 +7,9 @@ import (
 )
 
 type InputManager struct {
-	WASDDirection        vec.Vec2
-	ArrowDirection       vec.Vec2
-	ArrowDirectionTemp   vec.Vec2
-	LastPressedDirection vec.Vec2
+	WASDDirection            vec.Vec2
+	ArrowDirection           vec.Vec2
+	LastPressedWASDDirection vec.Vec2
 }
 
 func (i *InputManager) UpdateArrowDirection() {
@@ -27,10 +26,6 @@ func (i *InputManager) UpdateArrowDirection() {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 		i.ArrowDirection.X += 1
-	}
-
-	if !i.ArrowDirection.Equal(vec.Vec2{}) {
-		i.LastPressedDirection = i.ArrowDirection
 	}
 
 }
@@ -51,7 +46,7 @@ func (i *InputManager) UpdateWASDDirection() {
 	}
 
 	if !i.WASDDirection.Equal(vec.Vec2{}) {
-		i.LastPressedDirection = i.WASDDirection
+		i.LastPressedWASDDirection = i.WASDDirection
 	}
 
 }
