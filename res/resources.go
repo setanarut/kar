@@ -15,7 +15,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/mazznoer/colorgrad"
 	"github.com/yohamta/donburi"
 	"github.com/yohamta/donburi/filter"
 	"golang.org/x/image/colornames"
@@ -63,12 +62,6 @@ var (
 		0,
 		BitmaskPlayerRaycast,
 		cm.AllCategories&^BitmaskPlayer)
-	DamageGradient, _ = colorgrad.NewGradient().
-				HtmlColors("rgb(255, 0, 0)", "rgb(255, 225, 0)", "rgb(111, 111, 111)").
-				Domain(0, 1).
-				Mode(colorgrad.BlendOklab).
-				Interpolation(colorgrad.InterpolationBasis).
-				Build()
 )
 var (
 	Screen  *ebiten.Image
@@ -89,7 +82,7 @@ var (
 
 // text
 var (
-	Futura    = io.LoadGoTextFaceFromFS("assets/futura.ttf", 18, assets)
+	Futura    = io.LoadGoTextFaceFromFS("assets/roboto-semi.ttf", 18, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
 		Size:     28,
