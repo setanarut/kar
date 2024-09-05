@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"kar/comp"
 	"kar/engine/cm"
 	"kar/engine/vec"
@@ -48,7 +47,7 @@ func PlayerCollectibleBegin(arb *cm.Arbiter, space *cm.Space, userData interface
 		inv := comp.Inventory.Get(p)
 		itemData := comp.Item.Get(i)
 		inv.Items[itemData.Item]++
-		fmt.Println(inv.Items)
+		// fmt.Println(inv.Items)
 		DestroyBodyWithEntry(collectible)
 	}
 	return true
