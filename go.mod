@@ -1,6 +1,6 @@
 module kar
 
-go 1.23.0
+go 1.23.1
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.7.8
