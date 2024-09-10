@@ -1,8 +1,9 @@
 package res
 
 import (
-	"kar/engine/cm"
 	"time"
+
+	"github.com/setanarut/cm"
 )
 
 const TimerTick time.Duration = time.Second / 60

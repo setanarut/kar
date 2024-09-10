@@ -6,12 +6,15 @@ import (
 	_ "image/png"
 	"kar/comp"
 	"kar/engine"
-	"kar/engine/cm"
 	"kar/engine/displayres"
 	"kar/engine/io"
-	"kar/engine/vec"
 	"kar/items"
 	"kar/types"
+
+	"github.com/setanarut/cm"
+	"github.com/setanarut/kamera/v2"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -51,17 +54,17 @@ var (
 var (
 	World             donburi.World = donburi.NewWorld()
 	Space             *cm.Space     = cm.NewSpace()
-	Camera            *engine.Camera
+	Cam               *kamera.Camera
 	CurrentItem       types.ItemType
 	Input             *engine.InputManager = &engine.InputManager{}
 	FilterBombRaycast cm.ShapeFilter       = cm.NewShapeFilter(
 		0,
 		BitmaskBombRaycast,
-		cm.AllCategories&^BitmaskBomb)
+		cm.ALL_CATEGORIES&^BitmaskBomb)
 	FilterPlayerRaycast cm.ShapeFilter = cm.NewShapeFilter(
 		0,
 		BitmaskPlayerRaycast,
-		cm.AllCategories&^BitmaskPlayer)
+		cm.ALL_CATEGORIES&^BitmaskPlayer)
 )
 var (
 	Screen  *ebiten.Image

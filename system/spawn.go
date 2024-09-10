@@ -5,9 +5,10 @@ import (
 	"kar/arche"
 	"kar/comp"
 	"kar/engine/mathutil"
-	"kar/engine/vec"
 	"kar/res"
 	"kar/terr"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

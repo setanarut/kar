@@ -4,19 +4,21 @@ import (
 	"image"
 	"kar/comp"
 	"kar/engine"
-	"kar/engine/cm"
 	"kar/engine/mathutil"
 	"kar/engine/util"
-	"kar/engine/vec"
 	"kar/res"
 	"kar/types"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 
 	"github.com/yohamta/donburi"
 )
 
 func SpawnCircleBody(pos vec.Vec2, m, e, f, r float64, userData *donburi.Entry) *cm.Body {
 	// body := cm.NewKinematicBody()
-	body := cm.NewBody(m, cm.Infinity)
+	body := cm.NewBody(m, cm.INFINITY)
 	shape := cm.NewCircle(body, r, vec.Vec2{})
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
@@ -28,7 +30,7 @@ func SpawnCircleBody(pos vec.Vec2, m, e, f, r float64, userData *donburi.Entry) 
 }
 func SpawnBoxBody(pos vec.Vec2, m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
 	// body := cm.NewKinematicBody()
-	body := cm.NewBody(m, cm.Infinity)
+	body := cm.NewBody(m, cm.INFINITY)
 	shape := cm.NewBox(body, w, h, r)
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
@@ -70,7 +72,7 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 	// b := SpawnBoxBody(mass, el, fr, 16, 16, rad, e)
 	b := SpawnCircleBody(pos, mass, el, fr, (res.BlockSize/2)*0.8, e)
 	b.FirstShape().SetCollisionType(res.CollPlayer)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskPlayerRaycast)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.ALL_CATEGORIES&^res.BitmaskPlayerRaycast)
 	comp.Body.Set(e, b)
 	return e
 }
@@ -78,7 +80,7 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 func SpawnWall(pos vec.Vec2, boxW, boxH float64) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
-	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskWall, cm.AllCategories)
+	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskWall, cm.ALL_CATEGORIES)
 	wallShape.CollisionType = res.CollWall
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
@@ -139,7 +141,7 @@ func SpawnDebug(pos vec.Vec2) {
 	b.FirstShape().Filter = cm.NewShapeFilter(
 		0,
 		res.BitmaskCollectible,
-		cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
+		cm.ALL_CATEGORIES&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
 	b.FirstShape().CollisionType = res.CollCollectible
 	comp.Body.Set(e, b)
 
@@ -167,7 +169,7 @@ func SpawnItem(pos vec.Vec2, i types.ItemType, chunkCoord image.Point) {
 	b.FirstShape().Filter = cm.NewShapeFilter(
 		0,
 		res.BitmaskCollectible,
-		cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
+		cm.ALL_CATEGORIES&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
 	b.FirstShape().CollisionType = res.CollCollectible
 	comp.Body.Set(e, b)
 

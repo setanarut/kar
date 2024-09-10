@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"kar/engine/vec"
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

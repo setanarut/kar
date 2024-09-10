@@ -2,10 +2,12 @@ package mathutil
 
 import (
 	"image"
-	"kar/engine/cm"
-	"kar/engine/vec"
 	"math"
 	"math/rand/v2"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 )
 
 func MapRange(v, a, b, c, d float64) float64 {

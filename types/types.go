@@ -3,8 +3,9 @@ package types
 import (
 	"image"
 	"image/color"
-	"kar/engine/vec"
 	"time"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"

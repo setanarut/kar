@@ -3,9 +3,9 @@ module kar
 go 1.23.1
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.7.8
-	github.com/yohamta/donburi v1.15.1
-	golang.org/x/image v0.19.0
+	github.com/hajimehoshi/ebiten/v2 v2.7.9
+	github.com/yohamta/donburi v1.15.3
+	golang.org/x/image v0.20.0
 )
 
 require (
@@ -18,7 +18,10 @@ require (
 	github.com/ebitengine/purego v0.8.0-alpha.5 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	github.com/ojrac/opensimplex-go v1.0.2
+	github.com/setanarut/cm v1.8.0
+	github.com/setanarut/kamera/v2 v2.5.2
+	github.com/setanarut/vec v1.0.0
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/text v0.17.0
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/text v0.18.0
 )

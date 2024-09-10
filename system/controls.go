@@ -4,12 +4,14 @@ import (
 	"image/color"
 	"kar/arche"
 	"kar/comp"
-	"kar/engine/cm"
-	"kar/engine/vec"
 	"kar/items"
 	"kar/res"
 	"kar/types"
 	"time"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"

@@ -4,8 +4,9 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"kar/engine/vec"
 	"strconv"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"

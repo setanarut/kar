@@ -2,9 +2,10 @@ package system
 
 import (
 	"kar/comp"
-	"kar/engine/cm"
 	"kar/res"
 	"kar/types"
+
+	"github.com/setanarut/cm"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"

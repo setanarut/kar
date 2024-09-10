@@ -2,10 +2,12 @@ package comp
 
 import (
 	"kar/engine"
-	"kar/engine/cm"
-	"kar/engine/vec"
 	"kar/types"
 	"time"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 
 	"github.com/yohamta/donburi"
 )

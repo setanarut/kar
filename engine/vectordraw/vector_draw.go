@@ -3,8 +3,10 @@ package vectordraw
 import (
 	"image"
 	"image/color"
-	"kar/engine/cm"
-	"kar/engine/vec"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"

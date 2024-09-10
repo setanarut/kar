@@ -4,14 +4,15 @@ import (
 	"image"
 	"image/color"
 	"kar/comp"
-	"kar/engine/cm"
 	"kar/engine/io"
 	"kar/engine/mathutil"
-	"kar/engine/vec"
 	"kar/items"
 	"kar/res"
 	"kar/types"
 	"slices"
+
+	"github.com/setanarut/cm"
+	"github.com/setanarut/vec"
 
 	"github.com/ojrac/opensimplex-go"
 	"github.com/yohamta/donburi"

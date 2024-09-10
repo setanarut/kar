@@ -2,10 +2,12 @@ package system
 
 import (
 	"kar/comp"
-	"kar/engine/cm"
-	"kar/engine/vec"
 	"kar/res"
 	"math"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

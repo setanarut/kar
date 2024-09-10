@@ -2,10 +2,12 @@ package system
 
 import (
 	"kar/comp"
-	"kar/engine/cm"
 	"kar/engine/mathutil"
-	"kar/engine/vec"
 	"kar/res"
+
+	"github.com/setanarut/cm"
+
+	"github.com/setanarut/vec"
 
 	"github.com/yohamta/donburi"
 )
@@ -57,7 +59,7 @@ func Explode(bomb *donburi.Entry) {
 		}
 
 	})
-	res.Camera.AddTrauma(0.2)
+	res.Cam.AddTrauma(0.2)
 	DestroyEntryWithBody(bomb)
 }
 

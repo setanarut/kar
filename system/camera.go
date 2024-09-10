@@ -2,11 +2,12 @@ package system
 
 import (
 	"kar/comp"
-	"kar/engine"
 	"kar/engine/mathutil"
-	"kar/engine/vec"
 	"kar/res"
 	"kar/types"
+
+	"github.com/setanarut/kamera/v2"
+	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -30,30 +31,30 @@ func (ds *DrawCameraSystem) Init() {
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Camera = engine.NewCamera(pos, res.ScreenSize.X, res.ScreenSize.Y)
+		res.Cam = kamera.NewCamera(pos.X, pos.Y, res.ScreenSizeF.X, res.ScreenSizeF.Y)
 	} else {
-		res.Camera = engine.NewCamera(res.ScreenSizeF.Scale(0.5), res.ScreenSize.X, res.ScreenSize.Y)
+		pos := res.ScreenSizeF.Scale(0.5)
+		res.Cam = kamera.NewCamera(pos.X, pos.Y, res.ScreenSizeF.X, res.ScreenSizeF.Y)
 	}
-	res.Camera.ZoomFactor = 0
-	res.Camera.Lerp = true
-	res.Camera.TraumaEnabled = false
+	res.Cam.ZoomFactor = 0
+	res.Cam.Lerp = true
 }
 
 func (ds *DrawCameraSystem) Update() {
 	p, ok := comp.PlayerTag.First(res.World)
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Camera.LookAt(pos)
+		res.Cam.LookAt(pos.X, pos.Y)
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
-		res.Camera.ZoomFactor -= 5
+		res.Cam.ZoomFactor -= 5
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
-		res.Camera.ZoomFactor += 5
+		res.Cam.ZoomFactor += 5
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		res.Camera.ZoomFactor = 0
+		res.Cam.ZoomFactor = 0
 	}
 
 	comp.AnimationPlayer.Each(res.World, func(e *donburi.Entry) {
@@ -76,7 +77,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
 
 		ApplyDIO(drawOpt, pos)
-		res.Camera.Draw(res.SpriteFrames[itemData.Item][blockSpriteFrameIndex], dio, screen)
+		res.Cam.Draw(res.SpriteFrames[itemData.Item][blockSpriteFrameIndex], dio, screen)
 	})
 
 	comp.DropItemTag.Each(res.World, func(e *donburi.Entry) {
@@ -85,7 +86,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		itemData := comp.Item.Get(e)
 
 		ApplyDIO(drawOpt, pos)
-		res.Camera.Draw(res.SpriteFrames[itemData.Item][0], dio, screen)
+		res.Cam.Draw(res.SpriteFrames[itemData.Item][0], dio, screen)
 	})
 
 	e, ok := comp.PlayerTag.First(res.World)
@@ -97,7 +98,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 
 		ApplyDIO(drawOpt, pos)
 		if ap.CurrentFrame != nil {
-			res.Camera.Draw(ap.CurrentFrame, dio, screen)
+			res.Cam.Draw(ap.CurrentFrame, dio, screen)
 		}
 	}
 
