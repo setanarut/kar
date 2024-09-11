@@ -3,6 +3,7 @@ package vectordraw
 import (
 	"image"
 	"image/color"
+	"kar/engine/mathutil"
 
 	"github.com/setanarut/cm"
 
@@ -34,12 +35,12 @@ func init() {
 func DrawChipmunkShape(screen *ebiten.Image, shape *cm.Shape, clr color.Color, screenHeight float64) {
 	switch shape.Class.(type) {
 	case *cm.Circle:
-		StrokeCircle(screen, shape.Class.(*cm.Circle).Radius(), 1, shape.Body().Position().FlipVertical(screenHeight), clr)
+		StrokeCircle(screen, shape.Class.(*cm.Circle).Radius(), 1, mathutil.FlipVertical(shape.Body().Position(), screenHeight), clr)
 		// FillCircle(screen, s.Class.(*cm.Circle).Radius(), InvPosVectY(s.Body().Position(), screenHeight), c)
 	case *cm.Segment:
 		r := shape.Class.(*cm.Segment).Radius()
-		a := shape.Class.(*cm.Segment).TransformA().FlipVertical(screenHeight)
-		b := shape.Class.(*cm.Segment).TransformB().FlipVertical(screenHeight)
+		a := mathutil.FlipVertical(shape.Class.(*cm.Segment).TransformA(), screenHeight)
+		b := mathutil.FlipVertical(shape.Class.(*cm.Segment).TransformB(), screenHeight)
 		if r < 1 {
 			DrawLine(screen, a, b, 1, clr)
 		} else {
@@ -54,14 +55,14 @@ func DrawChipmunkShapeGEOM(screen *ebiten.Image, s *cm.Shape, clr color.Color, s
 	switch s.Class.(type) {
 
 	case *cm.Circle:
-		pos := ApplyGeoM2Vec2(s.Body().Position().FlipVertical(screenHeight), geom)
+		pos := ApplyGeoM2Vec2(mathutil.FlipVertical(s.Body().Position(), screenHeight), geom)
 		StrokeCircle(screen, s.Class.(*cm.Circle).Radius(), 1, pos, clr)
 		// FillCircle(screen, s.Class.(*cm.Circle).Radius(), InvPosVectY(pos, screenHeight), c)
 
 	case *cm.Segment:
 		r := s.Class.(*cm.Segment).Radius()
-		a := ApplyGeoM2Vec2(s.Class.(*cm.Segment).TransformA().FlipVertical(screenHeight), geom)
-		b := ApplyGeoM2Vec2(s.Class.(*cm.Segment).TransformB().FlipVertical(screenHeight), geom)
+		a := ApplyGeoM2Vec2(mathutil.FlipVertical(s.Class.(*cm.Segment).TransformA(), screenHeight), geom)
+		b := ApplyGeoM2Vec2(mathutil.FlipVertical(s.Class.(*cm.Segment).TransformB(), screenHeight), geom)
 
 		if r < 1 {
 			DrawLine(screen, a, b, 1, clr)
@@ -117,13 +118,13 @@ func FillCircle(screen *ebiten.Image, radius float64, pos vec.Vec2, c color.Colo
 func DrawChipmunkBB(screen *ebiten.Image, bb cm.BB, screenHeight float64, clr color.Color) {
 	w := float32(bb.R - bb.L)
 	h := float32(bb.T - bb.B)
-	topLeft := vec.Vec2{bb.L, bb.T}.FlipVertical(screenHeight)
+	topLeft := mathutil.FlipVertical(vec.Vec2{bb.L, bb.T}, screenHeight)
 	vector.StrokeRect(screen, float32(topLeft.X), float32(topLeft.Y), w, h, 3, clr, false)
 }
 func DrawChipmunkBBGEOM(screen *ebiten.Image, bb cm.BB, screenHeight float64, geom *ebiten.GeoM) {
 	w := float32(bb.R - bb.L)
 	h := float32(bb.T - bb.B)
-	topLeft := vec.Vec2{bb.L, bb.T}.FlipVertical(screenHeight)
+	topLeft := mathutil.FlipVertical(vec.Vec2{bb.L, bb.T}, screenHeight)
 	topLeft = ApplyGeoM2Vec2(topLeft, geom)
 	vector.StrokeRect(screen, float32(topLeft.X), float32(topLeft.Y), w, h, 3, color.RGBA{255, 0, 0, 0}, false)
 }

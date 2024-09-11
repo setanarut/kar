@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"kar/comp"
+	"kar/engine/mathutil"
 	"kar/res"
 	"math"
 
@@ -33,7 +34,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			p, ok := comp.PlayerTag.First(res.World)
 			if ok {
 				// inv := comp.Inventory.Get(p)
-				pos := comp.Body.Get(p).Position().Div(res.BlockSize).Point()
+				pos := mathutil.Vec2ToPoint(comp.Body.Get(p).Position().Div(res.BlockSize))
 				fps := int(math.Round(ebiten.ActualFPS()))
 				tps := int(math.Round(ebiten.ActualTPS()))
 				// text.Draw(res.Screen, fmt.Sprintf("I %v | H %v", inv.Items, comp.Health.GetValue(p)), res.Futura, res.StatsTextOptions)

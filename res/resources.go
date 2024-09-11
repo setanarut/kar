@@ -8,6 +8,7 @@ import (
 	"kar/engine"
 	"kar/engine/displayres"
 	"kar/engine/io"
+	"kar/engine/mathutil"
 	"kar/items"
 	"kar/types"
 
@@ -42,7 +43,7 @@ var (
 	ChunkSize  float64 = 8
 	ScreenSize         = displayres.FullWideVGA
 
-	ScreenSizeF = vec.FromPoint(ScreenSize)
+	ScreenSizeF = mathutil.FromPoint(ScreenSize)
 
 	BlockMaxHealth = map[types.ItemType]float64{
 		items.Dirt:    5.0,

@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"kar/arche"
 	"kar/comp"
+	"kar/engine/mathutil"
 	"kar/items"
 	"kar/res"
 	"kar/types"
@@ -122,9 +123,9 @@ func (sys *PlayerControlSystem) Update() {
 					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
 					dist := seg.Point.Distance(playerPosition) - r
 					if dist > res.BlockSize {
-						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						centerDistance := seg.Normal.Unit().Scale(res.BlockSize / 2)
 						blockPos := seg.Point.Add(centerDistance)
-						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
 						blockPosCenter := mapPos.Scale(res.BlockSize)
 
 						air := color.Gray{uint8(items.Air)}
@@ -157,9 +158,9 @@ func (sys *PlayerControlSystem) Update() {
 					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
 					dist := seg.Point.Distance(playerPosition) - r
 					if dist > res.BlockSize {
-						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						centerDistance := seg.Normal.Unit().Scale(res.BlockSize / 2)
 						blockPos := seg.Point.Add(centerDistance)
-						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
 						blockPosCenter := mapPos.Scale(res.BlockSize)
 
 						air := color.Gray{uint8(items.Air)}
@@ -190,9 +191,9 @@ func (sys *PlayerControlSystem) Update() {
 					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
 					dist := seg.Point.Distance(playerPosition) - r
 					if dist > res.BlockSize {
-						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						centerDistance := seg.Normal.Unit().Scale(res.BlockSize / 2)
 						blockPos := seg.Point.Add(centerDistance)
-						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
 						blockPosCenter := mapPos.Scale(res.BlockSize)
 
 						air := color.Gray{uint8(items.Air)}
@@ -223,9 +224,9 @@ func (sys *PlayerControlSystem) Update() {
 					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
 					dist := seg.Point.Distance(playerPosition) - r
 					if dist > res.BlockSize {
-						centerDistance := seg.Normal.Normalize().Scale(res.BlockSize / 2)
+						centerDistance := seg.Normal.Unit().Scale(res.BlockSize / 2)
 						blockPos := seg.Point.Add(centerDistance)
-						mapPos := vec.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
+						mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(blockPos))
 						blockPosCenter := mapPos.Scale(res.BlockSize)
 
 						air := color.Gray{uint8(items.Air)}
@@ -388,12 +389,12 @@ func WASDPlatformer(e *donburi.Entry) {
 func WASD4Directional(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Normalize().Scale(mobileData.Speed)
+	velocity := res.Input.WASDDirection.Unit().Scale(mobileData.Speed)
 	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 }
 func WASDFly(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Normalize().Scale(mobileData.Speed)
+	velocity := res.Input.WASDDirection.Unit().Scale(mobileData.Speed)
 	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 }

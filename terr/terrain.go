@@ -124,7 +124,7 @@ func (tr *Terrain) WriteChunkImage(chunkCoord image.Point, filename string) {
 }
 
 func (tr *Terrain) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
-	return worldPos.Div(tr.ChunkSize).Div(tr.BlockSize).Point()
+	return mathutil.Vec2ToPoint(worldPos.Div(tr.ChunkSize).Div(tr.BlockSize))
 }
 
 func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
@@ -134,7 +134,7 @@ func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
 
 func (tr *Terrain) WorldSpaceToMapSpace(worldPos vec.Vec2) image.Point {
 	// return worldPos.Div(tr.BlockSize).Point()
-	return worldPos.Point().Div(int(res.BlockSize))
+	return mathutil.Vec2ToPoint(worldPos).Div(int(res.BlockSize))
 }
 
 func (tr *Terrain) WriteTerrainImage(flipVertical bool) {

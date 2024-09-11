@@ -40,7 +40,7 @@ func moveTo(b *cm.Body, m *types.DataMobile, ai *types.DataAI) {
 			targetPos := comp.Body.Get(ai.Target).Position()
 			dist := targetPos.Distance(b.Position())
 			if dist < ai.FollowDistance {
-				force := targetPos.Sub(b.Position()).Normalize().Scale(b.Mass() * (m.Speed * 4))
+				force := targetPos.Sub(b.Position()).Unit().Scale(b.Mass() * (m.Speed * 4))
 				b.ApplyForceAtLocalPoint(force, b.CenterOfGravity())
 			}
 		}

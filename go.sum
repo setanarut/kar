@@ -1,5 +1,7 @@
 github.com/ebitengine/gomobile v0.0.0-20240825043811-96c531f5bd83 h1:yA0CtFKYZI/db1snCOInRS0Z18QGZU6aBYkqUT0H6RI=
 github.com/ebitengine/gomobile v0.0.0-20240825043811-96c531f5bd83/go.mod h1:n2NbB/F4d9wOXFzC7FT1ipERidmYWC5I4YNOYRs5N7I=
+github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325 h1:Gk1XUEttOk0/hb6Tq3WkmutWa0ZLhNn/6fc6XZpM7tM=
+github.com/ebitengine/gomobile v0.0.0-20240911145611-4856209ac325/go.mod h1:ulhSQcbPioQrallSuIzF8l1NKQoD7xmMZc5NxzibUMY=
 github.com/ebitengine/hideconsole v1.0.0 h1:5J4U0kXF+pv/DhiXt5/lTz0eO5ogJ1iXb8Yj1yReDqE=
 github.com/ebitengine/hideconsole v1.0.0/go.mod h1:hTTBTvVYWKBuxPr7peweneWdkUwEuHuB3C1R/ielR1A=
 github.com/ebitengine/purego v0.8.0-alpha.5 h1:M0+PSgsdVNczTB8ijX89HmYqCfb2HUuBEx4A+wNuHto=
@@ -18,10 +20,12 @@ github.com/ojrac/opensimplex-go v1.0.2 h1:l4vs0D+JCakcu5OV0kJ99oEaWJfggSc9jiLpxa
 github.com/ojrac/opensimplex-go v1.0.2/go.mod h1:NwbXFFbXcdGgIFdiA7/REME+7n/lOf1TuEbLiZYOWnM=
 github.com/setanarut/cm v1.8.0 h1:jrt+TFjz6D4dvXVkefUgcoUkBOp3PmNgk91IGDbtH90=
 github.com/setanarut/cm v1.8.0/go.mod h1:NLPqVuAY1zcbWNNAeWWZcS8qHYpwS/GdG+SxUZSmp2o=
+github.com/setanarut/cm v1.8.1 h1:vClRmDwvKiz7MZrEOtSvJ43Y1mNxBNsSjCpS6mT/pkc=
+github.com/setanarut/cm v1.8.1/go.mod h1:iEPLP0gGP6sRHF7/mz1IUlnkBKUv/17kiiKGKb7if8s=
 github.com/setanarut/kamera/v2 v2.5.2 h1:yzW4/Bdb1Zlr7VmzEm4TW01Bh+W6MgjjfXJpsktoVDU=
 github.com/setanarut/kamera/v2 v2.5.2/go.mod h1:XxIMAowz4s+6uTR+4B8YkinDrvOechvhCAH3AlzP9iU=
-github.com/setanarut/vec v1.0.0 h1:ny/RHln24CS6gV3r9eacU6OFd7C3UUkJgVgoV+QV5Uw=
-github.com/setanarut/vec v1.0.0/go.mod h1:n5nlbE/xlpuBI3WfxXmq4TJWWkZzv2/bNqcEAO9X9ic=
+github.com/setanarut/vec v1.1.0 h1:Tmei65+2EsQzNB+0xkpNgcXGTZTT0gEUdZRjVb2CuuQ=
+github.com/setanarut/vec v1.1.0/go.mod h1:ZDoKd7F60rWLgCK58novWOCe5ePiXfSkwtmuOSSC9TU=
 github.com/yohamta/donburi v1.15.3 h1:b5Z0hUez8eCnjuoDzecsj5epQflRgyqXpiT/Ppz+Pw0=
 github.com/yohamta/donburi v1.15.3/go.mod h1:g5P6MQ7zQcFjiPTU3m5Ox1I+Yw8rqmwvQuxFkryQ8os=
 golang.org/x/image v0.20.0 h1:7cVCUjQwfL18gyBJOmYvptfSHS8Fb3YUDtfLIZ7Nbpw=
