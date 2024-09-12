@@ -54,6 +54,7 @@ func (sys *PlayerControlSystem) Init() {
 }
 
 func (sys *PlayerControlSystem) Update() {
+
 	TimerUpdate(BlockPlaceTimerData)
 	res.Input.UpdateWASDDirection()
 	res.Input.UpdateArrowDirection()
@@ -73,6 +74,7 @@ func (sys *PlayerControlSystem) Update() {
 	IdleAttack = NoWASD && Attacking && IsGround
 
 	comp.WASDTag.Each(res.World, WASDPlatformerForce)
+	// comp.WASDTag.Each(res.World, WASDPlatformer)
 	comp.WASDFlyTag.Each(res.World, WASDFly)
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
@@ -370,16 +372,16 @@ func WASDPlatformer(e *donburi.Entry) {
 	mobileData := comp.Mobile.Get(e)
 	vel.X = res.Input.WASDDirection.X
 	vel = vel.Scale(mobileData.Speed)
-	vel = vel.Add(vec.Vec2{0, -500})
+	vel = vel.Add(vec.Vec2{0, 500})
 	body.SetVelocityVector(body.Velocity().LerpDistance(vel, mobileData.Accel))
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 
-		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, -50}), 0, res.FilterPlayerRaycast)
+		queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, 50}), 0, res.FilterPlayerRaycast)
 		contactShape := queryInfo.Shape
 
 		if contactShape != nil {
-			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, 900}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -900}, body.CenterOfGravity())
 		}
 
 	}

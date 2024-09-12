@@ -3,6 +3,7 @@ package system
 import (
 	"kar/comp"
 	"kar/engine/mathutil"
+	"kar/items"
 	"kar/res"
 	"kar/types"
 
@@ -88,6 +89,14 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		ApplyDIO(drawOpt, pos)
 		res.Cam.Draw(res.SpriteFrames[itemData.Item][0], dio, screen)
 	})
+	comp.DebugBoxTag.Each(res.World, func(e *donburi.Entry) {
+		b := comp.Body.Get(e)
+		pos := b.Position()
+		drawOpt := comp.DrawOptions.Get(e)
+		drawOpt.Rotation = b.Angle()
+		ApplyDIO(drawOpt, pos)
+		res.Cam.Draw(res.SpriteFrames[items.Stone][0], dio, screen)
+	})
 
 	e, ok := comp.PlayerTag.First(res.World)
 
@@ -113,7 +122,7 @@ func ApplyDIO(drawOpt *types.DataDrawOptions, pos vec.Vec2) {
 	dio.GeoM.Reset()
 	dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
 	dio.GeoM.Scale(scl.X, scl.Y)
-	dio.GeoM.Rotate(-drawOpt.Rotation)
+	dio.GeoM.Rotate(drawOpt.Rotation)
 	dio.GeoM.Translate(pos.X, pos.Y)
 	dio.ColorScale.Reset()
 }

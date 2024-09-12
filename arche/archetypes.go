@@ -28,18 +28,6 @@ func SpawnCircleBody(pos vec.Vec2, m, e, f, r float64, userData *donburi.Entry) 
 	body.UserData = userData
 	return body
 }
-func SpawnBoxBody(pos vec.Vec2, m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
-	// body := cm.NewKinematicBody()
-	body := cm.NewBody(m, cm.INFINITY)
-	shape := cm.NewBox(body, w, h, r)
-	shape.SetElasticity(e)
-	shape.SetFriction(f)
-	body.SetPosition(pos)
-	res.Space.AddShape(shape)
-	res.Space.AddBody(shape.Body())
-	body.UserData = userData
-	return body
-}
 
 func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 	e := res.World.Entry(res.World.Create(
@@ -69,7 +57,6 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 		CenterOffset: util.EbitenImageCenterOffset(ap.CurrentFrame),
 		Scale:        mathutil.CircleScaleFactor(res.BlockSize/2, 16),
 	})
-	// b := SpawnBoxBody(mass, el, fr, 16, 16, rad, e)
 	b := SpawnCircleBody(pos, mass, el, fr, (res.BlockSize/2)*0.8, e)
 	b.FirstShape().SetCollisionType(res.CollPlayer)
 	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.ALL_CATEGORIES&^res.BitmaskPlayerRaycast)
@@ -122,27 +109,33 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType) 
 
 }
 
-func SpawnDebug(pos vec.Vec2) {
+func SpawnBoxBody(pos vec.Vec2, m, e, f, w, h, r float64, userData *donburi.Entry) *cm.Body {
+	body := cm.NewBody(m, cm.MomentForBox(m, w, h))
+	shape := cm.NewBox(body, w, h, r)
+	shape.SetElasticity(e)
+	shape.SetFriction(f)
+	shape.SetCollisionType(res.CollEnemy)
+	body.SetPosition(pos)
+	res.Space.AddShape(shape)
+	res.Space.AddBody(shape.Body())
+	body.UserData = userData
+	return body
+}
+func SpawnDebugBox(pos vec.Vec2) {
+
 	e := res.World.Entry(res.World.Create(
 		comp.DrawOptions,
 		comp.Body,
-		comp.AnimationPlayer,
+		comp.DebugBoxTag,
 	))
+	b := SpawnBoxBody(pos, 1, 0.2, 0.2, float64(res.BlockSize), float64(res.BlockSize), 0, e)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskEnemy, cm.ALL_CATEGORIES)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
-		CenterOffset: vec.Vec2{-16, -16},
-		Scale:        vec.Vec2{1, 1},
+		CenterOffset: vec.Vec2{-8, -8},
+		Scale:        mathutil.RectangleScaleFactor(16, 16, res.BlockSize, res.BlockSize),
 	})
-	ap := engine.NewAnimationPlayer(res.AtlasBlock)
-	ap.AddStateAnimation("idle", 128, 128, 32, 32, 6, true, false)
-	comp.AnimationPlayer.Set(e, ap)
 
-	b := SpawnCircleBody(pos, 0.8, 0.5, 0, 16, e)
-	b.FirstShape().Filter = cm.NewShapeFilter(
-		0,
-		res.BitmaskCollectible,
-		cm.ALL_CATEGORIES&^res.BitmaskPlayerRaycast&^res.BitmaskCollectible)
-	b.FirstShape().CollisionType = res.CollCollectible
 	comp.Body.Set(e, b)
 
 }

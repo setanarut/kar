@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"image"
 	"kar/arche"
 	"kar/comp"
@@ -11,6 +12,7 @@ import (
 	"github.com/setanarut/vec"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 // var spawnTick int
@@ -44,11 +46,12 @@ func (s *SpawnSystem) Init() {
 
 func (s *SpawnSystem) Update() {
 
-	// if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
-	// 	cursor := res.Camera.ScreenToWorld(ebiten.CursorPosition())
-	// 	fmt.Println(cursor)
-	// 	// arche.SpawnDebug(cursor)
-	// }
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+
+		x, y := res.Cam.ScreenToWorld(ebiten.CursorPosition())
+		arche.SpawnDebugBox(vec.Vec2{x, y})
+		fmt.Println(vec.Vec2{x, y})
+	}
 
 	if player, ok := comp.PlayerTag.First(res.World); ok {
 		pos := comp.Body.Get(player).Position()

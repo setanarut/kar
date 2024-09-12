@@ -39,4 +39,5 @@ var (
 	EnemyTag     = donburi.NewTag()
 	DropItemTag  = donburi.NewTag()
 	BlockItemTag = donburi.NewTag()
+	DebugBoxTag  = donburi.NewTag()
 )
