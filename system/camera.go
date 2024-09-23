@@ -131,9 +131,11 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		// Debug Chipmunk Drawer
 		if debugChipmunkDrawing {
 			cm.DrawSpace(res.Space, chipmunkDrawer.WithScreen(screen))
-			chipmunkDrawer.DrawSegment(pos, SegEnd, cm.FColor{1, 1, 1, 1}, nil)
-			if AttackSegmentQuery.Shape != nil {
-				cm.DrawShape(AttackSegmentQuery.Shape, chipmunkDrawer)
+			chipmunkDrawer.DrawSegment(pos, attackSegmentEnd, cm.FColor{1, 1, 1, 1}, nil)
+			chipmunkDrawer.DrawSegment(pos, blockSpawnSegmentEnd, cm.FColor{1, 1, 1, 1}, nil)
+			chipmunkDrawer.DrawDot(10, placeBlockPos, cm.FColor{1, 1, 1, 1}, nil)
+			if attackSegmentQuery.Shape != nil {
+				cm.DrawShape(attackSegmentQuery.Shape, chipmunkDrawer)
 			}
 		}
 		ApplyDIO(drawOpt, pos)
