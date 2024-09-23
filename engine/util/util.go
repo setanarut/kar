@@ -1,79 +1,22 @@
 package util
 
 import (
+	"bytes"
+	"embed"
 	"image"
 	"image/color"
-	"image/draw"
+	"image/png"
+	"log"
+	"os"
 	"strconv"
 
-	"github.com/setanarut/vec"
-
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/yohamta/donburi"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/setanarut/vec"
+	"golang.org/x/text/language"
 )
 
-func FillImage(img image.Image, c color.RGBA) {
-	draw.Draw(img.(draw.Image), img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
-}
-func DrawOver(src, dst image.Image) {
-	draw.Draw(dst.(draw.Image), dst.Bounds(), src, image.Point{}, draw.Over)
-}
-
-func CloneImage(img image.Image) image.Image {
-	copyImage := image.NewRGBA(img.Bounds())
-	draw.Draw(copyImage, img.Bounds(), img, image.Point{}, draw.Src)
-	return copyImage
-
-}
-
-func SubImage(spriteSheet *ebiten.Image, x, y, w, h int) *ebiten.Image {
-	return spriteSheet.SubImage(image.Rect(x, y, x+w, y+h)).(*ebiten.Image)
-}
-
-func SubImages(spriteSheet *ebiten.Image, x, y, w, h, subImageCount int, vertical bool) []*ebiten.Image {
-
-	subImages := []*ebiten.Image{}
-	frameRect := image.Rect(x, y, x+w, y+h)
-
-	for i := 0; i < subImageCount; i++ {
-		subImages = append(subImages, spriteSheet.SubImage(frameRect).(*ebiten.Image))
-		if vertical {
-			frameRect.Min.Y += h
-			frameRect.Max.Y += h
-		} else {
-			frameRect.Min.X += w
-			frameRect.Max.X += w
-		}
-	}
-	return subImages
-
-}
-func SubImagesStd(spriteSheet *ebiten.Image, x, y, w, h, subImageCount int, vertical bool) []image.Image {
-
-	subImages := []image.Image{}
-	frameRect := image.Rect(x, y, x+w, y+h)
-
-	for i := 0; i < subImageCount; i++ {
-		subImages = append(subImages, spriteSheet.SubImage(frameRect))
-		if vertical {
-			frameRect.Min.Y += h
-			frameRect.Max.Y += h
-		} else {
-			frameRect.Min.X += w
-			frameRect.Max.X += w
-		}
-	}
-	return subImages
-
-}
-
-func AddComponents(e *donburi.Entry, comps ...donburi.IComponentType) {
-	for _, comp := range comps {
-		e.AddComponent(comp)
-	}
-}
-
-func EbitenImageCenterOffset(img *ebiten.Image) vec.Vec2 {
+func ImageCenterOffset(img image.Image) vec.Vec2 {
 	return vec.Vec2{float64(img.Bounds().Dx()), float64(img.Bounds().Dy())}.Scale(0.5).Neg()
 }
 
@@ -88,4 +31,47 @@ func UnpackVec2(v vec.Vec2) (float64, float64) {
 func HexToRGBA(hex string) color.RGBA {
 	values, _ := strconv.ParseUint(string(hex[1:]), 16, 32)
 	return color.RGBA{R: uint8(values >> 16), G: uint8((values >> 8) & 0xFF), B: uint8(values & 0xFF), A: 255}
+}
+
+func LoadEbitenImageFromFS(fs embed.FS, filePath string) *ebiten.Image {
+	return ebiten.NewImageFromImage(LoadStandartImageFromFS(fs, filePath))
+}
+
+func LoadStandartImageFromFS(fs embed.FS, filePath string) image.Image {
+	f, err := fs.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	return image
+}
+
+func WriteImage(img image.Image, filename string) {
+	file, err := os.Create(filename)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer file.Close()
+	png.Encode(file, img)
+}
+
+func LoadGoTextFaceFromFS(fileName string, size float64, assets embed.FS) *text.GoTextFace {
+	f, err := assets.ReadFile(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	src, err := text.NewGoTextFaceSource(bytes.NewReader(f))
+	if err != nil {
+		log.Fatal(err)
+	}
+	gtf := &text.GoTextFace{
+		Source:   src,
+		Size:     size,
+		Language: language.English,
+	}
+	return gtf
 }
