@@ -1,14 +1,8 @@
 package system
 
 import (
-	"image/color"
-	"kar/arche"
 	"kar/comp"
-	"kar/engine/mathutil"
-	"kar/items"
 	"kar/res"
-	"kar/types"
-	"time"
 
 	"github.com/setanarut/cm"
 
@@ -20,14 +14,9 @@ import (
 )
 
 var (
-	attackSegmentQuery       cm.SegmentQueryInfo
-	blockSpawnSegmentQuery   cm.SegmentQueryInfo
-	hitShape                 *cm.Shape
-	blockPlaceTimerData      *types.DataTimer
-	attackSegmentEnd         vec.Vec2
-	blockSpawnSegmentEnd     vec.Vec2
-	placeBlockPos            vec.Vec2
-	blockPlaceTimerDataReady bool
+	attackSegmentQuery cm.SegmentQueryInfo
+	hitShape           *cm.Shape
+	attackSegmentEnd   vec.Vec2
 )
 
 var (
@@ -55,17 +44,11 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 }
 
 func (sys *PlayerControlSystem) Init() {
-	blockPlaceTimerDataReady = false
-	blockPlaceTimerData = &types.DataTimer{
-		TimerDuration: time.Second / 6,
-	}
 }
 
 func (sys *PlayerControlSystem) Update() {
 
-	TimerUpdate(blockPlaceTimerData)
 	res.Input.UpdateWASDDirection()
-	res.Input.UpdateArrowDirection()
 
 	FacingRight = res.Input.LastPressedWASDDirection.Equal(res.Right) || res.Input.WASDDirection.Equal(res.Right)
 	FacingLeft = res.Input.LastPressedWASDDirection.Equal(res.Left) || res.Input.WASDDirection.Equal(res.Left)
@@ -110,42 +93,6 @@ func (sys *PlayerControlSystem) Update() {
 				player.AddComponent(comp.WASDTag)
 				playerBody.FirstShape().SetSensor(false)
 			}
-		}
-
-		// Block place
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-			blockPlaceTimerDataReady = true
-			blockSpawnSegmentEnd = playerPosition.Add(res.Down.Scale(res.BlockSize * 3.5))
-
-			blockSpawnSegmentQuery = res.Space.SegmentQueryFirst(
-				playerPosition,
-				blockSpawnSegmentEnd,
-				0,
-				res.FilterPlayerRaycast)
-
-			if blockSpawnSegmentQuery.Shape != nil {
-				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-				dist := blockSpawnSegmentQuery.Point.Distance(playerPosition) - r
-
-				if dist > res.BlockSize {
-					centerDistance := blockSpawnSegmentQuery.Normal.Unit().Scale(res.BlockSize / 2)
-					placeBlockPos = blockSpawnSegmentQuery.Point.Add(centerDistance)
-					mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(placeBlockPos))
-					blockPosCenter := mapPos.Scale(res.BlockSize)
-
-					air := color.Gray{uint8(items.Air)}
-
-					if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
-						arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
-						res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
-					}
-
-				}
-
-			}
-
-		} else {
-			blockPlaceTimerDataReady = false
 		}
 
 		// Reset block health
