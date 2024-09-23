@@ -32,7 +32,6 @@ func (g *Game) Init() {
 	g.systems = []types.ISystem{
 		system.NewSpawnSystem(),
 		// system.NewTimersSystem(),
-		// system.NewAISystem(),
 		system.NewPhysicsSystem(),
 		system.NewPlayerControlSystem(),
 		system.NewDrawCameraSystem(),
