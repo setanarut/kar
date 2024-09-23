@@ -6,9 +6,8 @@ import (
 	_ "image/png"
 	"kar/comp"
 	"kar/engine"
-	"kar/engine/displayres"
-	"kar/engine/io"
 	"kar/engine/mathutil"
+	"kar/engine/util"
 	"kar/items"
 	"kar/types"
 
@@ -36,12 +35,23 @@ var (
 	Down  = vec.Vec2{0, 1}
 )
 
+var (
+	NinthHD      = image.Point{640, 360}   // 640x360
+	FullWideVGA  = image.Point{854, 480}   // 854x480
+	QuarterHD    = image.Point{960, 540}   // 960x540
+	WideSuperVGA = image.Point{1024, 576}  // 1024x576
+	HD           = image.Point{1280, 720}  // 1280x720
+	FullWideXGA  = image.Point{1366, 768}  // 1366x768
+	HDPlus       = image.Point{1600, 900}  // 1600x900
+	FullHD       = image.Point{1920, 1080} // 1920x1080
+)
+
 // GameSettings
 var (
 	MapSize    float64 = 1024
 	BlockSize  float64 = 64.0
 	ChunkSize  float64 = 8
-	ScreenSize         = displayres.FullWideVGA
+	ScreenSize         = FullWideVGA
 
 	ScreenSizeF = mathutil.FromPoint(ScreenSize)
 
@@ -76,16 +86,12 @@ var (
 	QueryWASDcontrollable = donburi.NewQuery(filter.And(
 		filter.Contains(comp.Mobile, comp.WASDTag, comp.Body),
 		filter.Not(filter.Contains(comp.AI))))
-	QueryAI = donburi.NewQuery(filter.And(
-		filter.Contains(comp.Mobile, comp.AI, comp.Body),
-		filter.Not(filter.Contains(comp.WASDTag))))
-
 	QueryDraw = donburi.NewQuery(filter.Contains(comp.DrawOptions, comp.Body))
 )
 
 // text
 var (
-	Font    = io.LoadGoTextFaceFromFS("assets/roboto-semi.ttf", 18, assets)
+	Font    = util.LoadGoTextFaceFromFS("assets/roboto-semi.ttf", 18, assets)
 	FontBig = &text.GoTextFace{
 		Source:   Font.Source,
 		Size:     28,

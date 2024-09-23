@@ -4,6 +4,8 @@ github.com/ebitengine/hideconsole v1.0.0 h1:5J4U0kXF+pv/DhiXt5/lTz0eO5ogJ1iXb8Yj
 github.com/ebitengine/hideconsole v1.0.0/go.mod h1:hTTBTvVYWKBuxPr7peweneWdkUwEuHuB3C1R/ielR1A=
 github.com/ebitengine/purego v0.8.0-alpha.6 h1:ASjpODrlN5dAeziyhqwZxhl8/tS7C4JZmHQ3I/XQGzw=
 github.com/ebitengine/purego v0.8.0-alpha.6/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
+github.com/ebitengine/purego v0.8.0 h1:JbqvnEzRvPpxhCJzJJ2y0RbiZ8nyjccVUrSM3q+GvvE=
+github.com/ebitengine/purego v0.8.0/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/go-text/typesetting v0.1.1 h1:bGAesCuo85nXnEN5LmFMVGAGpGkCPtHrZLi//qD7EJo=
 github.com/go-text/typesetting v0.1.1/go.mod h1:d22AnmeKq/on0HNv73UFriMKc4Ez6EqZAofLhAzpSzI=
 github.com/go-text/typesetting-utils v0.0.0-20231211103740-d9332ae51f04 h1:zBx+p/W2aQYtNuyZNcTfinWvXBQwYtDfme051PR/lAY=
@@ -24,6 +26,8 @@ github.com/setanarut/ebitencm v1.4.0 h1:WfZ+lxWIaVoNInIqilNGjfpBUrmZ39KoUB+ab9Pf
 github.com/setanarut/ebitencm v1.4.0/go.mod h1:sa9d9QasBy2YOUODgLKTG1BHRQcWuD7YZ86pe0bSxtU=
 github.com/setanarut/kamera/v2 v2.5.2 h1:yzW4/Bdb1Zlr7VmzEm4TW01Bh+W6MgjjfXJpsktoVDU=
 github.com/setanarut/kamera/v2 v2.5.2/go.mod h1:XxIMAowz4s+6uTR+4B8YkinDrvOechvhCAH3AlzP9iU=
+github.com/setanarut/kamera/v2 v2.5.3 h1:rxiG+fHayGEBlq7GNr0daMPwUDMjVq+M7M+iytACsy4=
+github.com/setanarut/kamera/v2 v2.5.3/go.mod h1:ceqJIfms0OqwtIay1bAQ7BEEnnYf4tmAo6UCYBezjaE=
 github.com/setanarut/vec v1.1.0 h1:Tmei65+2EsQzNB+0xkpNgcXGTZTT0gEUdZRjVb2CuuQ=
 github.com/setanarut/vec v1.1.0/go.mod h1:ZDoKd7F60rWLgCK58novWOCe5ePiXfSkwtmuOSSC9TU=
 github.com/yohamta/donburi v1.15.3 h1:b5Z0hUez8eCnjuoDzecsj5epQflRgyqXpiT/Ppz+Pw0=

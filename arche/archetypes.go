@@ -55,7 +55,7 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 	comp.AnimationPlayer.Set(e, ap)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
-		CenterOffset: util.EbitenImageCenterOffset(ap.CurrentFrame),
+		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
 		Scale:        mathutil.CircleScaleFactor(res.BlockSize/2, 16),
 	})
 	b := SpawnCircleBody(pos, mass, el, fr, (res.BlockSize/2)*0.8, e)

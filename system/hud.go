@@ -49,7 +49,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 						res.World.Len(),
 						IsGround,
 						DigDown,
-						attackSegmentQuery.Shape,
+						blockPlaceTimerData,
 					),
 					res.Font, res.StatsTextOptions)
 			} else {

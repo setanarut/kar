@@ -20,13 +20,14 @@ import (
 )
 
 var (
-	attackSegmentQuery     cm.SegmentQueryInfo
-	blockSpawnSegmentQuery cm.SegmentQueryInfo
-	hitShape               *cm.Shape
-	blockPlaceTimerData    *types.DataTimer
-	attackSegmentEnd       vec.Vec2
-	blockSpawnSegmentEnd   vec.Vec2
-	placeBlockPos          vec.Vec2
+	attackSegmentQuery       cm.SegmentQueryInfo
+	blockSpawnSegmentQuery   cm.SegmentQueryInfo
+	hitShape                 *cm.Shape
+	blockPlaceTimerData      *types.DataTimer
+	attackSegmentEnd         vec.Vec2
+	blockSpawnSegmentEnd     vec.Vec2
+	placeBlockPos            vec.Vec2
+	blockPlaceTimerDataReady bool
 )
 
 var (
@@ -54,8 +55,9 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 }
 
 func (sys *PlayerControlSystem) Init() {
+	blockPlaceTimerDataReady = false
 	blockPlaceTimerData = &types.DataTimer{
-		TimerDuration: time.Second / 8,
+		TimerDuration: time.Second / 6,
 	}
 }
 
@@ -111,43 +113,39 @@ func (sys *PlayerControlSystem) Update() {
 		}
 
 		// Block place
-		if res.Input.IsPressedAndNotABC(ebiten.KeyArrowDown, ebiten.KeyArrowRight, ebiten.KeyArrowLeft, ebiten.KeyArrowUp) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+			blockPlaceTimerDataReady = true
 			blockSpawnSegmentEnd = playerPosition.Add(res.Down.Scale(res.BlockSize * 3.5))
 
-			if TimerIsReady(blockPlaceTimerData) {
-				TimerReset(blockPlaceTimerData)
-			}
+			blockSpawnSegmentQuery = res.Space.SegmentQueryFirst(
+				playerPosition,
+				blockSpawnSegmentEnd,
+				0,
+				res.FilterPlayerRaycast)
 
-			if TimerIsStart(blockPlaceTimerData) {
-				blockSpawnSegmentQuery = res.Space.SegmentQueryFirst(
-					playerPosition,
-					blockSpawnSegmentEnd,
-					0,
-					res.FilterPlayerRaycast)
+			if blockSpawnSegmentQuery.Shape != nil {
+				r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
+				dist := blockSpawnSegmentQuery.Point.Distance(playerPosition) - r
 
-				if blockSpawnSegmentQuery.Shape != nil {
-					r := playerBody.FirstShape().Class.(*cm.Circle).Radius()
-					dist := blockSpawnSegmentQuery.Point.Distance(playerPosition) - r
-					if dist > res.BlockSize {
-						centerDistance := blockSpawnSegmentQuery.Normal.Unit().Scale(res.BlockSize / 2)
-						placeBlockPos = blockSpawnSegmentQuery.Point.Add(centerDistance)
-						mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(placeBlockPos))
-						blockPosCenter := mapPos.Scale(res.BlockSize)
+				if dist > res.BlockSize {
+					centerDistance := blockSpawnSegmentQuery.Normal.Unit().Scale(res.BlockSize / 2)
+					placeBlockPos = blockSpawnSegmentQuery.Point.Add(centerDistance)
+					mapPos := mathutil.FromPoint(Terr.WorldSpaceToMapSpace(placeBlockPos))
+					blockPosCenter := mapPos.Scale(res.BlockSize)
 
-						air := color.Gray{uint8(items.Air)}
-						if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
-							arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
-							res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
-						}
+					air := color.Gray{uint8(items.Air)}
+
+					if res.Terrain.GrayAt(int(mapPos.X), int(mapPos.Y)) == air {
+						arche.SpawnBlock(blockPosCenter, Terr.WorldPosToChunkCoord(blockPosCenter), items.Dirt)
+						res.Terrain.SetGray(int(mapPos.X), int(mapPos.Y), color.Gray{uint8(items.Dirt)})
 					}
 
 				}
+
 			}
 
-		}
-
-		if res.Input.ArrowDirection.Equal(vec.Vec2{}) {
-			TimerReset(blockPlaceTimerData)
+		} else {
+			blockPlaceTimerDataReady = false
 		}
 
 		// Reset block health
@@ -223,7 +221,6 @@ func (sys *PlayerControlSystem) Update() {
 
 		hitShape = attackSegmentQuery.Shape
 	}
-
 }
 
 func (sys *PlayerControlSystem) Draw(screen *ebiten.Image) {}
