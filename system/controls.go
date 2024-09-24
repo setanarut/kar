@@ -1,15 +1,14 @@
 package system
 
 import (
+	"fmt"
 	"kar/comp"
 	"kar/res"
 
-	"github.com/setanarut/cm"
-
-	"github.com/setanarut/vec"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/setanarut/cm"
+	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
 )
 
@@ -131,6 +130,12 @@ func (sys *PlayerControlSystem) Update() {
 						}
 					}
 				}
+			}
+		}
+
+		if inpututil.IsKeyJustPressed(ebiten.KeyI) {
+			if attackSegmentQuery.Shape != nil && attackSegmentQuery.Shape == hitShape {
+				fmt.Println(attackSegmentQuery.Normal)
 			}
 		}
 

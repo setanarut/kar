@@ -32,7 +32,7 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 
 func (ds *DrawCameraSystem) Init() {
 	chipmunkDrawer = ebitencm.NewDrawer()
-
+	debugChipmunkDrawing = true
 	dio = &ebiten.DrawImageOptions{}
 	p, ok := comp.PlayerTag.First(res.World)
 
@@ -133,9 +133,16 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		if debugChipmunkDrawing {
 			chipmunkDrawer.Screen = screen
 			// cm.DrawSpace(res.Space, chipmunkDrawer.WithScreen(screen))
-			chipmunkDrawer.DrawSegment(pos, attackSegmentEnd, cm.FColor{1, 1, 1, 1}, nil)
+
+			// Draw attack raycast line
+			chipmunkDrawer.DrawFatSegment(pos, attackSegmentEnd, 2, cm.FColor{0, 0.5, 1, 0}, cm.FColor{0, 0.5, 1, 1}, nil)
+
 			if attackSegmentQuery.Shape != nil {
 				cm.DrawShape(attackSegmentQuery.Shape, chipmunkDrawer)
+				normal := attackSegmentQuery.Normal
+				point := attackSegmentQuery.Point
+				// draw hit shape normal
+				chipmunkDrawer.DrawFatSegment(point, point.Add(normal.Unit().Scale(10)), 2, cm.FColor{1, 1, 0, 0}, cm.FColor{1, 1, 0, 1}, nil)
 			}
 
 		}
