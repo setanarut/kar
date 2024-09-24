@@ -19,7 +19,7 @@ import (
 )
 
 var dio *ebiten.DrawImageOptions
-var chipmunkDrawer *ebitencm.Drawer
+var cmDrawer *ebitencm.Drawer
 var debugChipmunkDrawing bool
 
 // DrawCameraSystem
@@ -31,7 +31,7 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 }
 
 func (ds *DrawCameraSystem) Init() {
-	chipmunkDrawer = ebitencm.NewDrawer()
+	cmDrawer = ebitencm.NewDrawer()
 	debugChipmunkDrawing = true
 	dio = &ebiten.DrawImageOptions{}
 	p, ok := comp.PlayerTag.First(res.World)
@@ -52,9 +52,9 @@ func (ds *DrawCameraSystem) Update() {
 
 	// ebitencm debug çizimi
 	if debugChipmunkDrawing {
-		chipmunkDrawer.GeoM.Reset()
-		res.Cam.ApplyCameraTransform(chipmunkDrawer.GeoM)
-		chipmunkDrawer.HandleMouseEvent(res.Space)
+		cmDrawer.GeoM.Reset()
+		res.Cam.ApplyCameraTransform(cmDrawer.GeoM)
+		cmDrawer.HandleMouseEvent(res.Space)
 	}
 
 	p, ok := comp.PlayerTag.First(res.World)
@@ -131,25 +131,23 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 
 		// Debug Chipmunk Drawer
 		if debugChipmunkDrawing {
-			chipmunkDrawer.Screen = screen
+			cmDrawer.Screen = screen
 			// cm.DrawSpace(res.Space, chipmunkDrawer.WithScreen(screen))
-
 			// Draw attack raycast line
-			chipmunkDrawer.DrawFatSegment(pos, attackSegmentEnd, 2, cm.FColor{0, 0.5, 1, 0}, cm.FColor{0, 0.5, 1, 1}, nil)
-
-			if attackSegmentQuery.Shape != nil {
-				cm.DrawShape(attackSegmentQuery.Shape, chipmunkDrawer)
-				normal := attackSegmentQuery.Normal
-				point := attackSegmentQuery.Point
-				// draw hit shape normal
-				chipmunkDrawer.DrawFatSegment(point, point.Add(normal.Unit().Scale(10)), 2, cm.FColor{1, 1, 0, 0}, cm.FColor{1, 1, 0, 1}, nil)
+			cmDrawer.DrawFatSegment(pos, attackSegmentEnd, 2, cm.FColor{0, 0.5, 1, 0}, cm.FColor{0, 0.5, 1, 1}, nil)
+			if hitShape != nil {
+				cm.DrawShape(hitShape, cmDrawer)
+				targetCenter := hitShape.Body().Position().Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
+				cmDrawer.DrawCircle(targetCenter, 0, res.BlockSize/2, cm.FColor{1, 1, 1, 1}, cm.FColor{}, nil)
 			}
-
 		}
+
 		ApplyDIO(drawOpt, pos)
+
 		if ap.CurrentFrame != nil {
 			res.Cam.Draw(ap.CurrentFrame, dio, screen)
 		}
+
 	}
 
 }

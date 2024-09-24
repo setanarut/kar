@@ -53,7 +53,7 @@ var (
 	ChunkSize  float64 = 8
 	ScreenSize         = FullWideVGA
 
-	ScreenSizeF = mathutil.FromPoint(ScreenSize)
+	ScreenSizeF = mathutil.PointToVec2(ScreenSize)
 
 	BlockMaxHealth = map[types.ItemType]float64{
 		items.Dirt:    5.0,

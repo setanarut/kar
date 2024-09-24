@@ -121,14 +121,17 @@ func (tr *Terrain) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
 	return mathutil.Vec2ToPoint(worldPos.Div(tr.ChunkSize).Div(tr.BlockSize))
 }
 
+func (tr *Terrain) MapSpaceToWorldSpace(worldPos vec.Vec2) image.Point {
+	return mathutil.Vec2ToPoint(worldPos.Div(res.BlockSize))
+}
+
+func (tr *Terrain) WorldSpaceToMapSpace(pos vec.Vec2) image.Point {
+	return mathutil.Vec2ToPoint(pos.Scale(res.BlockSize))
+}
+
 func (tr *Terrain) InTerrainBounds(worldPos vec.Vec2) bool {
 	s := tr.MapSize * tr.BlockSize
 	return worldPos.X > s || worldPos.Y > s
-}
-
-func (tr *Terrain) WorldSpaceToMapSpace(worldPos vec.Vec2) image.Point {
-	// return worldPos.Div(tr.BlockSize).Point()
-	return mathutil.Vec2ToPoint(worldPos).Div(int(res.BlockSize))
 }
 
 func (tr *Terrain) ChunkImage(chunkCoord image.Point) *image.Gray {

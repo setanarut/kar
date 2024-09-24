@@ -112,17 +112,17 @@ func CircleScaleFactor(radius float64, imageWidth int) vec.Vec2 {
 }
 
 func DistanceSq(a, b image.Point) float64 {
-	return FromPoint(a).DistanceSq(FromPoint(b))
-}
-
-// FromPoint converts image.Point to Vec2
-func FromPoint(p image.Point) vec.Vec2 {
-	return vec.Vec2{float64(p.X), float64(p.Y)}
+	return PointToVec2(a).DistanceSq(PointToVec2(b))
 }
 
 // FlipVertical inverts position Y axis beetween bottom-left and top-left coordinate systems
 func FlipVertical(v vec.Vec2, screenbHeight float64) vec.Vec2 {
 	return vec.Vec2{v.X, screenbHeight - v.Y}
+}
+
+// PointToVec2 converts image.Point to Vec2
+func PointToVec2(p image.Point) vec.Vec2 {
+	return vec.Vec2{float64(p.X), float64(p.Y)}
 }
 
 // Vec2ToPoint returns Vec2 as image.Point
