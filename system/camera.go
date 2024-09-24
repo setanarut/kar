@@ -3,6 +3,7 @@ package system
 import (
 	"kar/comp"
 	"kar/engine/mathutil"
+	"kar/engine/util"
 	"kar/items"
 	"kar/res"
 	"kar/types"
@@ -138,7 +139,8 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 			if hitShape != nil {
 				cm.DrawShape(hitShape, cmDrawer)
 				targetCenter := hitShape.Body().Position().Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
-				cmDrawer.DrawCircle(targetCenter, 0, res.BlockSize/2, cm.FColor{1, 1, 1, 1}, cm.FColor{}, nil)
+				cmDrawer.DrawPolygon(4, util.RectPoints(targetCenter, res.BlockSize), 0, cm.FColor{1, 0, 1, 0}, cm.FColor{0, 1, 0, 0.5}, nil)
+				// cmDrawer.DrawCircle(targetCenter, 0, res.BlockSize/2, cm.FColor{1, 1, 1, 1}, cm.FColor{}, nil)
 			}
 		}
 

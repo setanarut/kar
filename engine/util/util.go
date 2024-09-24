@@ -16,6 +16,16 @@ import (
 	"golang.org/x/text/language"
 )
 
+func RectPoints(ori vec.Vec2, side float64) []vec.Vec2 {
+	ori.X += -(side / 2)
+	ori.Y += -(side / 2)
+	points := []vec.Vec2{{0, 0}, {side, 0}, {side, side}, {0, side}}
+	for i, p := range points {
+		points[i] = p.Add(ori)
+	}
+	return points
+}
+
 func ImageCenterOffset(img image.Image) vec.Vec2 {
 	return vec.Vec2{float64(img.Bounds().Dx()), float64(img.Bounds().Dy())}.Scale(0.5).Neg()
 }
