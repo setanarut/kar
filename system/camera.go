@@ -1,15 +1,14 @@
 package system
 
 import (
+	"image/color"
 	"kar/comp"
 	"kar/engine/mathutil"
-	"kar/engine/util"
+	"kar/engine/vectorg"
 	"kar/items"
 	"kar/res"
 	"kar/types"
 
-	"github.com/setanarut/cm"
-	"github.com/setanarut/ebitencm"
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
 
@@ -20,8 +19,7 @@ import (
 )
 
 var dio *ebiten.DrawImageOptions
-var cmDrawer *ebitencm.Drawer
-var debugChipmunkDrawing bool
+var debugDrawEnabled bool
 
 // DrawCameraSystem
 type DrawCameraSystem struct {
@@ -32,8 +30,8 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 }
 
 func (ds *DrawCameraSystem) Init() {
-	cmDrawer = ebitencm.NewDrawer()
-	debugChipmunkDrawing = true
+	debugDrawEnabled = true
+	vectorg.Transform = &ebiten.GeoM{}
 	dio = &ebiten.DrawImageOptions{}
 	p, ok := comp.PlayerTag.First(res.World)
 
@@ -51,11 +49,9 @@ func (ds *DrawCameraSystem) Init() {
 
 func (ds *DrawCameraSystem) Update() {
 
-	// ebitencm debug çizimi
-	if debugChipmunkDrawing {
-		cmDrawer.GeoM.Reset()
-		res.Cam.ApplyCameraTransform(cmDrawer.GeoM)
-		cmDrawer.HandleMouseEvent(res.Space)
+	if debugDrawEnabled {
+		vectorg.Transform.Reset()
+		res.Cam.ApplyCameraTransform(vectorg.Transform)
 	}
 
 	p, ok := comp.PlayerTag.First(res.World)
@@ -73,7 +69,7 @@ func (ds *DrawCameraSystem) Update() {
 		res.Cam.AddTrauma(1)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-		debugChipmunkDrawing = !debugChipmunkDrawing
+		debugDrawEnabled = !debugDrawEnabled
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
@@ -130,17 +126,14 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		drawOpt := comp.DrawOptions.Get(playerEntry)
 		ap := comp.AnimationPlayer.Get(playerEntry)
 
-		// Debug Chipmunk Drawer
-		if debugChipmunkDrawing {
-			cmDrawer.Screen = screen
-			// cm.DrawSpace(res.Space, chipmunkDrawer.WithScreen(screen))
+		if debugDrawEnabled {
 			// Draw attack raycast line
-			cmDrawer.DrawFatSegment(pos, attackSegmentEnd, 2, cm.FColor{0, 0.5, 1, 0}, cm.FColor{0, 0.5, 1, 1}, nil)
+			vectorg.StrokeLine(screen, pos, attackSegmentEnd, 2, color.White, true)
 			if hitShape != nil {
-				cm.DrawShape(hitShape, cmDrawer)
-				targetCenter := hitShape.Body().Position().Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
-				cmDrawer.DrawPolygon(4, util.RectPoints(targetCenter, res.BlockSize), 0, cm.FColor{1, 0, 1, 0}, cm.FColor{0, 1, 0, 0.5}, nil)
-				// cmDrawer.DrawCircle(targetCenter, 0, res.BlockSize/2, cm.FColor{1, 1, 1, 1}, cm.FColor{}, nil)
+				hitBlockPos := hitShape.Body().Position()
+				vectorg.StrokeSquare(screen, hitBlockPos, res.BlockSize, 2, color.White, false)
+				placeBlockPos := hitBlockPos.Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
+				vectorg.StrokeSquare(screen, placeBlockPos, res.BlockSize, 1, colornames.Orange, true)
 			}
 		}
 

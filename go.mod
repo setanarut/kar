@@ -20,7 +20,6 @@ require (
 	github.com/ojrac/opensimplex-go v1.0.2
 	github.com/setanarut/anim v1.0.1
 	github.com/setanarut/cm v1.9.0
-	github.com/setanarut/ebitencm v1.4.0
 	github.com/setanarut/kamera/v2 v2.5.3
 	github.com/setanarut/vec v1.1.0
 	golang.org/x/sync v0.8.0 // indirect
