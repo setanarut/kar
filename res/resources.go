@@ -48,12 +48,12 @@ var (
 
 // GameSettings
 var (
-	MapSize    float64 = 1024
-	BlockSize  float64 = 64.0
-	ChunkSize  float64 = 8
-	ScreenSize         = FullWideVGA
-
-	ScreenSizeF = mathutil.PointToVec2(ScreenSize)
+	MapSize        float64                  = 1024
+	BlockSize      float64                  = 64
+	ChunkSize      float64                  = 8
+	ScreenSize                              = FullWideVGA
+	ScreenSizeF                             = mathutil.PointToVec2(ScreenSize)
+	CameraDrawOpts *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear}
 
 	BlockMaxHealth = map[types.ItemType]float64{
 		items.Dirt:    5.0,

@@ -41,7 +41,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 
 				text.Draw(screen,
 					fmt.Sprintf(
-						"FPS %v TPS %v\nPOS %v Chunk %v\nEntities %v\nIsGround %v\nDigDown %v\nIdle %v",
+						"FPS %v TPS %v\nPOS %v Chunk %v\nEntities %v\nIsGround %v\nDigDown %v\nCam %v",
 						fps,
 						tps,
 						pos,
@@ -49,7 +49,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 						res.World.Len(),
 						IsGround,
 						DigDown,
-						Idle,
+						res.Cam.String(),
 					),
 					res.Font, res.StatsTextOptions)
 			} else {

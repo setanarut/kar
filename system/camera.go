@@ -18,7 +18,6 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-var dio *ebiten.DrawImageOptions
 var debugDrawEnabled bool
 
 // DrawCameraSystem
@@ -31,8 +30,7 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 
 func (ds *DrawCameraSystem) Init() {
 	debugDrawEnabled = true
-	vectorg.Transform = &ebiten.GeoM{}
-	dio = &ebiten.DrawImageOptions{}
+	vectorg.GlobalTransform = &ebiten.GeoM{}
 	p, ok := comp.PlayerTag.First(res.World)
 
 	if ok {
@@ -50,8 +48,8 @@ func (ds *DrawCameraSystem) Init() {
 func (ds *DrawCameraSystem) Update() {
 
 	if debugDrawEnabled {
-		vectorg.Transform.Reset()
-		res.Cam.ApplyCameraTransform(vectorg.Transform)
+		vectorg.GlobalTransform.Reset()
+		res.Cam.ApplyCameraTransform(vectorg.GlobalTransform)
 	}
 
 	p, ok := comp.PlayerTag.First(res.World)
@@ -99,7 +97,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, 8))
 
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itemData.Item][blockSpriteFrameIndex], dio, screen)
+		res.Cam.Draw(res.SpriteFrames[itemData.Item][blockSpriteFrameIndex], res.CameraDrawOpts, screen)
 	})
 
 	comp.DropItemTag.Each(res.World, func(e *donburi.Entry) {
@@ -108,7 +106,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		itemData := comp.Item.Get(e)
 
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itemData.Item][0], dio, screen)
+		res.Cam.Draw(res.SpriteFrames[itemData.Item][0], res.CameraDrawOpts, screen)
 	})
 	comp.DebugBoxTag.Each(res.World, func(e *donburi.Entry) {
 		b := comp.Body.Get(e)
@@ -116,7 +114,7 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 		drawOpt := comp.DrawOptions.Get(e)
 		drawOpt.Rotation = b.Angle()
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[items.Stone][0], dio, screen)
+		res.Cam.Draw(res.SpriteFrames[items.Stone][0], res.CameraDrawOpts, screen)
 	})
 
 	playerEntry, ok := comp.PlayerTag.First(res.World)
@@ -128,19 +126,19 @@ func (ds *DrawCameraSystem) Draw(screen *ebiten.Image) {
 
 		if debugDrawEnabled {
 			// Draw attack raycast line
-			vectorg.StrokeLine(screen, pos, attackSegmentEnd, 2, color.White, true)
+			vectorg.Line(screen, pos, attackSegmentEnd, 2, color.White)
 			if hitShape != nil {
 				hitBlockPos := hitShape.Body().Position()
-				vectorg.StrokeSquare(screen, hitBlockPos, res.BlockSize, 2, color.White, false)
+				vectorg.Square(screen, hitBlockPos, res.BlockSize, colornames.Skyblue, 1, vectorg.Stroke)
 				placeBlockPos := hitBlockPos.Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
-				vectorg.StrokeSquare(screen, placeBlockPos, res.BlockSize, 1, colornames.Orange, true)
+				vectorg.Square(screen, placeBlockPos, res.BlockSize, colornames.Yellow, 1, vectorg.Stroke)
 			}
 		}
 
 		ApplyDIO(drawOpt, pos)
 
 		if ap.CurrentFrame != nil {
-			res.Cam.Draw(ap.CurrentFrame, dio, screen)
+			res.Cam.Draw(ap.CurrentFrame, res.CameraDrawOpts, screen)
 		}
 
 	}
@@ -153,10 +151,10 @@ func ApplyDIO(drawOpt *types.DataDrawOptions, pos vec.Vec2) {
 	if drawOpt.FlipX {
 		scl.X *= -1
 	}
-	dio.GeoM.Reset()
-	dio.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
-	dio.GeoM.Scale(scl.X, scl.Y)
-	dio.GeoM.Rotate(drawOpt.Rotation)
-	dio.GeoM.Translate(pos.X, pos.Y)
-	dio.ColorScale.Reset()
+	res.CameraDrawOpts.GeoM.Reset()
+	res.CameraDrawOpts.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
+	res.CameraDrawOpts.GeoM.Scale(scl.X, scl.Y)
+	res.CameraDrawOpts.GeoM.Rotate(drawOpt.Rotation)
+	res.CameraDrawOpts.GeoM.Translate(pos.X, pos.Y)
+	res.CameraDrawOpts.ColorScale.Reset()
 }
