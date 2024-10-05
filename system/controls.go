@@ -161,7 +161,6 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		// fmt.Println(inpututil.AppendJustPressedKeys(make([]ebiten.Key, 10)))
 		if inpututil.IsKeyJustPressed(ebiten.KeySlash) {
 
 			if inventory.Items[res.SelectedItem] > 0 {
@@ -179,8 +178,32 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if inpututil.IsKeyJustPressed(ebiten.KeyTab) {
-			res.SelectedItem++
+		if inpututil.IsKeyJustPressed(ebiten.Key1) {
+			res.SelectedItem = 1
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key2) {
+			res.SelectedItem = 2
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key3) {
+			res.SelectedItem = 3
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key4) {
+			res.SelectedItem = 4
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key5) {
+			res.SelectedItem = 5
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key6) {
+			res.SelectedItem = 6
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key7) {
+			res.SelectedItem = 7
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key8) {
+			res.SelectedItem = 8
+		}
+		if inpututil.IsKeyJustPressed(ebiten.Key9) {
+			res.SelectedItem = 9
 		}
 
 		if Idle {
