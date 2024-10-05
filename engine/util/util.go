@@ -120,3 +120,47 @@ func PointToVec2(p image.Point) vec.Vec2 {
 func Vec2ToPoint(v vec.Vec2) image.Point {
 	return image.Point{int(v.X), int(v.Y)}
 }
+
+// RotateSlice rotates a generic slice in place by n positions.
+//
+//	nums := []int{1, 2, 3, 4, 5}
+//	RotateSlice(&nums, 2)
+//	fmt.Println(nums) // Output: [3 4 5 1 2]
+func RotateSlice[T any](slice *[]T, n int) {
+	length := len(*slice)
+
+	if length == 0 {
+		return
+	}
+
+	// Handle cases where n is greater than the slice length or negative
+	n = ((n % length) + length) % length
+
+	// Perform the in-place rotation
+	reverse(slice, 0, n-1)
+	reverse(slice, n, length-1)
+	reverse(slice, 0, length-1)
+}
+
+// reverse is a helper function to reverse a slice in place
+func reverse[T any](slice *[]T, start, end int) {
+	for start < end {
+		(*slice)[start], (*slice)[end] = (*slice)[end], (*slice)[start]
+		start++
+		end--
+	}
+}
+
+// RotateSlice2 rotates a generic slice by n positions.
+func RotateSlice2[T any](slice []T, n int) []T {
+	length := len(slice)
+
+	if length == 0 {
+		return slice
+	}
+
+	// Handle cases where n is greater than the slice length or negative
+	n = ((n % length) + length) % length
+
+	return append(slice[n:], slice[:n]...)
+}
