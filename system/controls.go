@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"kar/arche"
@@ -84,7 +85,7 @@ func (sys *PlayerControlSystem) Update() {
 	comp.WASDFlyTag.Each(res.ECSWorld, WASDFly)
 
 	if player, ok := comp.PlayerTag.First(res.ECSWorld); ok {
-		inventory := comp.Inventory.Get(player)
+		inv := comp.Inventory.Get(player)
 		playerBody := comp.Body.Get(player)
 		playerPos = playerBody.Position()
 		playerPosMap = MainWorld.WorldSpaceToPixelSpace(playerPos.Add(vec.Vec2{(res.BlockSize / 2), (res.BlockSize / 2)}))
@@ -161,27 +162,17 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
+		// Place block
 		if inpututil.IsKeyJustPressed(ebiten.KeySlash) {
-			itemQuantity, ok := inventory.Items[res.SelectedItem]
-			if ok {
-				if itemQuantity > 0 {
-					if res.SelectedItem != items.Air {
-						if playerPosMap != placeBlockPosMap {
-							arche.SpawnBlock(placeBlockPos, placeBlockPosMap, res.SelectedItem)
 
-							inventory.Items[res.SelectedItem] -= 1
-
-							if inventory.Items[res.SelectedItem] <= 0 {
-								delete(inventory.Items, res.SelectedItem)
-							}
-							MainWorld.Image.SetGray(
-								placeBlockPosMap.X,
-								placeBlockPosMap.Y,
-								color.Gray{uint8(res.SelectedItem)})
-						}
-					}
+			if playerPosMap != placeBlockPosMap {
+				if RemoveItem(inv, res.SelectedItem) {
+					fmt.Println("Removed", res.SelectedItem)
+					arche.SpawnBlock(placeBlockPos, placeBlockPosMap, res.SelectedItem)
+					MainWorld.Image.SetGray(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray{uint8(res.SelectedItem)})
 				}
 			}
+
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {

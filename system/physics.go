@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"kar/comp"
 	"kar/res"
 	"math"
@@ -41,8 +42,12 @@ func PlayerDropItemBegin(arb *cm.Arbiter, space *cm.Space, userData interface{})
 		player, DropItemEntry := GetEntries(arb)
 		inv := comp.Inventory.Get(player)
 		itemData := comp.Item.Get(DropItemEntry)
-		inv.Items[itemData.Item]++
-		DestroyEntryWithBody(DropItemEntry)
+
+		ok := AddItem(inv, itemData.Item)
+		if ok {
+			fmt.Println("Added:", itemData.Item)
+			DestroyEntryWithBody(DropItemEntry)
+		}
 	}
 	return false
 }

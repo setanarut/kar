@@ -40,9 +40,12 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 		comp.Inventory,
 		comp.WASDTag,
 	))
-	inv := &types.DataInventory{
-		Items: make(map[types.ItemID]int),
+	inv := &types.DataInventory{}
+
+	for i := range inv.Slots {
+		inv.Slots[i] = &types.DataItemStack{0, 0}
 	}
+
 	comp.Inventory.Set(e, inv)
 
 	ap := anim.NewAnimationPlayer(res.AtlasPlayer)

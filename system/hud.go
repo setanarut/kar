@@ -25,7 +25,7 @@ Selected %v
 Chunk    %v
 TPS/FPS  %v %v
 Entities %v
-Inventory %v
+Inventory %v%v%v%v
 SelectedItem %v
 `
 	res.StatsTextOptions.GeoM.Translate(30, 26)
@@ -37,7 +37,7 @@ func (hs *DrawHUDSystem) Update() {
 func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 
 	if player, ok := comp.PlayerTag.First(res.ECSWorld); ok {
-
+		slots := comp.Inventory.Get(player).Slots
 		txt := fmt.Sprintf(hudTextTemplate,
 			playerPosMap,
 			currentBlockPosMap,
@@ -45,7 +45,10 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			math.Round(ebiten.ActualTPS()),
 			math.Round(ebiten.ActualFPS()),
 			res.ECSWorld.Len(),
-			comp.Inventory.Get(player).Items,
+			slots[0],
+			slots[1],
+			slots[2],
+			slots[3],
 			res.SelectedItem,
 		)
 		text.Draw(screen, txt, res.Font, res.StatsTextOptions)

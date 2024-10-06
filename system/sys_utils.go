@@ -4,6 +4,7 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/res"
+	"kar/types"
 
 	"github.com/setanarut/cm"
 
@@ -11,6 +12,56 @@ import (
 
 	"github.com/yohamta/donburi"
 )
+
+func AddItem(inv *types.DataInventory, id types.ItemID) bool {
+	i, ok1 := HasItemStackSpace(inv, id)
+	if ok1 {
+		inv.Slots[i].Quantity++
+		return true
+	} else {
+		i2, ok2 := HasEmptySlot(inv)
+		if ok2 {
+			inv.Slots[i2].Quantity++
+			inv.Slots[i2].Item = id
+			return true
+		}
+	}
+	return false
+}
+func RemoveItem(inv *types.DataInventory, id types.ItemID) bool {
+	i, ok := HasItem(inv, id)
+	if ok {
+		inv.Slots[i].Quantity--
+		return true
+	}
+	return false
+}
+
+func HasEmptySlot(inv *types.DataInventory) (index int, ok bool) {
+	for i, v := range inv.Slots {
+		if v.Quantity == 0 {
+			return i, true
+		}
+	}
+	return -1, false
+}
+func HasItemStackSpace(inv *types.DataInventory, id types.ItemID) (index int, ok bool) {
+	for i, v := range inv.Slots {
+		if v.Item == id && v.Quantity < 64 && v.Quantity > 0 {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+func HasItem(inv *types.DataInventory, id types.ItemID) (index int, ok bool) {
+	for i, v := range inv.Slots {
+		if v.Item == id && v.Quantity > 0 {
+			return i, true
+		}
+	}
+	return -1, false
+}
 
 func DestroyBodyWithEntry(b *cm.Body) {
 	if res.Space.ContainsBody(b) {
