@@ -162,19 +162,25 @@ func (sys *PlayerControlSystem) Update() {
 		}
 
 		if inpututil.IsKeyJustPressed(ebiten.KeySlash) {
+			itemQuantity, ok := inventory.Items[res.SelectedItem]
+			if ok {
+				if itemQuantity > 0 {
+					if res.SelectedItem != items.Air {
+						if playerPosMap != placeBlockPosMap {
+							arche.SpawnBlock(placeBlockPos, placeBlockPosMap, res.SelectedItem)
 
-			if inventory.Items[res.SelectedItem] > 0 {
-				if res.SelectedItem != items.Air {
-					if playerPosMap != placeBlockPosMap {
-						arche.SpawnBlock(placeBlockPos, placeBlockPosMap, res.SelectedItem)
-						inventory.Items[res.SelectedItem] -= 1
-						MainWorld.Image.SetGray(
-							placeBlockPosMap.X,
-							placeBlockPosMap.Y,
-							color.Gray{uint8(res.SelectedItem)})
+							inventory.Items[res.SelectedItem] -= 1
+
+							if inventory.Items[res.SelectedItem] <= 0 {
+								delete(inventory.Items, res.SelectedItem)
+							}
+							MainWorld.Image.SetGray(
+								placeBlockPosMap.X,
+								placeBlockPosMap.Y,
+								color.Gray{uint8(res.SelectedItem)})
+						}
 					}
 				}
-
 			}
 		}
 
