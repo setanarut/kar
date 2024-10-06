@@ -14,7 +14,7 @@ var (
 	AtlasPlayer  = util.LoadEbitenImageFromFS(assets, "assets/player.png")
 	AtlasBlock   = util.LoadEbitenImageFromFS(assets, "assets/blocks.png")
 	SelectedBox  = util.LoadEbitenImageFromFS(assets, "assets/border48.png")
-	SpriteFrames = make(map[types.ItemType][]*ebiten.Image)
+	SpriteFrames = make(map[types.ItemID][]*ebiten.Image)
 )
 
 func init() {

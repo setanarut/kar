@@ -35,8 +35,8 @@ func NewWorld(w, h, chunkSize, blockSize float64) *World {
 	return terr
 }
 
-func (tr *World) BlockTypeAtPixelCoord(p image.Point) types.ItemType {
-	return types.ItemType(tr.Image.GrayAt(p.X, p.Y).Y)
+func (tr *World) BlockTypeAtPixelCoord(p image.Point) types.ItemID {
+	return types.ItemID(tr.Image.GrayAt(p.X, p.Y).Y)
 }
 
 func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnFunc) {
@@ -45,7 +45,7 @@ func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnF
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
-			blockType := types.ItemType(tr.Image.GrayAt(blockX, blockY).Y)
+			blockType := types.ItemID(tr.Image.GrayAt(blockX, blockY).Y)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockType != items.Air {
@@ -124,11 +124,11 @@ func (tr *World) ChunkImage(chunkCoord image.Point) *image.Gray {
 	return img
 }
 
-func ApplyColorMap(img *image.Gray, colors map[types.ItemType]color.RGBA) *image.RGBA {
+func ApplyColorMap(img *image.Gray, colors map[types.ItemID]color.RGBA) *image.RGBA {
 	colored := image.NewRGBA(img.Bounds())
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			blockType := types.ItemType(img.GrayAt(x, y).Y)
+			blockType := types.ItemID(img.GrayAt(x, y).Y)
 			colored.SetRGBA(x, y, colors[blockType])
 		}
 	}

@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"kar/comp"
+	"kar/items"
 	"kar/res"
 	"math"
 
@@ -48,6 +49,13 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			res.SelectedItem,
 		)
 		text.Draw(screen, txt, res.Font, res.StatsTextOptions)
+		if res.SelectedItem != items.Air {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(-8, -8)
+			op.GeoM.Scale(3, 3)
+			op.GeoM.Translate(res.ScreenSize.X/2, res.ScreenSize.Y-64)
+			screen.DrawImage(res.SpriteFrames[res.SelectedItem][0], op)
+		}
 	}
 
 }

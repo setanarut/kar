@@ -41,7 +41,7 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 		comp.WASDTag,
 	))
 	inv := &types.DataInventory{
-		Items: make(map[types.ItemType]int),
+		Items: make(map[types.ItemID]int),
 	}
 	comp.Inventory.Set(e, inv)
 
@@ -83,7 +83,7 @@ func SpawnStatic(pos vec.Vec2, w, h float64) *donburi.Entry {
 	return entry
 }
 
-func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemType) {
+func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemID) {
 	e := SpawnStatic(pos, res.BlockSize, res.BlockSize)
 	e.AddComponent(comp.Health)
 	e.AddComponent(comp.Item)
@@ -138,7 +138,7 @@ func SpawnDebugBox(pos vec.Vec2) {
 	comp.Body.Set(e, b)
 
 }
-func SpawnDropItem(pos vec.Vec2, item types.ItemType, chunkCoord image.Point) {
+func SpawnDropItem(pos vec.Vec2, item types.ItemID, chunkCoord image.Point) {
 	DropItemEntry := res.ECSWorld.Entry(res.ECSWorld.Create(
 		comp.DrawOptions,
 		comp.Body,

@@ -37,9 +37,9 @@ func GenerateWorld(w, h int) *image.Gray {
 	// ikinci geçiş
 	for y := 0; y < 200; y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			blockType := types.ItemType(img.GrayAt(x, y).Y)
+			blockType := types.ItemID(img.GrayAt(x, y).Y)
 			if blockType == items.Dirt {
-				upperBlock := types.ItemType(img.GrayAt(x, y-1).Y)
+				upperBlock := types.ItemID(img.GrayAt(x, y-1).Y)
 				if upperBlock == items.Air {
 					img.SetGray(x, y, gray(items.Grass))
 				}
@@ -50,7 +50,7 @@ func GenerateWorld(w, h int) *image.Gray {
 	return img
 }
 
-func BlockState(x, y int) types.ItemType {
+func BlockState(x, y int) types.ItemID {
 	depth := float64(y)
 	amp := 60.0
 	ns.FractalType(fastnoise.FractalFBm)
@@ -97,6 +97,6 @@ func BlockState(x, y int) types.ItemType {
 	return items.Air
 }
 
-func gray(item types.ItemType) color.Gray {
+func gray(item types.ItemID) color.Gray {
 	return color.Gray{uint8(item)}
 }

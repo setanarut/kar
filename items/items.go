@@ -6,7 +6,7 @@ import (
 	"kar/types"
 )
 
-var Colors = map[types.ItemType]color.RGBA{
+var Colors = map[types.ItemID]color.RGBA{
 	Air:                 util.HexToRGBA("#0099ff"),
 	Dirt:                util.HexToRGBA("#74573E"),
 	Sand:                util.HexToRGBA("#fff5cc"),
@@ -24,7 +24,7 @@ var Colors = map[types.ItemType]color.RGBA{
 }
 
 const (
-	Air types.ItemType = iota
+	Air types.ItemID = iota
 	// Blocks
 	Grass
 	Dirt

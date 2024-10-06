@@ -40,7 +40,7 @@ var (
 	DesktopDir        string
 	BlockCenterOffset = vec.Vec2{(BlockSize / 2), (BlockSize / 2)}.Neg()
 
-	BlockMaxHealth = map[types.ItemType]float64{
+	BlockMaxHealth = map[types.ItemID]float64{
 		items.Grass:               5.0,
 		items.Dirt:                5.0,
 		items.Sand:                5.0,
@@ -59,7 +59,7 @@ var (
 
 var (
 	Cam               *kamera.Camera
-	SelectedItem      types.ItemType       = items.Air
+	SelectedItem      types.ItemID         = items.Air
 	ECSWorld          donburi.World        = donburi.NewWorld()
 	Space             *cm.Space            = cm.NewSpace()
 	Input             *engine.InputManager = &engine.InputManager{}

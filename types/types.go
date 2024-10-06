@@ -17,9 +17,9 @@ type ISystem interface {
 	Draw(screen *ebiten.Image)
 }
 
-type ItemType uint8
+type ItemID uint8
 
-type BlockSpawnFunc func(pos vec.Vec2, chunkCoord image.Point, blockType ItemType)
+type BlockSpawnFunc func(pos vec.Vec2, chunkCoord image.Point, blockType ItemID)
 
 type DataAI struct {
 	Target         *donburi.Entry
@@ -49,13 +49,13 @@ type DataIndex struct {
 }
 
 type DataInventory struct {
-	Items map[ItemType]int
+	Items map[ItemID]int
 }
 
 type DataItem struct {
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
-	Item       ItemType
+	Item       ItemID
 }
 type DataHealth struct {
 	Health    float64

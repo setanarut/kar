@@ -1,6 +1,6 @@
 
 - [x] Harita'yı renkli PNG olarak kaydetme fonksiyonu yaz.
-- [x] Envanter ekranda görüntülensin
+- [ ] Envanter ekranda görüntülensin ItemStack tipi yarat.
 - [ ] Öğeler sadece sensor olarak değiştirilecek. Öğenin olduğu konuma blok konulduğunda öğe (maden) hapsolmasın, boşluğa doğru kaçsın.
 - [ ] Harita sınırlarının dışına çıkmak engellensin.
 - [ ] Mevcut elde tutulan blok hangisi ise o yerleştirilsin.
