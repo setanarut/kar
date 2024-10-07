@@ -59,7 +59,8 @@ var (
 
 var (
 	Cam               *kamera.Camera
-	SelectedItem      types.ItemID         = items.Air
+	SelectedItemID    types.ItemID         = items.Air
+	SelectedSlot      int                  = 0
 	ECSWorld          donburi.World        = donburi.NewWorld()
 	Space             *cm.Space            = cm.NewSpace()
 	Input             *engine.InputManager = &engine.InputManager{}

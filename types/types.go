@@ -49,7 +49,7 @@ type DataIndex struct {
 }
 
 type DataInventory struct {
-	Slots [40]*DataItemStack
+	Slots [10]*DataItemStack
 }
 
 type DataItem struct {
@@ -63,6 +63,6 @@ type DataHealth struct {
 }
 
 type DataItemStack struct {
-	Item     ItemID
+	ID       ItemID
 	Quantity uint8
 }

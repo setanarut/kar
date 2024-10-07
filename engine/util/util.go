@@ -125,7 +125,6 @@ func Vec2ToPoint(v vec.Vec2) image.Point {
 //
 //	nums := []int{1, 2, 3, 4, 5}
 //	RotateSlice(&nums, 2)
-//	fmt.Println(nums) // Output: [3 4 5 1 2]
 func RotateSlice[T any](slice *[]T, n int) {
 	length := len(*slice)
 
