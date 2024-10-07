@@ -53,7 +53,7 @@ type DataInventory struct {
 }
 
 type DataItem struct {
-	Item ItemID
+	ID ItemID
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
 }

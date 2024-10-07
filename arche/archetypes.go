@@ -107,7 +107,7 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemID) {
 	comp.Item.Set(e,
 		&types.DataItem{
 			ChunkCoord: chunkCoord,
-			Item:       blockType,
+			ID:         blockType,
 		})
 
 }
@@ -160,7 +160,7 @@ func SpawnDropItem(pos vec.Vec2, item types.ItemID, chunkCoord image.Point) {
 	comp.Item.Set(DropItemEntry,
 		&types.DataItem{
 			ChunkCoord: chunkCoord,
-			Item:       item,
+			ID:         item,
 		})
 
 	dropItemBody := cm.NewBody(0.8, cm.Infinity)

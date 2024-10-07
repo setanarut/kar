@@ -42,7 +42,7 @@ func PlayerDropItemBegin(arb *cm.Arbiter, space *cm.Space, userData interface{})
 		inv := comp.Inventory.Get(player)
 		itemData := comp.Item.Get(DropItemEntry)
 
-		ok := inventoryManager.addItem(inv, itemData.Item)
+		ok := inventoryManager.addItem(inv, itemData.ID)
 		if ok {
 			destroyEntry(DropItemEntry)
 		}

@@ -101,11 +101,11 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 		healthData := comp.Health.Get(e)
 		pos := body.Position()
 		health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
-		l := float64(len(res.SpriteFrames[itemData.Item]))
+		l := float64(len(res.SpriteFrames[itemData.ID]))
 		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, l))
 
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itemData.Item][blockSpriteFrameIndex], res.GlobalDrawOptions, scr)
+		res.Cam.Draw(res.SpriteFrames[itemData.ID][blockSpriteFrameIndex], res.GlobalDrawOptions, scr)
 	})
 
 	// Drop Item
@@ -119,7 +119,7 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 		pos.Y += sinspace[datai.Index]
 
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itemData.Item][0], res.GlobalDrawOptions, scr)
+		res.Cam.Draw(res.SpriteFrames[itemData.ID][0], res.GlobalDrawOptions, scr)
 	})
 
 	comp.DebugBoxTag.Each(res.ECSWorld, func(e *donburi.Entry) {
