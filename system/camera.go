@@ -157,7 +157,7 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 					dio.GeoM.Translate(
 						currentBlockPos.X+res.BlockCenterOffset.X,
 						currentBlockPos.Y+res.BlockCenterOffset.Y)
-					res.Cam.Draw(res.SelectedBox, dio, scr)
+					res.Cam.Draw(res.Border48, dio, scr)
 				}
 			}
 		}

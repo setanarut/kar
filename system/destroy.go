@@ -46,7 +46,7 @@ func DestroyDeadBlock(e *donburi.Entry) {
 		body := comp.Body.Get(e)
 		pos := body.Position()
 		body.FirstShape().SetSensor(true)
-		DestroyEntryWithBody(e)
+		destroyEntry(e)
 		blockPos := MainWorld.WorldSpaceToPixelSpace(pos)
 		MainWorld.Image.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
 

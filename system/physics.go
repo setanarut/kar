@@ -37,12 +37,15 @@ func (ps *PhysicsSystem) Draw(screen *ebiten.Image) {}
 
 // Player <-> DropItem begin
 func PlayerDropItemBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	if CheckEntries(arb) {
-		player, DropItemEntry := GetEntries(arb)
+	if checkEntries(arb) {
+		player, DropItemEntry := getEntries(arb)
 		inv := comp.Inventory.Get(player)
 		itemData := comp.Item.Get(DropItemEntry)
-		inv.Items[itemData.Item]++
-		DestroyEntryWithBody(DropItemEntry)
+
+		ok := inventoryManager.addItem(inv, itemData.Item)
+		if ok {
+			destroyEntry(DropItemEntry)
+		}
 	}
 	return false
 }

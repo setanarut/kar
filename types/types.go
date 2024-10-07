@@ -49,15 +49,20 @@ type DataIndex struct {
 }
 
 type DataInventory struct {
-	Items map[ItemID]int
+	Slots [10]*DataItemStack
 }
 
 type DataItem struct {
+	Item ItemID
 	// to mark which chunk the block belongs to
 	ChunkCoord image.Point
-	Item       ItemID
 }
 type DataHealth struct {
 	Health    float64
 	MaxHealth float64
+}
+
+type DataItemStack struct {
+	ID       ItemID
+	Quantity uint8
 }

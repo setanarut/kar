@@ -6,7 +6,7 @@ import (
 	"kar/types"
 )
 
-var Colors = map[types.ItemID]color.RGBA{
+var BlockColor = map[types.ItemID]color.RGBA{
 	Air:                 util.HexToRGBA("#0099ff"),
 	Dirt:                util.HexToRGBA("#74573E"),
 	Sand:                util.HexToRGBA("#fff5cc"),
@@ -21,6 +21,48 @@ var Colors = map[types.ItemID]color.RGBA{
 	DeepSlateIronOre:    util.HexToRGBA("#8a6548"),
 	DeepSlateDiamondOre: util.HexToRGBA("#00ffe1"),
 	Grass:               util.HexToRGBA("#00903f"),
+}
+var ItemName = map[types.ItemID]string{
+	Air:                 "Air",
+	Grass:               "Grass",
+	Dirt:                "Dirt",
+	Sand:                "Sand",
+	Stone:               "Stone",
+	CoalOre:             "CoalOre",
+	GoldOre:             "GoldOre",
+	IronOre:             "IronOre",
+	DiamondOre:          "DiamondOre",
+	DeepSlateStone:      "DeepSlateStone",
+	DeepSlateCoalOre:    "DeepSlateCoalOre",
+	DeepSlateGoldOre:    "DeepSlateGoldOre",
+	DeepSlateIronOre:    "DeepSlateIronOre",
+	DeepSlateDiamondOre: "DeepSlateDiamondOre",
+	Coal:                "Coal",
+	RawCopper:           "RawCopper",
+	RawGold:             "RawGold",
+	RawIron:             "RawIron",
+	Diamond:             "Diamond",
+	WoodShovel:          "WoodShovel",
+	StoneShovel:         "StoneShovel",
+	IronShovel:          "IronShovel",
+	GoldenAxe:           "GoldenAxe",
+	WoodAxe:             "WoodAxe",
+	StoneAxe:            "StoneAxe",
+	IronAxe:             "IronAxe",
+	DiamondAxe:          "DiamondAxe",
+	NetheriteAxe:        "NetheriteAxe",
+	GoldenPickaxe:       "GoldenPickaxe",
+	WoodPickaxe:         "WoodPickaxe",
+	StonePickaxe:        "StonePickaxe",
+	IronPickaxe:         "IronPickaxe",
+	DiamondPickaxe:      "DiamondPickaxe",
+	NetheritePickaxe:    "NetheritePickaxe",
+	GoldenSword:         "GoldenSword",
+	WoodSword:           "WoodSword",
+	StoneSword:          "StoneSword",
+	IronSword:           "IronSword",
+	DiamondSword:        "DiamondSword",
+	NetheriteSword:      "NetheriteSword",
 }
 
 const (

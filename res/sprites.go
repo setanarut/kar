@@ -13,11 +13,14 @@ import (
 var (
 	AtlasPlayer  = util.LoadEbitenImageFromFS(assets, "assets/player.png")
 	AtlasBlock   = util.LoadEbitenImageFromFS(assets, "assets/blocks.png")
-	SelectedBox  = util.LoadEbitenImageFromFS(assets, "assets/border48.png")
+	Border48     = util.LoadEbitenImageFromFS(assets, "assets/border48.png")
+	Border32     = util.LoadEbitenImageFromFS(assets, "assets/border32.png")
+	Slot16       = util.LoadEbitenImageFromFS(assets, "assets/slot16.png")
 	SpriteFrames = make(map[types.ItemID][]*ebiten.Image)
 )
 
 func init() {
+	SpriteFrames[items.Air] = anim.SubImages(AtlasBlock, 512-16, 0, 16, 16, 1, false)
 	SpriteFrames[items.Dirt] = anim.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
 	SpriteFrames[items.Sand] = anim.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
 	SpriteFrames[items.Stone] = anim.SubImages(AtlasBlock, 16*2, 0, 16, 16, 9, true)
