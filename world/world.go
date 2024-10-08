@@ -20,7 +20,7 @@ var mooreNeighbors = [8]image.Point{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-
 type World struct {
 	W, H                 float64
 	ChunkSize, BlockSize float64
-	Image                *image.Gray
+	Image                *image.Gray16
 	LoadedChunks         []image.Point
 }
 
@@ -35,8 +35,8 @@ func NewWorld(w, h, chunkSize, blockSize float64) *World {
 	return terr
 }
 
-func (tr *World) BlockTypeAtPixelCoord(p image.Point) types.ItemID {
-	return types.ItemID(tr.Image.GrayAt(p.X, p.Y).Y)
+func (tr *World) BlockTypeAtPixelCoord(p image.Point) uint16 {
+	return uint16(tr.Image.Gray16At(p.X, p.Y).Y)
 }
 
 func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnFunc) {
@@ -45,7 +45,7 @@ func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnF
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
-			blockType := types.ItemID(tr.Image.GrayAt(blockX, blockY).Y)
+			blockType := uint16(tr.Image.Gray16At(blockX, blockY).Y)
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockType != items.Air {
@@ -61,7 +61,7 @@ func (tr *World) EmptyBlockInChunk(chunkCoord image.Point) (bool, image.Point) {
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
-			if tr.Image.GrayAt(blockX, blockY).Y == 0 {
+			if tr.Image.Gray16At(blockX, blockY).Y == 0 {
 				return true, image.Point{blockX, blockY}
 			}
 
@@ -112,24 +112,23 @@ func (tr *World) WorldSpaceToPixelSpace(pos vec.Vec2) image.Point {
 	return mapPos
 }
 
-func (tr *World) ChunkImage(chunkCoord image.Point) *image.Gray {
+func (tr *World) ChunkImage(chunkCoord image.Point) *image.Gray16 {
 	chunksize := int(tr.ChunkSize)
-	img := image.NewGray(image.Rect(0, 0, chunksize, chunksize))
+	img := image.NewGray16(image.Rect(0, 0, chunksize, chunksize))
 	for y := 0; y < chunksize; y++ {
 		for x := 0; x < chunksize; x++ {
-			gray := tr.Image.GrayAt(x+(chunksize*chunkCoord.X), y+(chunksize*chunkCoord.Y))
+			gray := tr.Image.Gray16At(x+(chunksize*chunkCoord.X), y+(chunksize*chunkCoord.Y))
 			img.Set(x, y, gray)
 		}
 	}
 	return img
 }
 
-func ApplyColorMap(img *image.Gray, colors map[types.ItemID]color.RGBA) *image.RGBA {
+func ApplyColorMap(img *image.Gray16, colors map[uint16]color.RGBA) *image.RGBA {
 	colored := image.NewRGBA(img.Bounds())
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			blockType := types.ItemID(img.GrayAt(x, y).Y)
-			colored.SetRGBA(x, y, colors[blockType])
+			colored.SetRGBA(x, y, colors[img.Gray16At(x, y).Y])
 		}
 	}
 	return colored

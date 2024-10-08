@@ -11,14 +11,14 @@ const DeltaTime float64 = 1.0 / 60.0
 
 // Collision Bitmask Category
 const (
-	BitmaskPlayer        uint = 1 << 0
-	BitmaskBlock         uint = 1 << 1
-	BitmaskDropItem      uint = 1 << 2
-	BitmaskPlayerRaycast uint = 1 << 4
-	BitmaskEnemy         uint = 1 << 5
-	BitmaskBomb          uint = 1 << 6
-	BitmaskBombRaycast   uint = 1 << 7
-	BitmaskGrabable      uint = 1 << 31
+	BitmaskPlayer uint = 1 << iota
+	BitmaskBlock
+	BitmaskDropItem
+	BitmaskPlayerRaycast
+	BitmaskEnemy
+	BitmaskBomb
+	BitmaskBombRaycast
+	BitmaskGrabable uint = 1 << 31
 )
 
 // Collision type

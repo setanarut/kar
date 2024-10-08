@@ -87,7 +87,7 @@ func SpawnStatic(pos vec.Vec2, w, h float64) *donburi.Entry {
 	return entry
 }
 
-func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemID) {
+func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, itemID uint16) {
 	e := SpawnStatic(pos, res.BlockSize, res.BlockSize)
 	e.AddComponent(comp.Health)
 	e.AddComponent(comp.Item)
@@ -96,8 +96,8 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemID) {
 
 	// set max health
 	comp.Health.Set(e, &types.DataHealth{
-		Health:    items.BlockMaxHealth[blockType],
-		MaxHealth: items.BlockMaxHealth[blockType],
+		Health:    items.Items[itemID].MaxHealth,
+		MaxHealth: items.Items[itemID].MaxHealth,
 	})
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
@@ -108,7 +108,7 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemID) {
 	comp.Item.Set(e,
 		&types.DataItem{
 			ChunkCoord: chunkCoord,
-			ID:         blockType,
+			ID:         itemID,
 		})
 
 }
@@ -142,7 +142,7 @@ func SpawnDebugBox(pos vec.Vec2) {
 	comp.Body.Set(e, b)
 
 }
-func SpawnDropItem(pos vec.Vec2, item types.ItemID, chunkCoord image.Point) {
+func SpawnDropItem(pos vec.Vec2, itemID uint16, chunkCoord image.Point) {
 	DropItemEntry := res.ECSWorld.Entry(res.ECSWorld.Create(
 		comp.DrawOptions,
 		comp.Body,
@@ -161,7 +161,7 @@ func SpawnDropItem(pos vec.Vec2, item types.ItemID, chunkCoord image.Point) {
 	comp.Item.Set(DropItemEntry,
 		&types.DataItem{
 			ChunkCoord: chunkCoord,
-			ID:         item,
+			ID:         itemID,
 		})
 
 	dropItemBody := cm.NewBody(0.8, cm.Infinity)

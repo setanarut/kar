@@ -2,7 +2,6 @@ package res
 
 import (
 	"kar/engine/util"
-	"kar/types"
 
 	"github.com/setanarut/anim"
 
@@ -14,7 +13,7 @@ var (
 	Border48     = util.LoadEbitenImageFromFS(assets, "assets/border48.png")
 	Border32     = util.LoadEbitenImageFromFS(assets, "assets/border32.png")
 	Slot16       = util.LoadEbitenImageFromFS(assets, "assets/slot16.png")
-	SpriteFrames = make(map[types.ItemID][]*ebiten.Image)
+	SpriteFrames = make(map[uint16][]*ebiten.Image)
 )
 
 func init() {
@@ -24,13 +23,13 @@ func init() {
 
 	// blocks
 	for y := range 22 {
-		SpriteFrames[types.ItemID(y+1)] = anim.SubImages(blockAtlas, 0, y*s, s, s, 11, false)
+		SpriteFrames[uint16(y+1)] = anim.SubImages(blockAtlas, 0, y*s, s, s, 11, false)
 	}
 
 	// items
 	for i := range 7 {
 		id := i + 26
 		x := i * 16
-		SpriteFrames[types.ItemID(id)] = anim.SubImages(itemAtlas, x, 0, s, s, 1, false)
+		SpriteFrames[uint16(id)] = anim.SubImages(itemAtlas, x, 0, s, s, 1, false)
 	}
 }
