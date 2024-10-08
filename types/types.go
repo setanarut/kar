@@ -16,10 +16,14 @@ type ISystem interface {
 	Update()
 	Draw(screen *ebiten.Image)
 }
-
 type ItemID uint8
 
-type BlockSpawnFunc func(pos vec.Vec2, chunkCoord image.Point, blockType ItemID)
+type ItemStack struct {
+	ID       ItemID
+	Quantity uint8
+}
+
+type BlockSpawnFunc func(pos vec.Vec2, chunkCoord image.Point, id ItemID)
 
 type DataAI struct {
 	Target         *donburi.Entry
@@ -49,7 +53,7 @@ type DataIndex struct {
 }
 
 type DataInventory struct {
-	Slots [10]*DataItemStack
+	Slots [10]*ItemStack
 }
 
 type DataItem struct {
@@ -60,9 +64,4 @@ type DataItem struct {
 type DataHealth struct {
 	Health    float64
 	MaxHealth float64
-}
-
-type DataItemStack struct {
-	ID       ItemID
-	Quantity uint8
 }

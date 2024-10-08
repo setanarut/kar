@@ -2,7 +2,6 @@ package res
 
 import (
 	"kar/engine/util"
-	"kar/items"
 	"kar/types"
 
 	"github.com/setanarut/anim"
@@ -12,7 +11,6 @@ import (
 
 var (
 	AtlasPlayer  = util.LoadEbitenImageFromFS(assets, "assets/player.png")
-	AtlasBlock   = util.LoadEbitenImageFromFS(assets, "assets/blocks.png")
 	Border48     = util.LoadEbitenImageFromFS(assets, "assets/border48.png")
 	Border32     = util.LoadEbitenImageFromFS(assets, "assets/border32.png")
 	Slot16       = util.LoadEbitenImageFromFS(assets, "assets/slot16.png")
@@ -20,25 +18,19 @@ var (
 )
 
 func init() {
-	SpriteFrames[items.Air] = anim.SubImages(AtlasBlock, 512-16, 0, 16, 16, 1, false)
-	SpriteFrames[items.Dirt] = anim.SubImages(AtlasBlock, 0, 0, 16, 16, 9, true)
-	SpriteFrames[items.Sand] = anim.SubImages(AtlasBlock, 16, 0, 16, 16, 9, true)
-	SpriteFrames[items.Stone] = anim.SubImages(AtlasBlock, 16*2, 0, 16, 16, 9, true)
-	SpriteFrames[items.CoalOre] = anim.SubImages(AtlasBlock, 16*3, 0, 16, 16, 9, true)
-	SpriteFrames[items.GoldOre] = anim.SubImages(AtlasBlock, 16*4, 0, 16, 16, 9, true)
-	SpriteFrames[items.IronOre] = anim.SubImages(AtlasBlock, 16*5, 0, 16, 16, 9, true)
-	SpriteFrames[items.DiamondOre] = anim.SubImages(AtlasBlock, 16*6, 0, 16, 16, 9, true)
-	SpriteFrames[items.Grass] = anim.SubImages(AtlasBlock, 208, 0, 16, 16, 1, true)
+	blockAtlas := util.LoadEbitenImageFromFS(assets, "assets/blocks.png")
+	itemAtlas := util.LoadEbitenImageFromFS(assets, "assets/items.png")
+	s := 16
 
-	SpriteFrames[items.DeepSlateStone] = anim.SubImages(AtlasBlock, 16*2, 144, 16, 16, 9, true)
-	SpriteFrames[items.DeepSlateCoalOre] = anim.SubImages(AtlasBlock, 16*3, 144, 16, 16, 9, true)
-	SpriteFrames[items.DeepSlateGoldOre] = anim.SubImages(AtlasBlock, 16*4, 144, 16, 16, 9, true)
-	SpriteFrames[items.DeepSlateIronOre] = anim.SubImages(AtlasBlock, 16*5, 144, 16, 16, 9, true)
-	SpriteFrames[items.DeepSlateDiamondOre] = anim.SubImages(AtlasBlock, 16*6, 144, 16, 16, 9, true)
+	// blocks
+	for y := range 22 {
+		SpriteFrames[types.ItemID(y+1)] = anim.SubImages(blockAtlas, 0, y*s, s, s, 11, false)
+	}
 
-	SpriteFrames[items.RawCopper] = anim.SubImages(AtlasBlock, 16*2, 288, 16, 16, 1, false)
-	SpriteFrames[items.Coal] = anim.SubImages(AtlasBlock, 16*3, 288, 16, 16, 1, false)
-	SpriteFrames[items.RawGold] = anim.SubImages(AtlasBlock, 16*4, 288, 16, 16, 1, false)
-	SpriteFrames[items.RawIron] = anim.SubImages(AtlasBlock, 16*5, 288, 16, 16, 1, false)
-	SpriteFrames[items.Diamond] = anim.SubImages(AtlasBlock, 16*6, 288, 16, 16, 1, false)
+	// items
+	for i := range 7 {
+		id := i + 26
+		x := i * 16
+		SpriteFrames[types.ItemID(id)] = anim.SubImages(itemAtlas, x, 0, s, s, 1, false)
+	}
 }

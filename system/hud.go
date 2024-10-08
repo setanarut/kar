@@ -46,7 +46,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 		if slots[res.SelectedSlot].ID == items.Air {
 			selectedSlot = ""
 		} else {
-			selectedSlot = items.ItemName[slots[res.SelectedSlot].ID]
+			selectedSlot = items.DisplayName[slots[res.SelectedSlot].ID]
 		}
 
 		txt := fmt.Sprintf(hudTextTemplate,

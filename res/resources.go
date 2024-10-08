@@ -39,22 +39,6 @@ var (
 	GlobalDrawOptions *ebiten.DrawImageOptions = &ebiten.DrawImageOptions{Filter: ebiten.FilterNearest}
 	DesktopDir        string
 	BlockCenterOffset = vec.Vec2{(BlockSize / 2), (BlockSize / 2)}.Neg()
-
-	BlockMaxHealth = map[types.ItemID]float64{
-		items.Grass:               5.0,
-		items.Dirt:                5.0,
-		items.Sand:                5.0,
-		items.Stone:               10.0,
-		items.CoalOre:             10.0,
-		items.GoldOre:             10.0,
-		items.IronOre:             10.0,
-		items.DiamondOre:          10.0,
-		items.DeepSlateStone:      15.0,
-		items.DeepSlateCoalOre:    15.0,
-		items.DeepSlateGoldOre:    15.0,
-		items.DeepSlateIronOre:    15.0,
-		items.DeepSlateDiamondOre: 5.0,
-	}
 )
 
 var (

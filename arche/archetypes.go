@@ -5,6 +5,7 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/util"
+	"kar/items"
 	"kar/res"
 	"kar/types"
 
@@ -43,7 +44,7 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 	inv := &types.DataInventory{}
 
 	for i := range inv.Slots {
-		inv.Slots[i] = &types.DataItemStack{0, 0}
+		inv.Slots[i] = &types.ItemStack{0, 0}
 	}
 
 	comp.Inventory.Set(e, inv)
@@ -95,8 +96,8 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, blockType types.ItemID) {
 
 	// set max health
 	comp.Health.Set(e, &types.DataHealth{
-		Health:    res.BlockMaxHealth[blockType],
-		MaxHealth: res.BlockMaxHealth[blockType],
+		Health:    items.BlockMaxHealth[blockType],
+		MaxHealth: items.BlockMaxHealth[blockType],
 	})
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
