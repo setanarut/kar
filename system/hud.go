@@ -41,12 +41,12 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 	if player, ok := comp.PlayerTag.First(res.ECSWorld); ok {
 
 		slots := comp.Inventory.Get(player).Slots
-		var selectedSlot string
+		var selectedSlotDisplayName string
 
 		if slots[res.SelectedSlot].ID == items.Air {
-			selectedSlot = ""
+			selectedSlotDisplayName = ""
 		} else {
-			selectedSlot = items.DisplayName[slots[res.SelectedSlot].ID]
+			selectedSlotDisplayName = items.Items[slots[res.SelectedSlot].ID].DisplayName
 		}
 
 		txt := fmt.Sprintf(hudTextTemplate,
@@ -56,7 +56,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			math.Round(ebiten.ActualTPS()),
 			math.Round(ebiten.ActualFPS()),
 			res.ECSWorld.Len(),
-			selectedSlot,
+			selectedSlotDisplayName,
 		)
 		text.Draw(screen, txt, res.Font, res.StatsTextOptions)
 

@@ -37,7 +37,7 @@ func EntityOnRemoveCallback(world donburi.World, entity donburi.Entity) {
 		healthData := comp.Health.Get(entry)
 		if healthData.Health <= 0 {
 			body.FirstShape().SetSensor(true)
-			dropID := items.Drops[itemData.ID]
+			dropID := items.Items[itemData.ID].Drops
 			arche.SpawnDropItem(pos, dropID, MainWorld.WorldPosToChunkCoord(pos))
 		}
 	}
@@ -50,7 +50,7 @@ func DestroyDeadBlockCallback(e *donburi.Entry) {
 		body.FirstShape().SetSensor(true)
 		destroyEntry(e)
 		blockPos := MainWorld.WorldSpaceToPixelSpace(pos)
-		MainWorld.Image.SetGray(blockPos.X, blockPos.Y, color.Gray{uint8(items.Air)})
+		MainWorld.Image.SetGray16(blockPos.X, blockPos.Y, color.Gray16{items.Air})
 
 	}
 }

@@ -31,7 +31,7 @@ func (s *SpawnSystem) Init() {
 	var playerSpawnPos vec.Vec2
 
 	for y := range 300 {
-		if MainWorld.Image.GrayAt(256, y).Y != 0 {
+		if MainWorld.Image.Gray16At(256, y).Y != 0 {
 			playerSpawnPos = vec.Vec2{255. * res.BlockSize, float64(y-1) * res.BlockSize}
 			break
 		}

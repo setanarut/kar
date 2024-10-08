@@ -9,7 +9,6 @@ import (
 	"kar/engine/util"
 	"kar/items"
 	"kar/res"
-	"kar/types"
 	"kar/world"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -170,7 +169,7 @@ func (sys *PlayerControlSystem) Update() {
 					if playerPosMap != placeBlockPosMap {
 						if inventoryManager.removeItem(playerInventory, playerInventory.Slots[res.SelectedSlot].ID) {
 							arche.SpawnBlock(placeBlockPos, placeBlockPosMap, playerInventory.Slots[res.SelectedSlot].ID)
-							MainWorld.Image.SetGray(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray{uint8(res.SelectedItemID)})
+							MainWorld.Image.SetGray16(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray16{res.SelectedItemID})
 						}
 					}
 				}
@@ -180,7 +179,7 @@ func (sys *PlayerControlSystem) Update() {
 		// Add random item to inventory
 		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 			if ebiten.IsKeyPressed(ebiten.KeyMetaLeft) {
-				inventoryManager.addItem(playerInventory, types.ItemID(mathutil.RandRangeInt(1, 13)))
+				inventoryManager.addItem(playerInventory, uint16(mathutil.RandRangeInt(1, 13)))
 			}
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
@@ -268,11 +267,11 @@ func (sys *PlayerControlSystem) Update() {
 		go util.WritePNG(res.SpriteFrames[items.Dirt][0], res.DesktopDir+"map.png")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF6) {
-		go util.WritePNG(world.ApplyColorMap(MainWorld.Image, items.Colors), res.DesktopDir+"map.png")
+		go util.WritePNG(world.ApplyColorMap(MainWorld.Image, items.ItemColorMap), res.DesktopDir+"map.png")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
 		go util.WritePNG(
-			world.ApplyColorMap(MainWorld.ChunkImage(PlayerChunk), items.Colors),
+			world.ApplyColorMap(MainWorld.ChunkImage(PlayerChunk), items.ItemColorMap),
 			res.DesktopDir+"playerChunk.png")
 	}
 

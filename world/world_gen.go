@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"kar/engine/mathutil"
 	"kar/items"
-	"kar/types"
 	"math/rand/v2"
 
 	"github.com/setanarut/fastnoise"
@@ -14,7 +13,7 @@ import (
 var ns = fastnoise.New[float64]()
 var random *rand.Rand
 
-func GenerateWorld(w, h int) *image.Gray {
+func GenerateWorld(w, h int) *image.Gray16 {
 
 	// seeds
 	seed := mathutil.RandRangeInt(0, 1000000)
@@ -27,30 +26,29 @@ func GenerateWorld(w, h int) *image.Gray {
 	ns.NoiseType(fastnoise.OpenSimplex2)
 	ns.Gain = 1
 
-	img := image.NewGray(image.Rect(0, 0, w, h))
+	img := image.NewGray16(image.Rect(0, 0, w, h))
 	for y := 0; y < img.Bounds().Dy(); y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			img.SetGray(x, y, gray(BlockState(x, y)))
+			img.SetGray16(x, y, color.Gray16{BlockState(x, y)})
 		}
 	}
 
 	// ikinci geçiş
 	for y := 0; y < 200; y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			blockType := types.ItemID(img.GrayAt(x, y).Y)
+			blockType := uint16(img.Gray16At(x, y).Y)
 			if blockType == items.Dirt {
-				upperBlock := types.ItemID(img.GrayAt(x, y-1).Y)
+				upperBlock := uint16(img.Gray16At(x, y-1).Y)
 				if upperBlock == items.Air {
-					img.SetGray(x, y, gray(items.Grass))
+					img.SetGray16(x, y, color.Gray16{items.Grass})
 				}
 			}
 		}
 	}
-
 	return img
 }
 
-func BlockState(x, y int) types.ItemID {
+func BlockState(x, y int) uint16 {
 	depth := float64(y)
 	amp := 60.0
 	ns.FractalType(fastnoise.FractalFBm)
@@ -79,24 +77,20 @@ func BlockState(x, y int) types.ItemID {
 			if random.Float64() > 0.5 {
 				return items.Stone
 			} else {
-				return items.DeepSlateStone
+				return items.DeepslateStone
 			}
 		}
-		return items.DeepSlateStone
+		return items.DeepslateStone
 	}
 	if depth == 510 {
 		if random.Float64() > 0.5 {
-			return items.DeepSlateStone
+			return items.DeepslateStone
 		} else {
-			return items.DeepSlateGoldOre
+			return items.DeepslateGoldOre
 		}
 	}
 	if depth == 511 {
 		return items.GoldOre
 	}
 	return items.Air
-}
-
-func gray(item types.ItemID) color.Gray {
-	return color.Gray{uint8(item)}
 }

@@ -15,7 +15,7 @@ type inventory struct {
 
 var inventoryManager = &inventory{}
 
-func (im *inventory) addItem(inv *types.DataInventory, id types.ItemID) bool {
+func (im *inventory) addItem(inv *types.DataInventory, id uint16) bool {
 	i, ok1 := im.hasItemStackSpace(inv, id)
 	if ok1 {
 		inv.Slots[i].Quantity++
@@ -30,7 +30,7 @@ func (im *inventory) addItem(inv *types.DataInventory, id types.ItemID) bool {
 	}
 	return false
 }
-func (im *inventory) removeItem(inv *types.DataInventory, id types.ItemID) bool {
+func (im *inventory) removeItem(inv *types.DataInventory, id uint16) bool {
 	i, ok := im.hasItem(inv, id)
 	if ok {
 		inv.Slots[i].Quantity--
@@ -47,7 +47,7 @@ func (im *inventory) hasEmptySlot(inv *types.DataInventory) (index int, ok bool)
 	}
 	return -1, false
 }
-func (im *inventory) hasItemStackSpace(inv *types.DataInventory, id types.ItemID) (index int, ok bool) {
+func (im *inventory) hasItemStackSpace(inv *types.DataInventory, id uint16) (index int, ok bool) {
 	for i, v := range inv.Slots {
 		if v.ID == id && v.Quantity < 64 && v.Quantity > 0 {
 			return i, true
@@ -56,7 +56,7 @@ func (im *inventory) hasItemStackSpace(inv *types.DataInventory, id types.ItemID
 	return -1, false
 }
 
-func (im *inventory) hasItem(inv *types.DataInventory, id types.ItemID) (index int, ok bool) {
+func (im *inventory) hasItem(inv *types.DataInventory, id uint16) (index int, ok bool) {
 	for i, v := range inv.Slots {
 		if v.ID == id && v.Quantity > 0 {
 			return i, true

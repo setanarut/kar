@@ -92,7 +92,7 @@ func (ds *DrawCameraSystem) Update() {
 func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 
 	// clear color
-	scr.Fill(color.Gray{30})
+	scr.Fill(color.Gray16{30})
 
 	comp.BlockTag.Each(res.ECSWorld, func(e *donburi.Entry) {
 		body := comp.Body.Get(e)
