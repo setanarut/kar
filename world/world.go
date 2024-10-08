@@ -45,7 +45,7 @@ func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnF
 		for x := 0; x < chunksize; x++ {
 			blockX := x + (chunksize * chunkCoord.X)
 			blockY := y + (chunksize * chunkCoord.Y)
-			blockType := uint16(tr.Image.Gray16At(blockX, blockY).Y)
+			blockType := tr.Image.Gray16At(blockX, blockY).Y
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockType != items.Air {

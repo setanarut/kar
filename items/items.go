@@ -104,7 +104,7 @@ var Items = map[uint16]Item{
 		MaxHealth:   10,
 	},
 	Dirt: {
-		DisplayName: "Grass",
+		DisplayName: "Dirt",
 		Drops:       5,
 		Stackable:   64,
 		Breakable:   true,
@@ -119,7 +119,7 @@ var Items = map[uint16]Item{
 	},
 	Stone: {
 		DisplayName: "Stone",
-		Drops:       Cobblestone,
+		Drops:       Stone,
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
@@ -251,6 +251,108 @@ var Items = map[uint16]Item{
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
+	},
+	Tree: {
+		DisplayName: "Tree",
+		Drops:       Tree,
+		Stackable:   64,
+		Breakable:   true,
+		MaxHealth:   10,
+	},
+
+	TreeLeaves: {
+		DisplayName: "Tree Leaves",
+		Drops:       TreeLeaves,
+		Stackable:   64,
+		Breakable:   true,
+		MaxHealth:   10,
+	},
+
+	TreePlank: {
+		DisplayName: "Tree Plank",
+		Drops:       TreePlank,
+		Stackable:   64,
+		Breakable:   true,
+		MaxHealth:   10,
+	},
+	Sapling: {
+		DisplayName: "Sapling",
+		Drops:       Sapling,
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   10,
+	},
+	Torch: {
+		DisplayName: "Torch",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   10,
+	},
+
+	Coal: {
+		DisplayName: "Coal",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	CharCoal: {
+		DisplayName: "CharCoal",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	RawGold: {
+		DisplayName: "Raw Gold",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+
+	RawIron: {
+		DisplayName: "Raw Iron",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+
+	Diamond: {
+		DisplayName: "Diamond",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	RawCopper: {
+		DisplayName: "Raw Copper",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+
+	Emerald: {
+		DisplayName: "Emerald",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	LapisLazuli: {
+		DisplayName: "Lapis Lazuli",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+
+	Redstone: {
+		DisplayName: "Redstone",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+
+	WoodShovel: {
+		DisplayName: "Wood Shovel",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
 	},
 }
 

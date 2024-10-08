@@ -26,7 +26,6 @@ func NewSpawnSystem() *SpawnSystem {
 }
 
 func (s *SpawnSystem) Init() {
-	// seed := mathutil.RandRangeInt(0, 1000)
 	MainWorld = world.NewWorld(res.WorldSize.X, res.WorldSize.Y, res.ChunkSize, res.BlockSize)
 	var playerSpawnPos vec.Vec2
 
