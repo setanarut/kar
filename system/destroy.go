@@ -19,49 +19,31 @@ func NewDestroySystem() *DestroySystem {
 }
 
 func (s *DestroySystem) Init() {
-
-	res.ECSWorld.OnRemove(func(world donburi.World, entity donburi.Entity) {
-		entry := world.Entry(entity)
-		if entry.HasComponent(comp.BlockTag) {
-			body := comp.Body.Get(entry)
-			pos := body.Position()
-			itemData := comp.Item.Get(entry)
-			healthData := comp.Health.Get(entry)
-			if healthData.Health <= 0 {
-				body.FirstShape().SetSensor(true)
-				switch itemData.ID {
-				case items.CoalOre:
-					arche.SpawnDropItem(pos, items.Coal, MainWorld.WorldPosToChunkCoord(pos))
-				case items.GoldOre:
-					arche.SpawnDropItem(pos, items.RawGold, MainWorld.WorldPosToChunkCoord(pos))
-				case items.IronOre:
-					arche.SpawnDropItem(pos, items.RawIron, MainWorld.WorldPosToChunkCoord(pos))
-				case items.DiamondOre:
-					arche.SpawnDropItem(pos, items.Diamond, MainWorld.WorldPosToChunkCoord(pos))
-				case items.DeepSlateCoalOre:
-					arche.SpawnDropItem(pos, items.Coal, MainWorld.WorldPosToChunkCoord(pos))
-				case items.DeepSlateGoldOre:
-					arche.SpawnDropItem(pos, items.RawGold, MainWorld.WorldPosToChunkCoord(pos))
-				case items.DeepSlateIronOre:
-					arche.SpawnDropItem(pos, items.RawIron, MainWorld.WorldPosToChunkCoord(pos))
-				case items.DeepSlateDiamondOre:
-					arche.SpawnDropItem(pos, items.Diamond, MainWorld.WorldPosToChunkCoord(pos))
-				default:
-					arche.SpawnDropItem(pos, itemData.ID, MainWorld.WorldPosToChunkCoord(pos))
-				}
-
-			}
-		}
-	})
+	res.ECSWorld.OnRemove(EntityOnRemoveCallback)
 }
 
 func (s *DestroySystem) Update() {
-	comp.BlockTag.Each(res.ECSWorld, DestroyDeadBlock)
+	comp.BlockTag.Each(res.ECSWorld, DestroyDeadBlockCallback)
 }
 
 func (s *DestroySystem) Draw(screen *ebiten.Image) {}
 
-func DestroyDeadBlock(e *donburi.Entry) {
+func EntityOnRemoveCallback(world donburi.World, entity donburi.Entity) {
+	entry := world.Entry(entity)
+	if entry.HasComponent(comp.BlockTag) {
+		body := comp.Body.Get(entry)
+		pos := body.Position()
+		itemData := comp.Item.Get(entry)
+		healthData := comp.Health.Get(entry)
+		if healthData.Health <= 0 {
+			body.FirstShape().SetSensor(true)
+			dropID := items.Drops[itemData.ID]
+			arche.SpawnDropItem(pos, dropID, MainWorld.WorldPosToChunkCoord(pos))
+		}
+	}
+
+}
+func DestroyDeadBlockCallback(e *donburi.Entry) {
 	if comp.Health.Get(e).Health <= 0 {
 		body := comp.Body.Get(e)
 		pos := body.Position()

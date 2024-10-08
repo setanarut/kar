@@ -24,4 +24,5 @@
 # Go workspace file
 go.work
 .DS_Store
-bulimia
+.vscode/tasks.json
+/.vscode

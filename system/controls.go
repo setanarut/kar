@@ -186,8 +186,10 @@ func (sys *PlayerControlSystem) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
 			if hitShape != nil {
 				id := playerInventory.Slots[res.SelectedSlot].ID
-				playerInventory.Slots[res.SelectedSlot].Quantity--
-				arche.SpawnDropItem(placeBlockPos, id, MainWorld.WorldPosToChunkCoord(playerPos))
+				if playerInventory.Slots[res.SelectedSlot].Quantity > 0 {
+					playerInventory.Slots[res.SelectedSlot].Quantity--
+					arche.SpawnDropItem(placeBlockPos, id, MainWorld.WorldPosToChunkCoord(playerPos))
+				}
 			}
 		}
 
