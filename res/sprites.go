@@ -11,8 +11,7 @@ import (
 
 var (
 	AtlasPlayer  = util.LoadEbitenImageFromFS(assets, "assets/player.png")
-	Border48     = util.LoadEbitenImageFromFS(assets, "assets/border48.png")
-	Border32     = util.LoadEbitenImageFromFS(assets, "assets/border32.png")
+	Border       = util.LoadEbitenImageFromFS(assets, "assets/border64.png")
 	Slot16       = util.LoadEbitenImageFromFS(assets, "assets/slot16.png")
 	SpriteFrames = make(map[uint16][]*ebiten.Image)
 )
@@ -23,6 +22,7 @@ func init() {
 	s := 16
 
 	// blocks
+	SpriteFrames[itm.Bedrock] = anim.SubImages(blockAtlas, 176, 0, s, s, 1, false)
 	SpriteFrames[itm.Grass] = anim.SubImages(blockAtlas, 0, 0, s, s, 11, false)
 	SpriteFrames[itm.Snow] = anim.SubImages(blockAtlas, 0, s, s, s, 11, false)
 	SpriteFrames[itm.Dirt] = anim.SubImages(blockAtlas, 0, 2*s, s, s, 11, false)

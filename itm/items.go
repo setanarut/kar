@@ -57,6 +57,7 @@ const (
 	DeepslateEmeraldOre
 	DeepslateLapisOre
 	DeepslateRedStoneOre
+	Bedrock
 
 	Log
 	Leaves
@@ -240,6 +241,14 @@ var Items = map[uint16]Item{
 		MaxHealth:   10,
 		Category:    CatBlock,
 	},
+	CobbledDeepslate: {
+		DisplayName: "Cobbled Deepslate",
+		Drops:       CobbledDeepslate,
+		Stackable:   64,
+		Breakable:   true,
+		MaxHealth:   10,
+		Category:    CatBlock,
+	},
 	DeepslateCoalOre: {
 		DisplayName: "Deepslate Coal Ore",
 		Drops:       Coal,
@@ -304,6 +313,14 @@ var Items = map[uint16]Item{
 		Breakable:   true,
 		MaxHealth:   10,
 		Category:    CatBlock | CatOreBlock,
+	},
+	Bedrock: {
+		DisplayName: "Bedrock",
+		Drops:       Air,
+		Stackable:   0,
+		Breakable:   false,
+		MaxHealth:   1,
+		Category:    CatBlock,
 	},
 	Log: {
 		DisplayName: "Log",

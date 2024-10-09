@@ -149,17 +149,23 @@ func (sys *PlayerControlSystem) Update() {
 
 		// Attack
 		if ebiten.IsKeyPressed(ebiten.KeyShiftRight) {
+
 			if attackSegmentQuery.Shape != nil && attackSegmentQuery.Shape == hitShape {
 				if hitShape != nil {
+
 					if checkEntry(hitShape.Body()) {
 						e := getEntry(hitShape.Body())
-						if e.HasComponent(comp.Item) {
-							h := comp.Health.Get(e)
-							h.Health -= 0.2
+						if e.HasComponent(comp.Item) && e.HasComponent(comp.BlockTag) && e.HasComponent(comp.Health) {
+							it := comp.Item.Get(e)
+							if itm.Items[it.ID].Breakable {
+								h := comp.Health.Get(e)
+								h.Health -= 0.2
+							}
 						}
 					}
 				}
 			}
+
 		}
 
 		// Place block

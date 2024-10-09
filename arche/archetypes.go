@@ -150,7 +150,7 @@ func SpawnDropItem(pos vec.Vec2, itemID uint16, chunkCoord image.Point) {
 		comp.DropItemTag,
 		comp.Index, // animasyon için zamanlayıcı
 	))
-	itemWidth := res.BlockSize / 4
+	itemWidth := res.BlockSize / 3
 	comp.DrawOptions.Set(DropItemEntry, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
 		Scale:        mathutil.RectangleScaleFactor(16, 16, itemWidth, itemWidth),
