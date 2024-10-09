@@ -5,7 +5,7 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/util"
-	"kar/items"
+	"kar/itm"
 	"kar/res"
 	"kar/types"
 
@@ -96,8 +96,8 @@ func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, itemID uint16) {
 
 	// set max health
 	comp.Health.Set(e, &types.DataHealth{
-		Health:    items.Items[itemID].MaxHealth,
-		MaxHealth: items.Items[itemID].MaxHealth,
+		Health:    itm.Items[itemID].MaxHealth,
+		MaxHealth: itm.Items[itemID].MaxHealth,
 	})
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{

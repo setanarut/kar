@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 	"kar/engine/mathutil"
-	"kar/items"
+	"kar/itm"
 	"math/rand/v2"
 
 	"github.com/setanarut/fastnoise"
@@ -36,12 +36,12 @@ func GenerateWorld(w, h int) *image.Gray16 {
 	// ikinci geçiş
 	for y := 0; y < 200; y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			if img.Gray16At(x, y).Y == items.Dirt {
+			if img.Gray16At(x, y).Y == itm.Dirt {
 				upperBlock := img.Gray16At(x, y-1).Y
-				if upperBlock == items.Air {
+				if upperBlock == itm.Air {
 					// rn := mathutil.RandRangeInt(1, 26)
 					// img.SetGray16(x, y, color.Gray16{uint16(rn)})
-					img.SetGray16(x, y, color.Gray16{items.Grass})
+					img.SetGray16(x, y, color.Gray16{itm.Grass})
 				}
 			}
 		}
@@ -60,38 +60,38 @@ func BlockState(x, y int) uint16 {
 		grad := mathutil.MapRange(float64(y), n1, n2, 0, 1)
 
 		if (random.Float64()+grad)/2 > 0.8 {
-			return items.Stone
+			return itm.Stone
 		} else {
-			return items.Dirt
+			return itm.Dirt
 		}
 		// return items.Dirt
 	}
 	if depth >= n2 && depth <= amp*4 {
-		return items.Stone
+		return itm.Stone
 	}
 
 	if depth >= n2 && depth <= 250 {
-		return items.Stone
+		return itm.Stone
 	}
 	if depth >= 251 && depth <= 509 {
 		if depth >= 251 && depth < 251+3 {
 			if random.Float64() > 0.5 {
-				return items.Stone
+				return itm.Stone
 			} else {
-				return items.DeepslateStone
+				return itm.DeepslateStone
 			}
 		}
-		return items.DeepslateStone
+		return itm.DeepslateStone
 	}
 	if depth == 510 {
 		if random.Float64() > 0.5 {
-			return items.DeepslateStone
+			return itm.DeepslateStone
 		} else {
-			return items.DeepslateGoldOre
+			return itm.DeepslateGoldOre
 		}
 	}
 	if depth == 511 {
-		return items.GoldOre
+		return itm.GoldOre
 	}
-	return items.Air
+	return itm.Air
 }

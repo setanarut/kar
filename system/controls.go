@@ -7,7 +7,7 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/util"
-	"kar/items"
+	"kar/itm"
 	"kar/res"
 	"kar/world"
 
@@ -164,24 +164,23 @@ func (sys *PlayerControlSystem) Update() {
 
 		// Place block
 		if inpututil.IsKeyJustPressed(ebiten.KeySlash) {
-			if hitShape != nil {
-				if playerInventory.Slots[res.SelectedSlot].ID != items.Air {
-					if playerPosMap != placeBlockPosMap {
-						if inventoryManager.removeItem(playerInventory, playerInventory.Slots[res.SelectedSlot].ID) {
-							arche.SpawnBlock(placeBlockPos, placeBlockPosMap, playerInventory.Slots[res.SelectedSlot].ID)
-							MainWorld.Image.SetGray16(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray16{res.SelectedItemID})
+			selectedSlotItemId := playerInventory.Slots[res.SelectedSlot].ID
+			if itm.Items[selectedSlotItemId].Category&itm.CatBlock != 0 {
+				if hitShape != nil {
+					if selectedSlotItemId != itm.Air {
+						if playerPosMap != placeBlockPosMap {
+							if inventoryManager.removeItem(playerInventory, playerInventory.Slots[res.SelectedSlot].ID) {
+								arche.SpawnBlock(placeBlockPos, placeBlockPosMap, playerInventory.Slots[res.SelectedSlot].ID)
+								MainWorld.Image.SetGray16(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray16{res.SelectedItemID})
+							}
 						}
 					}
 				}
 			}
+
 		}
 
-		// Add random item to inventory
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-			if ebiten.IsKeyPressed(ebiten.KeyMetaLeft) {
-				inventoryManager.addItem(playerInventory, uint16(mathutil.RandRangeInt(1, 74)))
-			}
-		}
+		// Drop Item
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
 			if hitShape != nil {
 				id := playerInventory.Slots[res.SelectedSlot].ID
@@ -192,6 +191,12 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
+		// Add random item to inventory
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			if ebiten.IsKeyPressed(ebiten.KeyMetaLeft) {
+				inventoryManager.addItem(playerInventory, uint16(mathutil.RandRangeInt(1, 74)))
+			}
+		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 
 			if res.SelectedSlot+1 < len(playerInventory.Slots) {
@@ -264,14 +269,14 @@ func (sys *PlayerControlSystem) Update() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF4) {
-		go util.WritePNG(res.SpriteFrames[items.Dirt][0], res.DesktopDir+"map.png")
+		go util.WritePNG(res.SpriteFrames[itm.Dirt][0], res.DesktopDir+"map.png")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF6) {
-		go util.WritePNG(world.ApplyColorMap(MainWorld.Image, items.ItemColorMap), res.DesktopDir+"map.png")
+		go util.WritePNG(world.ApplyColorMap(MainWorld.Image, itm.ItemColorMap), res.DesktopDir+"map.png")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
 		go util.WritePNG(
-			world.ApplyColorMap(MainWorld.ChunkImage(PlayerChunk), items.ItemColorMap),
+			world.ApplyColorMap(MainWorld.ChunkImage(PlayerChunk), itm.ItemColorMap),
 			res.DesktopDir+"playerChunk.png")
 	}
 

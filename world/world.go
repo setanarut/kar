@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"kar/comp"
 	"kar/engine/util"
-	"kar/items"
+	"kar/itm"
 	"kar/res"
 	"kar/types"
 	"slices"
@@ -48,7 +48,7 @@ func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnF
 			blockType := tr.Image.Gray16At(blockX, blockY).Y
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-			if blockType != items.Air {
+			if blockType != itm.Air {
 				spawnBlock(blockPos, chunkCoord, blockType)
 			}
 		}

@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"kar/arche"
 	"kar/comp"
-	"kar/items"
+	"kar/itm"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -37,7 +37,7 @@ func EntityOnRemoveCallback(world donburi.World, entity donburi.Entity) {
 		healthData := comp.Health.Get(entry)
 		if healthData.Health <= 0 {
 			body.FirstShape().SetSensor(true)
-			dropID := items.Items[itemData.ID].Drops
+			dropID := itm.Items[itemData.ID].Drops
 			arche.SpawnDropItem(pos, dropID, MainWorld.WorldPosToChunkCoord(pos))
 		}
 	}
@@ -50,7 +50,7 @@ func DestroyDeadBlockCallback(e *donburi.Entry) {
 		body.FirstShape().SetSensor(true)
 		destroyEntry(e)
 		blockPos := MainWorld.WorldSpaceToPixelSpace(pos)
-		MainWorld.Image.SetGray16(blockPos.X, blockPos.Y, color.Gray16{items.Air})
+		MainWorld.Image.SetGray16(blockPos.X, blockPos.Y, color.Gray16{itm.Air})
 
 	}
 }

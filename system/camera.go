@@ -5,7 +5,7 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/vectorg"
-	"kar/items"
+	"kar/itm"
 	"kar/res"
 	"kar/types"
 	"math"
@@ -92,7 +92,7 @@ func (ds *DrawCameraSystem) Update() {
 func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 
 	// clear color
-	scr.Fill(color.Gray16{30})
+	scr.Fill(color.RGBA{64, 68, 108, 255})
 
 	comp.BlockTag.Each(res.ECSWorld, func(e *donburi.Entry) {
 		body := comp.Body.Get(e)
@@ -128,7 +128,7 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 		drawOpt := comp.DrawOptions.Get(e)
 		drawOpt.Rotation = b.Angle()
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[items.Stone][0], res.GlobalDrawOptions, scr)
+		res.Cam.Draw(res.SpriteFrames[itm.Stone][0], res.GlobalDrawOptions, scr)
 	})
 
 	playerEntry, ok := comp.PlayerTag.First(res.ECSWorld)

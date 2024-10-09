@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"kar/comp"
-	"kar/items"
+	"kar/itm"
 	"kar/res"
 	"math"
 
@@ -43,10 +43,10 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 		slots := comp.Inventory.Get(player).Slots
 		var selectedSlotDisplayName string
 
-		if slots[res.SelectedSlot].ID == items.Air {
+		if slots[res.SelectedSlot].ID == itm.Air {
 			selectedSlotDisplayName = ""
 		} else {
-			selectedSlotDisplayName = items.Items[slots[res.SelectedSlot].ID].DisplayName
+			selectedSlotDisplayName = itm.Items[slots[res.SelectedSlot].ID].DisplayName
 		}
 
 		txt := fmt.Sprintf(hudTextTemplate,
@@ -65,7 +65,7 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			quantity := slots[x].Quantity
 			var im *ebiten.Image
 
-			if id == items.Air || quantity == 0 {
+			if id == itm.Air || quantity == 0 {
 				im = res.Slot16
 			} else {
 				im = res.SpriteFrames[id][0]

@@ -6,7 +6,7 @@ import (
 	"kar/comp"
 	"kar/engine"
 	"kar/engine/util"
-	"kar/items"
+	"kar/itm"
 	"log"
 	"os"
 
@@ -42,7 +42,7 @@ var (
 
 var (
 	Cam               *kamera.Camera
-	SelectedItemID    uint16               = items.Air
+	SelectedItemID    uint16               = itm.Air
 	SelectedSlot      int                  = 0
 	ECSWorld          donburi.World        = donburi.NewWorld()
 	Space             *cm.Space            = cm.NewSpace()
