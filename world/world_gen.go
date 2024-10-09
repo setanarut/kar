@@ -36,10 +36,11 @@ func GenerateWorld(w, h int) *image.Gray16 {
 	// ikinci geçiş
 	for y := 0; y < 200; y++ {
 		for x := 0; x < img.Bounds().Dx(); x++ {
-			blockType := uint16(img.Gray16At(x, y).Y)
-			if blockType == items.Dirt {
-				upperBlock := uint16(img.Gray16At(x, y-1).Y)
+			if img.Gray16At(x, y).Y == items.Dirt {
+				upperBlock := img.Gray16At(x, y-1).Y
 				if upperBlock == items.Air {
+					// rn := mathutil.RandRangeInt(1, 26)
+					// img.SetGray16(x, y, color.Gray16{uint16(rn)})
 					img.SetGray16(x, y, color.Gray16{items.Grass})
 				}
 			}

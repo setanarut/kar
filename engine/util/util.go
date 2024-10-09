@@ -163,3 +163,11 @@ func RotateSlice2[T any](slice []T, n int) []T {
 
 	return append(slice[n:], slice[:n]...)
 }
+
+// SubImage returns sub-image from spriteSheet image
+func SubImage(spriteSheet *ebiten.Image, x, y, w, h int, vertical bool) *ebiten.Image {
+	frameRect := image.Rect(x, y, x+w, y+h)
+	subImage := spriteSheet.SubImage(frameRect).(*ebiten.Image)
+	return subImage
+
+}

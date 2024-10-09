@@ -34,9 +34,9 @@ const (
 	DeepslateLapisOre
 	DeepslateRedStoneOre
 
-	Tree
-	TreeLeaves
-	TreePlank
+	Log
+	Leaves
+	Planks
 	Sapling
 	Torch
 
@@ -49,28 +49,42 @@ const (
 	Emerald
 	LapisLazuli
 	Redstone
-
-	WoodShovel
-	StoneShovel
-	IronShovel
-	GoldenAxe
 	WoodAxe
-	StoneAxe
-	IronAxe
-	DiamondAxe
-	NetheriteAxe
-	GoldenPickaxe
+	WoodHoe
 	WoodPickaxe
-	StonePickaxe
-	IronPickaxe
-	DiamondPickaxe
-	NetheritePickaxe
-	GoldenSword
+	WoodShovel
 	WoodSword
+	StoneAxe
+	StoneHoe
+	StonePickaxe
+	StoneShovel
 	StoneSword
+	GoldenAxe
+	GoldenHoe
+	GoldenPickaxe
+	GoldenShovel
+	GoldenSword
+	IronAxe
+	IronHoe
+	IronPickaxe
+	IronShovel
 	IronSword
+	DiamondAxe
+	DiamondHoe
+	DiamondPickaxe
+	DiamondShovel
 	DiamondSword
+	NetheriteAxe
+	NetheriteHoe
+	NetheritePickaxe
+	NetheriteShovel
 	NetheriteSword
+	NetheriteScrap
+	NetheriteIngot
+	GoldIngot
+	IronIngot
+	CopperIngot
+	Stick
 )
 
 type Item struct {
@@ -105,7 +119,7 @@ var Items = map[uint16]Item{
 	},
 	Dirt: {
 		DisplayName: "Dirt",
-		Drops:       5,
+		Drops:       Dirt,
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
@@ -119,7 +133,7 @@ var Items = map[uint16]Item{
 	},
 	Stone: {
 		DisplayName: "Stone",
-		Drops:       Stone,
+		Drops:       Cobblestone,
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
@@ -252,25 +266,25 @@ var Items = map[uint16]Item{
 		Breakable:   true,
 		MaxHealth:   10,
 	},
-	Tree: {
-		DisplayName: "Tree",
-		Drops:       Tree,
+	Log: {
+		DisplayName: "Log",
+		Drops:       Log,
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
 	},
 
-	TreeLeaves: {
-		DisplayName: "Tree Leaves",
-		Drops:       TreeLeaves,
+	Leaves: {
+		DisplayName: "Leaves",
+		Drops:       Leaves,
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
 	},
 
-	TreePlank: {
+	Planks: {
 		DisplayName: "Tree Plank",
-		Drops:       TreePlank,
+		Drops:       Planks,
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
@@ -348,9 +362,219 @@ var Items = map[uint16]Item{
 		MaxHealth:   1,
 	},
 
-	WoodShovel: {
-		DisplayName: "Wood Shovel",
+	WoodAxe: {
+		DisplayName: "Wood Axe",
 		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	WoodHoe: {
+		DisplayName: "Wood Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	WoodPickaxe: {
+		DisplayName: "Wood Pickaxe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	WoodShovel: {
+		DisplayName: "Wood Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	WoodSword: {
+		DisplayName: "Wood Sword",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	StoneAxe: {
+		DisplayName: "Stone Axe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	StoneHoe: {
+		DisplayName: "Stone Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	StonePickaxe: {
+		DisplayName: "Stone Pickaxe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	StoneShovel: {
+		DisplayName: "Stone Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	StoneSword: {
+		DisplayName: "Stone Sword",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	GoldenAxe: {
+		DisplayName: "Golden Axe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	GoldenHoe: {
+		DisplayName: "Golden Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	GoldenPickaxe: {
+		DisplayName: "Golden Pickaxe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	GoldenShovel: {
+		DisplayName: "Golden Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	GoldenSword: {
+		DisplayName: "Golden Sword",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	IronAxe: {
+		DisplayName: "Iron Axe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	IronHoe: {
+		DisplayName: "Iron Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	IronPickaxe: {
+		DisplayName: "Iron Pickaxe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	IronShovel: {
+		DisplayName: "Iron Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	IronSword: {
+		DisplayName: "Iron Sword",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	DiamondAxe: {
+		DisplayName: "Diamond Axe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	DiamondHoe: {
+		DisplayName: "Diamond Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	DiamondPickaxe: {
+		DisplayName: "Diamond Pickaxe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	DiamondShovel: {
+		DisplayName: "Diamond Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	DiamondSword: {
+		DisplayName: "Diamond Sword",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheriteAxe: {
+		DisplayName: "Netherite Axe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheriteHoe: {
+		DisplayName: "Netherite Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheritePickaxe: {
+		DisplayName: "Netherite Pickaxe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheriteShovel: {
+		DisplayName: "Netherite Hoe",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheriteSword: {
+		DisplayName: "Netherite Sword",
+		Stackable:   1,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheriteScrap: {
+		DisplayName: "Netherite Scrap",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	NetheriteIngot: {
+		DisplayName: "Netherite Ingot",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	GoldIngot: {
+		DisplayName: "Gold Ingot",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	IronIngot: {
+		DisplayName: "Iron Ingot",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	CopperIngot: {
+		DisplayName: "Copper Ingot",
+		Stackable:   64,
+		Breakable:   false,
+		MaxHealth:   1,
+	},
+	Stick: {
+		DisplayName: "Stick",
+		Stackable:   64,
 		Breakable:   false,
 		MaxHealth:   1,
 	},

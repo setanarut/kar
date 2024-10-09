@@ -179,7 +179,7 @@ func (sys *PlayerControlSystem) Update() {
 		// Add random item to inventory
 		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 			if ebiten.IsKeyPressed(ebiten.KeyMetaLeft) {
-				inventoryManager.addItem(playerInventory, uint16(mathutil.RandRangeInt(1, 13)))
+				inventoryManager.addItem(playerInventory, uint16(mathutil.RandRangeInt(1, 74)))
 			}
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {

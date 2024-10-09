@@ -35,9 +35,9 @@ func RandRange(min, max float64) float64 {
 	return min + rand.Float64()*(max-min)
 
 }
+
 func RandRangeInt(min, max int) int {
 	return rand.IntN(max-min+1) + min
-
 }
 
 // Clamp returns f clamped to [low, high]
