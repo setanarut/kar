@@ -6,7 +6,6 @@ import (
 	"kar/comp"
 	"kar/itm"
 	"kar/res"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -16,21 +15,29 @@ var hudTextTemplate string
 var selectedIm = ebiten.NewImage(16, 16)
 
 type DrawHUDSystem struct {
+	hotbarDOP, itemsDOP *ebiten.DrawImageOptions
+	itemQuantityTextDOP *text.DrawOptions
 }
 
 func NewDrawHUDSystem() *DrawHUDSystem {
 	return &DrawHUDSystem{}
 }
 func (hs *DrawHUDSystem) Init() {
-	hudTextTemplate = `Player   %v
-Selected %v
-Chunk    %v
-TPS/FPS  %v %v
-Entities %v
-SelectedSlot %v
-`
+	hs.hotbarDOP = &ebiten.DrawImageOptions{}
+	hs.itemsDOP = &ebiten.DrawImageOptions{}
+	hs.itemQuantityTextDOP = &text.DrawOptions{}
 	res.StatsTextOptions.GeoM.Translate(30, 26)
+
 	selectedIm.Fill(color.White)
+
+	hudTextTemplate = `
+PLAYER   %d %d
+LOOKAT   %d %d %s
+CHUNK    %d %d
+TPS/FPS  %v %v
+ENTITIES %d
+SELECTED %v
+`
 }
 
 func (hs *DrawHUDSystem) Update() {
@@ -49,56 +56,65 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			selectedSlotDisplayName = itm.Items[slots[res.SelectedSlot].ID].DisplayName
 		}
 
-		txt := fmt.Sprintf(hudTextTemplate,
-			playerPosMap,
-			currentBlockPosMap,
-			PlayerChunk,
-			math.Round(ebiten.ActualTPS()),
-			math.Round(ebiten.ActualFPS()),
-			res.ECSWorld.Len(),
-			selectedSlotDisplayName,
-		)
-		text.Draw(screen, txt, res.Font, res.StatsTextOptions)
+		hs.hotbarDOP.GeoM.Reset()
+		hs.hotbarDOP.GeoM.Translate(-91, -11)
+		hs.hotbarDOP.GeoM.Scale(2, 2)
+		hs.hotbarDOP.GeoM.Translate(res.ScreenSize.X/2, res.ScreenSize.Y-40)
+		screen.DrawImage(res.Hotbar, hs.hotbarDOP)
 
-		for x := range 10 {
+		hs.hotbarDOP.GeoM.Translate(-2, -2)
+		selectedOffsetX := float64(res.SelectedSlot) * 40
+		hs.hotbarDOP.GeoM.Translate(selectedOffsetX, 0)
+		screen.DrawImage(res.HotbarSelection, hs.hotbarDOP)
+
+		for x := range 9 {
 			id := slots[x].ID
 			quantity := slots[x].Quantity
 			var im *ebiten.Image
 
 			if id == itm.Air || quantity == 0 {
-				im = res.Slot16
+				im = nil
 			} else {
 				im = res.SpriteFrames[id][0]
 			}
 
-			offsetX := (float64(x) * 36) + 300
-			offsetY := res.ScreenSize.Y - 100
+			offsetX := (float64(x) * 40) + 320
+			// öğeler
+			hs.itemsDOP.GeoM.Reset()
+			hs.itemsDOP.GeoM.Translate(-8, -8)
+			hs.itemsDOP.GeoM.Scale(2, 2)
+			hs.itemsDOP.GeoM.Translate(offsetX, res.ScreenSize.Y-40)
 
-			// gölge
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(-8, -8)
-			op.GeoM.Scale(2.2, 2.2)
-			op.GeoM.Translate(offsetX, float64(offsetY))
-			if x == res.SelectedSlot {
-				screen.DrawImage(selectedIm, op)
-			} else {
-				op.ColorScale.ScaleWithColor(color.Black)
-				screen.DrawImage(im, op)
+			if im != nil {
+				screen.DrawImage(im, hs.itemsDOP)
 			}
 
-			// öğeler
-			op.ColorScale.Reset()
-			op.GeoM.Reset()
-			op.GeoM.Translate(-8, -8)
-			op.GeoM.Scale(2, 2)
-			op.GeoM.Translate(offsetX, float64(offsetY))
-			screen.DrawImage(im, op)
-
-			dop := &text.DrawOptions{}
-			dop.GeoM.Translate(offsetX, offsetY)
+			hs.itemQuantityTextDOP.GeoM.Reset()
+			hs.itemQuantityTextDOP.GeoM.Translate(offsetX, res.ScreenSize.Y-40)
 			if quantity > 0 {
-				text.Draw(screen, fmt.Sprintf("%d", quantity), res.Font, dop)
+				text.Draw(screen, fmt.Sprintf("%d", quantity), res.Font, hs.itemQuantityTextDOP)
 			}
 		}
+
+		txt := fmt.Sprintf(hudTextTemplate,
+			playerPosMap.X, playerPosMap.Y,
+			currentBlockPosMap.X, currentBlockPosMap.Y, itm.Items[HitItemID].DisplayName,
+			PlayerChunk.X, PlayerChunk.X,
+			int(ebiten.ActualTPS()), int(ebiten.ActualFPS()),
+			res.ECSWorld.Len(),
+			selectedSlotDisplayName,
+		)
+
+		text.Draw(screen, txt, res.Font, res.StatsTextOptions)
+
 	}
 }
+
+// hudTextTemplate = `
+// PLAYER   %d %d
+// SELECTED %d %d %s
+// CHUNK    %d %d
+// TPS/FPS  %d %d
+// ENTITIES %d
+// SLOT     %s
+// `

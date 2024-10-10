@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	AtlasPlayer  = util.LoadEbitenImageFromFS(assets, "assets/player.png")
-	Border       = util.LoadEbitenImageFromFS(assets, "assets/border64.png")
-	Slot16       = util.LoadEbitenImageFromFS(assets, "assets/slot16.png")
-	SpriteFrames = make(map[uint16][]*ebiten.Image)
+	AtlasPlayer     = util.LoadEbitenImageFromFS(assets, "assets/player.png")
+	Border          = util.LoadEbitenImageFromFS(assets, "assets/border64.png")
+	Hotbar          = util.LoadEbitenImageFromFS(assets, "assets/hotbar.png")
+	HotbarSelection = util.LoadEbitenImageFromFS(assets, "assets/hotbarselect.png")
+	SpriteFrames    = make(map[uint16][]*ebiten.Image)
 )
 
 func init() {

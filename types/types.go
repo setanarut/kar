@@ -52,7 +52,7 @@ type DataIndex struct {
 }
 
 type DataInventory struct {
-	Slots [10]*ItemStack
+	Slots [9]*ItemStack
 }
 
 type DataItem struct {

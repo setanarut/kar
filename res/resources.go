@@ -27,7 +27,7 @@ var assets embed.FS
 var (
 	WorldSize         = vec.Vec2{512, 512}
 	BlockSize float64 = 16 * 4
-	ChunkSize float64 = 8
+	ChunkSize float64 = 10
 	/*
 		640,360  1280,720
 		854,480  1366,768

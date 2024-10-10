@@ -24,6 +24,7 @@ var (
 	attackSegmentEnd                                   vec.Vec2
 	playerPos, placeBlockPos, currentBlockPos          vec.Vec2
 	playerPosMap, placeBlockPosMap, currentBlockPosMap image.Point
+	HitItemID                                          uint16
 )
 
 var (
@@ -96,6 +97,12 @@ func (sys *PlayerControlSystem) Update() {
 		hitShape = attackSegmentQuery.Shape
 
 		if hitShape != nil {
+			if checkEntry(hitShape.Body()) {
+				e := getEntry(hitShape.Body())
+				if e.HasComponent(comp.Item) {
+					HitItemID = comp.Item.Get(e).ID
+				}
+			}
 			currentBlockPos = hitShape.Body().Position()
 			currentBlockPosMap = MainWorld.WorldSpaceToPixelSpace(currentBlockPos)
 			placeBlockPos = currentBlockPos.Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
@@ -325,6 +332,6 @@ func WASDPlatformerForce(e *donburi.Entry) {
 func WASDFly(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Unit().Scale(mobileData.Speed * 2)
+	velocity := res.Input.WASDDirection.Unit().Scale(mobileData.Speed * 4)
 	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 }

@@ -143,6 +143,7 @@ var Items = map[uint16]Item{
 		Stackable:   64,
 		Breakable:   true,
 		MaxHealth:   10,
+		Category:    CatBlock,
 	},
 	Sand: {
 		DisplayName: "Sand",

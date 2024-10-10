@@ -87,11 +87,11 @@ func BlockState(x, y int) uint16 {
 		if random.Float64() > 0.5 {
 			return itm.DeepslateStone
 		} else {
-			return itm.DeepslateGoldOre
+			return itm.Bedrock
 		}
 	}
 	if depth == 511 {
-		return itm.GoldOre
+		return itm.Bedrock
 	}
 	return itm.Air
 }
