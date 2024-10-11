@@ -1,9 +1,11 @@
 package res
 
 import (
+	"image"
 	"kar/engine/util"
 	"kar/itm"
 
+	"github.com/anthonynsimon/bild/blend"
 	"github.com/setanarut/anim"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,7 +30,8 @@ func init() {
 	SpriteFrames[itm.Snow] = anim.SubImages(blockAtlas, 0, s, s, s, 11, false)
 	SpriteFrames[itm.Dirt] = anim.SubImages(blockAtlas, 0, 2*s, s, s, 11, false)
 	SpriteFrames[itm.Sand] = anim.SubImages(blockAtlas, 0, 3*s, s, s, 11, false)
-	SpriteFrames[itm.Stone] = anim.SubImages(blockAtlas, 0, 4*s, s, s, 11, false)
+	// SpriteFrames[itm.Stone] = anim.SubImages(blockAtlas, 0, 4*s, s, s, 11, false)
+	SpriteFrames[itm.Stone] = getFrames(1)
 	SpriteFrames[itm.CoalOre] = anim.SubImages(blockAtlas, 0, 5*s, s, s, 11, false)
 	SpriteFrames[itm.GoldOre] = anim.SubImages(blockAtlas, 0, 6*s, s, s, 11, false)
 	SpriteFrames[itm.IronOre] = anim.SubImages(blockAtlas, 0, 7*s, s, s, 11, false)
@@ -101,3 +104,30 @@ func init() {
 	SpriteFrames[itm.Stick] = anim.SubImages(itemAtlas, 14*s, s, s, s, 1, false)
 
 }
+
+func getFrames(id int) []*ebiten.Image {
+	return convert2ebiten(makeStages(base64ToImage(textures[id].Base64)))
+}
+
+func convert2ebiten(st []image.Image) []*ebiten.Image {
+	l := make([]*ebiten.Image, 0)
+	for _, v := range st {
+		l = append(l, ebiten.NewImageFromImage(v))
+	}
+	return l
+}
+
+func makeStages(block image.Image) []image.Image {
+	cracks := base64ToImage(stagesBase64Img)
+	frames := make([]image.Image, 0)
+	frames = append(frames, block)
+	for i := range 10 {
+		x := i * 16
+		rec := image.Rect(x, 0, x+16, x+16)
+		si := cracks.(*image.NRGBA).SubImage(rec)
+		frames = append(frames, blend.Overlay(block, si))
+	}
+	return frames
+}
+
+var stagesBase64Img string = "iVBORw0KGgoAAAANSUhEUgAAAKAAAAAQCAYAAACRBXRYAAABgGlDQ1BzUkdCIElFQzYxOTY2LTIuMQAAKJF1kc8rRFEUxz8zaISJQllYTMJq/Bo1sVFmEkrSGGWwmXnezKh5M6/3ZpJsle0UJTZ+LfgL2CprpYiUrK2JDXrO89RMMud27vnc773ndO+54I5mFM2s7gctmzci4yHffGzB53mmDg+t9OGNK6Y+OjMzRUV7v8Nlx5seu1blc/9a/bJqKuCqFR5RdCMvPCE8tZrXbd4WblHS8WXhU2G/IRcUvrX1hMPPNqcc/rTZiEbC4G4S9qXKOFHGStrQhOXldGqZgvJ7H/slDWp2blZih3g7JhHGCeFjkjHCBBlgWOYgPQTolRUV8vt/8qfJSa4is84aBiukSJPHL2pBqqsSk6KrMjKs2f3/21czORhwqjeEoObJsl67wLMFX0XL+ji0rK8jqHqEi2wpP3cAQ2+iF0ta5z40bsDZZUlL7MD5JrQ96HEj/iNVibuTSXg5AW8Mmq+hbtHp2e8+x/cQXZevuoLdPeiW841L31QKZ90VQ2gVAAAACXBIWXMAAAsTAAALEwEAmpwYAAACdklEQVRoge2ZUXLEIAiG/2R6LXMUn7yVefIoezDtQ8uUUoxCtt10Z5nxIZHPGEUgBK215dVeTbYQQmutLTnnpvXL+6Tf4+la3sejX/TV+pvvZb08sSGE1jOw3tg55+bh3/CSQ9m2rd5ut9XLbdtWAcAyRozRzccYzc8nXWIBoJSClBKIpz4+N8kDqFb+qQ3Qazyc55tiEVpoD59SWgFUC68YWpeX60JzPeI/54SU0lpKqXy8U/yjw81vhCHie/mLle/lN2f43hg8VFn4nHOjMKjxXF+79vI85Hr4X/OAZ73PPYROHZ+LZV7Ecxl5JT6+h/c+n3S5d+E8D80yTMcY3bz0cFb+34RgSy5EuiQ8RIw2X7IarxmG5fmP4EspKKVUwVfgp6Fb+N4hmeWX1tpy9CJeL7bvey2lgBJh6ziSlydtxAIfibCFl97lajxdX4nnjsH1/KM8hsd0TyPem4v9NS/1LLymd2/+aBwtZ5T80V56eZ77WfkQQht+hJxJ5Ecv/Ux8b51m+V6dzMPzuXD+yKFY+d48LXzOuQ3D2UzIOxJvGeO/CV8nLY8ciayT8b6Z8ThfSvnWR3xKaZX7odXpRrz8kPDyKaV1aa2fAz5a+EQ9LDCXtPfYq/CAzRFoPBmFzMF4rj3L85z+LH/pr2Cv8REL+Dy49kdgVrRE/Cw/+oCTZaYOr3pRWRie4Xm/lycjvbQBngn/d2RN4VQ5NHW2CtDx+JV7FG2cQZnmG68dBisv19bJVwC4dAh+Ftn3Xa2XzepRWQnoHyxZeqL7sx6Vl0qAL0PXeN5/lr+0B3wWmfXGPb0ZXhaXSTSPpPFM70e/xmte3cO/A/sae4F/B2fXAAAAAElFTkSuQmCC"

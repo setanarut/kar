@@ -1,3 +1,5 @@
+github.com/anthonynsimon/bild v0.14.0 h1:IFRkmKdNdqmexXHfEU7rPlAmdUZ8BDZEGtGHDnGWync=
+github.com/anthonynsimon/bild v0.14.0/go.mod h1:hcvEAyBjTW69qkKJTfpcDQ83sSZHxwOunsseDfeQhUs=
 github.com/ebitengine/gomobile v0.0.0-20241001034212-22433622d8a5 h1:vAmkJvgX1ukQ772M7yxWCmSfDwr8vLAZTWlJqM1ox4A=
 github.com/ebitengine/gomobile v0.0.0-20241001034212-22433622d8a5/go.mod h1:ulhSQcbPioQrallSuIzF8l1NKQoD7xmMZc5NxzibUMY=
 github.com/ebitengine/hideconsole v1.0.0 h1:5J4U0kXF+pv/DhiXt5/lTz0eO5ogJ1iXb8Yj1yReDqE=
