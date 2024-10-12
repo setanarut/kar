@@ -5,8 +5,8 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/vectorg"
-	"kar/itm"
-	"kar/res"
+	"kar/items"
+	"kar/resources"
 	"kar/types"
 	"math"
 
@@ -37,55 +37,55 @@ func NewDrawCameraSystem() *DrawCameraSystem {
 
 func (ds *DrawCameraSystem) Init() {
 	vectorg.GlobalTransform = &ebiten.GeoM{}
-	p, ok := comp.PlayerTag.First(res.ECSWorld)
+	p, ok := comp.TagPlayer.First(resources.ECSWorld)
 
 	if ok {
 		pos := comp.Body.Get(p).Position()
-		res.Cam = kamera.NewCamera(pos.X, pos.Y, res.ScreenSize.X, res.ScreenSize.Y)
+		resources.Cam = kamera.NewCamera(pos.X, pos.Y, resources.ScreenSize.X, resources.ScreenSize.Y)
 	} else {
-		pos := res.ScreenSize.Scale(0.5)
-		res.Cam = kamera.NewCamera(pos.X, pos.Y, res.ScreenSize.X, res.ScreenSize.Y)
+		pos := resources.ScreenSize.Scale(0.5)
+		resources.Cam = kamera.NewCamera(pos.X, pos.Y, resources.ScreenSize.X, resources.ScreenSize.Y)
 	}
 
-	res.Cam.Lerp = true
+	resources.Cam.Lerp = true
 }
 
 func (ds *DrawCameraSystem) Update() {
 
 	vectorg.GlobalTransform.Reset()
 	cmdrawer.GeoM.Reset()
-	res.Cam.ApplyCameraTransform(cmdrawer.GeoM)
-	res.Cam.ApplyCameraTransform(vectorg.GlobalTransform)
+	resources.Cam.ApplyCameraTransform(cmdrawer.GeoM)
+	resources.Cam.ApplyCameraTransform(vectorg.GlobalTransform)
 
-	p, ok := comp.PlayerTag.First(res.ECSWorld)
+	p, ok := comp.TagPlayer.First(resources.ECSWorld)
 	if ok {
 		pos := comp.Body.Get(p).Position()
 
-		res.Cam.LookAt(pos.X, pos.Y)
+		resources.Cam.LookAt(pos.X, pos.Y)
 
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
-		res.Cam.ZoomFactor *= 1.02
+		resources.Cam.ZoomFactor *= 1.02
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
-		res.Cam.ZoomFactor /= 1.02
+		resources.Cam.ZoomFactor /= 1.02
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyT) {
-		res.Cam.AddTrauma(1)
+		resources.Cam.AddTrauma(1)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
 		drawTargetBoxOverlayEnabled = !drawTargetBoxOverlayEnabled
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		res.Cam.ZoomFactor = 1
+		resources.Cam.ZoomFactor = 1
 	}
 
-	comp.AnimationPlayer.Each(res.ECSWorld, func(e *donburi.Entry) {
-		comp.AnimationPlayer.Get(e).Update()
+	comp.AnimPlayer.Each(resources.ECSWorld, func(e *donburi.Entry) {
+		comp.AnimPlayer.Get(e).Update()
 	})
 }
 
@@ -94,44 +94,42 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 	// clear color
 	scr.Fill(color.RGBA{64, 68, 108, 255})
 
-	comp.BlockTag.Each(res.ECSWorld, func(e *donburi.Entry) {
+	comp.TagBlock.Each(resources.ECSWorld, func(e *donburi.Entry) {
 		body := comp.Body.Get(e)
 		itemData := comp.Item.Get(e)
 		drawOpt := comp.DrawOptions.Get(e)
 		healthData := comp.Health.Get(e)
 		pos := body.Position()
 		health := mathutil.Clamp(healthData.Health, 0, healthData.MaxHealth)
-		l := float64(len(res.SpriteFrames[itemData.ID]))
+		l := float64(len(resources.SpriteStages[itemData.ID]))
 		blockSpriteFrameIndex := int(mathutil.MapRange(health, healthData.MaxHealth, 0, 0, l))
 
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itemData.ID][blockSpriteFrameIndex], res.GlobalDrawOptions, scr)
+		resources.Cam.Draw(resources.SpriteStages[itemData.ID][blockSpriteFrameIndex], resources.GlobalDrawOptions, scr)
 	})
 
 	// Drop Item
-	comp.DropItemTag.Each(res.ECSWorld, func(e *donburi.Entry) {
+	comp.TagItem.Each(resources.ECSWorld, func(e *donburi.Entry) {
 		pos := comp.Body.Get(e).Position()
 		drawOpt := comp.DrawOptions.Get(e)
 		itemData := comp.Item.Get(e)
-
 		// Item sin animation
 		datai := comp.Index.Get(e)
 		pos.Y += sinspace[datai.Index]
-
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itemData.ID][0], res.GlobalDrawOptions, scr)
+		resources.Cam.Draw(getSprite(itemData.ID), resources.GlobalDrawOptions, scr)
 	})
 
-	comp.DebugBoxTag.Each(res.ECSWorld, func(e *donburi.Entry) {
+	comp.TagDebugBox.Each(resources.ECSWorld, func(e *donburi.Entry) {
 		b := comp.Body.Get(e)
 		pos := b.Position()
 		drawOpt := comp.DrawOptions.Get(e)
 		drawOpt.Rotation = b.Angle()
 		ApplyDIO(drawOpt, pos)
-		res.Cam.Draw(res.SpriteFrames[itm.Stone][0], res.GlobalDrawOptions, scr)
+		resources.Cam.Draw(resources.SpriteStages[items.Stone][0], resources.GlobalDrawOptions, scr)
 	})
 
-	playerEntry, ok := comp.PlayerTag.First(res.ECSWorld)
+	playerEntry, ok := comp.TagPlayer.First(resources.ECSWorld)
 	if ok {
 
 		// draw player
@@ -139,13 +137,13 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 		drawOpt := comp.DrawOptions.Get(playerEntry)
 		playerPos := pBody.Position()
 		ApplyDIO(drawOpt, playerPos)
-		ap := comp.AnimationPlayer.Get(playerEntry)
+		ap := comp.AnimPlayer.Get(playerEntry)
 		if ap.CurrentFrame != nil {
-			res.Cam.Draw(ap.CurrentFrame, res.GlobalDrawOptions, scr)
+			resources.Cam.Draw(ap.CurrentFrame, resources.GlobalDrawOptions, scr)
 		}
 
 		if ChipmunkDebugSpaceDrawing {
-			cm.DrawSpace(res.Space, cmdrawer.WithScreen(scr))
+			cm.DrawSpace(resources.Space, cmdrawer.WithScreen(scr))
 			vectorg.Line(scr, playerPos, attackSegmentEnd, 1, color.White)
 		}
 
@@ -155,9 +153,9 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 					dio := &ebiten.DrawImageOptions{}
 					dio.ColorScale.ScaleWithColor(colornames.Black)
 					dio.GeoM.Translate(
-						currentBlockPos.X+res.BlockCenterOffset.X,
-						currentBlockPos.Y+res.BlockCenterOffset.Y)
-					res.Cam.Draw(res.Border, dio, scr)
+						currentBlockPos.X+resources.BlockCenterOffset.X,
+						currentBlockPos.Y+resources.BlockCenterOffset.Y)
+					resources.Cam.Draw(resources.BlockHighlightBorder, dio, scr)
 				}
 			}
 		}
@@ -170,10 +168,10 @@ func ApplyDIO(drawOpt *types.DataDrawOptions, pos vec.Vec2) {
 	if drawOpt.FlipX {
 		scl.X *= -1
 	}
-	res.GlobalDrawOptions.GeoM.Reset()
-	res.GlobalDrawOptions.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
-	res.GlobalDrawOptions.GeoM.Scale(scl.X, scl.Y)
-	res.GlobalDrawOptions.GeoM.Rotate(drawOpt.Rotation)
-	res.GlobalDrawOptions.GeoM.Translate(pos.X, pos.Y)
-	res.GlobalDrawOptions.ColorScale.Reset()
+	resources.GlobalDrawOptions.GeoM.Reset()
+	resources.GlobalDrawOptions.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
+	resources.GlobalDrawOptions.GeoM.Scale(scl.X, scl.Y)
+	resources.GlobalDrawOptions.GeoM.Rotate(drawOpt.Rotation)
+	resources.GlobalDrawOptions.GeoM.Translate(pos.X, pos.Y)
+	resources.GlobalDrawOptions.ColorScale.Reset()
 }

@@ -5,8 +5,8 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/util"
-	"kar/itm"
-	"kar/res"
+	"kar/items"
+	"kar/resources"
 	"kar/types"
 
 	"github.com/setanarut/anim"
@@ -24,22 +24,22 @@ func SpawnCircleBody(pos vec.Vec2, m, e, f, r float64, userData *donburi.Entry) 
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
 	body.SetPosition(pos)
-	res.Space.AddShape(shape)
-	res.Space.AddBody(shape.Body())
+	resources.Space.AddShape(shape)
+	resources.Space.AddBody(shape.Body())
 	body.UserData = userData
 	return body
 }
 
 func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
-	e := res.ECSWorld.Entry(res.ECSWorld.Create(
-		comp.PlayerTag,
+	e := resources.ECSWorld.Entry(resources.ECSWorld.Create(
+		comp.TagPlayer,
 		comp.Health,
 		comp.DrawOptions,
-		comp.AnimationPlayer,
+		comp.AnimPlayer,
 		comp.Body,
 		comp.Mobile,
 		comp.Inventory,
-		comp.WASDTag,
+		comp.TagWASD,
 	))
 	inv := &types.DataInventory{}
 
@@ -49,21 +49,21 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 
 	comp.Inventory.Set(e, inv)
 
-	ap := anim.NewAnimationPlayer(res.AtlasPlayer)
+	ap := anim.NewAnimationPlayer(resources.AtlasPlayer)
 	ap.NewAnimationState("idle", 0, 0, 16, 16, 3, false, false).FPS = 1
 	ap.NewAnimationState("dig_right", 0, 16*2, 16, 16, 6, false, false)
 	ap.NewAnimationState("dig_down", 0, 16*3, 16, 16, 6, false, false)
 	ap.NewAnimationState("walk_right", 0, 16*4, 16, 16, 6, false, false)
 	ap.NewAnimationState("jump", 16, 16*5, 16, 16, 1, false, false)
-	comp.AnimationPlayer.Set(e, ap)
+	comp.AnimPlayer.Set(e, ap)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
-		Scale:        mathutil.CircleScaleFactor(res.BlockSize/2, 16),
+		Scale:        mathutil.CircleScaleFactor(resources.BlockSize/2, 16),
 	})
-	b := SpawnCircleBody(pos, mass, el, fr, (res.BlockSize/2)*0.8, e)
-	b.FirstShape().SetCollisionType(res.CollPlayer)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskPlayer, cm.AllCategories&^res.BitmaskPlayerRaycast)
+	b := SpawnCircleBody(pos, mass, el, fr, (resources.BlockSize/2)*0.8, e)
+	b.FirstShape().SetCollisionType(resources.CollPlayer)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, resources.BitmaskPlayer, cm.AllCategories&^resources.BitmaskPlayerRaycast)
 	comp.Body.Set(e, b)
 	return e
 }
@@ -71,15 +71,15 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) *donburi.Entry {
 func SpawnStatic(pos vec.Vec2, w, h float64) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, w, h, 0)
-	wallShape.Filter = cm.NewShapeFilter(0, res.BitmaskBlock, cm.AllCategories)
-	wallShape.CollisionType = res.CollBlock
+	wallShape.Filter = cm.NewShapeFilter(0, resources.BitmaskBlock, cm.AllCategories)
+	wallShape.CollisionType = resources.CollBlock
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
 	sbody.SetPosition(pos)
-	res.Space.AddShape(wallShape)
-	res.Space.AddBody(wallShape.Body())
+	resources.Space.AddShape(wallShape)
+	resources.Space.AddBody(wallShape.Body())
 	// components
-	entry := res.ECSWorld.Entry(res.ECSWorld.Create(
+	entry := resources.ECSWorld.Entry(resources.ECSWorld.Create(
 		comp.Body,
 	))
 	wallShape.Body().UserData = entry
@@ -88,21 +88,21 @@ func SpawnStatic(pos vec.Vec2, w, h float64) *donburi.Entry {
 }
 
 func SpawnBlock(pos vec.Vec2, chunkCoord image.Point, itemID uint16) {
-	e := SpawnStatic(pos, res.BlockSize, res.BlockSize)
+	e := SpawnStatic(pos, resources.BlockSize, resources.BlockSize)
 	e.AddComponent(comp.Health)
 	e.AddComponent(comp.Item)
 	e.AddComponent(comp.DrawOptions)
-	e.AddComponent(comp.BlockTag)
+	e.AddComponent(comp.TagBlock)
 
 	// set max health
 	comp.Health.Set(e, &types.DataHealth{
-		Health:    itm.Items[itemID].MaxHealth,
-		MaxHealth: itm.Items[itemID].MaxHealth,
+		Health:    items.Property[itemID].MaxHealth,
+		MaxHealth: items.Property[itemID].MaxHealth,
 	})
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.RectangleScaleFactor(16, 16, res.BlockSize, res.BlockSize),
+		Scale:        mathutil.RectangleScaleFactor(16, 16, resources.BlockSize, resources.BlockSize),
 	})
 
 	comp.Item.Set(e,
@@ -118,39 +118,39 @@ func SpawnBoxBody(pos vec.Vec2, m, e, f, w, h, r float64, userData *donburi.Entr
 	shape := cm.NewBox(body, w, h, r)
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
-	shape.SetCollisionType(res.CollEnemy)
+	shape.SetCollisionType(resources.CollEnemy)
 	body.SetPosition(pos)
-	res.Space.AddShape(shape)
-	res.Space.AddBody(shape.Body())
+	resources.Space.AddShape(shape)
+	resources.Space.AddBody(shape.Body())
 	body.UserData = userData
 	return body
 }
 func SpawnDebugBox(pos vec.Vec2) {
-	e := res.ECSWorld.Entry(res.ECSWorld.Create(
+	e := resources.ECSWorld.Entry(resources.ECSWorld.Create(
 		comp.DrawOptions,
 		comp.Body,
-		comp.DebugBoxTag,
+		comp.TagDebugBox,
 	))
-	b := SpawnBoxBody(pos, 1, 0.2, 0.2, float64(res.BlockSize), float64(res.BlockSize), 0, e)
-	b.FirstShape().Filter = cm.NewShapeFilter(0, res.BitmaskEnemy, cm.AllCategories)
+	b := SpawnBoxBody(pos, 1, 0.2, 0.2, float64(resources.BlockSize), float64(resources.BlockSize), 0, e)
+	b.FirstShape().Filter = cm.NewShapeFilter(0, resources.BitmaskEnemy, cm.AllCategories)
 
 	comp.DrawOptions.Set(e, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.RectangleScaleFactor(16, 16, res.BlockSize, res.BlockSize),
+		Scale:        mathutil.RectangleScaleFactor(16, 16, resources.BlockSize, resources.BlockSize),
 	})
 
 	comp.Body.Set(e, b)
 
 }
 func SpawnDropItem(pos vec.Vec2, itemID uint16, chunkCoord image.Point) {
-	DropItemEntry := res.ECSWorld.Entry(res.ECSWorld.Create(
+	DropItemEntry := resources.ECSWorld.Entry(resources.ECSWorld.Create(
 		comp.DrawOptions,
 		comp.Body,
 		comp.Item,
-		comp.DropItemTag,
+		comp.TagItem,
 		comp.Index, // animasyon için zamanlayıcı
 	))
-	itemWidth := res.BlockSize / 3
+	itemWidth := resources.BlockSize / 3
 	comp.DrawOptions.Set(DropItemEntry, &types.DataDrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
 		Scale:        mathutil.RectangleScaleFactor(16, 16, itemWidth, itemWidth),
@@ -167,14 +167,14 @@ func SpawnDropItem(pos vec.Vec2, itemID uint16, chunkCoord image.Point) {
 	dropItemBody := cm.NewBody(0.8, cm.Infinity)
 	dropItemShape := cm.NewCircle(dropItemBody, itemWidth, vec.Vec2{})
 	dropItemShape.Filter = cm.NewShapeFilter(0,
-		res.BitmaskDropItem,
-		cm.AllCategories&^res.BitmaskPlayerRaycast&^res.BitmaskDropItem)
-	dropItemShape.CollisionType = res.CollDropItem
+		resources.BitmaskDropItem,
+		cm.AllCategories&^resources.BitmaskPlayerRaycast&^resources.BitmaskDropItem)
+	dropItemShape.CollisionType = resources.CollDropItem
 	dropItemShape.SetElasticity(0.5)
 	dropItemShape.SetFriction(0)
 	dropItemBody.SetPosition(pos)
-	res.Space.AddShape(dropItemShape)
-	res.Space.AddBody(dropItemShape.Body())
+	resources.Space.AddShape(dropItemShape)
+	resources.Space.AddBody(dropItemShape.Body())
 	dropItemBody.UserData = DropItemEntry
 	comp.Body.Set(DropItemEntry, dropItemBody)
 }

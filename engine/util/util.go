@@ -44,10 +44,10 @@ func HexToRGBA(hex string) color.RGBA {
 }
 
 func LoadEbitenImageFromFS(fs embed.FS, filePath string) *ebiten.Image {
-	return ebiten.NewImageFromImage(ReadImageFromFS(fs, filePath))
+	return ebiten.NewImageFromImage(LoadImageFromFS(fs, filePath))
 }
 
-func ReadImageFromFS(fs embed.FS, filePath string) image.Image {
+func LoadImageFromFS(fs embed.FS, filePath string) image.Image {
 	f, err := fs.Open(filePath)
 	if err != nil {
 		panic(err)

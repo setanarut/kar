@@ -2,7 +2,7 @@ package system
 
 import (
 	"kar/comp"
-	"kar/res"
+	"kar/resources"
 	"math"
 
 	"github.com/setanarut/cm"
@@ -20,17 +20,17 @@ func NewPhysicsSystem() *PhysicsSystem {
 }
 
 func (ps *PhysicsSystem) Init() {
-	res.Space.SetGravity(vec.Vec2{0, (res.BlockSize * 20)})
-	res.Space.CollisionBias = math.Pow(0.1, 60)
-	res.Space.CollisionSlop = 0.4
-	res.Space.UseSpatialHash(200, 800)
-	res.Space.Iterations = 20
-	res.Space.Damping = 0.9
-	res.Space.NewCollisionHandler(res.CollPlayer, res.CollDropItem).BeginFunc = PlayerDropItemBegin
+	resources.Space.SetGravity(vec.Vec2{0, (resources.BlockSize * 20)})
+	resources.Space.CollisionBias = math.Pow(0.1, 60)
+	resources.Space.CollisionSlop = 0.4
+	resources.Space.UseSpatialHash(200, 800)
+	resources.Space.Iterations = 20
+	resources.Space.Damping = 0.9
+	resources.Space.NewCollisionHandler(resources.CollPlayer, resources.CollDropItem).BeginFunc = PlayerDropItemBegin
 }
 
 func (ps *PhysicsSystem) Update() {
-	res.Space.Step(res.DeltaTime)
+	resources.Space.Step(resources.DeltaTime)
 }
 
 func (ps *PhysicsSystem) Draw(screen *ebiten.Image) {}

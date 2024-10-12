@@ -52,7 +52,7 @@ func Clamp(f, low, high float64) float64 {
 }
 
 // Linspace returns evenly spaced numbers over a specified closed interval.
-func Linspace(start, stop float64, num int) (res []float64) {
+func Linspace(start, stop float64, num int) (resources []float64) {
 	if num <= 0 {
 		return []float64{}
 	}
@@ -60,12 +60,12 @@ func Linspace(start, stop float64, num int) (res []float64) {
 		return []float64{start}
 	}
 	step := (stop - start) / float64(num-1)
-	res = make([]float64, num)
-	res[0] = start
+	resources = make([]float64, num)
+	resources[0] = start
 	for i := 1; i < num; i++ {
-		res[i] = start + float64(i)*step
+		resources[i] = start + float64(i)*step
 	}
-	res[num-1] = stop
+	resources[num-1] = stop
 	return
 }
 

@@ -16,8 +16,6 @@ github.com/hajimehoshi/ebiten/v2 v2.8.1 h1:6n6ZXnbeSCZccdqrH7s9Ut+dll9TEostUqbc7
 github.com/hajimehoshi/ebiten/v2 v2.8.1/go.mod h1:SXx/whkvpfsavGo6lvZykprerakl+8Uo1X8d2U5aAnA=
 github.com/jezek/xgb v1.1.1 h1:bE/r8ZZtSv7l9gk6nU0mYx51aXrvnyb44892TwSaqS4=
 github.com/jezek/xgb v1.1.1/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
-github.com/ojrac/opensimplex-go v1.0.2 h1:l4vs0D+JCakcu5OV0kJ99oEaWJfggSc9jiLpxaWvSzs=
-github.com/ojrac/opensimplex-go v1.0.2/go.mod h1:NwbXFFbXcdGgIFdiA7/REME+7n/lOf1TuEbLiZYOWnM=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/setanarut/anim v1.0.1 h1:jNGZR3PGHMZ6szv1v4WnMjZAf4zzCO6K6ibjjbuqddw=
@@ -28,8 +26,6 @@ github.com/setanarut/ebitencm v1.4.0 h1:WfZ+lxWIaVoNInIqilNGjfpBUrmZ39KoUB+ab9Pf
 github.com/setanarut/ebitencm v1.4.0/go.mod h1:sa9d9QasBy2YOUODgLKTG1BHRQcWuD7YZ86pe0bSxtU=
 github.com/setanarut/fastnoise v1.1.1 h1:cD9gUjY9GMxVab+B7AY09j2GAHMdiKzchDE5z6dQ7eE=
 github.com/setanarut/fastnoise v1.1.1/go.mod h1:74vG3/RcPPcNi2M0riHJXQp9/+eTSh0rnQ/0WTEY6SU=
-github.com/setanarut/kamera/v2 v2.5.2 h1:yzW4/Bdb1Zlr7VmzEm4TW01Bh+W6MgjjfXJpsktoVDU=
-github.com/setanarut/kamera/v2 v2.5.2/go.mod h1:XxIMAowz4s+6uTR+4B8YkinDrvOechvhCAH3AlzP9iU=
 github.com/setanarut/kamera/v2 v2.7.0 h1:xw4qf4ECSYj40fsMRsE2riAeK/EQU5vsV73aC//cENA=
 github.com/setanarut/kamera/v2 v2.7.0/go.mod h1:Tpnog47n9djfNOhNqTi+rKSkmzIHRzL6Gum23xLsEHY=
 github.com/setanarut/vec v1.1.0 h1:Tmei65+2EsQzNB+0xkpNgcXGTZTT0gEUdZRjVb2CuuQ=

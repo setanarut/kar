@@ -2,13 +2,23 @@ package system
 
 import (
 	"kar/comp"
-	"kar/res"
+	"kar/resources"
 	"kar/types"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/setanarut/cm"
 
 	"github.com/yohamta/donburi"
 )
+
+func getSprite(id uint16) *ebiten.Image {
+	im, ok := resources.Sprite[id]
+	if ok {
+		return im
+	} else {
+		return resources.SpriteStages[id][0]
+	}
+}
 
 type inventory struct {
 }
@@ -67,10 +77,10 @@ func (im *inventory) hasItem(inv *types.DataInventory, id uint16) (index int, ok
 
 // destroy body with entry
 func destroyBody(b *cm.Body) {
-	if res.Space.ContainsBody(b) {
+	if resources.Space.ContainsBody(b) {
 		e := b.UserData.(*donburi.Entry)
 		e.Remove()
-		res.Space.AddPostStepCallback(removeBodyPostStep, b, false)
+		resources.Space.AddPostStepCallback(removeBodyPostStep, b, false)
 	}
 }
 
@@ -88,7 +98,7 @@ func removeBodyPostStep(space *cm.Space, body, data interface{}) {
 	space.RemoveBodyWithShapes(body.(*cm.Body))
 }
 
-func resetHealthComponent(e *donburi.Entry) {
+func resourcesetHealthComponent(e *donburi.Entry) {
 	h := comp.Health.Get(e)
 	h.Health = h.MaxHealth
 }
@@ -128,7 +138,7 @@ func checkEntries(arb *cm.Arbiter) bool {
 // 	comp.EnemyTag.Each(bomb.World, func(enemy *donburi.Entry) {
 // 		enemyHealth := comp.Health.Get(enemy)
 // 		enemyBody := comp.Body.Get(enemy)
-// 		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, res.FilterBombRaycast)
+// 		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, resources.FilterBombRaycast)
 // 		contactShape := queryInfo.Shape
 // 		if contactShape != nil {
 // 			if contactShape.Body() == enemyBody {
@@ -143,7 +153,7 @@ func checkEntries(arb *cm.Arbiter) bool {
 // 		}
 
 // 	})
-// 	res.Cam.AddTrauma(0.2)
+// 	resources.Cam.AddTrauma(0.2)
 // 	destroyEntryWithBody(bomb)
 // }
 

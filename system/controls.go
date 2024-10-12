@@ -7,8 +7,8 @@ import (
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/util"
-	"kar/itm"
-	"kar/res"
+	"kar/items"
+	"kar/resources"
 	"kar/world"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -56,25 +56,25 @@ func (sys *PlayerControlSystem) Init() {
 
 func (sys *PlayerControlSystem) Update() {
 
-	res.Input.UpdateWASDDirection()
+	resources.Input.UpdateWASDDirection()
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyY) {
 		ChipmunkDebugSpaceDrawing = !ChipmunkDebugSpaceDrawing
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
-		res.Input.LastPressedWASDDirection = res.Left
+		resources.Input.LastPressedWASDDirection = resources.Left
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		res.Input.LastPressedWASDDirection = res.Right
+		resources.Input.LastPressedWASDDirection = resources.Right
 	}
 
-	FacingRight = res.Input.LastPressedWASDDirection.Equal(res.Right) || res.Input.WASDDirection.Equal(res.Right)
-	FacingLeft = res.Input.LastPressedWASDDirection.Equal(res.Left) || res.Input.WASDDirection.Equal(res.Left)
-	FacingDown = res.Input.LastPressedWASDDirection.Equal(res.Down) || res.Input.WASDDirection.Equal(res.Down)
-	FacingUp = res.Input.LastPressedWASDDirection.Equal(res.Up) || res.Input.WASDDirection.Equal(res.Up)
-	NoWASD = res.Input.WASDDirection.Equal(res.Zero)
-	WalkRight = res.Input.WASDDirection.Equal(res.Right)
-	WalkLeft = res.Input.WASDDirection.Equal(res.Left)
+	FacingRight = resources.Input.LastPressedWASDDirection.Equal(resources.Right) || resources.Input.WASDDirection.Equal(resources.Right)
+	FacingLeft = resources.Input.LastPressedWASDDirection.Equal(resources.Left) || resources.Input.WASDDirection.Equal(resources.Left)
+	FacingDown = resources.Input.LastPressedWASDDirection.Equal(resources.Down) || resources.Input.WASDDirection.Equal(resources.Down)
+	FacingUp = resources.Input.LastPressedWASDDirection.Equal(resources.Up) || resources.Input.WASDDirection.Equal(resources.Up)
+	NoWASD = resources.Input.WASDDirection.Equal(resources.Zero)
+	WalkRight = resources.Input.WASDDirection.Equal(resources.Right)
+	WalkLeft = resources.Input.WASDDirection.Equal(resources.Left)
 	Attacking = ebiten.IsKeyPressed(ebiten.KeyShiftRight)
 	Walking = WalkLeft || WalkRight
 	Idle = NoWASD && !Attacking && IsGround
@@ -82,18 +82,18 @@ func (sys *PlayerControlSystem) Update() {
 	DigUp = FacingUp && Attacking
 	IdleAttack = NoWASD && Attacking && IsGround
 
-	comp.WASDTag.Each(res.ECSWorld, WASDPlatformerForce)
-	comp.WASDFlyTag.Each(res.ECSWorld, WASDFly)
+	comp.TagWASD.Each(resources.ECSWorld, WASDPlatformerForce)
+	comp.TagWASDFly.Each(resources.ECSWorld, WASDFly)
 
-	if player, ok := comp.PlayerTag.First(res.ECSWorld); ok {
+	if player, ok := comp.TagPlayer.First(resources.ECSWorld); ok {
 		playerInventory := comp.Inventory.Get(player)
 		playerBody := comp.Body.Get(player)
 		playerPos = playerBody.Position()
-		playerPosMap = MainWorld.WorldSpaceToPixelSpace(playerPos.Add(vec.Vec2{(res.BlockSize / 2), (res.BlockSize / 2)}))
+		playerPosMap = MainWorld.WorldSpaceToPixelSpace(playerPos.Add(vec.Vec2{(resources.BlockSize / 2), (resources.BlockSize / 2)}))
 
-		playerAnimation := comp.AnimationPlayer.Get(player)
+		playerAnimation := comp.AnimPlayer.Get(player)
 		playerDrawOptions := comp.DrawOptions.Get(player)
-		attackSegmentEnd = playerPos.Add(res.Input.LastPressedWASDDirection.Scale(res.BlockSize * 3.5))
+		attackSegmentEnd = playerPos.Add(resources.Input.LastPressedWASDDirection.Scale(resources.BlockSize * 3.5))
 		hitShape = attackSegmentQuery.Shape
 
 		if hitShape != nil {
@@ -105,50 +105,50 @@ func (sys *PlayerControlSystem) Update() {
 			}
 			currentBlockPos = hitShape.Body().Position()
 			currentBlockPosMap = MainWorld.WorldSpaceToPixelSpace(currentBlockPos)
-			placeBlockPos = currentBlockPos.Add(attackSegmentQuery.Normal.Scale(res.BlockSize))
+			placeBlockPos = currentBlockPos.Add(attackSegmentQuery.Normal.Scale(resources.BlockSize))
 			placeBlockPosMap = MainWorld.WorldSpaceToPixelSpace(placeBlockPos)
 		}
 
-		attackSegmentQuery = res.Space.SegmentQueryFirst(
+		attackSegmentQuery = resources.Space.SegmentQueryFirst(
 			playerPos,
 			attackSegmentEnd,
 			0,
-			res.FilterPlayerRaycast)
+			resources.FilterPlayerRaycast)
 
 		// Fly Mode
 		if inpututil.IsKeyJustPressed(ebiten.KeyG) {
-			if player.HasComponent(comp.WASDTag) {
-				player.RemoveComponent(comp.WASDTag)
-				player.AddComponent(comp.WASDFlyTag)
+			if player.HasComponent(comp.TagWASD) {
+				player.RemoveComponent(comp.TagWASD)
+				player.AddComponent(comp.TagWASDFly)
 				playerBody.SetVelocity(0, 0)
 				playerBody.FirstShape().SetSensor(true)
 			} else {
 				playerBody.SetVelocity(0, 0)
-				player.RemoveComponent(comp.WASDFlyTag)
-				player.AddComponent(comp.WASDTag)
+				player.RemoveComponent(comp.TagWASDFly)
+				player.AddComponent(comp.TagWASD)
 				playerBody.FirstShape().SetSensor(false)
 			}
 		}
 
-		// Reset block health
+		// resourceset block health
 		if inpututil.IsKeyJustReleased(ebiten.KeyShiftRight) {
 			if hitShape != nil {
 				if checkEntry(hitShape.Body()) {
 					e := getEntry(hitShape.Body())
 					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
-						resetHealthComponent(e)
+						resourcesetHealthComponent(e)
 					}
 				}
 			}
 		}
 
-		// reset block health
+		// resourceset block health
 		if attackSegmentQuery.Shape == nil || attackSegmentQuery.Shape != hitShape {
 			if hitShape != nil {
 				if checkEntry(hitShape.Body()) {
 					e := getEntry(hitShape.Body())
 					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
-						resetHealthComponent(e)
+						resourcesetHealthComponent(e)
 					}
 				}
 			}
@@ -162,9 +162,9 @@ func (sys *PlayerControlSystem) Update() {
 
 					if checkEntry(hitShape.Body()) {
 						e := getEntry(hitShape.Body())
-						if e.HasComponent(comp.Item) && e.HasComponent(comp.BlockTag) && e.HasComponent(comp.Health) {
+						if e.HasComponent(comp.Item) && e.HasComponent(comp.TagBlock) && e.HasComponent(comp.Health) {
 							it := comp.Item.Get(e)
-							if itm.Items[it.ID].Breakable {
+							if items.Property[it.ID].Breakable {
 								h := comp.Health.Get(e)
 								h.Health -= 0.2
 							}
@@ -177,14 +177,14 @@ func (sys *PlayerControlSystem) Update() {
 
 		// Place block
 		if inpututil.IsKeyJustPressed(ebiten.KeySlash) {
-			selectedSlotItemId := playerInventory.Slots[res.SelectedSlot].ID
-			if itm.Items[selectedSlotItemId].Category&itm.CatBlock != 0 {
+			selectedSlotItemId := playerInventory.Slots[resources.SelectedSlot].ID
+			if items.Property[selectedSlotItemId].Category&items.CategoryBlock != 0 {
 				if hitShape != nil {
-					if selectedSlotItemId != itm.Air {
+					if selectedSlotItemId != items.Air {
 						if playerPosMap != placeBlockPosMap {
-							if inventoryManager.removeItem(playerInventory, playerInventory.Slots[res.SelectedSlot].ID) {
-								arche.SpawnBlock(placeBlockPos, placeBlockPosMap, playerInventory.Slots[res.SelectedSlot].ID)
-								MainWorld.Image.SetGray16(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray16{res.SelectedItemID})
+							if inventoryManager.removeItem(playerInventory, playerInventory.Slots[resources.SelectedSlot].ID) {
+								arche.SpawnBlock(placeBlockPos, placeBlockPosMap, playerInventory.Slots[resources.SelectedSlot].ID)
+								MainWorld.Image.SetGray16(placeBlockPosMap.X, placeBlockPosMap.Y, color.Gray16{resources.SelectedItemID})
 							}
 						}
 					}
@@ -196,9 +196,9 @@ func (sys *PlayerControlSystem) Update() {
 		// Drop Item
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
 			if hitShape != nil {
-				id := playerInventory.Slots[res.SelectedSlot].ID
-				if playerInventory.Slots[res.SelectedSlot].Quantity > 0 {
-					playerInventory.Slots[res.SelectedSlot].Quantity--
+				id := playerInventory.Slots[resources.SelectedSlot].ID
+				if playerInventory.Slots[resources.SelectedSlot].Quantity > 0 {
+					playerInventory.Slots[resources.SelectedSlot].Quantity--
 					arche.SpawnDropItem(placeBlockPos, id, MainWorld.WorldPosToChunkCoord(playerPos))
 				}
 			}
@@ -212,39 +212,39 @@ func (sys *PlayerControlSystem) Update() {
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 
-			if res.SelectedSlot+1 < len(playerInventory.Slots) {
-				res.SelectedSlot++
+			if resources.SelectedSlot+1 < len(playerInventory.Slots) {
+				resources.SelectedSlot++
 			} else {
-				res.SelectedSlot = 0
+				resources.SelectedSlot = 0
 			}
 
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key1) {
-			res.SelectedSlot = 0
+			resources.SelectedSlot = 0
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key2) {
-			res.SelectedSlot = 1
+			resources.SelectedSlot = 1
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key3) {
-			res.SelectedSlot = 2
+			resources.SelectedSlot = 2
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key4) {
-			res.SelectedSlot = 3
+			resources.SelectedSlot = 3
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key5) {
-			res.SelectedSlot = 4
+			resources.SelectedSlot = 4
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key6) {
-			res.SelectedSlot = 5
+			resources.SelectedSlot = 5
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key7) {
-			res.SelectedSlot = 6
+			resources.SelectedSlot = 6
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key8) {
-			res.SelectedSlot = 7
+			resources.SelectedSlot = 7
 		}
 		if inpututil.IsKeyJustPressed(ebiten.Key9) {
-			res.SelectedSlot = 8
+			resources.SelectedSlot = 8
 		}
 
 		if Idle {
@@ -282,15 +282,15 @@ func (sys *PlayerControlSystem) Update() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF4) {
-		go util.WritePNG(res.SpriteFrames[itm.Dirt][0], res.DesktopDir+"map.png")
+		go util.WritePNG(resources.SpriteStages[items.Dirt][0], resources.DesktopDir+"map.png")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF6) {
-		go util.WritePNG(world.ApplyColorMap(MainWorld.Image, itm.ItemColorMap), res.DesktopDir+"map.png")
+		go util.WritePNG(world.ApplyColorMap(MainWorld.Image, items.ItemColorMap), resources.DesktopDir+"map.png")
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
 		go util.WritePNG(
-			world.ApplyColorMap(MainWorld.ChunkImage(PlayerChunk), itm.ItemColorMap),
-			res.DesktopDir+"playerChunk.png")
+			world.ApplyColorMap(MainWorld.ChunkImage(PlayerChunk), items.ItemColorMap),
+			resources.DesktopDir+"playerChunk.png")
 	}
 
 }
@@ -300,9 +300,9 @@ func (sys *PlayerControlSystem) Draw(screen *ebiten.Image) {}
 func WASDPlatformerForce(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	p := body.Position()
-	queryInfo := res.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, res.BlockSize / 2}), 0, res.FilterPlayerRaycast)
+	queryInfo := resources.Space.SegmentQueryFirst(p, p.Add(vec.Vec2{0, resources.BlockSize / 2}), 0, resources.FilterPlayerRaycast)
 	contactShape := queryInfo.Shape
-	speed := res.BlockSize * 30
+	speed := resources.BlockSize * 30
 	bv := body.Velocity()
 	body.SetVelocity(bv.X*0.9, bv.Y)
 	// yerde
@@ -332,6 +332,6 @@ func WASDPlatformerForce(e *donburi.Entry) {
 func WASDFly(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := res.Input.WASDDirection.Unit().Scale(mobileData.Speed * 4)
+	velocity := resources.Input.WASDDirection.Unit().Scale(mobileData.Speed * 4)
 	body.SetVelocityVector(body.Velocity().LerpDistance(velocity, mobileData.Accel))
 }

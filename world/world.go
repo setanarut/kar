@@ -5,8 +5,8 @@ import (
 	"image/color"
 	"kar/comp"
 	"kar/engine/util"
-	"kar/itm"
-	"kar/res"
+	"kar/items"
+	"kar/resources"
 	"kar/types"
 	"slices"
 
@@ -48,7 +48,7 @@ func (tr *World) SpawnChunk(chunkCoord image.Point, spawnBlock types.BlockSpawnF
 			blockType := tr.Image.Gray16At(blockX, blockY).Y
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
-			if blockType != itm.Air {
+			if blockType != items.Air {
 				spawnBlock(blockPos, chunkCoord, blockType)
 			}
 		}
@@ -91,7 +91,7 @@ func (tr *World) UpdateChunks(playerChunk image.Point, spawnBlock types.BlockSpa
 }
 
 func (tr *World) DeSpawnChunk(chunkCoord image.Point) {
-	comp.Item.Each(res.ECSWorld, func(e *donburi.Entry) {
+	comp.Item.Each(resources.ECSWorld, func(e *donburi.Entry) {
 		if comp.Item.Get(e).ChunkCoord == chunkCoord {
 			b := comp.Body.Get(e)
 			destroyBodyWithEntry(b)
@@ -104,11 +104,11 @@ func (tr *World) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
 }
 
 func (tr *World) PixelSpaceToWorldSpace(worldPos vec.Vec2) image.Point {
-	return util.Vec2ToPoint(worldPos.Div(res.BlockSize))
+	return util.Vec2ToPoint(worldPos.Div(resources.BlockSize))
 }
 
 func (tr *World) WorldSpaceToPixelSpace(pos vec.Vec2) image.Point {
-	mapPos := util.Vec2ToPoint(pos).Div(int(res.BlockSize))
+	mapPos := util.Vec2ToPoint(pos).Div(int(resources.BlockSize))
 	return mapPos
 }
 

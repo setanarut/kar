@@ -1,7 +1,7 @@
 package main
 
 import (
-	"kar/res"
+	"kar/resources"
 	"kar/system"
 	"kar/types"
 	"log"
@@ -11,16 +11,21 @@ import (
 
 func main() {
 
-	g := NewGame()
-	g.Init()
+	game := NewGame()
+	game.Init()
 	ebiten.SetScreenClearedEveryFrame(false)
-	ebiten.SetWindowSize(int(res.ScreenSize.X), int(res.ScreenSize.Y))
-	gOpt := &ebiten.RunGameOptions{
-		GraphicsLibrary: ebiten.GraphicsLibraryAuto,
-		InitUnfocused:   false}
-	if err := ebiten.RunGameWithOptions(g, gOpt); err != nil {
+	ebiten.SetWindowSize(int(resources.ScreenSize.X), int(resources.ScreenSize.Y))
+
+	// run
+	if err := ebiten.RunGameWithOptions(
+		game,
+		&ebiten.RunGameOptions{
+			GraphicsLibrary: ebiten.GraphicsLibraryAuto,
+			InitUnfocused:   false},
+	); err != nil {
 		log.Fatal(err)
 	}
+
 }
 
 type Game struct {
@@ -67,9 +72,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 // func (g *Game) LayoutF(w, h float64) (float64, float64) {
-// 	return res.ScreenSize.X, res.ScreenSize.Y
+// 	return resources.ScreenSize.X, resources.ScreenSize.Y
 // }
 
 func (g *Game) Layout(w, h int) (int, int) {
-	return int(res.ScreenSize.X), int(res.ScreenSize.Y)
+	return int(resources.ScreenSize.X), int(resources.ScreenSize.Y)
 }

@@ -2,7 +2,7 @@ package system
 
 import (
 	"kar/comp"
-	"kar/res"
+	"kar/resources"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
@@ -18,7 +18,7 @@ func NewTimersSystem() *TimersSystem {
 func (s *TimersSystem) Init() {}
 
 func (s *TimersSystem) Update() {
-	comp.Index.Each(res.ECSWorld, func(e *donburi.Entry) {
+	comp.Index.Each(resources.ECSWorld, func(e *donburi.Entry) {
 		compIndex := comp.Index.Get(e)
 		if compIndex.Index < ItemAnimFrameCount {
 			compIndex.Index++
@@ -26,7 +26,7 @@ func (s *TimersSystem) Update() {
 			compIndex.Index = 0
 		}
 	})
-	// comp.Timer.Each(res.World, timerComponentUpdateFunc)
+	// comp.Timer.Each(resources.World, timerComponentUpdateFunc)
 }
 
 func (s *TimersSystem) Draw(screen *ebiten.Image) {}
@@ -42,11 +42,11 @@ func TimerRemainingSecondsString(t *types.DataTimer) string {
 func timerComponentUpdateFunc(e *donburi.Entry) {
 	timer := comp.Timer.Get(e)
 	if timer.Elapsed < timer.TimerDuration {
-		timer.Elapsed += res.TimerTick
+		timer.Elapsed += resources.TimerTick
 	}
 }
 
-func TimerReset(t *types.DataTimer) {
+func Timerresourceset(t *types.DataTimer) {
 	t.Elapsed = 0
 }
 
