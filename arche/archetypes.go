@@ -8,6 +8,7 @@ import (
 	"kar/items"
 	"kar/res"
 	"kar/types"
+	"math"
 	"time"
 
 	"github.com/setanarut/anim"
@@ -23,15 +24,16 @@ type entry = *donburi.Entry
 
 var (
 	dropItemFilter = cm.ShapeFilter{
-		Group:      cm.NoGroup,
+		Group:      2,
 		Categories: res.DropItemMask,
-		Mask:       all &^ res.PlayerRayMask &^ res.DropItemMask &^ res.PlayerMask,
+		Mask:       all &^ res.PlayerRayMask &^ res.PlayerMask,
 	}
 	playerFilter = cm.ShapeFilter{
 		Group:      cm.NoGroup,
 		Categories: res.PlayerMask,
 		Mask:       all &^ res.PlayerRayMask,
 	}
+
 	debugBoxBodyFilter = cm.NewShapeFilter(cm.NoGroup, res.EnemyMask, all)
 )
 
@@ -97,17 +99,17 @@ func SpawnDropItem(pos vec.Vec2, itemID uint16) entry {
 			ID:    itemID,
 		})
 
-	dropItemBody := cm.NewBody(0.8, cm.Infinity)
-	dropItemShape := cm.NewCircle(dropItemBody, itemWidth, vec.Vec2{})
-	dropItemShape.Filter = dropItemFilter
-	dropItemShape.CollisionType = res.CollDropItem
-	dropItemShape.SetElasticity(0)
-	dropItemShape.SetFriction(1)
-	dropItemBody.SetPosition(pos)
-	res.Space.AddShape(dropItemShape)
-	res.Space.AddBody(dropItemShape.Body())
-	dropItemBody.UserData = DropItemEntry
-	comp.Body.Set(DropItemEntry, dropItemBody)
+	ibody := cm.NewBody(0.8, math.MaxFloat64)
+	cm.NewCircleShapeWithBody(ibody, itemWidth, vec.Vec2{})
+	ibody.Shapes[0].SetShapeFilter(dropItemFilter)
+	ibody.Shapes[0].CollisionType = res.CollDropItem
+	ibody.Shapes[0].SetElasticity(0)
+	ibody.Shapes[0].SetFriction(1)
+
+	ibody.SetPosition(pos)
+	res.Space.AddBodyWithShapes(ibody)
+	ibody.UserData = DropItemEntry
+	comp.Body.Set(DropItemEntry, ibody)
 	return DropItemEntry
 }
 
@@ -147,23 +149,22 @@ func SpawnPlayer(pos vec.Vec2, mass, el, fr float64) entry {
 	})
 
 	b := spawnCircleBody(pos, mass, el, fr, (res.BlockSize/2)*0.8, e)
-	b.FirstShape().SetCollisionType(res.CollPlayer)
-	b.FirstShape().SetShapeFilter(playerFilter)
+	b.ShapeAtIndex(0).SetCollisionType(res.CollPlayer)
+	b.ShapeAtIndex(0).SetShapeFilter(playerFilter)
 	comp.Body.Set(e, b)
 	return e
 }
 
 func SpawnBoxBody(pos vec.Vec2, m, e, f, w, h, r float64, en entry) *cm.Body {
-	body := cm.NewBody(m, cm.MomentForBox(m, w, h))
-	shape := cm.NewBox(body, w, h, r)
-	shape.SetElasticity(e)
-	shape.SetFriction(f)
-	shape.SetCollisionType(res.CollEnemy)
-	body.SetPosition(pos)
-	res.Space.AddShape(shape)
-	res.Space.AddBody(shape.Body())
-	body.UserData = en
-	return body
+	boxBody := cm.NewBody(m, cm.MomentForBox(m, w, h))
+	cm.NewBoxShapeWithBody(boxBody, w, h, r)
+	boxBody.Shapes[0].SetElasticity(e)
+	boxBody.Shapes[0].SetFriction(f)
+	boxBody.Shapes[0].SetCollisionType(res.CollEnemy)
+	boxBody.SetPosition(pos)
+	res.Space.AddBodyWithShapes(boxBody)
+	boxBody.UserData = en
+	return boxBody
 }
 func SpawnDebugBox(pos vec.Vec2) {
 	e := res.ECSWorld.Entry(res.ECSWorld.Create(
@@ -172,7 +173,7 @@ func SpawnDebugBox(pos vec.Vec2) {
 		comp.TagDebugBox,
 	))
 	b := SpawnBoxBody(pos, 1, 0.2, 0.2, res.BlockSize, res.BlockSize, 0, e)
-	b.FirstShape().SetShapeFilter(debugBoxBodyFilter)
+	b.ShapeAtIndex(0).SetShapeFilter(debugBoxBodyFilter)
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
@@ -185,30 +186,28 @@ func SpawnDebugBox(pos vec.Vec2) {
 
 func spawnStatic(pos vec.Vec2, w, h float64) entry {
 	sbody := cm.NewStaticBody()
-	wallShape := cm.NewBox(sbody, w, h, 0)
-	wallShape.Filter = cm.NewShapeFilter(0, res.BlockMask, cm.AllCategories)
-	wallShape.CollisionType = res.CollBlock
-	wallShape.SetElasticity(0)
-	wallShape.SetFriction(0.1)
+	cm.NewBoxShapeWithBody(sbody, w, h, 0)
+	sbody.Shapes[0].Filter = cm.NewShapeFilter(0, res.BlockMask, cm.AllCategories)
+	sbody.Shapes[0].CollisionType = res.CollBlock
+	sbody.Shapes[0].SetElasticity(0)
+	sbody.Shapes[0].SetFriction(0.1)
 	sbody.SetPosition(pos)
-	res.Space.AddShape(wallShape)
-	res.Space.AddBody(wallShape.Body())
+	res.Space.AddBodyWithShapes(sbody)
 	// components
 	entry := res.ECSWorld.Entry(res.ECSWorld.Create(
 		comp.Body,
 	))
-	wallShape.Body().UserData = entry
-	comp.Body.Set(entry, wallShape.Body())
+	sbody.UserData = entry
+	comp.Body.Set(entry, sbody)
 	return entry
 }
 func spawnCircleBody(pos vec.Vec2, m, e, f, r float64, en entry) *cm.Body {
-	body := cm.NewBody(m, cm.Infinity)
-	shape := cm.NewCircle(body, r, vec.Vec2{})
-	shape.SetElasticity(e)
-	shape.SetFriction(f)
+	body := cm.NewBody(m, math.MaxFloat64)
+	cm.NewCircleShapeWithBody(body, r, vec.Vec2{})
+	body.Shapes[0].SetElasticity(e)
+	body.Shapes[0].SetFriction(f)
 	body.SetPosition(pos)
-	res.Space.AddShape(shape)
-	res.Space.AddBody(shape.Body())
+	res.Space.AddBodyWithShapes(body)
 	body.UserData = en
 	return body
 }

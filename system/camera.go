@@ -11,7 +11,7 @@ import (
 	"math"
 
 	"github.com/setanarut/cm"
-	"github.com/setanarut/ebitencm"
+	// "github.com/setanarut/ebitencm"
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
 	"golang.org/x/image/colornames"
@@ -31,7 +31,7 @@ var (
 		4,
 		ItemAnimFrameCount+1,
 	)
-	cmdrawer        = ebitencm.NewDrawer()
+	// cmdrawer        = ebitencm.NewDrawer()
 	CamBB           cm.BB
 	CamBoundenabled bool
 )
@@ -72,8 +72,8 @@ func (ds *DrawCameraSystem) Update() {
 		res.ScreenSize.Y/1.8,
 	)
 	vectorg.GlobalTransform.Reset()
-	cmdrawer.GeoM.Reset()
-	res.Cam.ApplyCameraTransform(cmdrawer.GeoM)
+	// cmdrawer.GeoM.Reset()
+	// res.Cam.ApplyCameraTransform(cmdrawer.GeoM)
 	res.Cam.ApplyCameraTransform(vectorg.GlobalTransform)
 
 	p, ok := comp.TagPlayer.First(res.ECSWorld)
@@ -146,7 +146,7 @@ func (ds *DrawCameraSystem) Draw(scr *ebiten.Image) {
 			res.Cam.Draw(ap.CurrentFrame, res.GlobalDIO, scr)
 		}
 		if ChipmunkDebugSpaceDrawing {
-			cm.DrawSpace(res.Space, cmdrawer.WithScreen(scr))
+			// cm.DrawSpace(res.Space, cmdrawer.WithScreen(scr))
 			vectorg.Line(scr, playerPos, attackSegEnd, 1, color.White)
 		}
 	}

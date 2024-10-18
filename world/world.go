@@ -172,7 +172,7 @@ func GetPlayerNeighborChunks(playerChunk image.Point) []image.Point {
 }
 
 func destroyBodyWithEntry(b *cm.Body) {
-	s := b.FirstShape().Space()
+	s := b.Shapes[0].Space
 	if s.ContainsBody(b) {
 		e := b.UserData.(*donburi.Entry)
 		e.Remove()

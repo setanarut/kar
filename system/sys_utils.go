@@ -33,6 +33,24 @@ func getSprite(id uint16) *ebiten.Image {
 	}
 }
 
+func getDisplayNames(arb *cm.Arbiter) (string, string) {
+	var aname, bname string
+	if checkEntries(arb) {
+		a, b := getEntries(arb)
+		if a.HasComponent(comp.Item) {
+			aname = items.Property[comp.Item.Get(a).ID].DisplayName
+		} else if a.HasComponent(comp.TagPlayer) {
+			aname = "Player"
+		}
+		if b.HasComponent(comp.Item) {
+			bname = items.Property[comp.Item.Get(b).ID].DisplayName
+		} else if a.HasComponent(comp.TagPlayer) {
+			aname = "Player"
+		}
+	}
+	return aname, bname
+}
+
 type inventory struct {
 }
 

@@ -10,11 +10,15 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/setanarut/cm"
 )
 
-var selectedSlotDisplayName string
-var hudTextTemplate string
-var selectedIm = ebiten.NewImage(16, 16)
+var (
+	selectedSlotDisplayName string
+	playerArbiterEntities   string
+	hudTextTemplate         string
+	selectedIm              = ebiten.NewImage(16, 16)
+)
 
 type DrawHUDSystem struct {
 	hotbarDIO, itemsDIO *res.DIO
@@ -37,11 +41,19 @@ TPS/FPS  %v %v
 Entities %d
 HandSlot %v %v
 Slot     %v
+Arb      %v
 `
 }
 
 func (hs *DrawHUDSystem) Update() {
+	p, ok := comp.TagPlayer.First(res.ECSWorld)
+	if ok {
+		comp.Body.Get(p).EachArbiter(func(a *cm.Arbiter) {
+			an, bn := getDisplayNames(a)
+			playerArbiterEntities = fmt.Sprintf("A: %v B: %v", an, bn)
 
+		})
+	}
 }
 func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 
@@ -51,7 +63,8 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 		if playerInv.Slots[res.SelectedSlotIndex].ID == items.Air {
 			selectedSlotDisplayName = ""
 		} else {
-			selectedSlotDisplayName = items.Property[playerInv.Slots[res.SelectedSlotIndex].ID].DisplayName
+			id := playerInv.Slots[res.SelectedSlotIndex].ID
+			selectedSlotDisplayName = items.Property[id].DisplayName
 		}
 		hs.hotbarDIO.GeoM.Reset()
 		hs.hotbarDIO.GeoM.Translate(-91, -11)
@@ -95,8 +108,10 @@ func (hs *DrawHUDSystem) Draw(screen *ebiten.Image) {
 			playerChunk.X, playerChunk.X,
 			int(ebiten.ActualTPS()), int(ebiten.ActualFPS()),
 			res.ECSWorld.Len(),
-			items.Property[playerInv.HandSlot.ID].DisplayName, playerInv.HandSlot.Quantity,
+			items.Property[playerInv.HandSlot.ID].DisplayName,
+			playerInv.HandSlot.Quantity,
 			selectedSlotDisplayName,
+			playerArbiterEntities,
 		)
 
 		text.Draw(screen, txt, res.Font, res.FontDrawOptions)

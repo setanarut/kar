@@ -109,13 +109,13 @@ func (sys *PlayerControlSystem) Update() {
 		hitShape = attackSegQuery.Shape
 
 		if hitShape != nil {
-			if checkEntry(hitShape.Body()) {
-				e := getEntry(hitShape.Body())
+			if checkEntry(hitShape.Body) {
+				e := getEntry(hitShape.Body)
 				if e.HasComponent(comp.Item) {
 					hitItemID = comp.Item.Get(e).ID
 				}
 			}
-			currentBlockPos = hitShape.Body().Position()
+			currentBlockPos = hitShape.Body.Position()
 			currentBlockPosMap = world.WorldSpaceToPixelSpace(currentBlockPos)
 			placeBlockPos = currentBlockPos.Add(
 				attackSegQuery.Normal.Scale(res.BlockSize),
@@ -135,20 +135,20 @@ func (sys *PlayerControlSystem) Update() {
 				playerBody.SetVelocity(0, 0)
 				player.RemoveComponent(comp.TagWASD)
 				player.AddComponent(comp.TagWASDFly)
-				playerBody.FirstShape().SetSensor(true)
+				playerBody.Shapes[0].SetSensor(true)
 			} else {
 				playerBody.SetVelocity(0, 0)
 				player.RemoveComponent(comp.TagWASDFly)
 				player.AddComponent(comp.TagWASD)
-				playerBody.FirstShape().SetSensor(false)
+				playerBody.Shapes[0].SetSensor(false)
 			}
 		}
 
 		// Reset block health
 		if justReleased(eb.KeyShiftRight) {
 			if hitShape != nil {
-				if checkEntry(hitShape.Body()) {
-					e := getEntry(hitShape.Body())
+				if checkEntry(hitShape.Body) {
+					e := getEntry(hitShape.Body)
 					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
 						resourcesetHealthComponent(e)
 					}
@@ -159,8 +159,8 @@ func (sys *PlayerControlSystem) Update() {
 		// Reset block health
 		if attackSegQuery.Shape == nil || attackSegQuery.Shape != hitShape {
 			if hitShape != nil {
-				if checkEntry(hitShape.Body()) {
-					e := getEntry(hitShape.Body())
+				if checkEntry(hitShape.Body) {
+					e := getEntry(hitShape.Body)
 					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
 						resourcesetHealthComponent(e)
 					}
@@ -174,8 +174,8 @@ func (sys *PlayerControlSystem) Update() {
 			if attackSegQuery.Shape != nil &&
 				attackSegQuery.Shape == hitShape {
 				if hitShape != nil {
-					if checkEntry(hitShape.Body()) {
-						e := getEntry(hitShape.Body())
+					if checkEntry(hitShape.Body) {
+						e := getEntry(hitShape.Body)
 						if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
 							id := comp.Item.Get(e).ID
 							if items.IsBreakable(id) && items.IsBlock(id) {
