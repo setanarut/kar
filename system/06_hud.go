@@ -102,10 +102,10 @@ func (hs *DrawHUD) Draw() {
 
 		// Draw stats text
 		txt := fmt.Sprintf(hudTextTemplate,
-			playerPosMap.X, playerPosMap.Y,
-			currentBlockPosMap.X, currentBlockPosMap.Y,
+			playerPixelCoord.X, playerPixelCoord.Y,
+			hitBlockPixelCoord.X, hitBlockPixelCoord.Y,
 			items.Property[hitItemID].DisplayName,
-			playerChunk.X, playerChunk.X,
+			gameWorld.PlayerChunk.X, gameWorld.PlayerChunk.Y,
 			int(eb.ActualTPS()), int(eb.ActualFPS()),
 			ecsWorld.Len(),
 			items.Property[playerInv.HandSlot.ID].DisplayName,

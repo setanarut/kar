@@ -56,8 +56,13 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
 	if items.IsHarvestable(id) {
 		e.AddComponent(comp.TagHarvestable)
 
-	} else if items.IsBlock(id) {
+	}
+	if items.IsBlock(id) {
 		e.AddComponent(comp.TagBlock)
+	}
+
+	if items.IsBreakable(id) {
+		e.AddComponent(comp.TagBreakable)
 	}
 
 	// set max health

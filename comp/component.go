@@ -34,6 +34,7 @@ var (
 	TagPlayer      = donburi.NewTag()
 	TagDropItem    = donburi.NewTag()
 	TagBlock       = donburi.NewTag()
+	TagBreakable   = donburi.NewTag()
 	TagHarvestable = donburi.NewTag()
 	TagDebugBox    = donburi.NewTag()
 )

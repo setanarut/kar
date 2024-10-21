@@ -25,27 +25,16 @@ func (ds *DrawCamera) Init() {
 
 	vectorg.GlobalTransform = &eb.GeoM{}
 	if playerEntry.Valid() {
-		// pos := comp.Body.Get(PlayerEntry).Position()
-
-		Camera = kamera.NewCamera(
-			playerPos.X,
-			playerPos.Y,
-			kar.ScreenSize.X,
-			kar.ScreenSize.Y,
-		)
+		x, y := playerSpawnPos.X, playerSpawnPos.Y
+		camera = kamera.NewCamera(x, y, kar.ScreenSize.X, kar.ScreenSize.Y)
 	} else {
-		pos := kar.ScreenSize.Scale(0.5)
-		Camera = kamera.NewCamera(
-			pos.X,
-			pos.Y,
-			kar.ScreenSize.X,
-			kar.ScreenSize.Y)
+		camera = kamera.NewCamera(0, 0, kar.ScreenSize.X, kar.ScreenSize.Y)
 	}
-	Camera.Lerp = true
+	camera.Lerp = true
 }
 
 func (ds *DrawCamera) Update() {
-	tx, ty := Camera.Target()
+	tx, ty := camera.Target()
 	cameraBounds = cm.NewBBForExtents(
 		vec.Vec2{tx, ty},
 		kar.ScreenSize.X/1.8,
@@ -53,31 +42,27 @@ func (ds *DrawCamera) Update() {
 	)
 	vectorg.GlobalTransform.Reset()
 	cmDrawer.GeoM.Reset()
-	Camera.ApplyCameraTransform(cmDrawer.GeoM)
-	Camera.ApplyCameraTransform(vectorg.GlobalTransform)
-
-	if playerEntry, ok := comp.TagPlayer.First(ecsWorld); ok {
-		pos := comp.Body.Get(playerEntry).Position()
-		Camera.LookAt(pos.X, pos.Y)
-	}
+	camera.ApplyCameraTransform(cmDrawer.GeoM)
+	camera.ApplyCameraTransform(vectorg.GlobalTransform)
+	camera.LookAt(playerPos.X, playerPos.Y)
 
 	if keyPressed(eb.KeyP) {
-		Camera.ZoomFactor *= 1.02
+		camera.ZoomFactor *= 1.02
 	}
 
 	if keyPressed(eb.KeyO) {
-		Camera.ZoomFactor /= 1.02
+		camera.ZoomFactor /= 1.02
 	}
 
 	if justPressed(eb.KeyT) {
-		Camera.AddTrauma(1)
+		camera.AddTrauma(1)
 	}
 	if justPressed(eb.KeyV) {
 		drawBlockBorderEnabled = !drawBlockBorderEnabled
 	}
 
 	if justPressed(eb.KeyBackspace) {
-		Camera.ZoomFactor = 1
+		camera.ZoomFactor = 1
 	}
 
 	comp.AnimPlayer.Each(ecsWorld, func(e *donburi.Entry) {
@@ -104,9 +89,9 @@ func drawBlockBorder() {
 			dio := &eb.DrawImageOptions{}
 			dio.ColorScale.ScaleWithColor(colornames.Black)
 			dio.GeoM.Translate(
-				currentBlockPos.X+blockCenterOffset.X,
-				currentBlockPos.Y+blockCenterOffset.Y)
-			Camera.Draw(res.BlockBorder64, dio, kar.Screen)
+				hitBlockPos.X+blockCenterOffset.X,
+				hitBlockPos.Y+blockCenterOffset.Y)
+			camera.Draw(res.BlockBorder64, dio, kar.Screen)
 		}
 	}
 }
@@ -119,10 +104,10 @@ func drawPlayer() {
 		applyDIO(drawOpt, playerPos)
 		ap := comp.AnimPlayer.Get(playerEntry)
 		if ap.CurrentFrame != nil {
-			Camera.Draw(ap.CurrentFrame, globalDIO, kar.Screen)
+			camera.Draw(ap.CurrentFrame, globalDIO, kar.Screen)
 		}
 		if debugDrawingEnabled {
-			cm.DrawSpace(space, cmDrawer.WithScreen(kar.Screen))
+			cm.DrawSpace(cmSpace, cmDrawer.WithScreen(kar.Screen))
 			vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
 		}
 	}
@@ -137,7 +122,7 @@ func drawDropItem(e *donburi.Entry) {
 		datai := comp.Index.Get(e)
 		pos.Y += sinSpace[datai.Index]
 		applyDIO(drawOpt, pos)
-		Camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
+		camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
 	}
 }
 
@@ -153,7 +138,7 @@ func drawBlock(e *donburi.Entry) {
 		if CheckIndex(res.Frames[itemData.ID], imgIndex) {
 			drawOpt := comp.DrawOptions.Get(e)
 			applyDIO(drawOpt, pos)
-			Camera.Draw(
+			camera.Draw(
 				res.Frames[itemData.ID][imgIndex],
 				globalDIO,
 				kar.Screen,
@@ -169,7 +154,7 @@ func drawHarvestableBlock(e *donburi.Entry) {
 		itemData := comp.Item.Get(e)
 		drawOpt := comp.DrawOptions.Get(e)
 		applyDIO(drawOpt, pos)
-		Camera.Draw(
+		camera.Draw(
 			res.Frames[itemData.ID][0],
 			globalDIO,
 			kar.Screen,
@@ -183,7 +168,7 @@ func drawDebugBox(e *donburi.Entry) {
 	drawOpt := comp.DrawOptions.Get(e)
 	drawOpt.Rotation = b.Angle()
 	applyDIO(drawOpt, pos)
-	Camera.Draw(
+	camera.Draw(
 		res.Frames[items.Stone][0],
 		globalDIO,
 		kar.Screen,

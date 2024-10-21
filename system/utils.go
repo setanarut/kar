@@ -58,10 +58,10 @@ func getArbiterDisplayNames(arb *cm.Arbiter) (string, string) {
 
 // destroy body with entry
 func destroyBody(b *cm.Body) {
-	if space.ContainsBody(b) {
+	if cmSpace.ContainsBody(b) {
 		e := b.UserData.(*donburi.Entry)
 		e.Remove()
-		space.AddPostStepCallback(removeBodyPostStep, b, false)
+		cmSpace.AddPostStepCallback(removeBodyPostStep, b, false)
 	}
 }
 
@@ -79,7 +79,7 @@ func removeBodyPostStep(space *cm.Space, body, data interface{}) {
 	space.RemoveBodyWithShapes(body.(*cm.Body))
 }
 
-func resourcesetHealthComponent(e *donburi.Entry) {
+func resetHealthComponent(e *donburi.Entry) {
 	h := comp.Health.Get(e)
 	h.Health = h.MaxHealth
 }

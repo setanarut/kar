@@ -9,9 +9,11 @@ import (
 	"kar/engine/util"
 	"kar/items"
 	"kar/res"
+	"kar/types"
 	"kar/world"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
+	"github.com/setanarut/anim"
 	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
@@ -22,6 +24,7 @@ type PlayerControl struct {
 
 func (sys *PlayerControl) Init() {
 }
+func (sys *PlayerControl) Draw() {}
 func (sys *PlayerControl) Update() {
 
 	updateWASDDirection()
@@ -51,7 +54,7 @@ func (sys *PlayerControl) Update() {
 
 	if playerEntry.Valid() {
 		playerBody := comp.Body.Get(playerEntry)
-		playerPosMap = world.WorldSpaceToPixelSpace(playerPos)
+		playerPixelCoord = world.WorldPosToPixelCoord(playerPos)
 		playerAnimation := comp.AnimPlayer.Get(playerEntry)
 		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
 		attackSegEnd = playerPos.Add(wasdLast.Scale(kar.BlockSize * 3.5))
@@ -66,15 +69,13 @@ func (sys *PlayerControl) Update() {
 					hitItemID = items.Air
 				}
 			}
-			currentBlockPos = hitShape.Body.Position()
-			currentBlockPosMap = world.WorldSpaceToPixelSpace(currentBlockPos)
-			placeBlockPos = currentBlockPos.Add(
-				attackSegQuery.Normal.Scale(kar.BlockSize),
-			)
-			placeBlockPosMap = world.WorldSpaceToPixelSpace(placeBlockPos)
+			hitBlockPos = hitShape.Body.Position()
+			hitBlockPixelCoord = world.WorldPosToPixelCoord(hitBlockPos)
+			placeBlockPos = hitBlockPos.Add(attackSegQuery.Normal.Scale(kar.BlockSize))
+			placeBlockPixelCoord = world.WorldPosToPixelCoord(placeBlockPos)
 		}
 
-		attackSegQuery = space.SegmentQueryFirst(
+		attackSegQuery = cmSpace.SegmentQueryFirst(
 			playerPos,
 			attackSegEnd,
 			0,
@@ -85,203 +86,54 @@ func (sys *PlayerControl) Update() {
 			checkFlyMode(playerEntry, playerBody)
 		}
 
-		// Reset block health
 		if justReleased(eb.KeyShiftRight) {
-			if hitShape != nil {
-				if checkEntry(hitShape.Body) {
-					e := getEntry(hitShape.Body)
-					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
-						resourcesetHealthComponent(e)
-					}
-				}
-			}
+			resetHitBlockHealth()
 		}
-
-		// Reset block health
 		if attackSegQuery.Shape == nil || attackSegQuery.Shape != hitShape {
-			if hitShape != nil {
-				if checkEntry(hitShape.Body) {
-					e := getEntry(hitShape.Body)
-					if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
-						resourcesetHealthComponent(e)
-					}
-				}
-			}
+			resetHitBlockHealth()
 		}
 
-		// Attack
+		// Give damage to block
 		if keyPressed(eb.KeyShiftRight) {
-			if attackSegQuery.Shape != nil &&
-				attackSegQuery.Shape == hitShape {
-				if hitShape != nil {
-					if checkEntry(hitShape.Body) {
-						e := getEntry(hitShape.Body)
-						if e.HasComponent(comp.Item) && e.HasComponent(comp.Health) {
-							id := comp.Item.Get(e).ID
-							if items.IsBreakable(id) && items.IsBlock(id) {
-								h := comp.Health.Get(e)
-								h.Health -= 0.2
-							}
-						}
-					}
-				}
-			}
-
+			giveDamageToBlock()
 		}
 
 		// Place block
 		if justPressed(eb.KeySlash) {
-			selectedSlotItemId := inventory.Slots[selectedSlotIndex].ID
-			if items.Property[selectedSlotItemId].Category&items.Block != 0 {
-				if hitShape != nil {
-					if selectedSlotItemId != items.Air {
-						if playerPosMap != placeBlockPosMap {
-							if removeItem(
-								inventory,
-								inventory.Slots[selectedSlotIndex].ID,
-							) {
-								arche.SpawnBlock(space, ecsWorld,
-									placeBlockPos,
-									inventory.Slots[selectedSlotIndex].ID,
-								)
-								mainWorld.Image.SetGray16(
-									placeBlockPosMap.X,
-									placeBlockPosMap.Y,
-									color.Gray16{selectedSlotItemID},
-								)
-							}
-						}
-					}
-				}
-			}
-
+			placeBlock()
 		}
 
+		// Eğer boş slot varsa eline al
 		if justPressed(eb.KeyE) {
-			i, ok := hasEmptySlot(inventory)
-
-			if ok {
-				temp := inventory.HandSlot
-				inventory.HandSlot = inventory.Slots[selectedSlotIndex]
-				resetSlot(inventory, selectedSlotIndex)
-				inventory.Slots[i] = temp
-			}
-
+			takeInHand()
 		}
 		// Drop Item
 		if justPressed(eb.KeyQ) {
-			id := inventory.Slots[selectedSlotIndex].ID
-			if inventory.Slots[selectedSlotIndex].Quantity > 0 {
-				inventory.Slots[selectedSlotIndex].Quantity--
-				e := arche.SpawnDropItem(space, ecsWorld, playerPos, id)
-				b := comp.Body.Get(e)
-				if facingLeft {
-					b.ApplyImpulseAtLocalPoint(
-						wasdLast.Scale(200).Rotate(mathutil.Radians(45)), vec.Vec2{})
-				}
-				if facingRight {
-					b.ApplyImpulseAtLocalPoint(
-						wasdLast.Scale(200).Rotate(mathutil.Radians(-45)), vec.Vec2{})
-				}
-
-			}
+			dropSlotItem()
 		}
 
-		// Add random item to inventory
+		// Adds random items to inventory
 		if justPressed(eb.KeyR) {
-			resetInventory(inventory)
-			for i := range inventory.Slots {
-				addItem(
-					inventory,
-					uint16(mathutil.RandRangeInt(1, len(items.Property))),
-				)
-				inventory.Slots[i].Quantity = uint8(mathutil.RandRangeInt(1, 64))
-			}
+			randomFillInventory()
 
 		}
 		if justPressed(eb.KeyTab) {
-
-			if selectedSlotIndex+1 < len(inventory.Slots) {
-				selectedSlotIndex++
-			} else {
-				selectedSlotIndex = 0
-			}
-
+			goToNextSlot()
 		}
 		if justPressed(eb.Key0) {
-			resetSlot(inventory, selectedSlotIndex)
+			deleteSlot(inventory, selectedSlotIndex)
 		}
 
-		if justPressed(eb.Key1) {
-			selectedSlotIndex = 0
-		}
-		if justPressed(eb.Key2) {
-			selectedSlotIndex = 1
-		}
-		if justPressed(eb.Key3) {
-			selectedSlotIndex = 2
-		}
-		if justPressed(eb.Key4) {
-			selectedSlotIndex = 3
-		}
-		if justPressed(eb.Key5) {
-			selectedSlotIndex = 4
-		}
-		if justPressed(eb.Key6) {
-			selectedSlotIndex = 5
-		}
-		if justPressed(eb.Key7) {
-			selectedSlotIndex = 6
-		}
-		if justPressed(eb.Key8) {
-			selectedSlotIndex = 7
-		}
-		if justPressed(eb.Key9) {
-			selectedSlotIndex = 8
-		}
-
-		if idle && facingLeft && !walking {
-			playerAnimation.SetState("idle_left")
-			playerDrawOptions.FlipX = false
-		} else if idle && facingRight {
-			playerAnimation.SetState("idle_right")
-			playerDrawOptions.FlipX = false
-		} else {
-			playerAnimation.SetState("idle_front")
-			playerDrawOptions.FlipX = false
-		}
-
-		if !isGround && !idle {
-			playerAnimation.SetState("jump")
-		}
-
-		if digDown {
-			playerAnimation.SetState("dig_down")
-		}
-		if digUp {
-			playerAnimation.SetState("dig_right")
-		}
-
-		if attacking && facingRight && !idle {
-			playerAnimation.SetState("dig_right")
-			playerDrawOptions.FlipX = false
-		}
-		if attacking && facingLeft && !idle {
-			playerAnimation.SetState("dig_right")
-			playerDrawOptions.FlipX = true
-		}
-
-		if walkRight && !attacking && isGround && !idle {
-			playerAnimation.SetState("walk_right")
-			playerDrawOptions.FlipX = false
-		}
-		if walkLeft && !attacking && isGround && !idle {
-			playerAnimation.SetState("walk_right")
-			playerDrawOptions.FlipX = true
-		}
+		updateSlotNumberInputKeys()
+		updateAnimationStates(playerAnimation, playerDrawOptions)
 
 	}
 
+	updateFunctionKeys()
+
+}
+
+func updateFunctionKeys() {
 	if justPressed(eb.KeyF2) {
 		debugDrawingEnabled = !debugDrawingEnabled
 	}
@@ -293,28 +145,134 @@ func (sys *PlayerControl) Update() {
 	}
 	if justPressed(eb.KeyF6) {
 		go util.WritePNG(
-			world.ApplyColorMap(mainWorld.Image, items.ItemColorMap),
+			world.ApplyColorMap(gameWorld.Image, items.ItemColorMap),
 			desktopDir+"map.png",
 		)
 	}
 	if justPressed(eb.KeyF5) {
 		go util.WritePNG(
 			world.ApplyColorMap(
-				mainWorld.ChunkImage(playerChunk),
+				gameWorld.ChunkImage(gameWorld.PlayerChunk),
 				items.ItemColorMap,
 			),
 			desktopDir+"playerChunk.png",
 		)
 	}
-
 }
 
-func (sys *PlayerControl) Draw() {}
+func updateAnimationStates(playerAnimation *anim.AnimationPlayer, playerDrawOptions *types.DrawOptions) {
+	if idle && facingLeft && !walking {
+		playerAnimation.SetState("idle_left")
+		playerDrawOptions.FlipX = false
+	} else if idle && facingRight {
+		playerAnimation.SetState("idle_right")
+		playerDrawOptions.FlipX = false
+	} else {
+		playerAnimation.SetState("idle_front")
+		playerDrawOptions.FlipX = false
+	}
+
+	if !isGround && !idle {
+		playerAnimation.SetState("jump")
+	}
+
+	if digDown {
+		playerAnimation.SetState("dig_down")
+	}
+	if digUp {
+		playerAnimation.SetState("dig_right")
+	}
+
+	if attacking && facingRight && !idle {
+		playerAnimation.SetState("dig_right")
+		playerDrawOptions.FlipX = false
+	}
+	if attacking && facingLeft && !idle {
+		playerAnimation.SetState("dig_right")
+		playerDrawOptions.FlipX = true
+	}
+
+	if walkRight && !attacking && isGround && !idle {
+		playerAnimation.SetState("walk_right")
+		playerDrawOptions.FlipX = false
+	}
+	if walkLeft && !attacking && isGround && !idle {
+		playerAnimation.SetState("walk_right")
+		playerDrawOptions.FlipX = true
+	}
+}
+
+func updateSlotNumberInputKeys() {
+	if justPressed(eb.Key1) {
+		selectedSlotIndex = 0
+	}
+	if justPressed(eb.Key2) {
+		selectedSlotIndex = 1
+	}
+	if justPressed(eb.Key3) {
+		selectedSlotIndex = 2
+	}
+	if justPressed(eb.Key4) {
+		selectedSlotIndex = 3
+	}
+	if justPressed(eb.Key5) {
+		selectedSlotIndex = 4
+	}
+	if justPressed(eb.Key6) {
+		selectedSlotIndex = 5
+	}
+	if justPressed(eb.Key7) {
+		selectedSlotIndex = 6
+	}
+	if justPressed(eb.Key8) {
+		selectedSlotIndex = 7
+	}
+	if justPressed(eb.Key9) {
+		selectedSlotIndex = 8
+	}
+}
+
+func goToNextSlot() {
+	if selectedSlotIndex+1 < len(inventory.Slots) {
+		selectedSlotIndex++
+	} else {
+		selectedSlotIndex = 0
+	}
+}
+
+func randomFillInventory() {
+	resetInventory(inventory)
+	for i := range inventory.Slots {
+		addItem(
+			inventory,
+			uint16(mathutil.RandRangeInt(1, len(items.Property))),
+		)
+		inventory.Slots[i].Quantity = uint8(mathutil.RandRangeInt(1, 64))
+	}
+}
+
+func dropSlotItem() {
+	id := inventory.Slots[selectedSlotIndex].ID
+	if inventory.Slots[selectedSlotIndex].Quantity > 0 {
+		inventory.Slots[selectedSlotIndex].Quantity--
+		e := arche.SpawnDropItem(cmSpace, ecsWorld, playerPos, id)
+		b := comp.Body.Get(e)
+		if facingLeft {
+			b.ApplyImpulseAtLocalPoint(
+				wasdLast.Scale(200).Rotate(mathutil.Radians(45)), vec.Vec2{})
+		}
+		if facingRight {
+			b.ApplyImpulseAtLocalPoint(
+				wasdLast.Scale(200).Rotate(mathutil.Radians(-45)), vec.Vec2{})
+		}
+
+	}
+}
 
 func wasdFunc(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	p := body.Position()
-	queryInfo := space.SegmentQueryFirst(
+	queryInfo := cmSpace.SegmentQueryFirst(
 		p,
 		p.Add(vec.Vec2{0, kar.BlockSize / 2}),
 		0,
@@ -390,5 +348,61 @@ func updateWASDDirection() {
 	}
 	if !wasd.Equal(vec.Vec2{}) {
 		wasdLast = wasd
+	}
+}
+
+func resetHitBlockHealth() {
+	if hitShape != nil {
+		if checkEntry(hitShape.Body) {
+			e := getEntry(hitShape.Body)
+			if e.HasComponent(comp.TagBlock) && e.HasComponent(comp.Health) {
+				resetHealthComponent(e)
+			}
+		}
+	}
+}
+
+func giveDamageToBlock() {
+	if hitShape != nil {
+		if checkEntry(hitShape.Body) {
+			e := getEntry(hitShape.Body)
+			if e.HasComponent(comp.TagBreakable) && e.HasComponent(comp.Health) {
+				h := comp.Health.Get(e)
+				h.Health -= 0.2
+			}
+		}
+	}
+}
+
+func placeBlock() {
+	if hitShape != nil {
+		if items.IsBlock(inventory.Slots[selectedSlotIndex].ID) {
+			if inventory.Slots[selectedSlotIndex].ID != items.Air {
+				if playerPixelCoord != placeBlockPixelCoord {
+					if removeItem(inventory, inventory.Slots[selectedSlotIndex].ID) {
+						arche.SpawnBlock(
+							cmSpace,
+							ecsWorld,
+							placeBlockPos,
+							inventory.Slots[selectedSlotIndex].ID,
+						)
+						gameWorld.Image.SetGray16(
+							placeBlockPixelCoord.X,
+							placeBlockPixelCoord.Y,
+							color.Gray16{selectedSlotItemID},
+						)
+					}
+				}
+			}
+		}
+	}
+}
+
+func takeInHand() {
+	if slotIndex, ok := hasEmptySlot(inventory); ok {
+		temp := inventory.HandSlot
+		inventory.HandSlot = inventory.Slots[selectedSlotIndex]
+		deleteSlot(inventory, selectedSlotIndex)
+		inventory.Slots[slotIndex] = temp
 	}
 }

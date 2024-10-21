@@ -31,7 +31,7 @@ func removeItem(inv *types.Inventory, id uint16) bool {
 	return false
 }
 
-func resetSlot(inv *types.Inventory, index int) {
+func deleteSlot(inv *types.Inventory, index int) {
 	inv.Slots[index] = types.ItemStack{}
 }
 

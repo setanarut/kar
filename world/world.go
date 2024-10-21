@@ -15,7 +15,17 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-var mooreNeighbors = [8]image.Point{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}}
+var mooreNeighbors = [8]image.Point{
+	{1, 0},
+	{1, 1},
+	{0, 1},
+	{-1, 1},
+	{-1, 0},
+	{-1, -1},
+	{0, -1},
+	{1, -1},
+}
+var blockCenterOffset vec.Vec2
 
 type World struct {
 	W, H         float64
@@ -23,16 +33,18 @@ type World struct {
 	ChunkSize    vec.Vec2
 	Image        *image.Gray16
 	LoadedChunks []image.Point
+	PlayerChunk  image.Point
 }
 
-func NewWorld(worldW, worldH float64, chunkSize vec.Vec2, blockSize float64) *World {
+func NewWorld(w, h float64, chunkSize vec.Vec2, blockSize float64) *World {
 	terr := &World{
-		Image:     GenerateWorld(int(worldW), int(worldH)),
+		Image:     GenerateWorld(int(w), int(h)),
 		ChunkSize: chunkSize,
 		BlockSize: blockSize,
-		W:         worldW,
-		H:         worldH,
+		W:         w,
+		H:         h,
 	}
+	blockCenterOffset = vec.Vec2{blockSize / 2.0, blockSize / 2.0}.Neg()
 	return terr
 }
 
@@ -48,36 +60,51 @@ func (tr *World) SpawnChunk(s *cm.Space, w donburi.World, chunkCoord image.Point
 			if blockType != items.Air {
 				arche.SpawnBlock(s, w, blockPos, blockType)
 
-				// if resources.Cam != nil {
-				// x, y := resources.Cam.Target()
-				// camPos := vec.Vec2{x, y}
-				// if blockPos.Distance(camPos) < 10000 {
-				// arche.SpawnBlock(blockPos, blockType)
+				// if Camera != nil {
+				// 	x, y := resources.Cam.Target()
+				// 	camPos := vec.Vec2{x, y}
+				// 	if blockPos.Distance(camPos) < 10000 {
+				// 		arche.SpawnBlock(blockPos, blockType)
+				// 	}
 				// }
-				// }
+
 			}
 		}
 	}
 }
 
+func (tr *World) LoadChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
+	tr.LoadedChunks = GetPlayerNeighborChunks(tr.WorldPosToChunkCoord(playerPos))
+	for _, coord := range tr.LoadedChunks {
+		tr.SpawnChunk(s, w, coord)
+	}
+}
+
 // Spawn/Destroy chunks
-func (tr *World) UpdateChunks(s *cm.Space, w donburi.World, playerChunk image.Point) {
-	playerChunks := GetPlayerNeighborChunks(playerChunk)
-	intersectionChunks := findChunkCoordsIntersection(playerChunks, tr.LoadedChunks)
+func (tr *World) UpdateChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
 
-	for _, toLoad := range playerChunks {
-		if !slices.Contains(intersectionChunks, toLoad) {
-			tr.SpawnChunk(s, w, toLoad)
+	playerChunkTemp := tr.WorldPosToChunkCoord(playerPos)
+	if tr.PlayerChunk != playerChunkTemp {
+		tr.PlayerChunk = playerChunkTemp
+		neighborChunks := GetPlayerNeighborChunks(tr.PlayerChunk)
+		intersectionChunks := findChunkCoordsIntersection(neighborChunks, tr.LoadedChunks)
+
+		for _, toLoad := range neighborChunks {
+			if !slices.Contains(intersectionChunks, toLoad) {
+				tr.SpawnChunk(s, w, toLoad)
+			}
 		}
+
+		for _, toUnload := range tr.LoadedChunks {
+			if !slices.Contains(intersectionChunks, toUnload) {
+				tr.DeSpawnChunk(w, toUnload)
+			}
+		}
+
+		tr.LoadedChunks = neighborChunks
+
 	}
 
-	for _, toUnload := range tr.LoadedChunks {
-		if !slices.Contains(intersectionChunks, toUnload) {
-			tr.DeSpawnChunk(w, toUnload)
-		}
-	}
-
-	tr.LoadedChunks = playerChunks
 }
 
 func (tr *World) DeSpawnChunk(w donburi.World, chunkCoord image.Point) {
@@ -90,6 +117,7 @@ func (tr *World) DeSpawnChunk(w donburi.World, chunkCoord image.Point) {
 }
 
 func (tr *World) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
+	worldPos = worldPos.Add(blockCenterOffset)
 	return image.Point{
 		int((worldPos.X / tr.ChunkSize.X) / tr.BlockSize),
 		int((worldPos.Y / tr.ChunkSize.Y) / tr.BlockSize)}
@@ -135,10 +163,12 @@ func (tr *World) IsAir(x, y int) bool {
 	}
 }
 
-func PixelToWorldSpace(x, y int) vec.Vec2 {
-	return vec.Vec2{float64(x) * kar.BlockSize, float64(y) * kar.BlockSize}
+func PixelCoordToWorldPos(x, y int) vec.Vec2 {
+	worldPos := vec.Vec2{float64(x) * kar.BlockSize, float64(y) * kar.BlockSize}
+	return worldPos.Sub(blockCenterOffset)
 }
-func WorldSpaceToPixelSpace(pos vec.Vec2) image.Point {
+func WorldPosToPixelCoord(pos vec.Vec2) image.Point {
+	pos = pos.Add(blockCenterOffset)
 	return util.Vec2ToPoint(pos).Div(int(kar.BlockSize))
 }
 func ApplyColorMap(img *image.Gray16, clr map[uint16]color.RGBA) *image.RGBA {

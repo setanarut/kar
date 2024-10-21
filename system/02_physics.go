@@ -21,15 +21,15 @@ var dropItemFilterCooldown = cm.ShapeFilter{
 type Physics struct{}
 
 func (ps *Physics) Init() {
-	space.SetGravity(vec.Vec2{0, (kar.BlockSize * 20)})
-	space.CollisionBias = math.Pow(0.2, 60)
-	space.CollisionSlop = 0.4
+	cmSpace.SetGravity(vec.Vec2{0, (kar.BlockSize * 20)})
+	cmSpace.CollisionBias = math.Pow(0.2, 60)
+	cmSpace.CollisionSlop = 0.4
 	// Space.UseSpatialHash(128, 800)
 	// Space.Iterations = 10
-	space.Damping = 0.9
+	cmSpace.Damping = 0.9
 
 	if true {
-		PlayerDropItemHandler := space.NewCollisionHandler(
+		PlayerDropItemHandler := cmSpace.NewCollisionHandler(
 			kar.PlayerCT,
 			kar.DropItemCT)
 
@@ -39,7 +39,7 @@ func (ps *Physics) Init() {
 
 	}
 	if false {
-		DropItemBlockHandler := space.NewCollisionHandler(
+		DropItemBlockHandler := cmSpace.NewCollisionHandler(
 			kar.DropItemCT,
 			kar.BlockCT)
 		DropItemBlockHandler.BeginFunc = DropItemBlockBegin
@@ -49,12 +49,12 @@ func (ps *Physics) Init() {
 }
 
 func (ps *Physics) Update() {
-	space.Step(kar.DeltaTime)
+	cmSpace.Step(kar.DeltaTime)
 
 	// Destroy counter for stucked drop item
 	comp.TagDropItem.Each(ecsWorld, func(dropEntry *donburi.Entry) {
 		dropShape := comp.Body.Get(dropEntry).Shapes[0]
-		space.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
+		cmSpace.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
 			e := shape.Body.UserData.(*donburi.Entry)
 			if e.HasComponent(comp.TagBlock) {
 				if shape.BB.Contains(dropShape.BB.Offset(vec.Vec2{-3, -3})) {

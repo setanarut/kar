@@ -3,6 +3,7 @@ package system
 import (
 	"image"
 	"kar"
+	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/items"
 	"kar/res"
@@ -20,19 +21,24 @@ import (
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
+	"github.com/yohamta/donburi/filter"
 )
 
 var (
-	playerEntry        *donburi.Entry
-	inventory          *types.Inventory
-	Camera             *kamera.Camera
+	gameWorld          *world.World
 	ecsWorld           = donburi.NewWorld()
-	space              = cm.NewSpace()
+	cmSpace            = cm.NewSpace()
+	playerEntry        *donburi.Entry
+	playerSpawnPos     vec.Vec2
+	inventory          *types.Inventory
+	camera             *kamera.Camera
 	selectedSlotItemID = items.Air
 	selectedSlotIndex  = 0
 	desktopDir         string
 	blockCenterOffset  = vec.Vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
 	globalDIO          = &ebiten.DrawImageOptions{}
+
+	breakableBlockQuery = donburi.NewQuery(filter.Contains(comp.TagBlock, comp.Health, comp.TagBreakable))
 
 	filterPlayerRaycast = cm.ShapeFilter{
 		Group:      cm.NoGroup,
@@ -55,11 +61,11 @@ func init() {
 }
 
 var (
-	attackSegQuery                                          cm.SegmentQueryInfo
-	hitShape                                                *cm.Shape
-	playerPos, placeBlockPos, currentBlockPos, attackSegEnd vec.Vec2
-	playerPosMap, placeBlockPosMap, currentBlockPosMap      image.Point
-	hitItemID                                               uint16
+	attackSegQuery                                             cm.SegmentQueryInfo
+	hitShape                                                   *cm.Shape
+	playerPos, placeBlockPos, hitBlockPos, attackSegEnd        vec.Vec2
+	playerPixelCoord, placeBlockPixelCoord, hitBlockPixelCoord image.Point
+	hitItemID                                                  uint16
 )
 var (
 	attacking, digDown, digUp, facingDown, facingLeft, facingRight bool
@@ -86,8 +92,6 @@ var (
 	justReleased = inpututil.IsKeyJustReleased
 	keyPressed   = ebiten.IsKeyPressed
 )
-var playerChunk image.Point
-var mainWorld *world.World
 
 var wasdLast vec.Vec2
 var wasd vec.Vec2

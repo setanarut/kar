@@ -16,50 +16,41 @@ import (
 type Spawn struct{}
 
 func (s *Spawn) Init() {
-	mainWorld = world.NewWorld(
+	gameWorld = world.NewWorld(
 		kar.WorldSize.X,
 		kar.WorldSize.Y,
 		kar.ChunkSize,
 		kar.BlockSize,
 	)
-	var playerSpawnPos vec.Vec2
-
-	for y := range 300 {
-		posUp := mainWorld.Image.Gray16At(10, y).Y
-		posDown := mainWorld.Image.Gray16At(10, y+1).Y
-		if posDown != items.Air && posUp == items.Air {
-			playerSpawnPos = world.PixelToWorldSpace(10, y)
-			break
-		}
-	}
-	playerChunkCoord := mainWorld.WorldPosToChunkCoord(playerSpawnPos)
-	mainWorld.LoadedChunks = world.GetPlayerNeighborChunks(playerChunkCoord)
-	for _, coord := range mainWorld.LoadedChunks {
-		mainWorld.SpawnChunk(space, ecsWorld, coord)
-	}
-	playerEntry = arche.SpawnPlayer(space, ecsWorld, playerSpawnPos, 1, 0, 0)
+	findSpawnPosition()
+	gameWorld.LoadChunks(cmSpace, ecsWorld, playerSpawnPos)
+	playerEntry = arche.SpawnPlayer(cmSpace, ecsWorld, playerSpawnPos, 1, 0, 0)
 }
-
 func (s *Spawn) Update() {
 	if iu.IsMouseButtonJustPressed(eb.MouseButton0) {
-
 		if eb.IsKeyPressed(eb.KeyC) {
-			x, y := Camera.ScreenToWorld(eb.CursorPosition())
-			arche.SpawnDebugBox(space, ecsWorld, vec.Vec2{x, y})
+			x, y := camera.ScreenToWorld(eb.CursorPosition())
+			arche.SpawnDebugBox(cmSpace, ecsWorld, vec.Vec2{x, y})
 		}
 	}
 
-	if player, ok := comp.TagPlayer.First(ecsWorld); ok {
-		playerEntry = player
-		inventory = comp.Inventory.Get(player)
-		playerPos = comp.Body.Get(player).Position()
-		playerChunkTemp := mainWorld.WorldPosToChunkCoord(playerPos)
-		if playerChunk != playerChunkTemp {
-			playerChunk = playerChunkTemp
-			mainWorld.UpdateChunks(space, ecsWorld, playerChunkTemp)
-		}
+	if playerEntry.Valid() {
+		inventory = comp.Inventory.Get(playerEntry)
+		playerPos = comp.Body.Get(playerEntry).Position()
+		gameWorld.UpdateChunks(cmSpace, ecsWorld, playerPos)
 	}
 }
 
 func (s *Spawn) Draw() {
+}
+
+func findSpawnPosition() {
+	for y := range 300 {
+		posUp := gameWorld.Image.Gray16At(10, y).Y
+		posDown := gameWorld.Image.Gray16At(10, y+1).Y
+		if posDown != items.Air && posUp == items.Air {
+			playerSpawnPos = world.PixelCoordToWorldPos(10, y)
+			break
+		}
+	}
 }
