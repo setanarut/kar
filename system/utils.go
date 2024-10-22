@@ -13,14 +13,6 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-// index kontrol fonksiyonu, sadece bool değeri döndürüyor
-func CheckIndex[T any](slice []T, index int) bool {
-	if index < 0 || index >= len(slice) {
-		return false
-	}
-	return true
-}
-
 func getSprite(id uint16) *ebiten.Image {
 	im, ok := res.Images[id]
 	if ok {
@@ -38,23 +30,23 @@ func getDisplayName(e *donburi.Entry) string {
 	return items.Property[comp.Item.Get(e).ID].DisplayName
 }
 
-func getArbiterDisplayNames(arb *cm.Arbiter) (string, string) {
-	var aname, bname string
-	if checkEntries(arb) {
-		a, b := getEntries(arb)
-		if a.HasComponent(comp.Item) {
-			aname = items.Property[comp.Item.Get(a).ID].DisplayName
-		} else if a.HasComponent(comp.TagPlayer) {
-			aname = "Player"
-		}
-		if b.HasComponent(comp.Item) {
-			bname = items.Property[comp.Item.Get(b).ID].DisplayName
-		} else if a.HasComponent(comp.TagPlayer) {
-			aname = "Player"
-		}
-	}
-	return aname, bname
-}
+// func getArbiterDisplayNames(arb *cm.Arbiter) (string, string) {
+// 	var aname, bname string
+// 	if checkEntries(arb) {
+// 		a, b := getEntries(arb)
+// 		if a.HasComponent(comp.Item) {
+// 			aname = items.Property[comp.Item.Get(a).ID].DisplayName
+// 		} else if a.HasComponent(comp.TagPlayer) {
+// 			aname = "Player"
+// 		}
+// 		if b.HasComponent(comp.Item) {
+// 			bname = items.Property[comp.Item.Get(b).ID].DisplayName
+// 		} else if a.HasComponent(comp.TagPlayer) {
+// 			aname = "Player"
+// 		}
+// 	}
+// 	return aname, bname
+// }
 
 // destroy body with entry
 func destroyBody(b *cm.Body) {

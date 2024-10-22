@@ -36,7 +36,9 @@ func (s *Spawn) Update() {
 
 	if playerEntry.Valid() {
 		inventory = comp.Inventory.Get(playerEntry)
-		playerPos = comp.Body.Get(playerEntry).Position()
+		playerBody = comp.Body.Get(playerEntry)
+		playerPos = playerBody.Position()
+		playerVel = playerBody.Velocity()
 		gameWorld.UpdateChunks(cmSpace, ecsWorld, playerPos)
 	}
 }

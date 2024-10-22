@@ -11,12 +11,10 @@ import (
 
 	eb "github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/setanarut/cm"
 )
 
 var (
 	selectedSlotDisplayName string
-	playerArbiterEntities   string
 	hudTextTemplate         string
 	selectedIm              = eb.NewImage(16, 16)
 )
@@ -42,23 +40,15 @@ TPS/FPS  %v %v
 Entities %d
 HandSlot %v %v
 Slot     %v
-Arb      %v
+Vel      %v
 `
 }
 
 func (hs *DrawHUD) Update() {
-	p, ok := comp.TagPlayer.First(ecsWorld)
-	if ok {
-		comp.Body.Get(p).EachArbiter(func(a *cm.Arbiter) {
-			an, bn := getArbiterDisplayNames(a)
-			playerArbiterEntities = fmt.Sprintf("A: %v B: %v", an, bn)
-
-		})
-	}
 }
 func (hs *DrawHUD) Draw() {
-	if player, ok := comp.TagPlayer.First(ecsWorld); ok {
-		playerInv := comp.Inventory.Get(player)
+	if playerEntry.Valid() {
+		playerInv := comp.Inventory.Get(playerEntry)
 		// Draw hotbar
 		if playerInv.Slots[selectedSlotIndex].ID == items.Air {
 			selectedSlotDisplayName = ""
@@ -101,29 +91,25 @@ func (hs *DrawHUD) Draw() {
 		}
 
 		// Draw stats text
-		txt := fmt.Sprintf(hudTextTemplate,
-			playerPixelCoord.X, playerPixelCoord.Y,
-			hitBlockPixelCoord.X, hitBlockPixelCoord.Y,
+		txt := fmt.Sprintf(
+			hudTextTemplate,
+			playerPixelCoord.X,
+			playerPixelCoord.Y,
+			hitBlockPixelCoord.X,
+			hitBlockPixelCoord.Y,
 			items.Property[hitItemID].DisplayName,
-			gameWorld.PlayerChunk.X, gameWorld.PlayerChunk.Y,
-			int(eb.ActualTPS()), int(eb.ActualFPS()),
+			gameWorld.PlayerChunk.X,
+			gameWorld.PlayerChunk.Y,
+			int(eb.ActualTPS()),
+			int(eb.ActualFPS()),
 			ecsWorld.Len(),
 			items.Property[playerInv.HandSlot.ID].DisplayName,
 			playerInv.HandSlot.Quantity,
 			selectedSlotDisplayName,
-			playerArbiterEntities,
+			playerVel,
 		)
 
 		text.Draw(kar.Screen, txt, res.FontSmall, fontSmallDrawOptions)
 
 	}
 }
-
-// hudTextTemplate = `
-// PLAYER   %d %d
-// SELECTED %d %d %s
-// CHUNK    %d %d
-// TPS/FPS  %d %d
-// ENTITIES %d
-// SLOT     %s
-// `

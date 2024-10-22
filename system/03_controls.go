@@ -19,6 +19,9 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+var jumptime = 0.0
+var damp = vec.Vec2{0, -1000}
+
 type PlayerControl struct {
 }
 
@@ -27,7 +30,7 @@ func (sys *PlayerControl) Init() {
 func (sys *PlayerControl) Draw() {}
 func (sys *PlayerControl) Update() {
 
-	updateWASDDirection()
+	UpdateWASDInput()
 
 	if justPressed(eb.KeyLeft) {
 		wasdLast = left
@@ -40,20 +43,19 @@ func (sys *PlayerControl) Update() {
 	facingLeft = wasdLast.Equal(left) || wasd.Equal(left)
 	facingDown = wasdLast.Equal(down) || wasd.Equal(down)
 	facingUp = wasdLast.Equal(up) || wasd.Equal(up)
-	noWASD = wasd.Equal(noDir)
+	noWASD = wasd.Equal(zero)
 	walkRight = wasd.Equal(right)
 	walkLeft = wasd.Equal(left)
-	attacking = keyPressed(eb.KeyShiftRight)
+	attacking = pressed(eb.KeyShiftRight)
 	walking = walkLeft || walkRight
 	idle = noWASD && !attacking && isGround
 	digDown = facingDown && attacking
 	digUp = facingUp && attacking
 
-	comp.TagWASD.Each(ecsWorld, wasdFunc)
-	comp.TagWASDFly.Each(ecsWorld, wasdFlyFunc)
+	comp.TagWASD.Each(ecsWorld, MovementFunc)
+	comp.TagWASDFly.Each(ecsWorld, MovementFlyFunc)
 
 	if playerEntry.Valid() {
-		playerBody := comp.Body.Get(playerEntry)
 		playerPixelCoord = world.WorldPosToPixelCoord(playerPos)
 		playerAnimation := comp.AnimPlayer.Get(playerEntry)
 		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
@@ -83,57 +85,55 @@ func (sys *PlayerControl) Update() {
 
 		// Fly Mode
 		if justPressed(eb.KeyG) {
-			checkFlyMode(playerEntry, playerBody)
+			CheckFlyMode(playerEntry, playerBody)
 		}
 
 		if justReleased(eb.KeyShiftRight) {
-			resetHitBlockHealth()
+			ResetHitBlockHealth()
 		}
 		if attackSegQuery.Shape == nil || attackSegQuery.Shape != hitShape {
-			resetHitBlockHealth()
+			ResetHitBlockHealth()
 		}
 
 		// Give damage to block
-		if keyPressed(eb.KeyShiftRight) {
-			giveDamageToBlock()
+		if pressed(eb.KeyShiftRight) {
+			GiveDamageToBlock()
 		}
 
 		// Place block
 		if justPressed(eb.KeySlash) {
-			placeBlock()
+			PlaceBlock()
 		}
 
 		// Eğer boş slot varsa eline al
 		if justPressed(eb.KeyE) {
-			takeInHand()
+			TakeInHand()
 		}
 		// Drop Item
 		if justPressed(eb.KeyQ) {
-			dropSlotItem()
+			DropSlotItem()
 		}
 
 		// Adds random items to inventory
 		if justPressed(eb.KeyR) {
-			randomFillInventory()
+			RandomFillInventory()
 
 		}
 		if justPressed(eb.KeyTab) {
-			goToNextSlot()
+			GoToNextSlot()
 		}
 		if justPressed(eb.Key0) {
 			deleteSlot(inventory, selectedSlotIndex)
 		}
 
-		updateSlotNumberInputKeys()
-		updateAnimationStates(playerAnimation, playerDrawOptions)
+		UpdateSlotInput()
+		UpdateAnimationStates(playerAnimation, playerDrawOptions)
 
 	}
 
-	updateFunctionKeys()
-
+	UpdateFunctionKeys()
 }
-
-func updateFunctionKeys() {
+func UpdateFunctionKeys() {
 	if justPressed(eb.KeyF2) {
 		debugDrawingEnabled = !debugDrawingEnabled
 	}
@@ -159,50 +159,48 @@ func updateFunctionKeys() {
 		)
 	}
 }
-
-func updateAnimationStates(playerAnimation *anim.AnimationPlayer, playerDrawOptions *types.DrawOptions) {
+func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
 	if idle && facingLeft && !walking {
-		playerAnimation.SetState("idle_left")
-		playerDrawOptions.FlipX = false
+		anim.SetState("idle_left")
+		opt.FlipX = false
 	} else if idle && facingRight {
-		playerAnimation.SetState("idle_right")
-		playerDrawOptions.FlipX = false
+		anim.SetState("idle_right")
+		opt.FlipX = false
 	} else {
-		playerAnimation.SetState("idle_front")
-		playerDrawOptions.FlipX = false
+		anim.SetState("idle_front")
+		opt.FlipX = false
 	}
 
 	if !isGround && !idle {
-		playerAnimation.SetState("jump")
+		anim.SetState("jump")
 	}
 
 	if digDown {
-		playerAnimation.SetState("dig_down")
+		anim.SetState("dig_down")
 	}
 	if digUp {
-		playerAnimation.SetState("dig_right")
+		anim.SetState("dig_right")
 	}
 
 	if attacking && facingRight && !idle {
-		playerAnimation.SetState("dig_right")
-		playerDrawOptions.FlipX = false
+		anim.SetState("dig_right")
+		opt.FlipX = false
 	}
 	if attacking && facingLeft && !idle {
-		playerAnimation.SetState("dig_right")
-		playerDrawOptions.FlipX = true
+		anim.SetState("dig_right")
+		opt.FlipX = true
 	}
 
 	if walkRight && !attacking && isGround && !idle {
-		playerAnimation.SetState("walk_right")
-		playerDrawOptions.FlipX = false
+		anim.SetState("walk_right")
+		opt.FlipX = false
 	}
 	if walkLeft && !attacking && isGround && !idle {
-		playerAnimation.SetState("walk_right")
-		playerDrawOptions.FlipX = true
+		anim.SetState("walk_right")
+		opt.FlipX = true
 	}
 }
-
-func updateSlotNumberInputKeys() {
+func UpdateSlotInput() {
 	if justPressed(eb.Key1) {
 		selectedSlotIndex = 0
 	}
@@ -231,16 +229,14 @@ func updateSlotNumberInputKeys() {
 		selectedSlotIndex = 8
 	}
 }
-
-func goToNextSlot() {
+func GoToNextSlot() {
 	if selectedSlotIndex+1 < len(inventory.Slots) {
 		selectedSlotIndex++
 	} else {
 		selectedSlotIndex = 0
 	}
 }
-
-func randomFillInventory() {
+func RandomFillInventory() {
 	resetInventory(inventory)
 	for i := range inventory.Slots {
 		addItem(
@@ -250,8 +246,7 @@ func randomFillInventory() {
 		inventory.Slots[i].Quantity = uint8(mathutil.RandRangeInt(1, 64))
 	}
 }
-
-func dropSlotItem() {
+func DropSlotItem() {
 	id := inventory.Slots[selectedSlotIndex].ID
 	if inventory.Slots[selectedSlotIndex].Quantity > 0 {
 		inventory.Slots[selectedSlotIndex].Quantity--
@@ -268,8 +263,7 @@ func dropSlotItem() {
 
 	}
 }
-
-func wasdFunc(e *donburi.Entry) {
+func MovementFunc(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	p := body.Position()
 	queryInfo := cmSpace.SegmentQueryFirst(
@@ -309,7 +303,60 @@ func wasdFunc(e *donburi.Entry) {
 	}
 }
 
-func wasdFlyFunc(e *donburi.Entry) {
+func MovementFunc2(e *donburi.Entry) {
+	body := comp.Body.Get(e)
+	p := body.Position()
+	queryInfo := cmSpace.SegmentQueryFirst(
+		p,
+		p.Add(vec.Vec2{0, kar.BlockSize / 2}),
+		0,
+		filterPlayerRaycast,
+	)
+	contactShape := queryInfo.Shape
+	speed := kar.BlockSize * 30
+	vel := body.Velocity()
+	body.SetVelocity(vel.X*0.9, vel.Y)
+	if justReleased(eb.KeySpace) {
+		jumptime = 0
+	}
+	if pressed(eb.KeySpace) {
+		jumptime += 0.01
+		if body.Velocity().Y > -200 {
+			if jumptime < 1.0 {
+				body.ApplyForceAtLocalPoint(damp.Scale(-jumptime), body.CenterOfGravity())
+			}
+			if isGround {
+				body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -300}, body.CenterOfGravity())
+			}
+		}
+	}
+
+	// yerde
+	if contactShape != nil {
+		isGround = true
+		// Zıpla
+		if justPressed(eb.KeySpace) {
+			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -(speed * 0.30)}, body.CenterOfGravity())
+		}
+
+		if walkLeft {
+			body.ApplyForceAtLocalPoint(vec.Vec2{-speed, 0}, body.CenterOfGravity())
+		}
+		if walkRight {
+			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
+		}
+	} else {
+		isGround = false
+		if walkLeft {
+			body.ApplyForceAtLocalPoint(vec.Vec2{-(speed), 0}, body.CenterOfGravity())
+		}
+		if walkRight {
+			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
+		}
+	}
+}
+
+func MovementFlyFunc(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
 	velocity := wasd.Unit().Scale(mobileData.Speed * 4)
@@ -317,8 +364,7 @@ func wasdFlyFunc(e *donburi.Entry) {
 		body.Velocity().LerpDistance(velocity, mobileData.Accel),
 	)
 }
-
-func checkFlyMode(player *donburi.Entry, playerBody *cm.Body) {
+func CheckFlyMode(player *donburi.Entry, playerBody *cm.Body) {
 	if player.HasComponent(comp.TagWASD) {
 		playerBody.SetVelocity(0, 0)
 		player.RemoveComponent(comp.TagWASD)
@@ -331,27 +377,25 @@ func checkFlyMode(player *donburi.Entry, playerBody *cm.Body) {
 		playerBody.Shapes[0].SetSensor(false)
 	}
 }
-
-func updateWASDDirection() {
+func UpdateWASDInput() {
 	wasd = vec.Vec2{}
-	if keyPressed(eb.KeyW) {
+	if pressed(eb.KeyW) {
 		wasd.Y -= 1
 	}
-	if keyPressed(eb.KeyS) {
+	if pressed(eb.KeyS) {
 		wasd.Y += 1
 	}
-	if keyPressed(eb.KeyA) {
+	if pressed(eb.KeyA) {
 		wasd.X -= 1
 	}
-	if keyPressed(eb.KeyD) {
+	if pressed(eb.KeyD) {
 		wasd.X += 1
 	}
 	if !wasd.Equal(vec.Vec2{}) {
 		wasdLast = wasd
 	}
 }
-
-func resetHitBlockHealth() {
+func ResetHitBlockHealth() {
 	if hitShape != nil {
 		if checkEntry(hitShape.Body) {
 			e := getEntry(hitShape.Body)
@@ -361,8 +405,7 @@ func resetHitBlockHealth() {
 		}
 	}
 }
-
-func giveDamageToBlock() {
+func GiveDamageToBlock() {
 	if hitShape != nil {
 		if checkEntry(hitShape.Body) {
 			e := getEntry(hitShape.Body)
@@ -373,8 +416,7 @@ func giveDamageToBlock() {
 		}
 	}
 }
-
-func placeBlock() {
+func PlaceBlock() {
 	if hitShape != nil {
 		if items.IsBlock(inventory.Slots[selectedSlotIndex].ID) {
 			if inventory.Slots[selectedSlotIndex].ID != items.Air {
@@ -397,8 +439,7 @@ func placeBlock() {
 		}
 	}
 }
-
-func takeInHand() {
+func TakeInHand() {
 	if slotIndex, ok := hasEmptySlot(inventory); ok {
 		temp := inventory.HandSlot
 		inventory.HandSlot = inventory.Slots[selectedSlotIndex]

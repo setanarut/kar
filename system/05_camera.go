@@ -5,6 +5,7 @@ import (
 	"kar"
 	"kar/comp"
 	"kar/engine/mathutil"
+	"kar/engine/util"
 	"kar/engine/vectorg"
 	"kar/items"
 	"kar/res"
@@ -46,11 +47,11 @@ func (ds *DrawCamera) Update() {
 	camera.ApplyCameraTransform(vectorg.GlobalTransform)
 	camera.LookAt(playerPos.X, playerPos.Y)
 
-	if keyPressed(eb.KeyP) {
+	if pressed(eb.KeyP) {
 		camera.ZoomFactor *= 1.02
 	}
 
-	if keyPressed(eb.KeyO) {
+	if pressed(eb.KeyO) {
 		camera.ZoomFactor /= 1.02
 	}
 
@@ -135,7 +136,7 @@ func drawBlock(e *donburi.Entry) {
 		imgIndex := int(
 			mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 10),
 		)
-		if CheckIndex(res.Frames[itemData.ID], imgIndex) {
+		if util.CheckIndex(res.Frames[itemData.ID], imgIndex) {
 			drawOpt := comp.DrawOptions.Get(e)
 			applyDIO(drawOpt, pos)
 			camera.Draw(

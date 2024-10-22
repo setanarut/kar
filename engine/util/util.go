@@ -16,6 +16,14 @@ import (
 	"golang.org/x/text/language"
 )
 
+// index kontrol fonksiyonu, sadece bool değeri döndürüyor
+func CheckIndex[T any](slice []T, index int) bool {
+	if index < 0 || index >= len(slice) {
+		return false
+	}
+	return true
+}
+
 func RectPoints(ori vec.Vec2, side float64) []vec.Vec2 {
 	ori.X += -(side / 2)
 	ori.Y += -(side / 2)

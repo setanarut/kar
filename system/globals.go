@@ -3,7 +3,6 @@ package system
 import (
 	"image"
 	"kar"
-	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/items"
 	"kar/res"
@@ -21,7 +20,6 @@ import (
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
-	"github.com/yohamta/donburi/filter"
 )
 
 var (
@@ -29,7 +27,9 @@ var (
 	ecsWorld           = donburi.NewWorld()
 	cmSpace            = cm.NewSpace()
 	playerEntry        *donburi.Entry
+	playerVel          vec.Vec2
 	playerSpawnPos     vec.Vec2
+	playerBody         *cm.Body
 	inventory          *types.Inventory
 	camera             *kamera.Camera
 	selectedSlotItemID = items.Air
@@ -37,8 +37,6 @@ var (
 	desktopDir         string
 	blockCenterOffset  = vec.Vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
 	globalDIO          = &ebiten.DrawImageOptions{}
-
-	breakableBlockQuery = donburi.NewQuery(filter.Contains(comp.TagBlock, comp.Health, comp.TagBreakable))
 
 	filterPlayerRaycast = cm.ShapeFilter{
 		Group:      cm.NoGroup,
@@ -90,7 +88,7 @@ var (
 var (
 	justPressed  = inpututil.IsKeyJustPressed
 	justReleased = inpututil.IsKeyJustReleased
-	keyPressed   = ebiten.IsKeyPressed
+	pressed      = ebiten.IsKeyPressed
 )
 
 var wasdLast vec.Vec2
@@ -101,5 +99,5 @@ var (
 	left  = vec.Vec2{-1, 0}
 	down  = vec.Vec2{0, 1}
 	up    = vec.Vec2{0, -1}
-	noDir = vec.Vec2{0, 0}
+	zero  = vec.Vec2{0, 0}
 )

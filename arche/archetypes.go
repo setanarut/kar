@@ -174,10 +174,10 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec.Vec2, mass, el, fr float64) *e
 	shape.SetElasticity(el)
 	shape.SetFriction(fr)
 	b.SetPosition(pos)
-	s.AddBodyWithShapes(b)
 	b.UserData = e
 	b.ShapeAtIndex(0).SetCollisionType(kar.PlayerCT)
 	b.ShapeAtIndex(0).SetShapeFilter(playerFilter)
+	s.AddBodyWithShapes(b)
 	comp.Body.Set(e, b)
 	return e
 }
