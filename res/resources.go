@@ -2,14 +2,16 @@
 package res
 
 import (
+	"bytes"
 	"embed"
 	"image"
-	"kar/engine/util"
 	"kar/items"
+	"log"
 
 	"github.com/anthonynsimon/bild/blend"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"golang.org/x/text/language"
 )
 
 //go:embed assets/*
@@ -19,13 +21,11 @@ var (
 	BlockBorder     *ebiten.Image
 	Images          = make(map[uint16]*ebiten.Image, 0)
 	Frames          = make(map[uint16][]*ebiten.Image, 0)
-	AtlasPlayer     = util.ReadEbImgFS(fs, "assets/img/player/player.png")
-	Hotbar          = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
-	HotbarSelection = util.ReadEbImgFS(fs, "assets/img/gui/hotbarBorder.png")
-	BlockBorder32   = util.ReadEbImgFS(fs, "assets/img/overlay/border32.png")
-	BlockBorder48   = util.ReadEbImgFS(fs, "assets/img/overlay/border48.png")
-	BlockBorder64   = util.ReadEbImgFS(fs, "assets/img/overlay/border64.png")
-	Font            = util.LoadFontFromFS("assets/font/pixelcode.otf", 18, fs)
+	AtlasPlayer     = readEbImgFs(fs, "assets/img/player/player.png")
+	Hotbar          = readEbImgFs(fs, "assets/img/gui/hotbar.png")
+	HotbarSelection = readEbImgFs(fs, "assets/img/gui/hotbarBorder.png")
+	Border16        = readEbImgFs(fs, "assets/img/overlay/border16.png")
+	Font            = loadFontFromFs("assets/font/pixelcode.otf", 18, fs)
 	FontSmall       = &text.GoTextFace{
 		Source:    Font.Source,
 		Direction: 0,
@@ -33,11 +33,11 @@ var (
 	}
 )
 
-var cracks = util.ImgFromFS(fs, "assets/img/overlay/cracks.png")
+var cracks = imgFromFs(fs, "assets/img/overlay/cracks.png")
 
 func init() {
 
-	Images[items.Air] = util.ReadEbImgFS(fs, "assets/img/air.png")
+	Images[items.Air] = readEbImgFs(fs, "assets/img/air.png")
 	Frames[items.Andesite] = blockImgs("andesite.png")
 	Frames[items.Bedrock] = blockImgs("bedrock.png")
 	Frames[items.BrewingStand] = blockImgs("brewing_stand.png")
@@ -105,14 +105,14 @@ func init() {
 	Frames[items.Torch] = blockImgs("torch.png")
 
 	Frames[items.WheatCrops] = []*ebiten.Image{
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat0.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat1.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat2.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat3.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat4.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat5.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat6.png"),
-		util.ReadEbImgFS(fs, "assets/img/blocks_stages/wheat_crops/wheat7.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat0.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat1.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat2.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat3.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat4.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat5.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat6.png"),
+		readEbImgFs(fs, "assets/img/blocks_stages/wheat_crops/wheat7.png"),
 	}
 	Images[items.Arrow] = itemImg("arrow.png")
 	Images[items.BeetrootSeeds] = itemImg("beetroot_seeds.png")
@@ -198,9 +198,44 @@ func makeStages(block, stages image.Image) []image.Image {
 	return frames
 }
 func blockImgs(f string) []*ebiten.Image {
-	frames := makeStages(util.ImgFromFS(fs, "assets/img/blocks/"+f), cracks)
+	frames := makeStages(imgFromFs(fs, "assets/img/blocks/"+f), cracks)
 	return toEbiten(frames)
 }
+
 func itemImg(f string) *ebiten.Image {
-	return util.ReadEbImgFS(fs, "assets/img/items/"+f)
+	return ebiten.NewImageFromImage(imgFromFs(fs, "assets/img/items/"+f))
+}
+
+func imgFromFs(fs embed.FS, filePath string) image.Image {
+	f, err := fs.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	return image
+}
+
+func readEbImgFs(fs embed.FS, filePath string) *ebiten.Image {
+	return ebiten.NewImageFromImage(imgFromFs(fs, filePath))
+}
+
+func loadFontFromFs(file string, size float64, fs embed.FS) *text.GoTextFace {
+	f, err := fs.ReadFile(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	src, err := text.NewGoTextFaceSource(bytes.NewReader(f))
+	if err != nil {
+		log.Fatal(err)
+	}
+	gtf := &text.GoTextFace{
+		Source:   src,
+		Size:     size,
+		Language: language.English,
+	}
+	return gtf
 }

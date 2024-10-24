@@ -6,8 +6,8 @@ import (
 	"kar"
 	"kar/arche"
 	"kar/comp"
-	"kar/engine/util"
 	"kar/items"
+	"kar/util"
 	"slices"
 
 	"github.com/setanarut/cm"

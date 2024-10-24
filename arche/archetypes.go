@@ -4,11 +4,10 @@ import (
 	"image"
 	"kar"
 	"kar/comp"
-	"kar/engine/mathutil"
-	"kar/engine/util"
 	"kar/items"
 	"kar/res"
 	"kar/types"
+	"kar/util"
 	"math"
 	"time"
 
@@ -54,15 +53,15 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
 	))
 
 	if items.IsHarvestable(id) {
-		e.AddComponent(comp.TagHarvestable)
+		e.AddComponent(comp.Harvestable)
 
 	}
 	if items.IsBlock(id) {
-		e.AddComponent(comp.TagBlock)
+		e.AddComponent(comp.Block)
 	}
 
 	if items.IsBreakable(id) {
-		e.AddComponent(comp.TagBreakable)
+		e.AddComponent(comp.Breakable)
 	}
 
 	// set max health
@@ -73,7 +72,7 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
+		Scale:        util.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
 	})
 
 	comp.Item.Set(e,
@@ -86,7 +85,7 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
 	shape := cm.NewBoxShapeWithBody(blockBody, kar.BlockSize, kar.BlockSize, 0)
 	shape.SetShapeFilter(blockFilter)
 	shape.SetElasticity(0)
-	shape.SetFriction(0.1)
+	shape.SetFriction(0)
 	shape.CollisionType = kar.BlockCT
 	blockBody.SetPosition(pos)
 	s.AddBodyWithShapes(blockBody)
@@ -100,7 +99,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 		comp.DrawOptions,
 		comp.Body,
 		comp.Item,
-		comp.TagDropItem,
+		comp.DropItem,
 		comp.CollisionTimer,
 		comp.StuckCountdown,
 		comp.Index, // animasyon için zamanlayıcı
@@ -108,7 +107,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 	itemWidth := kar.BlockSize / 3
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.GetRectScale(16, 16, itemWidth, itemWidth),
+		Scale:        util.GetRectScale(16, 16, itemWidth, itemWidth),
 	})
 
 	comp.CollisionTimer.Set(e, &types.Timer{Duration: time.Second / 2})
@@ -134,23 +133,24 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 	return e
 }
 
-func SpawnPlayer(s *cm.Space, w db.World, pos vec.Vec2, mass, el, fr float64) *entry {
+func SpawnPlayer(
+	pos vec.Vec2,
+	s *cm.Space,
+	w db.World,
+) *entry {
 	e := w.Entry(w.Create(
-		comp.TagPlayer,
+		comp.Player,
 		comp.Health,
 		comp.DrawOptions,
 		comp.AnimPlayer,
 		comp.Body,
-		comp.Mobile,
 		comp.Inventory,
-		comp.TagWASD,
 	))
 
 	inv := &types.Inventory{}
 	for i := range inv.Slots {
 		inv.Slots[i] = types.ItemStack{}
 	}
-	comp.Mobile.Set(e, &types.Mobile{Speed: 500, Accel: 80})
 	inv.HandSlot = types.ItemStack{}
 	comp.Inventory.Set(e, inv)
 
@@ -166,13 +166,13 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec.Vec2, mass, el, fr float64) *e
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
-		Scale:        mathutil.CircleScaleFactor(kar.BlockSize/2, 16),
+		Scale:        vec.Vec2{1, 1},
 	})
 
-	b := cm.NewBody(mass, math.MaxFloat64)
-	shape := cm.NewCircleShapeWithBody(b, (kar.BlockSize/2)*0.8, vec.Vec2{})
-	shape.SetElasticity(el)
-	shape.SetFriction(fr)
+	b := cm.NewBody(0.001, math.MaxFloat64)
+	shape := cm.NewBoxShapeWithBody(b, 4, 8, 4)
+	shape.SetElasticity(0)
+	shape.SetFriction(0)
 	b.SetPosition(pos)
 	b.UserData = e
 	b.ShapeAtIndex(0).SetCollisionType(kar.PlayerCT)
@@ -187,12 +187,12 @@ func SpawnDebugBox(s *cm.Space, w db.World, pos vec.Vec2) {
 	e := w.Entry(w.Create(
 		comp.DrawOptions,
 		comp.Body,
-		comp.TagDebugBox,
+		comp.DebugBox,
 	))
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
+		Scale:        util.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
 	})
 
 	b := cm.NewBody(1, cm.MomentForBox(1, kar.BlockSize, kar.BlockSize))

@@ -3,8 +3,8 @@ package world
 import (
 	"image"
 	"image/color"
-	"kar/engine/mathutil"
 	"kar/items"
+	"kar/util"
 	"math/rand/v2"
 
 	"github.com/setanarut/fastnoise"
@@ -16,7 +16,7 @@ var random *rand.Rand
 func GenerateWorld(w, h int) *image.Gray16 {
 
 	// seeds
-	seed := mathutil.RandRangeInt(0, 1000000)
+	seed := util.RandRangeInt(0, 1000000)
 	ns.Seed = seed
 	random = rand.New(rand.NewPCG(42, uint64(seed)))
 
@@ -57,7 +57,7 @@ func BlockState(x, y int) uint16 {
 	n2 := 20 + amp + ns.Noise2D(x, y)*amp
 
 	if depth >= n1 && depth <= n2 {
-		grad := mathutil.MapRange(float64(y), n1, n2, 0, 1)
+		grad := util.MapRange(float64(y), n1, n2, 0, 1)
 
 		if (random.Float64()+grad)/2 > 0.8 {
 			return items.Stone

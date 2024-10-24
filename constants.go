@@ -7,7 +7,6 @@ import (
 )
 
 const TimerTick time.Duration = time.Second / 60
-const DeltaTime float64 = 1.0 / 60.0
 
 // Collision Bitmask Category
 const (

@@ -1,9 +1,5 @@
 package kar
 
-import (
-	"github.com/hajimehoshi/ebiten/v2"
-)
+import "github.com/hajimehoshi/ebiten/v2"
 
-var (
-	Screen *ebiten.Image
-)
+var Screen *ebiten.Image

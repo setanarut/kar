@@ -14,10 +14,15 @@ func main() {
 	game := NewGame()
 	game.Init()
 	ebiten.SetScreenClearedEveryFrame(false)
-	ebiten.SetWindowSize(int(kar.ScreenSize.X), int(kar.ScreenSize.Y))
-
+	ebiten.SetWindowSize(
+		int(kar.ScreenSize.X)*3,
+		int(kar.ScreenSize.Y)*3,
+	)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	// run
+
 	if err := ebiten.RunGameWithOptions(
+
 		game,
 		&ebiten.RunGameOptions{
 			GraphicsLibrary: ebiten.GraphicsLibraryAuto,
@@ -38,12 +43,13 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 	g.systems = []types.ISystem{
+		&system.Input{},
 		&system.Spawn{},
-		&system.Physics{},
-		&system.PlayerControl{},
+		&system.Collision{},
+		&system.Player{},
 		&system.Destroy{},
-		&system.DrawCamera{},
-		&system.DrawHUD{},
+		&system.Render{},
+		&system.RenderGUI{},
 		&system.Timers{},
 	}
 

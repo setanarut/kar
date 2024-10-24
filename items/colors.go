@@ -2,22 +2,33 @@ package items
 
 import (
 	"image/color"
-	"kar/engine/util"
+	"strconv"
 )
 
 var ItemColorMap = map[uint16]color.RGBA{
-	Air:                 util.HexToRGBA("#0099ff"),
-	GrassBlock:          util.HexToRGBA("#00903f"),
-	Dirt:                util.HexToRGBA("#74573E"),
-	Sand:                util.HexToRGBA("#fff5cc"),
-	Stone:               util.HexToRGBA("#949494"),
-	CoalOre:             util.HexToRGBA("#372f2f"),
-	GoldOre:             util.HexToRGBA("#ffe100"),
-	IronOre:             util.HexToRGBA("#b8947d"),
-	DiamondOre:          util.HexToRGBA("#40efd4"),
-	Deepslate:           util.HexToRGBA("#4c4c4c"),
-	DeepslateCoalOre:    util.HexToRGBA("#29344e"),
-	DeepslateGoldOre:    util.HexToRGBA("#ffe100"),
-	DeepslateIronOre:    util.HexToRGBA("#8a6548"),
-	DeepslateDiamondOre: util.HexToRGBA("#00ffe1"),
+	Air:                 hexToRGBA("#0099ff"),
+	GrassBlock:          hexToRGBA("#00903f"),
+	Dirt:                hexToRGBA("#74573E"),
+	Sand:                hexToRGBA("#fff5cc"),
+	Stone:               hexToRGBA("#949494"),
+	CoalOre:             hexToRGBA("#372f2f"),
+	GoldOre:             hexToRGBA("#ffe100"),
+	IronOre:             hexToRGBA("#b8947d"),
+	DiamondOre:          hexToRGBA("#40efd4"),
+	Deepslate:           hexToRGBA("#4c4c4c"),
+	DeepslateCoalOre:    hexToRGBA("#29344e"),
+	DeepslateGoldOre:    hexToRGBA("#ffe100"),
+	DeepslateIronOre:    hexToRGBA("#8a6548"),
+	DeepslateDiamondOre: hexToRGBA("#00ffe1"),
+}
+
+// hexToRGBA converts hex color to color.RGBA with "#FFFFFF" format
+func hexToRGBA(hex string) color.RGBA {
+	values, _ := strconv.ParseUint(string(hex[1:]), 16, 32)
+	return color.RGBA{
+		R: uint8(values >> 16),
+		G: uint8((values >> 8) & 0xFF),
+		B: uint8(values & 0xFF),
+		A: 255,
+	}
 }

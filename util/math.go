@@ -1,6 +1,7 @@
-package mathutil
+package util
 
 import (
+	"image"
 	"math"
 	"math/rand/v2"
 
@@ -96,12 +97,9 @@ func RotateAbout(angle float64, point, origin vec.Vec2) vec.Vec2 {
 	b.Y = math.Sin(angle)*(point.X-origin.X) + math.Cos(angle)*(point.Y-origin.Y) + origin.Y
 	return b
 }
-
-// PointOnCircle returns point at angle
-func PointOnCircle(center vec.Vec2, radius float64, angle float64) vec.Vec2 {
-	x := center.X + (radius * math.Cos(angle))
-	y := center.Y + (radius * math.Sin(angle))
-	return vec.Vec2{x, y}
+func ImageCenterOffset(img image.Image) vec.Vec2 {
+	o := vec.Vec2{float64(img.Bounds().Dx()), float64(img.Bounds().Dy())}
+	return o.Scale(0.5).Neg()
 }
 
 func RandomPoint(minX, maxX, minY, maxY float64) vec.Vec2 {

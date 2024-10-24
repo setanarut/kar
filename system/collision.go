@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"kar"
 	"kar/comp"
-	"math"
 
 	"github.com/setanarut/cm"
 	"github.com/yohamta/donburi"
@@ -18,15 +17,9 @@ var dropItemFilterCooldown = cm.ShapeFilter{
 	Mask:       cm.AllCategories &^ kar.PlayerRayMask,
 }
 
-type Physics struct{}
+type Collision struct{}
 
-func (ps *Physics) Init() {
-	cmSpace.SetGravity(vec.Vec2{0, (kar.BlockSize * 20)})
-	cmSpace.CollisionBias = math.Pow(0.2, 60)
-	cmSpace.CollisionSlop = 0.4
-	// Space.UseSpatialHash(128, 800)
-	// Space.Iterations = 10
-	cmSpace.Damping = 0.9
+func (cl *Collision) Init() {
 
 	if true {
 		PlayerDropItemHandler := cmSpace.NewCollisionHandler(
@@ -48,15 +41,15 @@ func (ps *Physics) Init() {
 	}
 }
 
-func (ps *Physics) Update() {
-	cmSpace.Step(kar.DeltaTime)
+func (cl *Collision) Update() {
+	cmSpace.Step(kar.SpaceStep)
 
 	// Destroy counter for stucked drop item
-	comp.TagDropItem.Each(ecsWorld, func(dropEntry *donburi.Entry) {
+	comp.DropItem.Each(ecsWorld, func(dropEntry *donburi.Entry) {
 		dropShape := comp.Body.Get(dropEntry).Shapes[0]
 		cmSpace.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
 			e := shape.Body.UserData.(*donburi.Entry)
-			if e.HasComponent(comp.TagBlock) {
+			if e.HasComponent(comp.Block) {
 				if shape.BB.Contains(dropShape.BB.Offset(vec.Vec2{-3, -3})) {
 					ct := comp.StuckCountdown.Get(dropEntry)
 					ct.Duration -= 1
@@ -76,7 +69,7 @@ func (ps *Physics) Update() {
 	})
 }
 
-func (ps *Physics) Draw() {}
+func (cl *Collision) Draw() {}
 
 func PlayerDropItemBegin(arb *cm.Arbiter, s *cm.Space, dat any) bool {
 	if checkEntries(arb) {

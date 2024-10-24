@@ -6,7 +6,7 @@ import (
 	"kar/arche"
 	"kar/comp"
 	"kar/items"
-	world "kar/world"
+	"kar/world"
 
 	"github.com/yohamta/donburi"
 )
@@ -18,7 +18,7 @@ func (s *Destroy) Init() {
 }
 
 func (s *Destroy) Update() {
-	comp.TagBlock.Each(ecsWorld, DestroyDeadBlockCallback)
+	comp.Block.Each(ecsWorld, DestroyDeadBlockCallback)
 	comp.StuckCountdown.Each(ecsWorld, DestroyStuckedDropItem)
 }
 
@@ -26,7 +26,7 @@ func (s *Destroy) Draw() {}
 
 func EntityOnRemoveCallback(world donburi.World, entity donburi.Entity) {
 	entry := world.Entry(entity)
-	if entry.HasComponent(comp.TagBlock) && entry.HasComponent(comp.Health) {
+	if entry.HasComponent(comp.Block) && entry.HasComponent(comp.Health) {
 	}
 
 }
