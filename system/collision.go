@@ -21,24 +21,25 @@ type Collision struct{}
 
 func (cl *Collision) Init() {
 
-	if true {
-		PlayerDropItemHandler := cmSpace.NewCollisionHandler(
-			kar.PlayerCT,
-			kar.DropItemCT)
+	PlayerDropItemHandler := cmSpace.NewCollisionHandler(
+		kar.PlayerCT,
+		kar.DropItemCT)
 
-		PlayerDropItemHandler.BeginFunc = PlayerDropItemBegin
-		// PlayerDropItemHandler.PreSolveFunc = PlayerDropItemPreCallback
-		// PlayerDropItemHandler.PostSolveFunc = playerDropItemPostCallback
+	// PlayerBlockHandler := cmSpace.NewCollisionHandler(
+	// 	kar.PlayerCT,
+	// 	kar.BlockCT)
 
-	}
-	if false {
-		DropItemBlockHandler := cmSpace.NewCollisionHandler(
-			kar.DropItemCT,
-			kar.BlockCT)
-		DropItemBlockHandler.BeginFunc = DropItemBlockBegin
-		DropItemBlockHandler.PreSolveFunc = DropItemBlockPre
-		DropItemBlockHandler.PostSolveFunc = DropItemBlockPost
-	}
+	// PlayerBlockHandler.PreSolveFunc = PlayerBlockPre
+
+	PlayerDropItemHandler.BeginFunc = PlayerDropItemBegin
+	// PlayerDropItemHandler.PreSolveFunc = PlayerDropItemPreCallback
+	// PlayerDropItemHandler.PostSolveFunc = playerDropItemPostCallback
+
+	DropItemBlockHandler := cmSpace.NewCollisionHandler(
+		kar.DropItemCT,
+		kar.BlockCT)
+	DropItemBlockHandler.BeginFunc = DropItemBlockBegin
+	DropItemBlockHandler.PostSolveFunc = DropItemBlockPost
 }
 
 func (cl *Collision) Update() {
@@ -85,6 +86,7 @@ func PlayerDropItemBegin(arb *cm.Arbiter, s *cm.Space, dat any) bool {
 }
 
 func PlayerDropItemPre(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
+
 	if checkEntries(arb) {
 		a, b := getEntries(arb)
 		inv := comp.Inventory.Get(a)
@@ -94,6 +96,7 @@ func PlayerDropItemPre(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
 			destroyEntry(b)
 		}
 	}
+
 	return false
 }
 
@@ -119,17 +122,17 @@ func DropItemBlockBegin(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
 	}
 }
 
-func DropItemBlockPre(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
-	dist := arb.ContactPointSet().Points[0].Distance
-	if dist < -10 {
-		fmt.Println("Pre -10")
-	}
-	return true
-}
-
 func DropItemBlockPost(arb *cm.Arbiter, _ *cm.Space, _ any) {
 	dist := arb.ContactPointSet().Points[0].Distance
 	if dist < -10 {
 		fmt.Println("Post -10")
 	}
 }
+
+// func PlayerBlockPre(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
+// 	dist := arb.ContactPointSet().Points[0].Distance
+// 	if dist < 0 {
+// 		return false
+// 	}
+// 	return true
+// }

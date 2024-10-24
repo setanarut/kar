@@ -426,11 +426,11 @@ func DropSlotItem() {
 		b := comp.Body.Get(e)
 		if isFacingLeft {
 			b.ApplyImpulseAtLocalPoint(
-				inputAxisLast.Scale(200).Rotate(util.Radians(45)), vec.Vec2{})
+				inputAxisLast.Scale(32).Rotate(util.Radians(45)), vec.Vec2{})
 		}
 		if isFacingRight {
 			b.ApplyImpulseAtLocalPoint(
-				inputAxisLast.Scale(200).Rotate(util.Radians(-45)), vec.Vec2{})
+				inputAxisLast.Scale(32).Rotate(util.Radians(-45)), vec.Vec2{})
 		}
 
 	}

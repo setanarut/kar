@@ -20,18 +20,18 @@ var (
 	// Expressed as a fraction of the error remaining after each second.
 	// Defaults to math.Pow(0.9, 60) meaning that Chipmunk fixes 10% of overlap
 	// each frame at 60Hz.
-	CollisionBias = math.Pow(0.9, 60)
+	CollisionBias = math.Pow(0.0001, 60)
 
 	// CollisionSlop is amount of encouraged penetration between colliding shapes.
 	// Used to reduce oscillating contacts and keep the collision cache warm.
 	// Defaults to 0.1. If you have poor simulation quality, increase this number
 	// as much as possible without allowing visible amounts of overlap
-	CollisionSlop = 0.01
+	CollisionSlop = 0.001
 
 	// 0.9 would mean that each body's velocity will drop 10% per second.
 	// The default value is 1.0,
-	Damping         = 0.9
-	Iterations uint = 30
+	Damping         = 1.0
+	Iterations uint = 20
 )
 
 var (

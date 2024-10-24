@@ -54,12 +54,7 @@ var (
 	drawBlockBorderEnabled bool      = true
 	debugDrawingEnabled    bool      = false
 	itemAnimFrameCount     int       = 100
-	sinSpace               []float64 = util.SinSpace(
-		0,
-		2*math.Pi,
-		4,
-		itemAnimFrameCount+1,
-	)
+	sinSpace               []float64 = util.SinSpace(0, 2*math.Pi, 2, itemAnimFrameCount+1)
 
 	// occlusionCulling bool
 )

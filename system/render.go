@@ -118,15 +118,13 @@ func drawPlayer() {
 
 func drawDropItem(e *donburi.Entry) {
 	pos := comp.Body.Get(e).Position()
-	if cameraBounds.ContainsVect(pos) {
-		drawOpt := comp.DrawOptions.Get(e)
-		itemData := comp.Item.Get(e)
-		// Item sin animation
-		datai := comp.Index.Get(e)
-		pos.Y += sinSpace[datai.Index]
-		applyDIO(drawOpt, pos)
-		camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
-	}
+	drawOpt := comp.DrawOptions.Get(e)
+	itemData := comp.Item.Get(e)
+	// Item sin animation
+	datai := comp.Index.Get(e)
+	pos.Y += sinSpace[datai.Index]
+	applyDIO(drawOpt, pos)
+	camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
 }
 
 func drawBlock(e *donburi.Entry) {

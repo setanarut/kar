@@ -104,10 +104,10 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 		comp.StuckCountdown,
 		comp.Index, // animasyon için zamanlayıcı
 	))
-	itemWidth := kar.BlockSize / 3
+	// itemWidth := kar.BlockSize / 3
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        util.GetRectScale(16, 16, itemWidth, itemWidth),
+		Scale:        vec.Vec2{0.5, 0.5},
 	})
 
 	comp.CollisionTimer.Set(e, &types.Timer{Duration: time.Second / 2})
@@ -120,7 +120,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 		})
 
 	body := cm.NewBody(0.8, math.MaxFloat64)
-	shape := cm.NewCircleShapeWithBody(body, itemWidth, vec.Vec2{})
+	shape := cm.NewCircleShapeWithBody(body, 4, vec.Vec2{})
 	shape.SetShapeFilter(dropItemFilter)
 	shape.CollisionType = kar.DropItemCT
 	shape.SetElasticity(0)
@@ -169,8 +169,18 @@ func SpawnPlayer(
 		Scale:        vec.Vec2{1, 1},
 	})
 
-	b := cm.NewBody(0.001, math.MaxFloat64)
-	shape := cm.NewBoxShapeWithBody(b, 4, 8, 4)
+	b := cm.NewBody(1, math.MaxFloat64)
+	// verts := make([]vec.Vec2, 3)
+	verts := []vec.Vec2{
+		{0, -4},
+		{5, 7},
+		{4, 8},
+		{4, 8},
+		{-4, 8},
+		{-5, 7},
+	}
+	shape := cm.NewPolyShapeWithBody(b, 6, verts, cm.NewTransformIdentity(), 0)
+	// shape := cm.NewBoxShapeWithBody(b, 6, 8, 0)
 	shape.SetElasticity(0)
 	shape.SetFriction(0)
 	b.SetPosition(pos)
