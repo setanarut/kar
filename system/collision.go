@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kar"
 	"kar/comp"
+	"math"
 
 	"github.com/setanarut/cm"
 	"github.com/yohamta/donburi"
@@ -25,11 +26,11 @@ func (cl *Collision) Init() {
 		kar.PlayerCT,
 		kar.DropItemCT)
 
-	// PlayerBlockHandler := cmSpace.NewCollisionHandler(
-	// 	kar.PlayerCT,
-	// 	kar.BlockCT)
+	PlayerBlockHandler := cmSpace.NewCollisionHandler(
+		kar.PlayerCT,
+		kar.BlockCT)
 
-	// PlayerBlockHandler.PreSolveFunc = PlayerBlockPre
+	PlayerBlockHandler.PreSolveFunc = PlayerBlockPre
 
 	PlayerDropItemHandler.BeginFunc = PlayerDropItemBegin
 	// PlayerDropItemHandler.PreSolveFunc = PlayerDropItemPreCallback
@@ -129,10 +130,23 @@ func DropItemBlockPost(arb *cm.Arbiter, _ *cm.Space, _ any) {
 	}
 }
 
-// func PlayerBlockPre(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
-// 	dist := arb.ContactPointSet().Points[0].Distance
-// 	if dist < 0 {
-// 		return false
-// 	}
-// 	return true
-// }
+func PlayerBlockPre(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
+	player, _ := arb.Bodies()
+	vel := player.Velocity()
+
+	if len(arb.ContactPointSet().Points) == 0 {
+		return true
+	}
+
+	normal := arb.Normal()
+	firstContactDepth := arb.ContactPointSet().Points[0].Distance
+	dotProduct := vel.Dot(normal)
+	// Eğer nesne zıt yönde hareket ediyorsa ve ilk temas noktasının kesişim
+	//  mesafesi belirli bir eşik değerin altındaysa
+	if dotProduct < 0 && math.Abs(firstContactDepth) < 0.1 {
+		// Bu teması göz ardı et
+		return false
+	}
+
+	return true
+}
