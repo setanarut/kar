@@ -134,7 +134,7 @@ func (sys *PlayerControl) Update() {
 	UpdateFunctionKeys()
 }
 func UpdateFunctionKeys() {
-	if justPressed(eb.KeyF2) {
+	if justPressed(eb.KeyX) {
 		debugDrawingEnabled = !debugDrawingEnabled
 	}
 	if justPressed(eb.KeyF4) {
@@ -263,21 +263,34 @@ func DropSlotItem() {
 
 	}
 }
+
+func isOnFloor() bool {
+	groundNormal := vec.Vec2{}
+	playerBody.EachArbiter(func(arb *cm.Arbiter) {
+		n := arb.Normal().Neg()
+		if n.Y < groundNormal.Y {
+			groundNormal = n
+		}
+	})
+
+	return groundNormal.Y < 0
+}
+
 func MovementFunc(e *donburi.Entry) {
 	body := comp.Body.Get(e)
-	p := body.Position()
-	queryInfo := cmSpace.SegmentQueryFirst(
-		p,
-		p.Add(vec.Vec2{0, kar.BlockSize / 2}),
-		0,
-		filterPlayerRaycast,
-	)
-	contactShape := queryInfo.Shape
+	// p := body.Position()
+	// queryInfo := cmSpace.SegmentQueryFirst(
+	// 	p,
+	// 	p.Add(vec.Vec2{0, kar.BlockSize / 2}),
+	// 	0,
+	// 	filterPlayerRaycast,
+	// )
+	// contactShape := queryInfo.Shape
 	speed := kar.BlockSize * 30
 	bv := body.Velocity()
 	body.SetVelocity(bv.X*0.9, bv.Y)
 	// yerde
-	if contactShape != nil {
+	if isOnFloor() {
 		isGround = true
 		// Zıpla
 		if justPressed(eb.KeySpace) {

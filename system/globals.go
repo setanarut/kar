@@ -20,6 +20,7 @@ import (
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
+	"golang.org/x/image/colornames"
 )
 
 var (
@@ -101,3 +102,8 @@ var (
 	up    = vec.Vec2{0, -1}
 	zero  = vec.Vec2{0, 0}
 )
+
+func init() {
+	// cmDrawer.StrokeDisabled = true
+	cmDrawer.Theme.ShapeSleeping = colornames.Green
+}

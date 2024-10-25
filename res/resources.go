@@ -16,20 +16,17 @@ import (
 var fs embed.FS
 
 var (
-	BlockBorder     *ebiten.Image
 	Images          = make(map[uint16]*ebiten.Image, 0)
 	Frames          = make(map[uint16][]*ebiten.Image, 0)
 	AtlasPlayer     = util.ReadEbImgFS(fs, "assets/img/player/player.png")
 	Hotbar          = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
 	HotbarSelection = util.ReadEbImgFS(fs, "assets/img/gui/hotbarBorder.png")
-	BlockBorder32   = util.ReadEbImgFS(fs, "assets/img/overlay/border32.png")
-	BlockBorder48   = util.ReadEbImgFS(fs, "assets/img/overlay/border48.png")
-	BlockBorder64   = util.ReadEbImgFS(fs, "assets/img/overlay/border64.png")
+	BlockBorder     = util.ReadEbImgFS(fs, "assets/img/overlay/border80.png")
 	Font            = util.LoadFontFromFS("assets/font/pixelcode.otf", 18, fs)
 	FontSmall       = &text.GoTextFace{
 		Source:    Font.Source,
 		Direction: 0,
-		Size:      9,
+		Size:      13,
 	}
 )
 

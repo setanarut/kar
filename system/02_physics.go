@@ -22,8 +22,8 @@ type Physics struct{}
 
 func (ps *Physics) Init() {
 	cmSpace.SetGravity(vec.Vec2{0, (kar.BlockSize * 20)})
-	cmSpace.CollisionBias = math.Pow(0.2, 60)
-	cmSpace.CollisionSlop = 0.4
+	cmSpace.CollisionBias = math.Pow(0.0000000001, 60)
+	cmSpace.CollisionSlop = 0.08
 	// Space.UseSpatialHash(128, 800)
 	// Space.Iterations = 10
 	cmSpace.Damping = 0.9

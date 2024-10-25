@@ -92,7 +92,7 @@ func drawBlockBorder() {
 			dio.GeoM.Translate(
 				hitBlockPos.X+blockCenterOffset.X,
 				hitBlockPos.Y+blockCenterOffset.Y)
-			camera.Draw(res.BlockBorder64, dio, kar.Screen)
+			camera.Draw(res.BlockBorder, dio, kar.Screen)
 		}
 	}
 }
