@@ -8,8 +8,6 @@ import (
 
 	"github.com/setanarut/cm"
 	"github.com/yohamta/donburi"
-
-	"github.com/setanarut/vec"
 )
 
 var dropItemFilterCooldown = cm.ShapeFilter{
@@ -21,7 +19,7 @@ var dropItemFilterCooldown = cm.ShapeFilter{
 type Physics struct{}
 
 func (ps *Physics) Init() {
-	cmSpace.SetGravity(vec.Vec2{0, (kar.BlockSize * 20)})
+	cmSpace.SetGravity(vec2{0, (kar.BlockSize * 20)})
 	cmSpace.CollisionBias = math.Pow(0.0000000001, 60)
 	cmSpace.CollisionSlop = 0.08
 	// Space.UseSpatialHash(128, 800)
@@ -57,7 +55,7 @@ func (ps *Physics) Update() {
 		cmSpace.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
 			e := shape.Body.UserData.(*donburi.Entry)
 			if e.HasComponent(comp.TagBlock) {
-				if shape.BB.Contains(dropShape.BB.Offset(vec.Vec2{-3, -3})) {
+				if shape.BB.Contains(dropShape.BB.Offset(vec2{-3, -3})) {
 					ct := comp.StuckCountdown.Get(dropEntry)
 					ct.Duration -= 1
 				}

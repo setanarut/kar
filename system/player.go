@@ -19,16 +19,18 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+type vec2 = vec.Vec2
+
 var jumptime = 0.0
-var damp = vec.Vec2{0, -1000}
+var damp = vec2{0, -1000}
 
-type PlayerControl struct {
+type Player struct {
 }
 
-func (sys *PlayerControl) Init() {
+func (plr *Player) Init() {
 }
-func (sys *PlayerControl) Draw() {}
-func (sys *PlayerControl) Update() {
+func (plr *Player) Draw() {}
+func (plr *Player) Update() {
 
 	UpdateWASDInput()
 
@@ -56,7 +58,7 @@ func (sys *PlayerControl) Update() {
 	comp.TagWASDFly.Each(ecsWorld, MovementFlyFunc)
 
 	if playerEntry.Valid() {
-		playerPixelCoord = world.WorldPosToPixelCoord(playerPos)
+		playerPixelCoord = world.WorldToPixel(playerPos)
 		playerAnimation := comp.AnimPlayer.Get(playerEntry)
 		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
 		attackSegEnd = playerPos.Add(wasdLast.Scale(kar.BlockSize * 3.5))
@@ -72,9 +74,9 @@ func (sys *PlayerControl) Update() {
 				}
 			}
 			hitBlockPos = hitShape.Body.Position()
-			hitBlockPixelCoord = world.WorldPosToPixelCoord(hitBlockPos)
+			hitBlockPixelCoord = world.WorldToPixel(hitBlockPos)
 			placeBlockPos = hitBlockPos.Add(attackSegQuery.Normal.Scale(kar.BlockSize))
-			placeBlockPixelCoord = world.WorldPosToPixelCoord(placeBlockPos)
+			placeBlockPixelCoord = world.WorldToPixel(placeBlockPos)
 		}
 
 		attackSegQuery = cmSpace.SegmentQueryFirst(
@@ -254,18 +256,18 @@ func DropSlotItem() {
 		b := comp.Body.Get(e)
 		if facingLeft {
 			b.ApplyImpulseAtLocalPoint(
-				wasdLast.Scale(200).Rotate(mathutil.Radians(45)), vec.Vec2{})
+				wasdLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
 		}
 		if facingRight {
 			b.ApplyImpulseAtLocalPoint(
-				wasdLast.Scale(200).Rotate(mathutil.Radians(-45)), vec.Vec2{})
+				wasdLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
 		}
 
 	}
 }
 
 func isOnFloor() bool {
-	groundNormal := vec.Vec2{}
+	groundNormal := vec2{}
 	playerBody.EachArbiter(func(arb *cm.Arbiter) {
 		n := arb.Normal().Neg()
 		if n.Y < groundNormal.Y {
@@ -281,7 +283,7 @@ func MovementFunc(e *donburi.Entry) {
 	// p := body.Position()
 	// queryInfo := cmSpace.SegmentQueryFirst(
 	// 	p,
-	// 	p.Add(vec.Vec2{0, kar.BlockSize / 2}),
+	// 	p.Add(vect{0, kar.BlockSize / 2}),
 	// 	0,
 	// 	filterPlayerRaycast,
 	// )
@@ -295,23 +297,23 @@ func MovementFunc(e *donburi.Entry) {
 		// Zıpla
 		if justPressed(eb.KeySpace) {
 			body.ApplyImpulseAtLocalPoint(
-				vec.Vec2{0, -(speed * 0.30)},
+				vec2{0, -(speed * 0.30)},
 				body.CenterOfGravity(),
 			)
 		}
 		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec.Vec2{-speed, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{-speed, 0}, body.CenterOfGravity())
 		}
 		if walkRight {
-			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
 		}
 	} else {
 		isGround = false
 		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec.Vec2{-(speed), 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{-(speed), 0}, body.CenterOfGravity())
 		}
 		if walkRight {
-			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
 		}
 	}
 }
@@ -321,7 +323,7 @@ func MovementFunc2(e *donburi.Entry) {
 	p := body.Position()
 	queryInfo := cmSpace.SegmentQueryFirst(
 		p,
-		p.Add(vec.Vec2{0, kar.BlockSize / 2}),
+		p.Add(vec2{0, kar.BlockSize / 2}),
 		0,
 		filterPlayerRaycast,
 	)
@@ -339,7 +341,7 @@ func MovementFunc2(e *donburi.Entry) {
 				body.ApplyForceAtLocalPoint(damp.Scale(-jumptime), body.CenterOfGravity())
 			}
 			if isGround {
-				body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -300}, body.CenterOfGravity())
+				body.ApplyImpulseAtLocalPoint(vec2{0, -300}, body.CenterOfGravity())
 			}
 		}
 	}
@@ -349,22 +351,22 @@ func MovementFunc2(e *donburi.Entry) {
 		isGround = true
 		// Zıpla
 		if justPressed(eb.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(vec.Vec2{0, -(speed * 0.30)}, body.CenterOfGravity())
+			body.ApplyImpulseAtLocalPoint(vec2{0, -(speed * 0.30)}, body.CenterOfGravity())
 		}
 
 		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec.Vec2{-speed, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{-speed, 0}, body.CenterOfGravity())
 		}
 		if walkRight {
-			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
 		}
 	} else {
 		isGround = false
 		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec.Vec2{-(speed), 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{-(speed), 0}, body.CenterOfGravity())
 		}
 		if walkRight {
-			body.ApplyForceAtLocalPoint(vec.Vec2{speed, 0}, body.CenterOfGravity())
+			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
 		}
 	}
 }
@@ -391,7 +393,7 @@ func CheckFlyMode(player *donburi.Entry, playerBody *cm.Body) {
 	}
 }
 func UpdateWASDInput() {
-	wasd = vec.Vec2{}
+	wasd = vec2{}
 	if pressed(eb.KeyW) {
 		wasd.Y -= 1
 	}
@@ -404,7 +406,7 @@ func UpdateWASDInput() {
 	if pressed(eb.KeyD) {
 		wasd.X += 1
 	}
-	if !wasd.Equal(vec.Vec2{}) {
+	if !wasd.Equal(vec2{}) {
 		wasdLast = wasd
 	}
 }

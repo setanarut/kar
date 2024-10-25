@@ -20,9 +20,9 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-type DrawCamera struct{}
+type Render struct{}
 
-func (ds *DrawCamera) Init() {
+func (rn *Render) Init() {
 
 	vectorg.GlobalTransform = &eb.GeoM{}
 	if playerEntry.Valid() {
@@ -34,13 +34,7 @@ func (ds *DrawCamera) Init() {
 	camera.Lerp = true
 }
 
-func (ds *DrawCamera) Update() {
-	tx, ty := camera.Target()
-	cameraBounds = cm.NewBBForExtents(
-		vec.Vec2{tx, ty},
-		kar.ScreenSize.X/1.8,
-		kar.ScreenSize.Y/1.8,
-	)
+func (rn *Render) Update() {
 	vectorg.GlobalTransform.Reset()
 	cmDrawer.GeoM.Reset()
 	camera.ApplyCameraTransform(cmDrawer.GeoM)
@@ -71,7 +65,7 @@ func (ds *DrawCamera) Update() {
 	})
 }
 
-func (ds *DrawCamera) Draw() {
+func (rn *Render) Draw() {
 	// Clear color
 	kar.Screen.Fill(color.RGBA{64, 68, 108, 255})
 	comp.TagDropItem.Each(ecsWorld, drawDropItem)
@@ -116,51 +110,41 @@ func drawPlayer() {
 
 func drawDropItem(e *donburi.Entry) {
 	pos := comp.Body.Get(e).Position()
-	if cameraBounds.ContainsVect(pos) {
-		drawOpt := comp.DrawOptions.Get(e)
-		itemData := comp.Item.Get(e)
-		// Item sin animation
-		datai := comp.Index.Get(e)
-		pos.Y += sinSpace[datai.Index]
-		applyDIO(drawOpt, pos)
-		camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
-	}
+	drawOpt := comp.DrawOptions.Get(e)
+	itemData := comp.Item.Get(e)
+	// Item sin animation
+	datai := comp.Index.Get(e)
+	pos.Y += sinSpace[datai.Index]
+	applyDIO(drawOpt, pos)
+	camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
 }
 
 func drawBlock(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	pos := body.Position()
-	if cameraBounds.ContainsVect(pos) {
-		itemData := comp.Item.Get(e)
-		healthData := comp.Health.Get(e)
-		imgIndex := int(
-			mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 10),
-		)
-		if util.CheckIndex(res.Frames[itemData.ID], imgIndex) {
-			drawOpt := comp.DrawOptions.Get(e)
-			applyDIO(drawOpt, pos)
-			camera.Draw(
-				res.Frames[itemData.ID][imgIndex],
-				globalDIO,
-				kar.Screen,
-			)
-		}
+	itemData := comp.Item.Get(e)
+	healthData := comp.Health.Get(e)
+	imgIndex := int(
+		mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 10),
+	)
+	if util.CheckIndex(res.Frames[itemData.ID], imgIndex) {
+		drawOpt := comp.DrawOptions.Get(e)
+		applyDIO(drawOpt, pos)
+		camera.Draw(res.Frames[itemData.ID][imgIndex], globalDIO, kar.Screen)
 	}
 }
 
 func drawHarvestableBlock(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	pos := body.Position()
-	if cameraBounds.ContainsVect(pos) {
-		itemData := comp.Item.Get(e)
-		drawOpt := comp.DrawOptions.Get(e)
-		applyDIO(drawOpt, pos)
-		camera.Draw(
-			res.Frames[itemData.ID][0],
-			globalDIO,
-			kar.Screen,
-		)
-	}
+	itemData := comp.Item.Get(e)
+	drawOpt := comp.DrawOptions.Get(e)
+	applyDIO(drawOpt, pos)
+	camera.Draw(
+		res.Frames[itemData.ID][0],
+		globalDIO,
+		kar.Screen,
+	)
 }
 
 func drawDebugBox(e *donburi.Entry) {

@@ -18,7 +18,6 @@ import (
 	"github.com/setanarut/cm"
 	"github.com/setanarut/ebitencm"
 	"github.com/setanarut/kamera/v2"
-	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 )
@@ -28,15 +27,15 @@ var (
 	ecsWorld           = donburi.NewWorld()
 	cmSpace            = cm.NewSpace()
 	playerEntry        *donburi.Entry
-	playerVel          vec.Vec2
-	playerSpawnPos     vec.Vec2
+	playerVel          vec2
+	playerSpawnPos     vec2
 	playerBody         *cm.Body
 	inventory          *types.Inventory
 	camera             *kamera.Camera
 	selectedSlotItemID = items.Air
 	selectedSlotIndex  = 0
 	desktopDir         string
-	blockCenterOffset  = vec.Vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
+	blockCenterOffset  = vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
 	globalDIO          = &ebiten.DrawImageOptions{}
 
 	filterPlayerRaycast = cm.ShapeFilter{
@@ -62,7 +61,7 @@ func init() {
 var (
 	attackSegQuery                                             cm.SegmentQueryInfo
 	hitShape                                                   *cm.Shape
-	playerPos, placeBlockPos, hitBlockPos, attackSegEnd        vec.Vec2
+	playerPos, placeBlockPos, hitBlockPos, attackSegEnd        vec2
 	playerPixelCoord, placeBlockPixelCoord, hitBlockPixelCoord image.Point
 	hitItemID                                                  uint16
 )
@@ -81,9 +80,7 @@ var (
 		4,
 		itemAnimFrameCount+1,
 	)
-	cmDrawer     = ebitencm.NewDrawer()
-	cameraBounds cm.BB
-	// occlusionCulling bool
+	cmDrawer = ebitencm.NewDrawer()
 )
 
 var (
@@ -92,18 +89,18 @@ var (
 	pressed      = ebiten.IsKeyPressed
 )
 
-var wasdLast vec.Vec2
-var wasd vec.Vec2
+var wasdLast vec2
+var wasd vec2
 
 var (
-	right = vec.Vec2{1, 0}
-	left  = vec.Vec2{-1, 0}
-	down  = vec.Vec2{0, 1}
-	up    = vec.Vec2{0, -1}
-	zero  = vec.Vec2{0, 0}
+	right = vec2{1, 0}
+	left  = vec2{-1, 0}
+	down  = vec2{0, 1}
+	up    = vec2{0, -1}
+	zero  = vec2{0, 0}
 )
 
 func init() {
-	// cmDrawer.StrokeDisabled = true
+	cmDrawer.StrokeDisabled = true
 	cmDrawer.Theme.ShapeSleeping = colornames.Green
 }

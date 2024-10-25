@@ -51,7 +51,7 @@ func findSpawnPosition() {
 		posUp := gameWorld.Image.Gray16At(10, y).Y
 		posDown := gameWorld.Image.Gray16At(10, y+1).Y
 		if posDown != items.Air && posUp == items.Air {
-			playerSpawnPos = world.PixelCoordToWorldPos(10, y)
+			playerSpawnPos = world.PixelToWorld(10, y)
 			break
 		}
 	}

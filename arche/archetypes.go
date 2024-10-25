@@ -19,6 +19,8 @@ import (
 	db "github.com/yohamta/donburi"
 )
 
+type vec2 = vec.Vec2
+
 type entry = db.Entry
 
 var (
@@ -36,7 +38,7 @@ var (
 	debugBoxBodyFilter = cm.NewShapeFilter(0, kar.EnemyMask, kar.AllMask)
 )
 
-func SpawnItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) {
+func SpawnItem(s *cm.Space, w db.World, pos vec2, id uint16) {
 	if items.IsBlock(id) {
 		SpawnBlock(s, w, pos, id)
 	} else {
@@ -44,7 +46,7 @@ func SpawnItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) {
 	}
 }
 
-func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
+func SpawnBlock(s *cm.Space, w db.World, pos vec2, id uint16) *cm.Shape {
 
 	e := w.Entry(w.Create(
 		comp.Body,
@@ -72,7 +74,7 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
 	})
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
-		CenterOffset: vec.Vec2{-8, -8},
+		CenterOffset: vec2{-8, -8},
 		Scale:        mathutil.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
 	})
 
@@ -95,7 +97,7 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *cm.Shape {
 	return shape
 }
 
-func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
+func SpawnDropItem(s *cm.Space, w db.World, pos vec2, id uint16) *entry {
 	e := w.Entry(w.Create(
 		comp.DrawOptions,
 		comp.Body,
@@ -107,7 +109,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 	))
 	itemWidth := kar.BlockSize / 3
 	comp.DrawOptions.Set(e, &types.DrawOptions{
-		CenterOffset: vec.Vec2{-8, -8},
+		CenterOffset: vec2{-8, -8},
 		Scale:        mathutil.GetRectScale(16, 16, itemWidth, itemWidth),
 	})
 
@@ -121,7 +123,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 		})
 
 	body := cm.NewBody(0.8, math.MaxFloat64)
-	shape := cm.NewCircleShapeWithBody(body, itemWidth, vec.Vec2{})
+	shape := cm.NewCircleShapeWithBody(body, itemWidth, vec2{})
 	shape.SetShapeFilter(dropItemFilter)
 	shape.CollisionType = kar.DropItemCT
 	shape.SetElasticity(0)
@@ -134,7 +136,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec.Vec2, id uint16) *entry {
 	return e
 }
 
-func SpawnPlayer(s *cm.Space, w db.World, pos vec.Vec2, mass, el, fr float64) *entry {
+func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry {
 	e := w.Entry(w.Create(
 		comp.TagPlayer,
 		comp.Health,
@@ -166,12 +168,12 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec.Vec2, mass, el, fr float64) *e
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
-		Scale:        mathutil.CircleScaleFactor(kar.BlockSize/2, 16),
+		Scale:        vec.Vec2{5, 10},
 	})
 
 	b := cm.NewBody(mass, math.MaxFloat64)
-	shape := cm.NewBoxShapeWithBody(b, (kar.BlockSize / 3), (kar.BlockSize / 1.333), 0)
-	// shape := cm.NewCircleShapeWithBody(b, (kar.BlockSize/2)*0.8, vec.Vec2{})
+	shape := cm.NewBoxShapeWithBody(b, kar.BlockSize*0.7, (kar.BlockSize*2)*0.7, 2)
+	// shape := cm.NewCircleShapeWithBody(b, (kar.BlockSize/2)*0.8, vec2{})
 	shape.SetElasticity(el)
 	shape.SetFriction(fr)
 	b.SetPosition(pos)
@@ -183,7 +185,7 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec.Vec2, mass, el, fr float64) *e
 	return e
 }
 
-func SpawnDebugBox(s *cm.Space, w db.World, pos vec.Vec2) {
+func SpawnDebugBox(s *cm.Space, w db.World, pos vec2) {
 
 	e := w.Entry(w.Create(
 		comp.DrawOptions,
@@ -192,7 +194,7 @@ func SpawnDebugBox(s *cm.Space, w db.World, pos vec.Vec2) {
 	))
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
-		CenterOffset: vec.Vec2{-8, -8},
+		CenterOffset: vec2{-8, -8},
 		Scale:        mathutil.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
 	})
 
@@ -208,7 +210,8 @@ func SpawnDebugBox(s *cm.Space, w db.World, pos vec.Vec2) {
 	comp.Body.Set(e, b)
 }
 
-func worldPosToChunkCoord(worldPos vec.Vec2) image.Point {
+func worldPosToChunkCoord(worldPos vec2) image.Point {
+	// worldPos = worldPos.Add(kar.BlockCenterOffset)
 	x := int((worldPos.X / kar.ChunkSize.X) / kar.BlockSize)
 	y := int((worldPos.Y / kar.ChunkSize.Y) / kar.BlockSize)
 	return image.Point{x, y}

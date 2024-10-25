@@ -40,10 +40,10 @@ func (g *Game) Init() {
 	g.systems = []types.ISystem{
 		&system.Spawn{},
 		&system.Physics{},
-		&system.PlayerControl{},
+		&system.Player{},
 		&system.Destroy{},
-		&system.DrawCamera{},
-		&system.DrawHUD{},
+		&system.Render{},
+		&system.RenderGUI{},
 		&system.Timers{},
 	}
 

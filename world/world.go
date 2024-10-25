@@ -25,7 +25,6 @@ var mooreNeighbors = [8]image.Point{
 	{0, -1},
 	{1, -1},
 }
-var blockCenterOffset vec.Vec2
 
 type World struct {
 	W, H         float64
@@ -44,7 +43,7 @@ func NewWorld(w, h float64, chunkSize vec.Vec2, blockSize float64) *World {
 		W:         w,
 		H:         h,
 	}
-	blockCenterOffset = vec.Vec2{blockSize / 2.0, blockSize / 2.0}.Neg()
+
 	return terr
 }
 
@@ -58,6 +57,7 @@ func (tr *World) SpawnChunk(s *cm.Space, w donburi.World, chunkCoord image.Point
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockType != items.Air {
+				// arche.SpawnBlock(s, w, PixelToWorld(x, y), blockType)
 				arche.SpawnBlock(s, w, blockPos, blockType)
 
 				// if Camera != nil {
@@ -74,7 +74,7 @@ func (tr *World) SpawnChunk(s *cm.Space, w donburi.World, chunkCoord image.Point
 }
 
 func (tr *World) LoadChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
-	tr.LoadedChunks = GetPlayerNeighborChunks(tr.WorldPosToChunkCoord(playerPos))
+	tr.LoadedChunks = GetPlayerNeighborChunks(WorldToChunk(playerPos))
 	for _, coord := range tr.LoadedChunks {
 		tr.SpawnChunk(s, w, coord)
 	}
@@ -83,7 +83,7 @@ func (tr *World) LoadChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
 // Spawn/Destroy chunks
 func (tr *World) UpdateChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
 
-	playerChunkTemp := tr.WorldPosToChunkCoord(playerPos)
+	playerChunkTemp := WorldToChunk(playerPos)
 	if tr.PlayerChunk != playerChunkTemp {
 		tr.PlayerChunk = playerChunkTemp
 		neighborChunks := GetPlayerNeighborChunks(tr.PlayerChunk)
@@ -114,13 +114,6 @@ func (tr *World) DeSpawnChunk(w donburi.World, chunkCoord image.Point) {
 			destroyBodyWithEntry(b)
 		}
 	})
-}
-
-func (tr *World) WorldPosToChunkCoord(worldPos vec.Vec2) image.Point {
-	worldPos = worldPos.Add(blockCenterOffset)
-	return image.Point{
-		int((worldPos.X / tr.ChunkSize.X) / tr.BlockSize),
-		int((worldPos.Y / tr.ChunkSize.Y) / tr.BlockSize)}
 }
 
 func (tr *World) ChunkImage(chunkCoord image.Point) *image.Gray16 {
@@ -163,14 +156,22 @@ func (tr *World) IsAir(x, y int) bool {
 	}
 }
 
-func PixelCoordToWorldPos(x, y int) vec.Vec2 {
-	worldPos := vec.Vec2{float64(x) * kar.BlockSize, float64(y) * kar.BlockSize}
-	return worldPos.Sub(blockCenterOffset)
+func PixelToWorld(x, y int) vec.Vec2 {
+	// worldPos := vec.Vec2{float64(x) * kar.BlockSize, float64(y) * kar.BlockSize}
+	// return worldPos.Sub(kar.BlockCenterOffset)
+	return vec.Vec2{float64(x) * kar.BlockSize, float64(y) * kar.BlockSize}
 }
-func WorldPosToPixelCoord(pos vec.Vec2) image.Point {
-	pos = pos.Add(blockCenterOffset)
+func WorldToPixel(pos vec.Vec2) image.Point {
+	// pos = pos.Add(kar.BlockCenterOffset)
 	return util.Vec2ToPoint(pos).Div(int(kar.BlockSize))
 }
+func WorldToChunk(pos vec.Vec2) image.Point {
+	// pos = pos.Add(kar.BlockCenterOffset)
+	return image.Point{
+		int((pos.X / kar.ChunkSize.X) / kar.BlockSize),
+		int((pos.Y / kar.ChunkSize.Y) / kar.BlockSize)}
+}
+
 func ApplyColorMap(img *image.Gray16, clr map[uint16]color.RGBA) *image.RGBA {
 	colored := image.NewRGBA(img.Bounds())
 	for y := 0; y < img.Bounds().Dy(); y++ {
