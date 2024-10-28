@@ -1,6 +1,7 @@
 package system
 
 import (
+	"image"
 	"image/color"
 	"kar"
 	"kar/arche"
@@ -21,8 +22,34 @@ import (
 
 type vec2 = vec.Vec2
 
-var jumptime = 0.0
-var damp = vec2{0, -1000}
+var axisLast vec2
+var axis vec2
+
+var (
+	attackSegQuery                                             cm.SegmentQueryInfo
+	hitShape                                                   *cm.Shape
+	playerPos, placeBlockPos, hitBlockPos, attackSegEnd        vec2
+	playerPixelCoord, placeBlockPixelCoord, hitBlockPixelCoord image.Point
+	hitItemID                                                  uint16
+)
+var (
+	attacking, digDown, digUp, facingDown, facingLeft, facingRight bool
+	facingUp, idle, isGround, noWASD, walking, walkLeft, walkRight bool
+)
+var (
+	playerEntry         *donburi.Entry
+	playerVel           vec2
+	playerSpawnPos      vec2
+	playerBody          *cm.Body
+	playerInv           *types.Inventory
+	jumptime            = 0.0
+	damp                = vec2{0, -1000}
+	filterPlayerRaycast = cm.ShapeFilter{
+		0,
+		arche.PlayerRayBit,
+		cm.AllCategories &^ arche.PlayerBit &^ arche.DropItemBit,
+	}
+)
 
 type Player struct {
 }
@@ -34,22 +61,24 @@ func (plr *Player) Draw() {
 }
 func (plr *Player) Update() {
 
-	UpdateWASDInput()
-
+	axis = GetAxis()
+	if !axis.Equal(vec2{}) {
+		axisLast = axis
+	}
 	if justPressed(eb.KeyLeft) {
-		wasdLast = left
+		axisLast = left
 	}
 	if justPressed(eb.KeyRight) {
-		wasdLast = right
+		axisLast = right
 	}
 
-	facingRight = wasdLast.Equal(right) || wasd.Equal(right)
-	facingLeft = wasdLast.Equal(left) || wasd.Equal(left)
-	facingDown = wasdLast.Equal(down) || wasd.Equal(down)
-	facingUp = wasdLast.Equal(up) || wasd.Equal(up)
-	noWASD = wasd.Equal(zero)
-	walkRight = wasd.Equal(right)
-	walkLeft = wasd.Equal(left)
+	facingRight = axisLast.Equal(right) || axis.Equal(right)
+	facingLeft = axisLast.Equal(left) || axis.Equal(left)
+	facingDown = axisLast.Equal(down) || axis.Equal(down)
+	facingUp = axisLast.Equal(up) || axis.Equal(up)
+	noWASD = axis.Equal(zero)
+	walkRight = axis.Equal(right)
+	walkLeft = axis.Equal(left)
 	attacking = pressed(eb.KeyShiftRight)
 	walking = walkLeft || walkRight
 	idle = noWASD && !attacking && isGround
@@ -63,7 +92,7 @@ func (plr *Player) Update() {
 		playerPixelCoord = world.WorldToPixel(playerPos)
 		playerAnimation := comp.AnimPlayer.Get(playerEntry)
 		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
-		attackSegEnd = playerPos.Add(wasdLast.Scale(kar.BlockSize * 3.5))
+		attackSegEnd = playerPos.Add(axisLast.Scale(kar.BlockSize * 3.5))
 		hitShape = attackSegQuery.Shape
 
 		if hitShape != nil {
@@ -127,7 +156,7 @@ func (plr *Player) Update() {
 			GoToNextSlot()
 		}
 		if justPressed(eb.Key0) {
-			deleteSlot(inventory, selectedSlotIndex)
+			deleteSlot(playerInv, selectedSlotIndex)
 		}
 
 		UpdateSlotInput()
@@ -234,35 +263,35 @@ func UpdateSlotInput() {
 	}
 }
 func GoToNextSlot() {
-	if selectedSlotIndex+1 < len(inventory.Slots) {
+	if selectedSlotIndex+1 < len(playerInv.Slots) {
 		selectedSlotIndex++
 	} else {
 		selectedSlotIndex = 0
 	}
 }
 func RandomFillInventory() {
-	resetInventory(inventory)
-	for i := range inventory.Slots {
+	resetInventory(playerInv)
+	for i := range playerInv.Slots {
 		addItem(
-			inventory,
+			playerInv,
 			uint16(mathutil.RandRangeInt(1, len(items.Property))),
 		)
-		inventory.Slots[i].Quantity = uint8(mathutil.RandRangeInt(1, 64))
+		playerInv.Slots[i].Quantity = uint8(mathutil.RandRangeInt(1, 64))
 	}
 }
 func DropSlotItem() {
-	id := inventory.Slots[selectedSlotIndex].ID
-	if inventory.Slots[selectedSlotIndex].Quantity > 0 {
-		inventory.Slots[selectedSlotIndex].Quantity--
+	id := playerInv.Slots[selectedSlotIndex].ID
+	if playerInv.Slots[selectedSlotIndex].Quantity > 0 {
+		playerInv.Slots[selectedSlotIndex].Quantity--
 		e := arche.SpawnDropItem(cmSpace, ecsWorld, playerPos, id)
 		b := comp.Body.Get(e)
 		if facingLeft {
 			b.ApplyImpulseAtLocalPoint(
-				wasdLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
+				axisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
 		}
 		if facingRight {
 			b.ApplyImpulseAtLocalPoint(
-				wasdLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
+				axisLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
 		}
 
 	}
@@ -276,20 +305,11 @@ func isOnFloor() bool {
 			groundNormal = n
 		}
 	})
-
 	return groundNormal.Y < 0
 }
 
 func MovementFunc(e *donburi.Entry) {
 	body := comp.Body.Get(e)
-	// p := body.Position()
-	// queryInfo := cmSpace.SegmentQueryFirst(
-	// 	p,
-	// 	p.Add(vect{0, kar.BlockSize / 2}),
-	// 	0,
-	// 	filterPlayerRaycast,
-	// )
-	// contactShape := queryInfo.Shape
 	speed := kar.BlockSize * 30
 	bv := body.Velocity()
 	body.SetVelocity(bv.X*0.9, bv.Y)
@@ -376,7 +396,7 @@ func MovementFunc2(e *donburi.Entry) {
 func MovementFlyFunc(e *donburi.Entry) {
 	body := comp.Body.Get(e)
 	mobileData := comp.Mobile.Get(e)
-	velocity := wasd.Unit().Scale(mobileData.Speed * 4)
+	velocity := axis.Unit().Scale(mobileData.Speed * 4)
 	body.SetVelocityVector(
 		body.Velocity().LerpDistance(velocity, mobileData.Accel),
 	)
@@ -394,23 +414,21 @@ func CheckFlyMode(player *donburi.Entry, playerBody *cm.Body) {
 		playerBody.Shapes[0].SetSensor(false)
 	}
 }
-func UpdateWASDInput() {
-	wasd = vec2{}
+func GetAxis() vec2 {
+	axis := vec2{}
 	if pressed(eb.KeyW) {
-		wasd.Y -= 1
+		axis.Y -= 1
 	}
 	if pressed(eb.KeyS) {
-		wasd.Y += 1
+		axis.Y += 1
 	}
 	if pressed(eb.KeyA) {
-		wasd.X -= 1
+		axis.X -= 1
 	}
 	if pressed(eb.KeyD) {
-		wasd.X += 1
+		axis.X += 1
 	}
-	if !wasd.Equal(vec2{}) {
-		wasdLast = wasd
-	}
+	return axis
 }
 func ResetHitBlockHealth() {
 	if hitShape != nil {
@@ -435,17 +453,17 @@ func GiveDamageToBlock() {
 }
 func PlaceBlock() {
 	if hitShape != nil {
-		id := inventory.HandSlot.ID
+		id := playerInv.HandSlot.ID
 		if items.IsBlock(id) {
 			if id != items.Air {
 				placeBB := cm.NewBBForExtents(placeBlockPos, kar.BlockSize/2, kar.BlockSize/2)
 				if !playerBody.ShapeAtIndex(0).BB.Intersects(placeBB) {
-					if removeHandItem(inventory, id) {
+					if removeHandItem(playerInv, id) {
 						arche.SpawnBlock(
 							cmSpace,
 							ecsWorld,
 							placeBlockPos,
-							inventory.HandSlot.ID,
+							playerInv.HandSlot.ID,
 						)
 						gameWorld.Image.SetGray16(
 							placeBlockPixelCoord.X,
@@ -459,10 +477,10 @@ func PlaceBlock() {
 	}
 }
 func TakeInHand() {
-	if slotIndex, ok := hasEmptySlot(inventory); ok {
-		temp := inventory.HandSlot
-		inventory.HandSlot = inventory.Slots[selectedSlotIndex]
-		deleteSlot(inventory, selectedSlotIndex)
-		inventory.Slots[slotIndex] = temp
+	if slotIndex, ok := hasEmptySlot(playerInv); ok {
+		temp := playerInv.HandSlot
+		playerInv.HandSlot = playerInv.Slots[selectedSlotIndex]
+		deleteSlot(playerInv, selectedSlotIndex)
+		playerInv.Slots[slotIndex] = temp
 	}
 }

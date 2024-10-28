@@ -1,11 +1,9 @@
 package system
 
 import (
-	"image"
 	"kar"
 	"kar/engine/mathutil"
 	"kar/res"
-	"kar/types"
 	"kar/world"
 	"log"
 	"math"
@@ -21,29 +19,17 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-var (
-	gameWorld      *world.World
-	ecsWorld       = donburi.NewWorld()
-	cmSpace        = cm.NewSpace()
-	playerEntry    *donburi.Entry
-	playerVel      vec2
-	playerSpawnPos vec2
-	playerBody     *cm.Body
-	inventory      *types.Inventory
-	camera         *kamera.Camera
-	// selectedSlotItemID = items.Air
-	selectedSlotIndex = 0
-	desktopDir        string
-	blockCenterOffset = vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
-	globalDIO         = &ebiten.DrawImageOptions{}
+const itemAnimFrameCount int = 200
 
-	filterPlayerRaycast = cm.ShapeFilter{
-		Group:      cm.NoGroup,
-		Categories: kar.PlayerRayMask,
-		Mask:       cm.AllCategories &^ kar.PlayerMask &^ kar.DropItemMask}
-	// fontDrawOptions = &text.DrawOptions{
-	// 	LayoutOptions: text.LayoutOptions{LineSpacing: res.Font.Size * 1.3},
-	// }
+var (
+	gameWorld            *world.World
+	ecsWorld             = donburi.NewWorld()
+	cmSpace              = cm.NewSpace()
+	camera               *kamera.Camera
+	selectedSlotIndex    = 0
+	desktopDir           string
+	blockCenterOffset    = vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
+	globalDIO            = &ebiten.DrawImageOptions{}
 	fontSmallDrawOptions = &text.DrawOptions{
 		LayoutOptions: text.LayoutOptions{LineSpacing: res.FontSmall.Size * 1.3},
 	}
@@ -58,22 +44,9 @@ func init() {
 }
 
 var (
-	attackSegQuery                                             cm.SegmentQueryInfo
-	hitShape                                                   *cm.Shape
-	playerPos, placeBlockPos, hitBlockPos, attackSegEnd        vec2
-	playerPixelCoord, placeBlockPixelCoord, hitBlockPixelCoord image.Point
-	hitItemID                                                  uint16
-)
-var (
-	attacking, digDown, digUp, facingDown, facingLeft, facingRight bool
-	facingUp, idle, isGround, noWASD, walking, walkLeft, walkRight bool
-)
-
-var (
 	drawBlockBorderEnabled bool      = true
 	debugDrawingEnabled    bool      = false
-	itemAnimFrameCount     int       = 100
-	sinSpace               []float64 = mathutil.SinSpace(
+	sinSpaceFrames         []float64 = mathutil.SinSpace(
 		0,
 		2*math.Pi,
 		4,
@@ -87,10 +60,6 @@ var (
 	justReleased = inpututil.IsKeyJustReleased
 	pressed      = ebiten.IsKeyPressed
 )
-
-var wasdLast vec2
-var wasd vec2
-
 var (
 	right = vec2{1, 0}
 	left  = vec2{-1, 0}

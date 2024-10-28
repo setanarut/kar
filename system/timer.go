@@ -1,7 +1,11 @@
 package system
 
 import (
+	"fmt"
+	"kar"
 	"kar/comp"
+	"kar/types"
+	"time"
 
 	"github.com/yohamta/donburi"
 )
@@ -37,4 +41,30 @@ func itemAnimationIndexUpdateFunc(e *donburi.Entry) {
 	} else {
 		compIndex.Index = 0
 	}
+}
+
+func timerIsReady(t *types.Timer) bool {
+	return t.Elapsed > t.Duration
+}
+
+func timerUpdate(timer *types.Timer) {
+	if timer.Elapsed < timer.Duration {
+		timer.Elapsed += kar.TimerTick
+	}
+}
+
+func timerRemaining(t *types.Timer) time.Duration {
+	return t.Duration - t.Elapsed
+}
+
+func timerRemainingSecondsString(t *types.Timer) string {
+	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
+}
+
+func timerReset(t *types.Timer) {
+	t.Elapsed = 0
+}
+
+func timerIsStart(t *types.Timer) bool {
+	return t.Elapsed == 0
 }

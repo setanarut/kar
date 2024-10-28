@@ -19,6 +19,28 @@ import (
 	db "github.com/yohamta/donburi"
 )
 
+// Collision Bitmask Category
+const (
+	PlayerBit uint = 1 << iota
+	BlockBit
+	DropItemBit
+	PlayerRayBit
+	EnemyBit
+	BombBit
+	BombRaycastBit
+	GrabableBit uint = 1 << 31
+	AllBits          = ^uint(0)
+)
+
+// Collision type
+const (
+	Player cm.CollisionType = iota
+	Enemy
+	Block
+	DropItem
+	Bomb
+)
+
 type vec2 = vec.Vec2
 
 type entry = db.Entry
@@ -26,16 +48,12 @@ type entry = db.Entry
 var (
 	dropItemFilter = cm.ShapeFilter{
 		Group:      2,
-		Categories: kar.DropItemMask,
-		Mask:       kar.AllMask &^ kar.PlayerRayMask &^ kar.PlayerMask,
+		Categories: DropItemBit,
+		Mask:       AllBits &^ PlayerRayBit &^ PlayerBit,
 	}
-	playerFilter = cm.ShapeFilter{
-		Categories: kar.PlayerMask,
-		Mask:       kar.AllMask &^ kar.PlayerRayMask,
-	}
-
-	blockFilter        = cm.ShapeFilter{0, kar.BlockMask, cm.AllCategories}
-	debugBoxBodyFilter = cm.ShapeFilter{0, kar.EnemyMask, kar.AllMask}
+	playerFilter       = cm.ShapeFilter{0, PlayerBit, AllBits &^ PlayerRayBit}
+	blockFilter        = cm.ShapeFilter{0, BlockBit, cm.AllCategories}
+	debugBoxBodyFilter = cm.ShapeFilter{0, EnemyBit, AllBits}
 )
 
 func SpawnItem(s *cm.Space, w db.World, pos vec2, id uint16) {
@@ -47,7 +65,6 @@ func SpawnItem(s *cm.Space, w db.World, pos vec2, id uint16) {
 }
 
 func SpawnBlock(s *cm.Space, w db.World, pos vec2, id uint16) *cm.Shape {
-
 	e := w.Entry(w.Create(
 		comp.Body,
 		comp.Health,
@@ -89,7 +106,7 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec2, id uint16) *cm.Shape {
 	shape.SetShapeFilter(blockFilter)
 	shape.SetElasticity(0)
 	shape.SetFriction(0.1)
-	shape.CollisionType = kar.BlockCT
+	shape.CollisionType = Block
 	blockBody.SetPosition(pos)
 	s.AddBodyWithShapes(blockBody)
 	blockBody.UserData = e
@@ -125,7 +142,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec2, id uint16) *entry {
 	body := cm.NewBody(0.8, math.MaxFloat64)
 	shape := cm.NewCircleShape(body, itemWidth, vec2{})
 	shape.SetShapeFilter(dropItemFilter)
-	shape.CollisionType = kar.DropItemCT
+	shape.CollisionType = DropItem
 	shape.SetElasticity(0)
 	shape.SetFriction(1)
 
@@ -178,7 +195,7 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 	shape.SetFriction(fr)
 	b.SetPosition(pos)
 	b.UserData = e
-	b.ShapeAtIndex(0).SetCollisionType(kar.PlayerCT)
+	b.ShapeAtIndex(0).SetCollisionType(Player)
 	b.ShapeAtIndex(0).SetShapeFilter(playerFilter)
 	s.AddBodyWithShapes(b)
 	comp.Body.Set(e, b)
@@ -203,7 +220,7 @@ func SpawnDebugBox(s *cm.Space, w db.World, pos vec2) {
 	shape.Filter = debugBoxBodyFilter
 	shape.SetElasticity(0.2)
 	shape.SetFriction(0.2)
-	shape.SetCollisionType(kar.EnemyCT)
+	shape.SetCollisionType(Enemy)
 	b.SetPosition(pos)
 	s.AddBodyWithShapes(b)
 	b.UserData = e

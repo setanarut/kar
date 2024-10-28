@@ -135,7 +135,7 @@ func drawDropItem(e *donburi.Entry) {
 	itemData := comp.Item.Get(e)
 	// Item sin animation
 	datai := comp.Index.Get(e)
-	pos.Y += sinSpace[datai.Index]
+	pos.Y += sinSpaceFrames[datai.Index]
 	applyDIO(drawOpt, pos)
 	camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
 }

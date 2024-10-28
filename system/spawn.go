@@ -35,7 +35,7 @@ func (s *Spawn) Update() {
 	}
 
 	if playerEntry.Valid() {
-		inventory = comp.Inventory.Get(playerEntry)
+		playerInv = comp.Inventory.Get(playerEntry)
 		playerBody = comp.Body.Get(playerEntry)
 		playerPos = playerBody.Position()
 		playerVel = playerBody.Velocity()

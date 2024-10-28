@@ -1,11 +1,9 @@
 package system
 
 import (
-	"kar"
 	"kar/comp"
 	"kar/items"
 	"kar/res"
-	"kar/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/setanarut/cm"
@@ -32,24 +30,6 @@ func getDisplayName(e *donburi.Entry) string {
 func DisplayName(id uint16) string {
 	return items.Property[id].DisplayName
 }
-
-// func getArbiterDisplayNames(arb *cm.Arbiter) (string, string) {
-// 	var aname, bname string
-// 	if checkEntries(arb) {
-// 		a, b := getEntries(arb)
-// 		if a.HasComponent(comp.Item) {
-// 			aname = items.Property[comp.Item.Get(a).ID].DisplayName
-// 		} else if a.HasComponent(comp.TagPlayer) {
-// 			aname = "Player"
-// 		}
-// 		if b.HasComponent(comp.Item) {
-// 			bname = items.Property[comp.Item.Get(b).ID].DisplayName
-// 		} else if a.HasComponent(comp.TagPlayer) {
-// 			aname = "Player"
-// 		}
-// 	}
-// 	return aname, bname
-// }
 
 // destroy body with entry
 func destroyBody(b *cm.Body) {
@@ -97,32 +77,6 @@ func checkEntries(arb *cm.Arbiter) bool {
 	aBody, bBody := arb.Bodies()
 	return checkEntry(aBody) && checkEntry(bBody)
 }
-
-func timerIsReady(t *types.Timer) bool {
-	return t.Elapsed > t.Duration
-}
-
-func timerUpdate(timer *types.Timer) {
-	if timer.Elapsed < timer.Duration {
-		timer.Elapsed += kar.TimerTick
-	}
-}
-
-// func timerRemaining(t *types.Timer) time.Duration {
-// 	return t.Duration - t.Elapsed
-// }
-
-// func timerRemainingSecondsString(t *types.Timer) string {
-// 	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
-// }
-
-// func timerReset(t *types.Timer) {
-// 	t.Elapsed = 0
-// }
-
-// func timerIsStart(t *types.Timer) bool {
-// 	return t.Elapsed == 0
-// }
 
 // func teleportBody(p vec.Vec2, entry *donburi.Entry) {
 // 	if entry.Valid() {
