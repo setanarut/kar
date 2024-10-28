@@ -29,6 +29,9 @@ func getSprite(id uint16) *ebiten.Image {
 func getDisplayName(e *donburi.Entry) string {
 	return items.Property[comp.Item.Get(e).ID].DisplayName
 }
+func DisplayName(id uint16) string {
+	return items.Property[id].DisplayName
+}
 
 // func getArbiterDisplayNames(arb *cm.Arbiter) (string, string) {
 // 	var aname, bname string

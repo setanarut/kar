@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"image/color"
 	"kar"
 	"kar/arche"
@@ -29,7 +30,9 @@ type Player struct {
 
 func (plr *Player) Init() {
 }
-func (plr *Player) Draw() {}
+func (plr *Player) Draw() {
+
+}
 func (plr *Player) Update() {
 
 	UpdateWASDInput()
@@ -433,8 +436,9 @@ func GiveDamageToBlock() {
 }
 func PlaceBlock() {
 	if hitShape != nil {
-		if items.IsBlock(inventory.Slots[selectedSlotIndex].ID) {
-			if inventory.Slots[selectedSlotIndex].ID != items.Air {
+		id := inventory.Slots[selectedSlotIndex].ID
+		if items.IsBlock(id) {
+			if id != items.Air {
 				if playerPixelCoord != placeBlockPixelCoord {
 					if removeItem(inventory, inventory.Slots[selectedSlotIndex].ID) {
 						arche.SpawnBlock(
@@ -443,10 +447,11 @@ func PlaceBlock() {
 							placeBlockPos,
 							inventory.Slots[selectedSlotIndex].ID,
 						)
+						fmt.Println(placeBlockPixelCoord, DisplayName(id))
 						gameWorld.Image.SetGray16(
 							placeBlockPixelCoord.X,
 							placeBlockPixelCoord.Y,
-							color.Gray16{selectedSlotItemID},
+							color.Gray16{id},
 						)
 					}
 				}

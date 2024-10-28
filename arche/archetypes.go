@@ -80,7 +80,7 @@ func SpawnBlock(s *cm.Space, w db.World, pos vec2, id uint16) *cm.Shape {
 
 	comp.Item.Set(e,
 		&types.Item{
-			Chunk: worldPosToChunkCoord(pos),
+			Chunk: worldToChunk(pos),
 			ID:    id,
 		})
 
@@ -118,7 +118,7 @@ func SpawnDropItem(s *cm.Space, w db.World, pos vec2, id uint16) *entry {
 	comp.Index.Set(e, &types.Index{Index: 0})
 	comp.Item.Set(e,
 		&types.Item{
-			Chunk: worldPosToChunkCoord(pos),
+			Chunk: worldToChunk(pos),
 			ID:    id,
 		})
 
@@ -210,9 +210,9 @@ func SpawnDebugBox(s *cm.Space, w db.World, pos vec2) {
 	comp.Body.Set(e, b)
 }
 
-func worldPosToChunkCoord(worldPos vec2) image.Point {
-	// worldPos = worldPos.Add(kar.BlockCenterOffset)
-	x := int((worldPos.X / kar.ChunkSize.X) / kar.BlockSize)
-	y := int((worldPos.Y / kar.ChunkSize.Y) / kar.BlockSize)
-	return image.Point{x, y}
+func worldToChunk(pos vec.Vec2) image.Point {
+	// pos = pos.Add(kar.BlockCenterOffset)
+	return image.Point{
+		int(math.Floor((pos.X / kar.ChunkSize.X) / kar.BlockSize)),
+		int(math.Floor((pos.Y / kar.ChunkSize.Y) / kar.BlockSize))}
 }

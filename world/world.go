@@ -6,8 +6,8 @@ import (
 	"kar"
 	"kar/arche"
 	"kar/comp"
-	"kar/engine/util"
 	"kar/items"
+	"math"
 	"slices"
 
 	"github.com/setanarut/cm"
@@ -163,13 +163,15 @@ func PixelToWorld(x, y int) vec.Vec2 {
 }
 func WorldToPixel(pos vec.Vec2) image.Point {
 	// pos = pos.Add(kar.BlockCenterOffset)
-	return util.Vec2ToPoint(pos).Div(int(kar.BlockSize))
+	x := math.Floor(pos.X / kar.BlockSize)
+	y := math.Floor(pos.Y / kar.BlockSize)
+	return image.Point{int(x), int(y)}
 }
 func WorldToChunk(pos vec.Vec2) image.Point {
 	// pos = pos.Add(kar.BlockCenterOffset)
 	return image.Point{
-		int((pos.X / kar.ChunkSize.X) / kar.BlockSize),
-		int((pos.Y / kar.ChunkSize.Y) / kar.BlockSize)}
+		int(math.Floor((pos.X / kar.ChunkSize.X) / kar.BlockSize)),
+		int(math.Floor((pos.Y / kar.ChunkSize.Y) / kar.BlockSize))}
 }
 
 func ApplyColorMap(img *image.Gray16, clr map[uint16]color.RGBA) *image.RGBA {
