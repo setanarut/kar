@@ -202,7 +202,6 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 	)
 
 	// shape := cm.NewBoxShape(b, kar.BlockSize*0.7, (kar.BlockSize*2)*0.7, 2)
-	// shape := cm.NewCircleShapeWithBody(b, (kar.BlockSize/2)*0.8, vec2{})
 	shape.SetElasticity(el)
 	shape.SetFriction(fr)
 	b.SetPosition(pos)

@@ -48,20 +48,17 @@ var (
 
 // States
 var (
-	isAttacking        bool
-	isCrouching        bool
-	isFacingLeft       bool
-	isFacingRight      bool
-	isFacingUp         bool
-	isFacingLeftLast   bool
-	isFacingRightLast  bool
-	isFacingDown       bool
-	isFalling          bool
-	isIdle             bool
-	isOnFloor          bool
-	isRunning          bool
-	isSkiding          bool
-	isDigDown, isDigUp bool
+	isAttacking                   bool
+	isCrouching                   bool
+	isFacingLeft, isFacingRight   bool
+	isFacingUp, isFacingDown      bool
+	isFalling                     bool
+	isIdle                        bool
+	isOnFloor                     bool
+	isRunning                     bool
+	isSkiding                     bool
+	isDigDown, isDigUp            bool
+	isWalkingLeft, isWalkingRight bool
 	// isJumping    bool
 )
 var playerFlyModeDisabled = true
@@ -217,48 +214,7 @@ func UpdateFunctionKeys() {
 		)
 	}
 }
-func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
-	if isRunning {
-		anim.SetStateFPS("walk_right", 25)
-	} else {
-		anim.SetStateFPS("walk_right", 15)
-	}
-	if isIdle && isFacingLeftLast {
-		anim.SetState("idle_left")
-		opt.FlipX = false
-	} else if isIdle && isFacingRightLast {
-		anim.SetState("idle_right")
-		opt.FlipX = false
-	} else {
-		anim.SetState("idle_front")
-		opt.FlipX = false
-	}
-	if !isOnFloor && !isIdle {
-		anim.SetState("jump")
-	}
-	if isDigDown {
-		anim.SetState("dig_down")
-	}
-	if isDigUp {
-		anim.SetState("dig_right")
-	}
-	if isAttacking && isFacingRight && !isIdle {
-		anim.SetState("dig_right")
-		opt.FlipX = false
-	}
-	if isAttacking && isFacingLeft && !isIdle {
-		anim.SetState("dig_right")
-		opt.FlipX = true
-	}
-	if inputAxis.Equal(right) && !isAttacking && isOnFloor && !isIdle {
-		anim.SetState("walk_right")
-		opt.FlipX = false
-	}
-	if inputAxis.Equal(left) && !isAttacking && isOnFloor && !isIdle {
-		anim.SetState("walk_right")
-		opt.FlipX = true
-	}
-}
+
 func UpdateSlotInput() {
 	if justPressed(eb.Key1) {
 		selectedSlotIndex = 0
@@ -400,8 +356,6 @@ func playerDefaultVelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64
 
 	if isOnFloor {
 		if justPressed(eb.KeySpace) {
-			// isJumping = true
-
 			var speed = math.Abs(velocity.X)
 			speedThreshold = len(speedThresholds)
 
@@ -504,11 +458,15 @@ func ProcessInput() {
 	isOnFloor = onFloor()
 	isAttacking = pressed(eb.KeyShiftRight)
 	isIdle = inputAxis.Equal(zero) && !isAttacking && isOnFloor
+
 	isFacingDown = inputAxisLast.Equal(down) || inputAxis.Equal(down)
 	isFacingUp = inputAxisLast.Equal(up) || inputAxis.Equal(up)
-	isFacingRightLast = inputAxisLast.Equal(right)
-	isFacingLeftLast = inputAxisLast.Equal(left)
 	isFacingRight = inputAxisLast.Equal(right) || inputAxis.Equal(right)
+	isFacingLeft = inputAxisLast.Equal(left) || inputAxis.Equal(left)
+
+	isWalkingLeft = !isIdle && isOnFloor && playerBody.Velocity().X < 0.0
+	isWalkingRight = !isIdle && isOnFloor && playerBody.Velocity().X > 0.0
+
 	isDigDown = isFacingDown && isAttacking
 	isDigUp = isFacingUp && isAttacking
 
@@ -519,5 +477,55 @@ func ProcessInput() {
 			isCrouching = false
 			inputAxis.X = 0.0
 		}
+	}
+}
+
+func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
+	if isRunning {
+		anim.SetStateFPS("walk_right", 25)
+	} else {
+		anim.SetStateFPS("walk_right", 15)
+	}
+	if isIdle && inputAxisLast.Equal(left) {
+		anim.SetState("idle_left")
+		opt.FlipX = false
+	} else if isIdle && inputAxisLast.Equal(right) {
+		anim.SetState("idle_right")
+		opt.FlipX = false
+	} else {
+		anim.SetState("idle_front")
+		opt.FlipX = false
+	}
+	if !isOnFloor && !isIdle {
+		anim.SetState("jump")
+		if isFacingLeft {
+			opt.FlipX = true
+		} else {
+			opt.FlipX = false
+		}
+	}
+	if isDigDown && !isFacingLeft {
+		anim.SetState("dig_down")
+	}
+	if isDigUp {
+		anim.SetState("dig_right")
+	}
+	// dig right
+	if isAttacking && isFacingRight {
+		anim.SetState("dig_right")
+		opt.FlipX = false
+	}
+	// dig left
+	if isAttacking && isFacingLeft {
+		anim.SetState("dig_right")
+		opt.FlipX = true
+	}
+	if isWalkingRight {
+		anim.SetState("walk_right")
+		opt.FlipX = false
+	}
+	if isWalkingLeft {
+		anim.SetState("walk_right")
+		opt.FlipX = true
 	}
 }

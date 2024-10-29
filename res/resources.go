@@ -4,6 +4,7 @@ package res
 import (
 	"embed"
 	"image"
+	"kar"
 	"kar/engine/util"
 	"kar/items"
 
@@ -21,7 +22,6 @@ var (
 	AtlasPlayer     = util.ReadEbImgFS(fs, "assets/img/player/player.png")
 	Hotbar          = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
 	HotbarSelection = util.ReadEbImgFS(fs, "assets/img/gui/hotbarBorder.png")
-	BlockBorder     = util.ReadEbImgFS(fs, "assets/img/overlay/border80.png")
 	Font            = util.LoadFontFromFS("assets/font/pixelcode.otf", 18, fs)
 	FontSmall       = &text.GoTextFace{
 		Source:    Font.Source,
@@ -31,8 +31,20 @@ var (
 )
 
 var cracks = util.ImgFromFS(fs, "assets/img/overlay/cracks.png")
+var Border *ebiten.Image
 
 func init() {
+
+	switch kar.BlockSize {
+	case 32:
+		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border32.png")
+	case 48:
+		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border48.png")
+	case 64:
+		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border64.png")
+	case 80:
+		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border80.png")
+	}
 
 	Images[items.Air] = util.ReadEbImgFS(fs, "assets/img/air.png")
 	Frames[items.Andesite] = blockImgs("andesite.png")

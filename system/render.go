@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"image/color"
 	"kar"
 	"kar/comp"
@@ -11,7 +10,6 @@ import (
 	"kar/items"
 	"kar/res"
 	"kar/types"
-	"kar/world"
 
 	"github.com/setanarut/cm"
 	"github.com/setanarut/kamera/v2"
@@ -19,7 +17,6 @@ import (
 	"golang.org/x/image/colornames"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/yohamta/donburi"
 )
 
@@ -78,29 +75,9 @@ func (rn *Render) Draw() {
 	comp.TagDebugBox.Each(ecsWorld, drawDebugBox)
 	if drawBlockBorderEnabled {
 		drawBlockBorder()
-		drawBlockBorder2()
 	}
 }
 
-func drawBlockBorder2() {
-	if inpututil.IsMouseButtonJustPressed(eb.MouseButton0) {
-		x, y := camera.ScreenToWorld(eb.CursorPosition())
-		worldPos := vec.Vec2{x, y}
-		pixPos := world.WorldToPixel(worldPos)
-		fmt.Println("WorldToPixel", pixPos)
-		gameWorld.Image.SetGray16(pixPos.X, pixPos.Y, color.Gray16{items.GoldOre})
-		fmt.Println("PixelToWorld", world.PixelToWorld(pixPos.X, pixPos.Y))
-
-		if hitShape != nil {
-			dio := &eb.DrawImageOptions{}
-			dio.ColorScale.ScaleWithColor(colornames.Black)
-			dio.GeoM.Translate(
-				placeBlockPos.X+blockCenterOffset.X,
-				placeBlockPos.Y+blockCenterOffset.Y)
-			camera.Draw(res.BlockBorder, dio, kar.Screen)
-		}
-	}
-}
 func drawBlockBorder() {
 	if hitShape != nil {
 		dio := &eb.DrawImageOptions{}
@@ -108,7 +85,7 @@ func drawBlockBorder() {
 		dio.GeoM.Translate(
 			hitBlockPos.X+blockCenterOffset.X,
 			hitBlockPos.Y+blockCenterOffset.Y)
-		camera.Draw(res.BlockBorder, dio, kar.Screen)
+		camera.Draw(res.Border, dio, kar.Screen)
 	}
 }
 

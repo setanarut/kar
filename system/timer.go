@@ -1,11 +1,9 @@
 package system
 
 import (
-	"fmt"
 	"kar"
 	"kar/comp"
 	"kar/types"
-	"time"
 
 	"github.com/yohamta/donburi"
 )
@@ -53,18 +51,18 @@ func timerUpdate(timer *types.Timer) {
 	}
 }
 
-func timerRemaining(t *types.Timer) time.Duration {
-	return t.Duration - t.Elapsed
-}
+// func timerRemaining(t *types.Timer) time.Duration {
+// 	return t.Duration - t.Elapsed
+// }
 
-func timerRemainingSecondsString(t *types.Timer) string {
-	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
-}
+// func timerRemainingSecondsString(t *types.Timer) string {
+// 	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
+// }
 
-func timerReset(t *types.Timer) {
-	t.Elapsed = 0
-}
+// func timerReset(t *types.Timer) {
+// 	t.Elapsed = 0
+// }
 
-func timerIsStart(t *types.Timer) bool {
-	return t.Elapsed == 0
-}
+// func timerIsStart(t *types.Timer) bool {
+// 	return t.Elapsed == 0
+// }
