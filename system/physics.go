@@ -7,6 +7,7 @@ import (
 	"kar/comp"
 
 	"github.com/setanarut/cm"
+	"github.com/setanarut/vec"
 	"github.com/yohamta/donburi"
 )
 
@@ -19,14 +20,14 @@ var dropItemFilterCooldown = cm.ShapeFilter{
 type Physics struct{}
 
 func (ps *Physics) Init() {
-	Space.SetGravity(vec2{0, (kar.BlockSize * 20)})
+	Space.SetGravity(vec.Vec2{0, kar.Gravity})
 	Space.CollisionBias = kar.CollisionBias
 	Space.CollisionSlop = kar.CollisionSlop
 	Space.Damping = kar.Damping
+	Space.Iterations = kar.Iterations
+
 	if kar.UseSpatialHash {
 		Space.UseSpatialHash(128, 800)
-		Space.Iterations = 10
-
 	}
 
 	if true {

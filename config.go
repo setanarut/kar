@@ -18,7 +18,7 @@ var (
 var (
 	GUIScale    = 1.0
 	ScreenScale = 1.0
-	Gravity     = 1300.0
+	Gravity     = 1300.0 * 2
 	SpaceStep   = 1.0 / 60.0
 
 	// CollisionBias determines how fast overlapping shapes are pushed apart.
@@ -32,11 +32,12 @@ var (
 	// Defaults to 0.1. If you have poor simulation quality, increase this number
 	// as much as possible without allowing visible amounts of overlap
 	CollisionSlop = 0.001
+	// CollisionSlop = 0.1
 
 	// 0.9 would mean that each body's velocity will drop 10% per second.
 	// The default value is 1.0,
 	Damping         = 1.0
-	Iterations uint = 20
+	Iterations uint = 10
 )
 
 var (

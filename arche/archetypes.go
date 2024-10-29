@@ -181,21 +181,23 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 	ap.NewAnimationState("jump", 16, 16*5, 16, 16, 1, false, false)
 	comp.AnimPlayer.Set(e, ap)
 
-	ShapeScaleFactor := 4.0
+	shapeScaleFactor := 4.0
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
-		Scale:        vec.Vec2{ShapeScaleFactor, ShapeScaleFactor},
+		Scale:        vec.Vec2{shapeScaleFactor, shapeScaleFactor},
 	})
 
 	b := cm.NewBody(mass, math.MaxFloat64)
 
 	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
+	geom := cm.NewTransformTranslate(vec.Vec2{0, -4})
+	geom.Scale(shapeScaleFactor, shapeScaleFactor)
 
 	shape := cm.NewPolyShape(
 		b,
 		verts,
-		cm.NewTransformScale(ShapeScaleFactor, ShapeScaleFactor),
+		geom,
 		0,
 	)
 

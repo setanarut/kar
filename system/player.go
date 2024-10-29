@@ -218,7 +218,11 @@ func UpdateFunctionKeys() {
 	}
 }
 func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
-
+	if isRunning {
+		anim.SetStateFPS("walk_right", 25)
+	} else {
+		anim.SetStateFPS("walk_right", 15)
+	}
 	if isIdle && isFacingLeftLast {
 		anim.SetState("idle_left")
 		opt.FlipX = false
@@ -229,18 +233,15 @@ func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
 		anim.SetState("idle_front")
 		opt.FlipX = false
 	}
-
 	if !isOnFloor && !isIdle {
 		anim.SetState("jump")
 	}
-
 	if isDigDown {
 		anim.SetState("dig_down")
 	}
 	if isDigUp {
 		anim.SetState("dig_right")
 	}
-
 	if isAttacking && isFacingRight && !isIdle {
 		anim.SetState("dig_right")
 		opt.FlipX = false
@@ -249,7 +250,6 @@ func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
 		anim.SetState("dig_right")
 		opt.FlipX = true
 	}
-
 	if inputAxis.Equal(right) && !isAttacking && isOnFloor && !isIdle {
 		anim.SetState("walk_right")
 		opt.FlipX = false
