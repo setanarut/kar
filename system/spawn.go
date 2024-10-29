@@ -23,14 +23,14 @@ func (s *Spawn) Init() {
 		kar.BlockSize,
 	)
 	findSpawnPosition()
-	gameWorld.LoadChunks(cmSpace, ecsWorld, playerSpawnPos)
-	playerEntry = arche.SpawnPlayer(cmSpace, ecsWorld, playerSpawnPos, 1, 0, 0)
+	gameWorld.LoadChunks(Space, ecsWorld, playerSpawnPos)
+	playerEntry = arche.SpawnPlayer(Space, ecsWorld, playerSpawnPos, 1, 0, 0)
 }
 func (s *Spawn) Update() {
 	if iu.IsMouseButtonJustPressed(eb.MouseButton0) {
 		if eb.IsKeyPressed(eb.KeyC) {
 			x, y := camera.ScreenToWorld(eb.CursorPosition())
-			arche.SpawnDebugBox(cmSpace, ecsWorld, vec.Vec2{x, y})
+			arche.SpawnDebugBox(Space, ecsWorld, vec.Vec2{x, y})
 		}
 	}
 
@@ -39,7 +39,7 @@ func (s *Spawn) Update() {
 		playerBody = comp.Body.Get(playerEntry)
 		playerPos = playerBody.Position()
 		playerVel = playerBody.Velocity()
-		gameWorld.UpdateChunks(cmSpace, ecsWorld, playerPos)
+		gameWorld.UpdateChunks(Space, ecsWorld, playerPos)
 	}
 }
 

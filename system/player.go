@@ -12,6 +12,7 @@ import (
 	"kar/res"
 	"kar/types"
 	"kar/world"
+	"math"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
 	"github.com/setanarut/anim"
@@ -20,10 +21,60 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-type vec2 = vec.Vec2
+const (
+	CooldownTimeSec  = 3.0
+	MaxFallSpeed     = 270.0
+	MaxFallSpeedCap  = 240.0
+	MaxSpeed         = 153.75
+	MaxWalkSpeed     = 93.75
+	MinSlowDownSpeed = 33.75
+	MinSpeed         = 4.453125
+	RunAcceleration  = 200.390625
+	SkidFriction     = 365.625
+	StompSpeed       = 240.0
+	StompSpeedCap    = -60.0
+	WalkAcceleration = 133.59375
+	WalkFriction     = 182.8125
+)
 
-var axisLast vec2
-var axis vec2
+var (
+	jumpSpeeds        = [3]float64{-240.0, -240.0, -300.0}
+	longJumpGravities = [3]float64{450.0, 421.875, 562.5}
+	gravities         = [3]float64{1575.0, 1350.0, 2025.0}
+	speedThresholds   = [2]float64{60, 138.75}
+)
+
+// States
+var (
+	isAttacking        bool
+	isCrouching        bool
+	isFacingLeft       bool
+	isFacingRight      bool
+	isFacingUp         bool
+	isFacingLeftLast   bool
+	isFacingRightLast  bool
+	isFacingDown       bool
+	isFalling          bool
+	isIdle             bool
+	isOnFloor          bool
+	isRunning          bool
+	isSkiding          bool
+	isDigDown, isDigUp bool
+	// isJumping    bool
+)
+var playerFlyModeDisabled bool
+
+// var speedScale = 0.0
+var (
+	minSpeedTemp = MinSpeed
+	maxSpeedTemp = MaxWalkSpeed
+	acceleration = WalkAcceleration
+	delta        = 1 / 60.0
+
+	speedThreshold int = 0
+)
+
+type vec2 = vec.Vec2
 
 var (
 	attackSegQuery                                             cm.SegmentQueryInfo
@@ -32,18 +83,13 @@ var (
 	playerPixelCoord, placeBlockPixelCoord, hitBlockPixelCoord image.Point
 	hitItemID                                                  uint16
 )
-var (
-	attacking, digDown, digUp, facingDown, facingLeft, facingRight bool
-	facingUp, idle, isGround, noWASD, walking, walkLeft, walkRight bool
-)
+
 var (
 	playerEntry         *donburi.Entry
 	playerVel           vec2
 	playerSpawnPos      vec2
 	playerBody          *cm.Body
 	playerInv           *types.Inventory
-	jumptime            = 0.0
-	damp                = vec2{0, -1000}
 	filterPlayerRaycast = cm.ShapeFilter{
 		0,
 		arche.PlayerRayBit,
@@ -55,44 +101,23 @@ type Player struct {
 }
 
 func (plr *Player) Init() {
+	// if playerEntry.Valid() {
+	// 	playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
+	// }
 }
 func (plr *Player) Draw() {
 
 }
 func (plr *Player) Update() {
 
-	axis = GetAxis()
-	if !axis.Equal(vec2{}) {
-		axisLast = axis
-	}
-	if justPressed(eb.KeyLeft) {
-		axisLast = left
-	}
-	if justPressed(eb.KeyRight) {
-		axisLast = right
-	}
-
-	facingRight = axisLast.Equal(right) || axis.Equal(right)
-	facingLeft = axisLast.Equal(left) || axis.Equal(left)
-	facingDown = axisLast.Equal(down) || axis.Equal(down)
-	facingUp = axisLast.Equal(up) || axis.Equal(up)
-	noWASD = axis.Equal(zero)
-	walkRight = axis.Equal(right)
-	walkLeft = axis.Equal(left)
-	attacking = pressed(eb.KeyShiftRight)
-	walking = walkLeft || walkRight
-	idle = noWASD && !attacking && isGround
-	digDown = facingDown && attacking
-	digUp = facingUp && attacking
-
-	comp.TagWASD.Each(ecsWorld, MovementFunc)
-	comp.TagWASDFly.Each(ecsWorld, MovementFlyFunc)
+	ProcessInput()
 
 	if playerEntry.Valid() {
+		playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
 		playerPixelCoord = world.WorldToPixel(playerPos)
 		playerAnimation := comp.AnimPlayer.Get(playerEntry)
 		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
-		attackSegEnd = playerPos.Add(axisLast.Scale(kar.BlockSize * 3.5))
+		attackSegEnd = playerPos.Add(inputAxisLast.Scale(kar.BlockSize * 3.5))
 		hitShape = attackSegQuery.Shape
 
 		if hitShape != nil {
@@ -110,7 +135,7 @@ func (plr *Player) Update() {
 			placeBlockPixelCoord = world.WorldToPixel(placeBlockPos)
 		}
 
-		attackSegQuery = cmSpace.SegmentQueryFirst(
+		attackSegQuery = Space.SegmentQueryFirst(
 			playerPos,
 			attackSegEnd,
 			0,
@@ -118,7 +143,7 @@ func (plr *Player) Update() {
 
 		// Fly Mode
 		if justPressed(eb.KeyG) {
-			CheckFlyMode(playerEntry, playerBody)
+			toggleFlyMode()
 		}
 
 		if justReleased(eb.KeyShiftRight) {
@@ -193,10 +218,11 @@ func UpdateFunctionKeys() {
 	}
 }
 func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
-	if idle && facingLeft && !walking {
+
+	if isIdle && isFacingLeftLast {
 		anim.SetState("idle_left")
 		opt.FlipX = false
-	} else if idle && facingRight {
+	} else if isIdle && isFacingRightLast {
 		anim.SetState("idle_right")
 		opt.FlipX = false
 	} else {
@@ -204,31 +230,31 @@ func UpdateAnimationStates(anim *anim.AnimationPlayer, opt *types.DrawOptions) {
 		opt.FlipX = false
 	}
 
-	if !isGround && !idle {
+	if !isOnFloor && !isIdle {
 		anim.SetState("jump")
 	}
 
-	if digDown {
+	if isDigDown {
 		anim.SetState("dig_down")
 	}
-	if digUp {
+	if isDigUp {
 		anim.SetState("dig_right")
 	}
 
-	if attacking && facingRight && !idle {
+	if isAttacking && isFacingRight && !isIdle {
 		anim.SetState("dig_right")
 		opt.FlipX = false
 	}
-	if attacking && facingLeft && !idle {
+	if isAttacking && isFacingLeft && !isIdle {
 		anim.SetState("dig_right")
 		opt.FlipX = true
 	}
 
-	if walkRight && !attacking && isGround && !idle {
+	if inputAxis.Equal(right) && !isAttacking && isOnFloor && !isIdle {
 		anim.SetState("walk_right")
 		opt.FlipX = false
 	}
-	if walkLeft && !attacking && isGround && !idle {
+	if inputAxis.Equal(left) && !isAttacking && isOnFloor && !isIdle {
 		anim.SetState("walk_right")
 		opt.FlipX = true
 	}
@@ -283,21 +309,21 @@ func DropSlotItem() {
 	id := playerInv.Slots[selectedSlotIndex].ID
 	if playerInv.Slots[selectedSlotIndex].Quantity > 0 {
 		playerInv.Slots[selectedSlotIndex].Quantity--
-		e := arche.SpawnDropItem(cmSpace, ecsWorld, playerPos, id)
+		e := arche.SpawnDropItem(Space, ecsWorld, playerPos, id)
 		b := comp.Body.Get(e)
-		if facingLeft {
+		if isFacingLeft {
 			b.ApplyImpulseAtLocalPoint(
-				axisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
+				inputAxisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
 		}
-		if facingRight {
+		if isFacingRight {
 			b.ApplyImpulseAtLocalPoint(
-				axisLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
+				inputAxisLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
 		}
 
 	}
 }
 
-func isOnFloor() bool {
+func onFloor() bool {
 	groundNormal := vec2{}
 	playerBody.EachArbiter(func(arb *cm.Arbiter) {
 		n := arb.Normal().Neg()
@@ -308,128 +334,11 @@ func isOnFloor() bool {
 	return groundNormal.Y < 0
 }
 
-func MovementFunc(e *donburi.Entry) {
-	body := comp.Body.Get(e)
-	speed := kar.BlockSize * 30
-	bv := body.Velocity()
-	body.SetVelocity(bv.X*0.9, bv.Y)
-	// yerde
-	if isOnFloor() {
-		isGround = true
-		// Zıpla
-		if justPressed(eb.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(
-				vec2{0, -(speed * 0.30)},
-				body.CenterOfGravity(),
-			)
-		}
-		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec2{-speed, 0}, body.CenterOfGravity())
-		}
-		if walkRight {
-			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
-		}
-	} else {
-		isGround = false
-		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec2{-(speed), 0}, body.CenterOfGravity())
-		}
-		if walkRight {
-			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
-		}
-	}
+func playerFlyVelocityFunc(b *cm.Body, _ vec.Vec2, _, _ float64) {
+	velocity := inputAxis.Unit().Scale(300)
+	b.SetVelocityVector(velocity)
 }
 
-func MovementFunc2(e *donburi.Entry) {
-	body := comp.Body.Get(e)
-	p := body.Position()
-	queryInfo := cmSpace.SegmentQueryFirst(
-		p,
-		p.Add(vec2{0, kar.BlockSize / 2}),
-		0,
-		filterPlayerRaycast,
-	)
-	contactShape := queryInfo.Shape
-	speed := kar.BlockSize * 30
-	vel := body.Velocity()
-	body.SetVelocity(vel.X*0.9, vel.Y)
-	if justReleased(eb.KeySpace) {
-		jumptime = 0
-	}
-	if pressed(eb.KeySpace) {
-		jumptime += 0.01
-		if body.Velocity().Y > -200 {
-			if jumptime < 1.0 {
-				body.ApplyForceAtLocalPoint(damp.Scale(-jumptime), body.CenterOfGravity())
-			}
-			if isGround {
-				body.ApplyImpulseAtLocalPoint(vec2{0, -300}, body.CenterOfGravity())
-			}
-		}
-	}
-
-	// yerde
-	if contactShape != nil {
-		isGround = true
-		// Zıpla
-		if justPressed(eb.KeySpace) {
-			body.ApplyImpulseAtLocalPoint(vec2{0, -(speed * 0.30)}, body.CenterOfGravity())
-		}
-
-		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec2{-speed, 0}, body.CenterOfGravity())
-		}
-		if walkRight {
-			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
-		}
-	} else {
-		isGround = false
-		if walkLeft {
-			body.ApplyForceAtLocalPoint(vec2{-(speed), 0}, body.CenterOfGravity())
-		}
-		if walkRight {
-			body.ApplyForceAtLocalPoint(vec2{speed, 0}, body.CenterOfGravity())
-		}
-	}
-}
-
-func MovementFlyFunc(e *donburi.Entry) {
-	body := comp.Body.Get(e)
-	mobileData := comp.Mobile.Get(e)
-	velocity := axis.Unit().Scale(mobileData.Speed * 4)
-	body.SetVelocityVector(
-		body.Velocity().LerpDistance(velocity, mobileData.Accel),
-	)
-}
-func CheckFlyMode(player *donburi.Entry, playerBody *cm.Body) {
-	if player.HasComponent(comp.TagWASD) {
-		playerBody.SetVelocity(0, 0)
-		player.RemoveComponent(comp.TagWASD)
-		player.AddComponent(comp.TagWASDFly)
-		playerBody.Shapes[0].SetSensor(true)
-	} else {
-		playerBody.SetVelocity(0, 0)
-		player.RemoveComponent(comp.TagWASDFly)
-		player.AddComponent(comp.TagWASD)
-		playerBody.Shapes[0].SetSensor(false)
-	}
-}
-func GetAxis() vec2 {
-	axis := vec2{}
-	if pressed(eb.KeyW) {
-		axis.Y -= 1
-	}
-	if pressed(eb.KeyS) {
-		axis.Y += 1
-	}
-	if pressed(eb.KeyA) {
-		axis.X -= 1
-	}
-	if pressed(eb.KeyD) {
-		axis.X += 1
-	}
-	return axis
-}
 func ResetHitBlockHealth() {
 	if hitShape != nil {
 		if checkEntry(hitShape.Body) {
@@ -460,7 +369,7 @@ func PlaceBlock() {
 				if !playerBody.ShapeAtIndex(0).BB.Intersects(placeBB) {
 					if removeHandItem(playerInv, id) {
 						arche.SpawnBlock(
-							cmSpace,
+							Space,
 							ecsWorld,
 							placeBlockPos,
 							playerInv.HandSlot.ID,
@@ -482,5 +391,133 @@ func TakeInHand() {
 		playerInv.HandSlot = playerInv.Slots[selectedSlotIndex]
 		deleteSlot(playerInv, selectedSlotIndex)
 		playerInv.Slots[slotIndex] = temp
+	}
+}
+
+func playerDefaultVelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
+	velocity := playerBody.Velocity()
+	isOnFloor = onFloor()
+
+	if isOnFloor {
+		if justPressed(eb.KeySpace) {
+			// isJumping = true
+
+			var speed = math.Abs(velocity.X)
+			speedThreshold = len(speedThresholds)
+
+			for i := 0; i < len(speedThresholds); i++ {
+				if speed < speedThresholds[i] {
+					speedThreshold = i
+					break
+				}
+			}
+			velocity.Y = jumpSpeeds[speedThreshold]
+
+		}
+	} else {
+		var gravity = gravities[speedThreshold]
+		if pressed(eb.KeySpace) && !isFalling {
+			gravity = longJumpGravities[speedThreshold]
+		}
+		velocity.Y = velocity.Y + gravity*delta
+		if velocity.Y > MaxFallSpeed {
+			velocity.Y = MaxFallSpeedCap
+		}
+	}
+
+	if velocity.Y > 0 {
+		isFalling = true
+	} else if isOnFloor {
+		isFalling = false
+	}
+
+	if inputAxis.X != 0 {
+		if isOnFloor {
+			if velocity.X != 0 {
+				isFacingLeft = inputAxis.X < 0.0
+				isSkiding = velocity.X < 0.0 != isFacingLeft
+			}
+			if isSkiding {
+				minSpeedTemp = MinSlowDownSpeed
+				maxSpeedTemp = MaxWalkSpeed
+				acceleration = SkidFriction
+			} else if isRunning {
+				minSpeedTemp = MinSpeed
+				maxSpeedTemp = MaxSpeed
+				acceleration = RunAcceleration
+			} else {
+				minSpeedTemp = MinSpeed
+				maxSpeedTemp = MaxWalkSpeed
+				acceleration = WalkAcceleration
+			}
+		} else if isRunning && math.Abs(velocity.X) > MaxWalkSpeed {
+			maxSpeedTemp = MaxSpeed
+		} else {
+			maxSpeedTemp = MaxWalkSpeed
+		}
+		var target_speed = inputAxis.X * maxSpeedTemp
+		velocity.X = MoveToward(velocity.X, target_speed, acceleration*delta)
+	} else if isOnFloor && velocity.X != 0 {
+		if !isSkiding {
+			acceleration = WalkFriction
+		}
+		if inputAxis.Y != 0 {
+			minSpeedTemp = MinSlowDownSpeed
+		} else {
+			minSpeedTemp = MinSpeed
+		}
+		if math.Abs(velocity.X) < minSpeedTemp {
+			velocity.X = 0.0
+		} else {
+			velocity.X = MoveToward(velocity.X, 0.0, acceleration*delta)
+		}
+	}
+	if math.Abs(velocity.X) < MinSlowDownSpeed {
+		isSkiding = false
+	}
+	playerBody.SetVelocityVector(velocity)
+}
+
+func MoveToward(from, to, delta float64) float64 {
+	if math.Abs(to-from) <= delta {
+		return to
+	}
+	if to > from {
+		return from + delta
+	}
+	return from - delta
+}
+
+func toggleFlyMode() {
+	playerFlyModeDisabled = !playerFlyModeDisabled
+	switch playerFlyModeDisabled {
+	case true:
+		playerBody.Shapes[0].SetSensor(false)
+		playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
+	case false:
+		playerBody.Shapes[0].SetSensor(true)
+		playerBody.SetVelocityUpdateFunc(playerFlyVelocityFunc)
+	}
+}
+
+func ProcessInput() {
+	isOnFloor = onFloor()
+	isAttacking = pressed(eb.KeyShiftRight)
+	isIdle = inputAxis.Equal(zero) && !isAttacking && isOnFloor
+	isFacingDown = inputAxisLast.Equal(down) || inputAxis.Equal(down)
+	isFacingUp = inputAxisLast.Equal(up) || inputAxis.Equal(up)
+	isFacingRightLast = inputAxisLast.Equal(right)
+	isFacingLeftLast = inputAxisLast.Equal(left)
+	isFacingRight = inputAxisLast.Equal(right) || inputAxis.Equal(right)
+	isDigDown = isFacingDown && isAttacking
+	isDigUp = isFacingUp && isAttacking
+
+	if isOnFloor {
+		isRunning = pressed(eb.KeyAltRight)
+		isCrouching = pressed(eb.KeyDown)
+		if isCrouching && inputAxis.X != 0 {
+			isCrouching = false
+			inputAxis.X = 0.0
+		}
 	}
 }

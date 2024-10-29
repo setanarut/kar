@@ -33,10 +33,10 @@ func DisplayName(id uint16) string {
 
 // destroy body with entry
 func destroyBody(b *cm.Body) {
-	if cmSpace.ContainsBody(b) {
+	if Space.ContainsBody(b) {
 		e := b.UserData.(*donburi.Entry)
 		e.Remove()
-		cmSpace.AddPostStepCallback(removeBodyPostStep, b, false)
+		Space.AddPostStepCallback(removeBodyPostStep, b, false)
 	}
 }
 
@@ -77,43 +77,3 @@ func checkEntries(arb *cm.Arbiter) bool {
 	aBody, bBody := arb.Bodies()
 	return checkEntry(aBody) && checkEntry(bBody)
 }
-
-// func teleportBody(p vec.Vec2, entry *donburi.Entry) {
-// 	if entry.Valid() {
-// 		if entry.HasComponent(comp.Body) {
-// 			body := comp.Body.Get(entry)
-// 			body.SetVelocity(0, 0)
-// 			body.SetPosition(p)
-// 		}
-// 	}
-// }
-
-// func explode(bomb *donburi.Entry) {
-// 	bombBody := comp.Body.Get(bomb)
-// 	space := bombBody.FirstShape().Space()
-// 	comp.EnemyTag.Each(bomb.World, func(enemy *donburi.Entry) {
-// 		enemyHealth := comp.Health.Get(enemy)
-// 		enemyBody := comp.Body.Get(enemy)
-// 		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, resources.FilterBombRaycast)
-// 		contactShape := queryInfo.Shape
-// 		if contactShape != nil {
-// 			if contactShape.Body() == enemyBody {
-// 				applyRaycastImpulse(queryInfo, 1000)
-
-// 				enemyHealth.Health -= mathutil.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0)
-// 				if enemyHealth.Health < 0 {
-// 					destroyEntryWithBody(enemy)
-// 				}
-
-// 			}
-// 		}
-
-// 	})
-// 	resources.Cam.AddTrauma(0.2)
-// 	destroyEntryWithBody(bomb)
-// }
-
-// func applyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
-// 	impulseVec2 := sqi.Normal.Neg().Scale(power * mathutil.MapRange(sqi.Alpha, 0.5, 1, 1, 0))
-// 	sqi.Shape.Body().ApplyImpulseAtWorldPoint(impulseVec2, sqi.Point)
-// }

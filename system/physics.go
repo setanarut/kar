@@ -5,7 +5,6 @@ import (
 	"kar"
 	"kar/arche"
 	"kar/comp"
-	"math"
 
 	"github.com/setanarut/cm"
 	"github.com/yohamta/donburi"
@@ -20,15 +19,18 @@ var dropItemFilterCooldown = cm.ShapeFilter{
 type Physics struct{}
 
 func (ps *Physics) Init() {
-	cmSpace.SetGravity(vec2{0, (kar.BlockSize * 20)})
-	cmSpace.CollisionBias = math.Pow(0.0000000001, 60)
-	cmSpace.CollisionSlop = 0.08
-	// Space.UseSpatialHash(128, 800)
-	// Space.Iterations = 10
-	cmSpace.Damping = 0.9
+	Space.SetGravity(vec2{0, (kar.BlockSize * 20)})
+	Space.CollisionBias = kar.CollisionBias
+	Space.CollisionSlop = kar.CollisionSlop
+	Space.Damping = kar.Damping
+	if kar.UseSpatialHash {
+		Space.UseSpatialHash(128, 800)
+		Space.Iterations = 10
+
+	}
 
 	if true {
-		PlayerDropItemHandler := cmSpace.NewCollisionHandler(
+		PlayerDropItemHandler := Space.NewCollisionHandler(
 			arche.Player,
 			arche.DropItem)
 
@@ -38,7 +40,7 @@ func (ps *Physics) Init() {
 
 	}
 	if false {
-		DropItemBlockHandler := cmSpace.NewCollisionHandler(
+		DropItemBlockHandler := Space.NewCollisionHandler(
 			arche.DropItem,
 			arche.Block)
 		DropItemBlockHandler.BeginFunc = DropItemBlockBegin
@@ -48,12 +50,12 @@ func (ps *Physics) Init() {
 }
 
 func (ps *Physics) Update() {
-	cmSpace.Step(kar.DeltaTime)
+	Space.Step(kar.DeltaTime)
 
 	// Destroy counter for stucked drop item
 	comp.TagDropItem.Each(ecsWorld, func(dropEntry *donburi.Entry) {
 		dropShape := comp.Body.Get(dropEntry).Shapes[0]
-		cmSpace.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
+		Space.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
 			e := shape.Body.UserData.(*donburi.Entry)
 			if e.HasComponent(comp.TagBlock) {
 				if shape.BB.Contains(dropShape.BB.Offset(vec2{-3, -3})) {
