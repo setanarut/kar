@@ -40,7 +40,7 @@ func DestroyDeadBlockCallback(e *donburi.Entry) {
 		blockPos := world.WorldToPixel(pos)
 		gameWorld.Image.SetGray16(blockPos.X, blockPos.Y, color.Gray16{items.Air})
 		dropID := items.Property[it.ID].Drops
-		arche.SpawnDropItem(cmSpace, ecsWorld, pos, dropID)
+		arche.SpawnDropItem(Space, ecsWorld, pos, dropID)
 	}
 }
 

@@ -24,11 +24,11 @@ const itemAnimFrameCount int = 200
 var (
 	gameWorld            *world.World
 	ecsWorld             = donburi.NewWorld()
-	cmSpace              = cm.NewSpace()
+	Space                = cm.NewSpace()
 	camera               *kamera.Camera
 	selectedSlotIndex    = 0
 	desktopDir           string
-	blockCenterOffset    = vec2{(kar.BlockSize / 2), (kar.BlockSize / 2)}.Neg()
+	blockCenterOffset    = vec2{kar.BlockSize / 2, kar.BlockSize / 2}.Neg()
 	globalDIO            = &ebiten.DrawImageOptions{}
 	fontSmallDrawOptions = &text.DrawOptions{
 		LayoutOptions: text.LayoutOptions{LineSpacing: res.FontSmall.Size * 1.3},
@@ -59,13 +59,6 @@ var (
 	justPressed  = inpututil.IsKeyJustPressed
 	justReleased = inpututil.IsKeyJustReleased
 	pressed      = ebiten.IsKeyPressed
-)
-var (
-	right = vec2{1, 0}
-	left  = vec2{-1, 0}
-	down  = vec2{0, 1}
-	up    = vec2{0, -1}
-	zero  = vec2{0, 0}
 )
 
 func init() {

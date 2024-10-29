@@ -160,7 +160,6 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 		comp.DrawOptions,
 		comp.AnimPlayer,
 		comp.Body,
-		comp.Mobile,
 		comp.Inventory,
 		comp.TagWASD,
 	))
@@ -169,7 +168,6 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 	for i := range inv.Slots {
 		inv.Slots[i] = types.ItemStack{}
 	}
-	comp.Mobile.Set(e, &types.Mobile{Speed: 500, Accel: 80})
 	inv.HandSlot = types.ItemStack{}
 	comp.Inventory.Set(e, inv)
 
@@ -185,11 +183,21 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 
 	comp.DrawOptions.Set(e, &types.DrawOptions{
 		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
-		Scale:        vec.Vec2{5, 10},
+		Scale:        vec.Vec2{2, 2},
 	})
 
 	b := cm.NewBody(mass, math.MaxFloat64)
-	shape := cm.NewBoxShape(b, kar.BlockSize*0.7, (kar.BlockSize*2)*0.7, 2)
+
+	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
+
+	shape := cm.NewPolyShape(
+		b,
+		verts,
+		cm.NewTransformScale(2, 2),
+		0,
+	)
+
+	// shape := cm.NewBoxShape(b, kar.BlockSize*0.7, (kar.BlockSize*2)*0.7, 2)
 	// shape := cm.NewCircleShapeWithBody(b, (kar.BlockSize/2)*0.8, vec2{})
 	shape.SetElasticity(el)
 	shape.SetFriction(fr)

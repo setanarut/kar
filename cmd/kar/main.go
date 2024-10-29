@@ -38,6 +38,7 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 	g.systems = []types.ISystem{
+		&system.Input{},
 		&system.Spawn{},
 		&system.Physics{},
 		&system.Player{},

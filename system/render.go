@@ -123,7 +123,7 @@ func drawPlayer() {
 			camera.Draw(ap.CurrentFrame, globalDIO, kar.Screen)
 		}
 		if debugDrawingEnabled {
-			cm.DrawSpace(cmSpace, cmDrawer.WithScreen(kar.Screen))
+			cm.DrawSpace(Space, cmDrawer.WithScreen(kar.Screen))
 			vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
 		}
 	}
