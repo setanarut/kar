@@ -21,27 +21,29 @@ import (
 	"github.com/yohamta/donburi"
 )
 
+const velScale = 2.0
+
 const (
-	CooldownTimeSec  = 3.0
-	MaxFallSpeed     = 270.0
-	MaxFallSpeedCap  = 240.0
-	MaxSpeed         = 153.75
-	MaxWalkSpeed     = 93.75
-	MinSlowDownSpeed = 33.75
-	MinSpeed         = 4.453125
-	RunAcceleration  = 200.390625
-	SkidFriction     = 365.625
-	StompSpeed       = 240.0
-	StompSpeedCap    = -60.0
-	WalkAcceleration = 133.59375
-	WalkFriction     = 182.8125
+	CooldownTimeSec  = 3.0 * velScale
+	MaxFallSpeed     = 270.0 * velScale
+	MaxFallSpeedCap  = 240.0 * velScale
+	MaxSpeed         = 153.75 * velScale
+	MaxWalkSpeed     = 93.75 * velScale
+	MinSlowDownSpeed = 33.75 * velScale
+	MinSpeed         = 4.453125 * velScale
+	RunAcceleration  = 200.390625 * velScale
+	SkidFriction     = 365.625 * velScale
+	StompSpeed       = 240.0 * velScale
+	StompSpeedCap    = -60.0 * velScale
+	WalkAcceleration = 133.59375 * velScale
+	WalkFriction     = 182.8125 * velScale
 )
 
 var (
-	jumpSpeeds        = [3]float64{-240.0, -240.0, -300.0}
-	longJumpGravities = [3]float64{450.0, 421.875, 562.5}
-	gravities         = [3]float64{1575.0, 1350.0, 2025.0}
-	speedThresholds   = [2]float64{60, 138.75}
+	jumpSpeeds        = [3]float64{-240.0 * velScale, -240.0 * velScale, -300.0 * velScale}
+	longJumpGravities = [3]float64{450.0 * velScale, 421.875 * velScale, 562.5 * velScale}
+	gravities         = [3]float64{1575.0 * velScale, 1350.0 * velScale, 2025.0 * velScale}
+	speedThresholds   = [2]float64{60 * velScale, 138.75 * velScale}
 )
 
 // States
@@ -62,7 +64,7 @@ var (
 	isDigDown, isDigUp bool
 	// isJumping    bool
 )
-var playerFlyModeDisabled bool
+var playerFlyModeDisabled = true
 
 // var speedScale = 0.0
 var (
@@ -109,11 +111,9 @@ func (plr *Player) Draw() {
 
 }
 func (plr *Player) Update() {
-
 	ProcessInput()
 
 	if playerEntry.Valid() {
-		playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
 		playerPixelCoord = world.WorldToPixel(playerPos)
 		playerAnimation := comp.AnimPlayer.Get(playerEntry)
 		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
@@ -489,15 +489,15 @@ func MoveToward(from, to, delta float64) float64 {
 }
 
 func toggleFlyMode() {
-	playerFlyModeDisabled = !playerFlyModeDisabled
 	switch playerFlyModeDisabled {
-	case true:
+	case false:
 		playerBody.Shapes[0].SetSensor(false)
 		playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
-	case false:
+	case true:
 		playerBody.Shapes[0].SetSensor(true)
 		playerBody.SetVelocityUpdateFunc(playerFlyVelocityFunc)
 	}
+	playerFlyModeDisabled = !playerFlyModeDisabled
 }
 
 func ProcessInput() {

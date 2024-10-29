@@ -6,11 +6,6 @@ import (
 	"kar/comp"
 	"kar/items"
 	"kar/world"
-
-	"github.com/setanarut/vec"
-
-	eb "github.com/hajimehoshi/ebiten/v2"
-	iu "github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Spawn struct{}
@@ -25,21 +20,16 @@ func (s *Spawn) Init() {
 	findSpawnPosition()
 	gameWorld.LoadChunks(Space, ecsWorld, playerSpawnPos)
 	playerEntry = arche.SpawnPlayer(Space, ecsWorld, playerSpawnPos, 1, 0, 0)
+	playerInv = comp.Inventory.Get(playerEntry)
+	playerBody = comp.Body.Get(playerEntry)
+	playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
 }
 func (s *Spawn) Update() {
-	if iu.IsMouseButtonJustPressed(eb.MouseButton0) {
-		if eb.IsKeyPressed(eb.KeyC) {
-			x, y := camera.ScreenToWorld(eb.CursorPosition())
-			arche.SpawnDebugBox(Space, ecsWorld, vec.Vec2{x, y})
-		}
-	}
-
 	if playerEntry.Valid() {
-		playerInv = comp.Inventory.Get(playerEntry)
-		playerBody = comp.Body.Get(playerEntry)
 		playerPos = playerBody.Position()
 		playerVel = playerBody.Velocity()
 		gameWorld.UpdateChunks(Space, ecsWorld, playerPos)
+
 	}
 }
 
