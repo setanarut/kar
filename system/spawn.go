@@ -4,6 +4,7 @@ import (
 	"kar"
 	"kar/arche"
 	"kar/comp"
+	"kar/controller"
 	"kar/items"
 	"kar/world"
 )
@@ -22,7 +23,7 @@ func (s *Spawn) Init() {
 	playerEntry = arche.SpawnPlayer(Space, ecsWorld, playerSpawnPos, 1, 0, 0)
 	playerInv = comp.Inventory.Get(playerEntry)
 	playerBody = comp.Body.Get(playerEntry)
-	playerBody.SetVelocityUpdateFunc(playerDefaultVelocityFunc)
+	playerBody.SetVelocityUpdateFunc(controller.VelocityFunc)
 }
 func (s *Spawn) Update() {
 	if playerEntry.Valid() {

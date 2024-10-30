@@ -9,36 +9,36 @@ import (
 	"github.com/setanarut/vec"
 )
 
-const velScale = 2.0
+const scale = 2.0
 
 const (
-	CooldownTimeSec  = 3.0 * velScale
-	MaxFallSpeed     = 270.0 * velScale
-	MaxFallSpeedCap  = 240.0 * velScale
-	MaxSpeed         = 153.75 * velScale
-	MaxWalkSpeed     = 93.75 * velScale
-	MinSlowDownSpeed = 33.75 * velScale
-	MinSpeed         = 4.453125 * velScale
-	RunAcceleration  = 200.390625 * velScale
-	SkidFriction     = 365.625 * velScale
-	StompSpeed       = 240.0 * velScale
-	StompSpeedCap    = -60.0 * velScale
-	WalkAcceleration = 133.59375 * velScale
-	WalkFriction     = 182.8125 * velScale
+	CooldownTimeSec  = 3.0 * scale
+	MaxFallSpeed     = 270.0 * scale
+	MaxFallSpeedCap  = 240.0 * scale
+	MaxSpeed         = 153.75 * scale
+	MaxWalkSpeed     = 93.75 * scale
+	MinSlowDownSpeed = 33.75 * scale
+	MinSpeed         = 4.453125 * scale
+	RunAcceleration  = 200.390625 * scale
+	SkidFriction     = 365.625 * scale
+	StompSpeed       = 240.0 * scale
+	StompSpeedCap    = -60.0 * scale
+	WalkAcceleration = 133.59375 * scale
+	WalkFriction     = 182.8125 * scale
 )
 
 var (
-	jumpSpeeds        = [3]float64{-240.0 * velScale, -240.0 * velScale, -300.0 * velScale}
-	longJumpGravities = [3]float64{450.0 * velScale, 421.875 * velScale, 562.5 * velScale}
-	gravities         = [3]float64{1575.0 * velScale, 1350.0 * velScale, 2025.0 * velScale}
-	speedThresholds   = [2]float64{60 * velScale, 138.75 * velScale}
+	jumpSpeeds        = [3]float64{-240.0 * scale, -240.0 * scale, -300.0 * scale}
+	longJumpGravities = [3]float64{450.0 * scale, 421.875 * scale, 562.5 * scale}
+	gravities         = [3]float64{1575.0 * scale, 1350.0 * scale, 2025.0 * scale}
+	speedThresholds   = [2]float64{60 * scale, 138.75 * scale}
 )
 
 // States
 var (
 	isAttacking                   bool
 	isCrouching                   bool
-	isFacingLeft, isFacingRight   bool
+	IsFacingLeft, IsFacingRight   bool
 	isFacingUp, isFacingDown      bool
 	isFalling                     bool
 	isIdle                        bool
@@ -69,7 +69,7 @@ var (
 func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 
 	velocity := body.Velocity()
-	isOnFloor = onFloor(body)
+	isOnFloor = OnFloor(body)
 	inputAxis := GetAxis()
 
 	inputAxisLast := vec.Vec2{}
@@ -82,8 +82,8 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 
 	isFacingDown = inputAxisLast.Equal(down) || inputAxis.Equal(down)
 	isFacingUp = inputAxisLast.Equal(up) || inputAxis.Equal(up)
-	isFacingRight = inputAxisLast.Equal(right) || inputAxis.Equal(right)
-	isFacingLeft = inputAxisLast.Equal(left) || inputAxis.Equal(left)
+	IsFacingRight = inputAxisLast.Equal(right) || inputAxis.Equal(right)
+	IsFacingLeft = inputAxisLast.Equal(left) || inputAxis.Equal(left)
 
 	isWalkingLeft = !isIdle && isOnFloor && body.Velocity().X < 0.0
 	isWalkingRight = !isIdle && isOnFloor && body.Velocity().X > 0.0
@@ -134,8 +134,8 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 	if inputAxis.X != 0 {
 		if isOnFloor {
 			if velocity.X != 0 {
-				isFacingLeft = inputAxis.X < 0.0
-				isSkiding = velocity.X < 0.0 != isFacingLeft
+				IsFacingLeft = inputAxis.X < 0.0
+				isSkiding = velocity.X < 0.0 != IsFacingLeft
 			}
 			if isSkiding {
 				minSpeedTemp = MinSlowDownSpeed
@@ -178,7 +178,7 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 	body.SetVelocityVector(velocity)
 }
 
-func onFloor(b *cm.Body) bool {
+func OnFloor(b *cm.Body) bool {
 	groundNormal := vec.Vec2{}
 	b.EachArbiter(func(arb *cm.Arbiter) {
 		n := arb.Normal().Neg()

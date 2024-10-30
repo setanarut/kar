@@ -7,13 +7,6 @@ import (
 
 var inputAxis = vec.Vec2{}
 var inputAxisLast = vec.Vec2{}
-var (
-	right = vec2{1, 0}
-	left  = vec2{-1, 0}
-	down  = vec2{0, 1}
-	up    = vec2{0, -1}
-	zero  = vec2{0, 0}
-)
 
 type Input struct{}
 
