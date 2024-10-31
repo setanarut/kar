@@ -172,13 +172,12 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 	comp.Inventory.Set(e, inv)
 
 	ap := anim.NewAnimationPlayer(res.AtlasPlayer)
-	ap.NewAnimationState("idle_right", 0, 0, 16, 16, 1, false, false).FPS = 1
-	ap.NewAnimationState("idle_left", 16, 0, 16, 16, 1, false, false).FPS = 1
-	ap.NewAnimationState("idle_front", 16*2, 0, 16, 16, 1, false, false).FPS = 1
-	ap.NewAnimationState("dig_right", 0, 16*2, 16, 16, 6, false, false)
-	ap.NewAnimationState("dig_down", 0, 16*3, 16, 16, 6, false, false)
-	ap.NewAnimationState("walk_right", 0, 16*4, 16, 16, 6, false, false)
-	ap.NewAnimationState("jump", 16, 16*5, 16, 16, 1, false, false)
+	ap.NewAnimationState("idleRight", 0, 0, 16, 16, 1, false, false).FPS = 1
+	ap.NewAnimationState("idleFront", 16*2, 0, 16, 16, 1, false, false).FPS = 1
+	ap.NewAnimationState("digRight", 0, 16*2, 16, 16, 6, false, false)
+	ap.NewAnimationState("digDown", 0, 16*3, 16, 16, 6, false, false)
+	ap.NewAnimationState("walkRight", 0, 16*4, 16, 16, 6, false, false)
+	ap.NewAnimationState("falling", 16, 16*5, 16, 16, 1, false, false)
 	comp.AnimPlayer.Set(e, ap)
 
 	playerScaleFactor := 3.0

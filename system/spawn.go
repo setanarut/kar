@@ -4,9 +4,22 @@ import (
 	"kar"
 	"kar/arche"
 	"kar/comp"
-	"kar/controller"
 	"kar/items"
+	"kar/types"
 	"kar/world"
+
+	"github.com/setanarut/anim"
+	"github.com/setanarut/cm"
+	"github.com/yohamta/donburi"
+)
+
+var (
+	playerEntry       *donburi.Entry
+	playerSpawnPos    vec2
+	playerBody        *cm.Body
+	playerInv         *types.Inventory
+	playerAnim        *anim.AnimationPlayer
+	playerDrawOptions *types.DrawOptions
 )
 
 type Spawn struct{}
@@ -23,12 +36,13 @@ func (s *Spawn) Init() {
 	playerEntry = arche.SpawnPlayer(Space, ecsWorld, playerSpawnPos, 1, 0, 0)
 	playerInv = comp.Inventory.Get(playerEntry)
 	playerBody = comp.Body.Get(playerEntry)
-	playerBody.SetVelocityUpdateFunc(controller.VelocityFunc)
+	playerAnim = comp.AnimPlayer.Get(playerEntry)
+	playerDrawOptions = comp.DrawOptions.Get(playerEntry)
+	playerBody.SetVelocityUpdateFunc(VelocityFunc)
 }
 func (s *Spawn) Update() {
 	if playerEntry.Valid() {
 		playerPos = playerBody.Position()
-		playerVel = playerBody.Velocity()
 		gameWorld.UpdateChunks(Space, ecsWorld, playerPos)
 
 	}

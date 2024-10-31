@@ -106,7 +106,7 @@ func (gui *RenderGUI) Draw() {
 			items.Property[playerInv.HandSlot.ID].DisplayName,
 			playerInv.HandSlot.Quantity,
 			selectedSlotDisplayName,
-			playerVel,
+			playerBody.Velocity(),
 		)
 
 		text.Draw(kar.Screen, txt, res.FontSmall, fontSmallDrawOptions)

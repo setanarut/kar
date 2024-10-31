@@ -6,18 +6,15 @@ import (
 	"kar"
 	"kar/arche"
 	"kar/comp"
-	"kar/controller"
 	"kar/engine/mathutil"
 	"kar/engine/util"
 	"kar/items"
 	"kar/res"
-	"kar/types"
 	"kar/world"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
 	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
-	"github.com/yohamta/donburi"
 )
 
 type vec2 = vec.Vec2
@@ -31,11 +28,6 @@ var (
 )
 
 var (
-	playerEntry         *donburi.Entry
-	playerVel           vec2
-	playerSpawnPos      vec2
-	playerBody          *cm.Body
-	playerInv           *types.Inventory
 	filterPlayerRaycast = cm.ShapeFilter{
 		0,
 		arche.PlayerRayBit,
@@ -56,8 +48,6 @@ func (plr *Player) Update() {
 
 	if playerEntry.Valid() {
 		playerPixelCoord = world.WorldToPixel(playerPos)
-		playerAnimation := comp.AnimPlayer.Get(playerEntry)
-		playerDrawOptions := comp.DrawOptions.Get(playerEntry)
 		attackSegEnd = playerPos.Add(inputAxisLast.Scale(kar.BlockSize * 3.5))
 		hitShape = attackSegQuery.Shape
 
@@ -88,6 +78,7 @@ func (plr *Player) Update() {
 		}
 
 		if justReleased(eb.KeyShiftRight) {
+			isAttacking = false
 			ResetHitBlockHealth()
 		}
 		if attackSegQuery.Shape == nil || attackSegQuery.Shape != hitShape {
@@ -126,7 +117,6 @@ func (plr *Player) Update() {
 		}
 
 		UpdateSlotInput()
-		controller.UpdateAnimationStates(playerAnimation, playerDrawOptions)
 
 	}
 
@@ -211,11 +201,11 @@ func DropSlotItem() {
 		playerInv.Slots[selectedSlotIndex].Quantity--
 		e := arche.SpawnDropItem(Space, ecsWorld, playerPos, id)
 		b := comp.Body.Get(e)
-		if controller.IsFacingLeft {
+		if IsFacingLeft {
 			b.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
 		}
-		if controller.IsFacingRight {
+		if IsFacingRight {
 			b.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
 		}
@@ -243,10 +233,13 @@ func GiveDamageToBlock() {
 		if checkEntry(hitShape.Body) {
 			e := getEntry(hitShape.Body)
 			if e.HasComponent(comp.TagBreakable) && e.HasComponent(comp.Health) {
+				isAttacking = true
 				h := comp.Health.Get(e)
 				h.Health -= 0.2
 			}
 		}
+	} else {
+		isAttacking = false
 	}
 }
 func PlaceBlock() {
@@ -287,7 +280,7 @@ func toggleFlyMode() {
 	switch playerFlyModeDisabled {
 	case false:
 		playerBody.Shapes[0].SetSensor(false)
-		playerBody.SetVelocityUpdateFunc(controller.VelocityFunc)
+		playerBody.SetVelocityUpdateFunc(VelocityFunc)
 	case true:
 		playerBody.Shapes[0].SetSensor(true)
 		playerBody.SetVelocityUpdateFunc(playerFlyVelocityFunc)
