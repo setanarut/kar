@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"kar/engine/mathutil"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -10,7 +11,7 @@ import (
 	"github.com/setanarut/vec"
 )
 
-const scale = 2.0
+const scale = 2.1
 
 const (
 	CooldownTimeSec  = 3.0 * scale
@@ -123,6 +124,7 @@ var fsm = &FiniteStateMachine{
 	Walking:   &Walking{},
 	Attacking: &Attacking{},
 	Crouching: &Crouching{},
+	Skidding:  &Skidding{},
 }
 
 // Finite State Machine for player
@@ -135,6 +137,7 @@ type FiniteStateMachine struct {
 	Walking   State
 	Attacking State
 	Crouching State
+	Skidding  State
 }
 
 // SetState transitions to a new state.
@@ -195,7 +198,7 @@ func (s *Attacking) Exit() {
 }
 
 func (s *Attacking) Update() {
-	playerAnim.SetState("digRight")
+	// playerAnim.SetState("digRight")
 
 	if !isAttacking && isIdle {
 		fsm.SetState(fsm.Idle)
@@ -213,7 +216,7 @@ func (s *Jumping) Enter() {
 }
 func (s *Jumping) Update() {
 
-	playerAnim.SetState("idleRight")
+	playerAnim.SetState("jump")
 
 	if isFalling {
 		fsm.SetState(fsm.Falling)
@@ -228,7 +231,7 @@ func (s *Falling) Enter() {
 }
 func (s *Falling) Update() {
 
-	playerAnim.SetState("falling")
+	playerAnim.SetState("jump")
 
 	if isOnFloor && isWalking {
 		fsm.SetState(fsm.Walking)
@@ -246,17 +249,12 @@ func (s *Walking) Enter() {
 	fmt.Println("Entering walking State")
 }
 func (s *Walking) Update() {
+	fps := mathutil.MapRange(math.Abs(playerBody.Velocity().X), 0, 300, 0, 20)
+	playerAnim.SetStateFPS("walkRight", fps)
+	playerAnim.SetState("walkRight")
 
-	if isAttacking {
-		playerAnim.SetState("digRight")
-	} else {
-
-		playerAnim.SetState("walkRight")
-		if isRunning {
-			playerAnim.SetStateFPS("walkRight", 25)
-		} else {
-			playerAnim.SetStateFPS("walkRight", 15)
-		}
+	if isSkiding {
+		fsm.SetState(fsm.Skidding)
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
@@ -276,6 +274,30 @@ func (s *Crouching) Enter() {
 func (s *Crouching) Update() {
 }
 func (s *Crouching) Exit() {}
+
+type Skidding struct{}
+
+func (s *Skidding) Enter() {
+	fmt.Println("Entering Skidding State")
+}
+func (s *Skidding) Update() {
+
+	playerAnim.SetState("skidding")
+
+	if !isSkiding && isWalking {
+		fsm.SetState(fsm.Walking)
+	}
+
+	if isIdle {
+		fsm.SetState(fsm.Idle)
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) && isOnFloor {
+		fsm.SetState(fsm.Jumping)
+	}
+
+}
+func (s *Skidding) Exit() {}
 
 func OnFloor(b *cm.Body) bool {
 	groundNormal := vec.Vec2{}

@@ -244,17 +244,17 @@ func GiveDamageToBlock() {
 }
 func PlaceBlock() {
 	if hitShape != nil {
-		id := playerInv.HandSlot.ID
+		id := playerInv.Slots[selectedSlotIndex].ID
 		if items.IsBlock(id) {
 			if id != items.Air {
 				placeBB := cm.NewBBForExtents(placeBlockPos, kar.BlockSize/2, kar.BlockSize/2)
 				if !playerBody.ShapeAtIndex(0).BB.Intersects(placeBB) {
-					if removeHandItem(playerInv, id) {
+					if removeItem(playerInv, id) {
 						arche.SpawnBlock(
 							Space,
 							ecsWorld,
 							placeBlockPos,
-							playerInv.HandSlot.ID,
+							playerInv.Slots[selectedSlotIndex].ID,
 						)
 						gameWorld.Image.SetGray16(
 							placeBlockPixelCoord.X,

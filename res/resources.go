@@ -30,6 +30,10 @@ var (
 	}
 )
 
+var (
+	Mario = util.ReadEbImgFS(fs, "assets/img/player/mario.png")
+)
+
 var cracks = util.ImgFromFS(fs, "assets/img/overlay/cracks.png")
 var Border *ebiten.Image
 

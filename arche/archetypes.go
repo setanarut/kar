@@ -189,18 +189,77 @@ func SpawnPlayer(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry
 
 	b := cm.NewBody(mass, math.MaxFloat64)
 
-	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
+	// verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
 	geom := cm.NewTransformTranslate(vec.Vec2{0, -4})
+	geom.Scale(playerScaleFactor, playerScaleFactor)
+
+	// shape := cm.NewPolyShape(
+	// 	b,
+	// 	verts,
+	// 	geom,
+	// 	3,
+	// )
+
+	// shape := cm.NewBoxShape(b, kar.BlockSize*0.7, (kar.BlockSize*2)*0.7, 2)
+	shape := cm.NewCircleShape(b, 17, vec.Vec2{})
+	shape.SetElasticity(el)
+	shape.SetFriction(fr)
+	b.SetPosition(pos)
+	b.UserData = e
+	b.ShapeAtIndex(0).SetCollisionType(Player)
+	b.ShapeAtIndex(0).SetShapeFilter(playerFilter)
+	s.AddBodyWithShapes(b)
+	comp.Body.Set(e, b)
+	return e
+}
+
+func SpawnMario(s *cm.Space, w db.World, pos vec2, mass, el, fr float64) *entry {
+	e := w.Entry(w.Create(
+		comp.TagPlayer,
+		comp.Health,
+		comp.DrawOptions,
+		comp.AnimPlayer,
+		comp.Body,
+		comp.Inventory,
+		comp.TagWASD,
+	))
+
+	inv := &types.Inventory{}
+	for i := range inv.Slots {
+		inv.Slots[i] = types.ItemStack{}
+	}
+	inv.HandSlot = types.ItemStack{}
+	comp.Inventory.Set(e, inv)
+
+	ap := anim.NewAnimationPlayer(res.Mario)
+	ap.NewAnimationState("idleRight", 0, 0, 16, 16, 1, false, false).FPS = 1
+	ap.NewAnimationState("walkRight", 16, 0, 16, 16, 4, false, false)
+	ap.NewAnimationState("jump", 16*6, 0, 16, 16, 1, false, false)
+	ap.NewAnimationState("skidding", 16*7, 0, 16, 16, 1, false, false)
+	comp.AnimPlayer.Set(e, ap)
+
+	playerScaleFactor := 2.0
+
+	comp.DrawOptions.Set(e, &types.DrawOptions{
+		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
+		Scale:        vec.Vec2{playerScaleFactor, playerScaleFactor},
+	})
+
+	b := cm.NewBody(mass, math.MaxFloat64)
+
+	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
+	geom := cm.NewTransformTranslate(vec.Vec2{0, 0})
 	geom.Scale(playerScaleFactor, playerScaleFactor)
 
 	shape := cm.NewPolyShape(
 		b,
 		verts,
 		geom,
-		0,
+		3,
 	)
 
 	// shape := cm.NewBoxShape(b, kar.BlockSize*0.7, (kar.BlockSize*2)*0.7, 2)
+	// shape := cm.NewCircleShape(b, 16, vec.Vec2{})
 	shape.SetElasticity(el)
 	shape.SetFriction(fr)
 	b.SetPosition(pos)
