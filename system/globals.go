@@ -23,8 +23,6 @@ const itemAnimFrameCount int = 200
 
 var (
 	gameWorld            *world.World
-	ecsWorld             = donburi.NewWorld()
-	Space                = cm.NewSpace()
 	camera               *kamera.Camera
 	selectedSlotIndex    = 0
 	desktopDir           string

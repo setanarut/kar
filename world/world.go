@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 	"kar"
-	"kar/arche"
+	"kar/arc"
 	"kar/comp"
 	"kar/items"
 	"math"
@@ -57,17 +57,7 @@ func (tr *World) SpawnChunk(s *cm.Space, w donburi.World, chunkCoord image.Point
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockType != items.Air {
-				// arche.SpawnBlock(s, w, PixelToWorld(x, y), blockType)
-				arche.SpawnBlock(s, w, blockPos, blockType)
-
-				// if Camera != nil {
-				// 	x, y := resources.Cam.Target()
-				// 	camPos := vec.Vec2{x, y}
-				// 	if blockPos.Distance(camPos) < 10000 {
-				// 		arche.SpawnBlock(blockPos, blockType)
-				// 	}
-				// }
-
+				arc.SpawnBlock(blockPos, blockType)
 			}
 		}
 	}

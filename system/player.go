@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 	"kar"
-	"kar/arche"
+	"kar/arc"
 	"kar/comp"
 	"kar/engine/mathutil"
 	"kar/engine/util"
@@ -30,8 +30,8 @@ var (
 var (
 	filterPlayerRaycast = cm.ShapeFilter{
 		0,
-		arche.PlayerRayBit,
-		cm.AllCategories &^ arche.PlayerBit &^ arche.DropItemBit,
+		arc.PlayerRayBit,
+		cm.AllCategories &^ arc.PlayerBit &^ arc.DropItemBit,
 	}
 )
 var playerFlyModeDisabled = true
@@ -199,7 +199,7 @@ func DropSlotItem() {
 	id := playerInv.Slots[selectedSlotIndex].ID
 	if playerInv.Slots[selectedSlotIndex].Quantity > 0 {
 		playerInv.Slots[selectedSlotIndex].Quantity--
-		e := arche.SpawnDropItem(Space, ecsWorld, playerPos, id)
+		e := arc.SpawnDropItem(Space, ecsWorld, playerPos, id)
 		b := comp.Body.Get(e)
 		if IsFacingLeft {
 			b.ApplyImpulseAtLocalPoint(
@@ -250,7 +250,7 @@ func PlaceBlock() {
 				placeBB := cm.NewBBForExtents(placeBlockPos, kar.BlockSize/2, kar.BlockSize/2)
 				if !playerBody.ShapeAtIndex(0).BB.Intersects(placeBB) {
 					if removeItem(playerInv, id) {
-						arche.SpawnBlock(
+						arc.SpawnBlock(
 							Space,
 							ecsWorld,
 							placeBlockPos,

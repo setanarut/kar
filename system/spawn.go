@@ -2,7 +2,7 @@ package system
 
 import (
 	"kar"
-	"kar/arche"
+	"kar/arc"
 	"kar/comp"
 	"kar/items"
 	"kar/types"
@@ -34,7 +34,7 @@ func (s *Spawn) Init() {
 	findSpawnPosition()
 	gameWorld.LoadChunks(Space, ecsWorld, playerSpawnPos)
 	// playerEntry = arche.SpawnPlayer(Space, ecsWorld, playerSpawnPos, 2, 0, 0)
-	playerEntry = arche.SpawnMario(Space, ecsWorld, playerSpawnPos, 2, 0, 0)
+	playerEntry = arc.SpawnMario(Space, ecsWorld, playerSpawnPos, 2, 0, 0)
 	playerInv = comp.Inventory.Get(playerEntry)
 	playerBody = comp.Body.Get(playerEntry)
 	playerAnim = comp.AnimPlayer.Get(playerEntry)

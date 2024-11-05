@@ -3,7 +3,7 @@ package system
 import (
 	"fmt"
 	"kar"
-	"kar/arche"
+	"kar/arc"
 	"kar/comp"
 
 	"github.com/setanarut/cm"
@@ -13,8 +13,8 @@ import (
 
 var dropItemFilterCooldown = cm.ShapeFilter{
 	Group:      2,
-	Categories: arche.DropItemBit,
-	Mask:       cm.AllCategories &^ arche.PlayerRayBit,
+	Categories: arc.DropItemBit,
+	Mask:       cm.AllCategories &^ arc.PlayerRayBit,
 }
 
 type Physics struct{}
@@ -32,8 +32,8 @@ func (ps *Physics) Init() {
 
 	if true {
 		PlayerDropItemHandler := Space.NewCollisionHandler(
-			arche.Player,
-			arche.DropItem)
+			arc.Player,
+			arc.DropItem)
 
 		PlayerDropItemHandler.BeginFunc = PlayerDropItemBegin
 		// PlayerDropItemHandler.PreSolveFunc = PlayerDropItemPreCallback
@@ -42,8 +42,8 @@ func (ps *Physics) Init() {
 	}
 	if false {
 		DropItemBlockHandler := Space.NewCollisionHandler(
-			arche.DropItem,
-			arche.Block)
+			arc.DropItem,
+			arc.Block)
 		DropItemBlockHandler.BeginFunc = DropItemBlockBegin
 		DropItemBlockHandler.PreSolveFunc = DropItemBlockPre
 		DropItemBlockHandler.PostSolveFunc = DropItemBlockPost
