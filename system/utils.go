@@ -1,14 +1,13 @@
 package system
 
 import (
-	"kar/comp"
+	"kar"
+	"kar/arc"
 	"kar/items"
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/setanarut/cm"
-
-	"github.com/yohamta/donburi"
 )
 
 func getSprite(id uint16) *ebiten.Image {
@@ -24,56 +23,32 @@ func getSprite(id uint16) *ebiten.Image {
 	}
 }
 
-func getDisplayName(e *donburi.Entry) string {
-	return items.Property[comp.Item.Get(e).ID].DisplayName
-}
-func DisplayName(id uint16) string {
-	return items.Property[id].DisplayName
-}
-
-// destroy body with entry
-func destroyBody(b *cm.Body) {
-	if Space.ContainsBody(b) {
-		e := b.UserData.(*donburi.Entry)
-		e.Remove()
-		Space.AddPostStepCallback(removeBodyPostStep, b, false)
-	}
-}
-
-// destroy entry with body
-func destroyEntry(entry *donburi.Entry) {
-	if entry.Valid() {
-		if entry.HasComponent(comp.Body) {
-			body := comp.Body.Get(entry)
-			destroyBody(body)
-		}
-	}
-}
-
 func removeBodyPostStep(space *cm.Space, body, data interface{}) {
 	space.RemoveBodyWithShapes(body.(*cm.Body))
 }
 
-func resetHealthComponent(e *donburi.Entry) {
-	h := comp.Health.Get(e)
-	h.Health = h.MaxHealth
+func TimerIsReady(t *arc.Timer) bool {
+	return t.Elapsed > t.Duration
 }
 
-func getEntry(b *cm.Body) *donburi.Entry {
-	return b.UserData.(*donburi.Entry)
-}
-func checkEntry(b *cm.Body) bool {
-	e, ok := b.UserData.(*donburi.Entry)
-	return ok && e.Valid()
+func TimerUpdate(timer *arc.Timer) {
+	if timer.Elapsed < timer.Duration {
+		timer.Elapsed += kar.TimerTick
+	}
 }
 
-func getEntries(arb *cm.Arbiter) (*donburi.Entry, *donburi.Entry) {
-	a, b := arb.Bodies()
-	return a.UserData.(*donburi.Entry), b.UserData.(*donburi.Entry)
+// func timerRemaining(t *types.Timer) time.Duration {
+// 	return t.Duration - t.Elapsed
+// }
 
-}
+// func timerRemainingSecondsString(t *types.Timer) string {
+// 	return fmt.Sprintf("%.1fs", timerRemaining(t).Abs().Seconds())
+// }
 
-func checkEntries(arb *cm.Arbiter) bool {
-	aBody, bBody := arb.Bodies()
-	return checkEntry(aBody) && checkEntry(bBody)
-}
+// func timerReset(t *types.Timer) {
+// 	t.Elapsed = 0
+// }
+
+// func timerIsStart(t *types.Timer) bool {
+// 	return t.Elapsed == 0
+// }

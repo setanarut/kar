@@ -22,8 +22,8 @@ func addItem(inv *arc.Inventory, id uint16) bool {
 	return false
 }
 
-func removeHandItem(inv *arc.Inventory, id uint16) bool {
-	ok := hasHandItem(inv, id)
+func RemoveHandItem(inv *arc.Inventory, id uint16) bool {
+	ok := HasHandItem(inv, id)
 	if ok {
 		inv.HandSlot.Quantity--
 		return true
@@ -78,7 +78,7 @@ func hasItem(inv *arc.Inventory, id uint16) (index int, ok bool) {
 	}
 	return -1, false
 }
-func hasHandItem(inv *arc.Inventory, id uint16) bool {
+func HasHandItem(inv *arc.Inventory, id uint16) bool {
 	if inv.HandSlot.ID == id && inv.HandSlot.Quantity > 0 {
 		return true
 	}

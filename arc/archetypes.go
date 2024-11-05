@@ -19,24 +19,25 @@ import (
 
 type vec2 = vec.Vec2
 
-var PlayerMapper5 = generic.NewMap5[Health, DrawOptions, anim.AnimationPlayer,
-	cm.Body, Inventory](&kar.WorldECS)
-var PlayerFilter5 = generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer,
-	cm.Body, Inventory]()
+var PlayerMapper5 = generic.NewMap5[Health, DrawOptions, anim.AnimationPlayer, cm.Body, Inventory](&kar.WorldECS)
+var DropItemMapper = generic.NewMap6[DrawOptions, cm.Body, Item, CollisionTimer, Countdown, Index](&kar.WorldECS)
+var BlockMapper4 = generic.NewMap4[Health, DrawOptions, cm.Body, Item](&kar.WorldECS)
+var BodyMapper = generic.NewMap1[cm.Body](&kar.WorldECS)
+var ItemMapper = generic.NewMap1[Item](&kar.WorldECS)
+var AnimPlayerMapper = generic.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
 
-var BlockMapper4 = generic.NewMap4[
-	Health, DrawOptions, cm.Body, Item](&kar.WorldECS)
+var PlayerFilter = generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer, cm.Body, Inventory]()
+var DropItemFilter = generic.NewFilter6[DrawOptions, cm.Body, Item, CollisionTimer, Countdown, Index]()
+var ItemFilter = generic.NewFilter1[Item]()
 var BlockFilter = generic.NewFilter4[Health, DrawOptions, cm.Body, Item]()
-
-var DropItemMapper6 = generic.NewMap6[
-	DrawOptions, cm.Body, Item, CollisionTimer, Countdown, Index](&kar.WorldECS)
-
-var DropItemFilter = generic.NewFilter6[DrawOptions, cm.Body, Item,
-	CollisionTimer, Countdown, Index]()
-
 var CountdownFilter = generic.NewFilter1[Countdown]()
+var AnimationPlayerFilter = generic.NewFilter1[anim.AnimationPlayer]()
 
+// var ItemFilter = ecs.All(ItemID)
 var BodyID = ecs.ComponentID[cm.Body](&kar.WorldECS)
+var InvID = ecs.ComponentID[Inventory](&kar.WorldECS)
+var ItemID = ecs.ComponentID[Item](&kar.WorldECS)
+var HealthID = ecs.ComponentID[Health](&kar.WorldECS)
 
 func NewInventory() *Inventory {
 	inv := &Inventory{}
@@ -102,43 +103,7 @@ func SpawnDropItem(pos vec2, id uint16) ecs.Entity {
 
 	body.SetPosition(pos)
 	kar.Space.AddBodyWithShapes(body)
-	e := DropItemMapper6.NewWith(dop, body, itm, collt, ct, idx)
-	body.UserData = e
-	return e
-}
-
-func SpawnPlayer(pos vec2) ecs.Entity {
-	hlt := &Health{100, 100}
-
-	ap := anim.NewAnimationPlayer(res.AtlasPlayer)
-	ap.NewAnimationState("idleRight", 0, 0, 16, 16, 1, false, false).FPS = 1
-	ap.NewAnimationState("idleFront", 16*2, 0, 16, 16, 1, false, false).FPS = 1
-	ap.NewAnimationState("digRight", 0, 16*2, 16, 16, 6, false, false)
-	ap.NewAnimationState("digDown", 0, 16*3, 16, 16, 6, false, false)
-	ap.NewAnimationState("walkRight", 0, 16*4, 16, 16, 6, false, false)
-	ap.NewAnimationState("falling", 16, 16*5, 16, 16, 1, false, false)
-
-	playerScaleFactor := 3.0
-
-	dop := &DrawOptions{
-		CenterOffset: util.ImageCenterOffset(ap.CurrentFrame),
-		Scale:        vec.Vec2{playerScaleFactor, playerScaleFactor},
-	}
-
-	body := cm.NewBody(1, math.MaxFloat64)
-	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
-	geom := cm.NewTransformTranslate(vec.Vec2{0, -4})
-	geom.Scale(playerScaleFactor, playerScaleFactor)
-
-	shape := cm.NewPolyShape(body, verts, geom, 3)
-	shape.Elasticity, shape.Friction = 0, 0
-	shape.SetCollisionType(Player)
-	shape.SetShapeFilter(PlayerCollisionFilter)
-
-	body.SetPosition(pos)
-	kar.Space.AddBodyWithShapes(body)
-
-	e := PlayerMapper5.NewWith(hlt, dop, ap, body, NewInventory())
+	e := DropItemMapper.NewWith(dop, body, itm, collt, ct, idx)
 	body.UserData = e
 	return e
 }
@@ -167,11 +132,10 @@ func SpawnMario(pos vec2) ecs.Entity {
 	shape.Elasticity, shape.Friction = 0, 0
 	shape.SetCollisionType(Player)
 	shape.SetShapeFilter(PlayerCollisionFilter)
-
-	body.SetPosition(pos)
+	shape.UserData = "DENEME"
 	kar.Space.AddBodyWithShapes(body)
-
 	e := PlayerMapper5.NewWith(hlt, dop, ap, body, NewInventory())
+	body.SetPosition(pos)
 	body.UserData = e
 	return e
 }

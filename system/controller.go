@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"kar"
 	"kar/engine/mathutil"
 	"math"
 
@@ -69,7 +70,6 @@ var (
 	zero  = vec.Vec2{0, 0}
 )
 
-var velocity = vec.Vec2{}
 var isOnFloor = true
 
 const MovingThreshold float64 = 0.1
@@ -79,13 +79,15 @@ type States struct{}
 func (sys *States) Init() {
 
 	fsm.SetState(fsm.Idle)
+	playerBody.SetVelocityUpdateFunc(VelocityFunc)
 
 }
 func (sys *States) Draw() {}
 func (sys *States) Update() {
-	if playerEntry.Valid() {
 
-		velocity = playerBody.Velocity()
+	if kar.WorldECS.Alive(playerEntity) {
+		fmt.Println(inputAxis, inputAxisLast)
+		velocity := playerBody.Velocity()
 		isOnFloor = OnFloor(playerBody)
 
 		isCrouching = isOnFloor && ebiten.IsKeyPressed(ebiten.KeyDown)
@@ -110,10 +112,6 @@ func (sys *States) Update() {
 			playerDrawOptions.FlipX = false
 		}
 		fsm.Update()
-		// UpdateAnimationStates(
-		// 	comp.AnimPlayer.Get(playerEntry),
-		// 	comp.DrawOptions.Get(playerEntry),
-		// )
 	}
 }
 
@@ -321,6 +319,7 @@ func MoveToward(from, to, delta float64) float64 {
 }
 
 func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
+	velocity := body.Velocity()
 
 	if isOnFloor {
 		if isCrouching && inputAxis.X != 0 {
@@ -341,7 +340,6 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 				}
 			}
 			velocity.Y = jumpSpeeds[speedThreshold]
-
 		}
 	} else {
 		var gravity = gravities[speedThreshold]

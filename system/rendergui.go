@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"kar"
-	"kar/comp"
 	"kar/items"
 	"kar/res"
 	"strconv"
@@ -29,7 +28,6 @@ func (gui *RenderGUI) Init() {
 	gui.itemsDIO = &eb.DrawImageOptions{}
 	gui.itemQuantityTextDO = &text.DrawOptions{}
 	fontSmallDrawOptions.GeoM.Translate(30, 26)
-
 	selectedIm.Fill(color.White)
 
 	hudTextTemplate = `
@@ -47,8 +45,8 @@ Vel      %v
 func (gui *RenderGUI) Update() {
 }
 func (gui *RenderGUI) Draw() {
-	if playerEntry.Valid() {
-		playerInv := comp.Inventory.Get(playerEntry)
+
+	if kar.WorldECS.Alive(playerEntity) {
 		// Draw hotbar
 		if playerInv.Slots[selectedSlotIndex].ID == items.Air {
 			selectedSlotDisplayName = ""
@@ -102,11 +100,11 @@ func (gui *RenderGUI) Draw() {
 			gameWorld.PlayerChunk.Y,
 			int(eb.ActualTPS()),
 			int(eb.ActualFPS()),
-			ecsWorld.Len(),
+			kar.WorldECS.Stats().Entities.Used,
 			items.Property[playerInv.HandSlot.ID].DisplayName,
 			playerInv.HandSlot.Quantity,
 			selectedSlotDisplayName,
-			playerBody.Velocity(),
+			playerBody.Position(),
 		)
 
 		text.Draw(kar.Screen, txt, res.FontSmall, fontSmallDrawOptions)
