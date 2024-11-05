@@ -24,20 +24,17 @@ var DropItemMapper = generic.NewMap6[DrawOptions, cm.Body, Item, CollisionTimer,
 var BlockMapper4 = generic.NewMap4[Health, DrawOptions, cm.Body, Item](&kar.WorldECS)
 var BodyMapper = generic.NewMap1[cm.Body](&kar.WorldECS)
 var ItemMapper = generic.NewMap1[Item](&kar.WorldECS)
+var HealthMapper = generic.NewMap[Health](&kar.WorldECS)
 var AnimPlayerMapper = generic.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
+var InventoryMapper = generic.NewMap1[Inventory](&kar.WorldECS)
 
-var PlayerFilter = generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer, cm.Body, Inventory]()
+var PlayerFilter = *generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer, cm.Body, Inventory]()
 var DropItemFilter = generic.NewFilter6[DrawOptions, cm.Body, Item, CollisionTimer, Countdown, Index]()
 var ItemFilter = generic.NewFilter1[Item]()
+var FilterInventory = generic.NewFilter1[Inventory]()
 var BlockFilter = generic.NewFilter4[Health, DrawOptions, cm.Body, Item]()
 var CountdownFilter = generic.NewFilter1[Countdown]()
 var AnimationPlayerFilter = generic.NewFilter1[anim.AnimationPlayer]()
-
-// var ItemFilter = ecs.All(ItemID)
-var BodyID = ecs.ComponentID[cm.Body](&kar.WorldECS)
-var InvID = ecs.ComponentID[Inventory](&kar.WorldECS)
-var ItemID = ecs.ComponentID[Item](&kar.WorldECS)
-var HealthID = ecs.ComponentID[Health](&kar.WorldECS)
 
 func NewInventory() *Inventory {
 	inv := &Inventory{}

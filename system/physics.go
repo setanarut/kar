@@ -62,12 +62,9 @@ func PlayerDropItemBegin(arb *cm.Arbiter, s *cm.Space, dat any) bool {
 	a, b := arb.Bodies()
 	player := a.UserData.(ecs.Entity)
 	dropItem := b.UserData.(ecs.Entity)
-	// arc.DropItemMapper.Get(player)
-
-	inv := (*arc.Inventory)(kar.WorldECS.Get(player, arc.InvID))
-	item := (*arc.Item)(kar.WorldECS.Get(dropItem, arc.ItemID))
-
-	ok := addItem(inv, item.ID)
+	inv := arc.InventoryMapper.Get(player)
+	itm := arc.ItemMapper.Get(dropItem)
+	ok := addItem(inv, itm.ID)
 	if ok {
 		kar.Space.AddPostStepCallback(removeBodyPostStep, b, nil)
 		kar.WorldECS.RemoveEntity(dropItem)

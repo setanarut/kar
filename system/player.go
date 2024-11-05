@@ -236,7 +236,7 @@ func ResetHitBlockHealth() {
 		e := hitShape.Body.UserData.(ecs.Entity)
 		if kar.WorldECS.Alive(e) {
 			if hitShape.CollisionType == arc.Block {
-				h := (*arc.Health)(kar.WorldECS.Get(e, arc.HealthID))
+				h := arc.HealthMapper.Get(e)
 				h.Health = h.MaxHealth
 			}
 		}
@@ -263,9 +263,9 @@ func GiveDamageToBlock() {
 	if hitShape != nil {
 		e := hitShape.Body.UserData.(ecs.Entity)
 		if kar.WorldECS.Alive(e) {
-			itm := (*arc.Item)(kar.WorldECS.Get(e, arc.ItemID))
-			if items.IsBreakable(itm.ID) && kar.WorldECS.Has(e, arc.HealthID) {
-				h := (*arc.Health)(kar.WorldECS.Get(e, arc.HealthID))
+			itm := arc.ItemMapper.Get(e)
+			if items.IsBreakable(itm.ID) && arc.HealthMapper.Has(e) {
+				h := arc.HealthMapper.Get(e)
 				if h.Health <= 0 {
 					fmt.Println("Blok sağlığı 0")
 					removeBodyPostStep(kar.Space, hitShape.Body, nil)
