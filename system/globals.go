@@ -12,10 +12,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/setanarut/cm"
 	"github.com/setanarut/ebitencm"
 	"github.com/setanarut/kamera/v2"
-	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 )
 

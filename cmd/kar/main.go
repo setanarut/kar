@@ -3,7 +3,6 @@ package main
 import (
 	"kar"
 	"kar/system"
-	"kar/types"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,7 +28,7 @@ func main() {
 }
 
 type Game struct {
-	systems []types.ISystem
+	systems []kar.ISystem
 }
 
 func NewGame() *Game {
@@ -37,7 +36,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) Init() {
-	g.systems = []types.ISystem{
+	g.systems = []kar.ISystem{
 		&system.Input{},
 		&system.Spawn{},
 		&system.Physics{},

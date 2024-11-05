@@ -16,3 +16,9 @@ var (
 	WorldECS = ecs.NewWorld()
 	Space    = cm.NewSpace()
 )
+
+type ISystem interface {
+	Init()
+	Update()
+	Draw()
+}

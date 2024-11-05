@@ -8,7 +8,6 @@ import (
 
 	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
-	"github.com/yohamta/donburi"
 )
 
 var dropItemFilterCooldown = cm.ShapeFilter{
@@ -20,18 +19,18 @@ var dropItemFilterCooldown = cm.ShapeFilter{
 type Physics struct{}
 
 func (ps *Physics) Init() {
-	Space.SetGravity(vec.Vec2{0, kar.Gravity})
-	Space.CollisionBias = kar.CollisionBias
-	Space.CollisionSlop = kar.CollisionSlop
-	Space.Damping = kar.Damping
-	Space.Iterations = kar.Iterations
+	kar.Space.SetGravity(vec.Vec2{0, kar.Gravity})
+	kar.Space.CollisionBias = kar.CollisionBias
+	kar.Space.CollisionSlop = kar.CollisionSlop
+	kar.Space.Damping = kar.Damping
+	kar.Space.Iterations = kar.Iterations
 
 	if kar.UseSpatialHash {
-		Space.UseSpatialHash(128, 800)
+		kar.Space.UseSpatialHash(128, 800)
 	}
 
 	if true {
-		PlayerDropItemHandler := Space.NewCollisionHandler(
+		PlayerDropItemHandler := kar.Space.NewCollisionHandler(
 			arc.Player,
 			arc.DropItem)
 
@@ -41,7 +40,7 @@ func (ps *Physics) Init() {
 
 	}
 	if false {
-		DropItemBlockHandler := Space.NewCollisionHandler(
+		DropItemBlockHandler := kar.Space.NewCollisionHandler(
 			arc.DropItem,
 			arc.Block)
 		DropItemBlockHandler.BeginFunc = DropItemBlockBegin
@@ -51,31 +50,8 @@ func (ps *Physics) Init() {
 }
 
 func (ps *Physics) Update() {
-	Space.Step(kar.DeltaTime)
+	kar.Space.Step(kar.DeltaTime)
 
-	// Destroy counter for stucked drop item
-	comp.TagDropItem.Each(ecsWorld, func(dropEntry *donburi.Entry) {
-		dropShape := comp.Body.Get(dropEntry).Shapes[0]
-		Space.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
-			e := shape.Body.UserData.(*donburi.Entry)
-			if e.HasComponent(comp.TagBlock) {
-				if shape.BB.Contains(dropShape.BB.Offset(vec2{-3, -3})) {
-					ct := comp.StuckCountdown.Get(dropEntry)
-					ct.Duration -= 1
-				}
-			}
-		})
-	})
-
-	// Collision filter cooldown for item
-	comp.CollisionTimer.Each(ecsWorld, func(e *donburi.Entry) {
-		tm := comp.CollisionTimer.Get(e)
-		if timerIsReady(tm) {
-			shape := comp.Body.Get(e).Shapes[0]
-			shape.SetShapeFilter(dropItemFilterCooldown)
-		} else {
-		}
-	})
 }
 
 func (ps *Physics) Draw() {}
