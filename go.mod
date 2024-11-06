@@ -6,7 +6,7 @@ require (
 	github.com/anthonynsimon/bild v0.14.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.3
 	github.com/setanarut/anim v1.0.2
-	github.com/setanarut/cm v1.13.0
+	github.com/setanarut/cm v1.13.1
 	github.com/setanarut/ebitencm v1.7.0
 	github.com/setanarut/fastnoise v1.1.1
 	github.com/setanarut/kamera/v2 v2.8.0

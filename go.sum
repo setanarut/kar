@@ -26,8 +26,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/setanarut/anim v1.0.2 h1:3G4kHFX5+UsWoRH27xWbjX296FdZgtRu8s+TPWFRAQc=
 github.com/setanarut/anim v1.0.2/go.mod h1:Ns8iCMlyHFuCOLB3+MzOUpZDutfXVSM2+1MVOtdoC5A=
-github.com/setanarut/cm v1.13.0 h1:Q2nWHt6+qDSITYBmfPOJZcrQO7O7eUPLgz7UjBkPNvQ=
-github.com/setanarut/cm v1.13.0/go.mod h1:XHZUdrVAuqVbrvJETGKb+0yFtyirJwiM2A4jMSw8+Pk=
+github.com/setanarut/cm v1.13.1 h1:CDcl3lASUX3q4iNZlvMSPUWOL6GTqVd900D0CYBAeRo=
+github.com/setanarut/cm v1.13.1/go.mod h1:83LtyTyTN89nQlvjiwAITEwNGhKZ7YmmM0PC9tZiemg=
 github.com/setanarut/ebitencm v1.7.0 h1:wAAMYqQD/bMdI3eGVKlAoOdTBjlbc9Ej63iADbqsy3M=
 github.com/setanarut/ebitencm v1.7.0/go.mod h1:E8G3EGnF3tFo0q6XGgS1dplk99iGj/HLPOlie3yj9gc=
 github.com/setanarut/fastnoise v1.1.1 h1:cD9gUjY9GMxVab+B7AY09j2GAHMdiKzchDE5z6dQ7eE=

@@ -28,12 +28,9 @@ var HealthMapper = generic.NewMap[Health](&kar.WorldECS)
 var AnimPlayerMapper = generic.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
 var InventoryMapper = generic.NewMap1[Inventory](&kar.WorldECS)
 
-var PlayerFilter = *generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer, CmBody, Inventory]()
 var DropItemFilter = generic.NewFilter6[DrawOptions, CmBody, Item, CollisionTimer, Countdown, Index]()
 var ItemFilter = generic.NewFilter1[Item]()
-var FilterInventory = generic.NewFilter1[Inventory]()
 var BlockFilter = generic.NewFilter4[Health, DrawOptions, CmBody, Item]()
-var CountdownFilter = generic.NewFilter1[Countdown]()
 var AnimationPlayerFilter = generic.NewFilter1[anim.AnimationPlayer]()
 
 func NewInventory() *Inventory {
