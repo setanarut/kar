@@ -3,21 +3,18 @@ package system
 import (
 	"image/color"
 	"kar"
-	"kar/comp"
+	"kar/arc"
 	"kar/engine/mathutil"
 	"kar/engine/util"
 	"kar/engine/vectorg"
 	"kar/items"
 	"kar/res"
-	"kar/types"
 
 	"github.com/setanarut/cm"
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
-	"golang.org/x/image/colornames"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
-	"github.com/yohamta/donburi"
 )
 
 type Render struct{}
@@ -25,16 +22,19 @@ type Render struct{}
 func (rn *Render) Init() {
 
 	vectorg.GlobalTransform = &eb.GeoM{}
-	if playerEntry.Valid() {
+	if kar.WorldECS.Alive(playerEntity) {
 		x, y := playerSpawnPos.X, playerSpawnPos.Y
 		camera = kamera.NewCamera(x, y, kar.ScreenSize.X, kar.ScreenSize.Y)
 	} else {
 		camera = kamera.NewCamera(0, 0, kar.ScreenSize.X, kar.ScreenSize.Y)
 	}
-	camera.Lerp = true
+	camera.LerpEnabled = true
 }
 
 func (rn *Render) Update() {
+	if justPressed(eb.KeyX) {
+		debugDrawingEnabled = !debugDrawingEnabled
+	}
 	vectorg.GlobalTransform.Reset()
 	cmDrawer.GeoM.Reset()
 	camera.ApplyCameraTransform(cmDrawer.GeoM)
@@ -60,105 +60,76 @@ func (rn *Render) Update() {
 		camera.ZoomFactor = 1
 	}
 
-	comp.AnimPlayer.Each(ecsWorld, func(e *donburi.Entry) {
-		comp.AnimPlayer.Get(e).Update()
-	})
+	q := arc.AnimationPlayerFilter.Query(&kar.WorldECS)
+	for q.Next() {
+		q.Get().Update()
+	}
+
 }
 
 func (rn *Render) Draw() {
+
 	// Clear color
 	kar.Screen.Fill(color.RGBA{64, 68, 108, 255})
-	comp.TagDropItem.Each(ecsWorld, drawDropItem)
-	comp.TagBlock.Each(ecsWorld, drawBlock)
+
+	drawDropItems()
+	drawBlocks()
 	drawPlayer()
-	comp.TagHarvestable.Each(ecsWorld, drawHarvestableBlock)
-	comp.TagDebugBox.Each(ecsWorld, drawDebugBox)
+
 	if drawBlockBorderEnabled {
 		drawBlockBorder()
 	}
+
 }
 
 func drawBlockBorder() {
 	if hitShape != nil {
 		dio := &eb.DrawImageOptions{}
-		dio.ColorScale.ScaleWithColor(colornames.Black)
-		dio.GeoM.Translate(
-			hitBlockPos.X+blockCenterOffset.X,
-			hitBlockPos.Y+blockCenterOffset.Y)
+		dio.GeoM.Translate(hitBlockPos.X+blockCenterOffset.X, hitBlockPos.Y+blockCenterOffset.Y)
 		camera.Draw(res.Border, dio, kar.Screen)
 	}
 }
 
 func drawPlayer() {
-	if playerEntry.Valid() {
-		pBody := comp.Body.Get(playerEntry)
-		drawOpt := comp.DrawOptions.Get(playerEntry)
-		playerPos := pBody.Position()
-		applyDIO(drawOpt, playerPos)
-		ap := comp.AnimPlayer.Get(playerEntry)
-		if ap.CurrentFrame != nil {
-			camera.Draw(ap.CurrentFrame, globalDIO, kar.Screen)
+	if kar.WorldECS.Alive(playerEntity) {
+		applyDIO(playerDrawOptions, playerBody.Position())
+		if playerAnim.CurrentFrame != nil {
+			camera.Draw(playerAnim.CurrentFrame, globalDIO, kar.Screen)
 		}
 		if debugDrawingEnabled {
-			cm.DrawSpace(Space, cmDrawer.WithScreen(kar.Screen))
+			cm.DrawSpace(kar.Space, cmDrawer.WithScreen(kar.Screen))
 			vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
 		}
 	}
 }
 
-func drawDropItem(e *donburi.Entry) {
-	pos := comp.Body.Get(e).Position()
-	drawOpt := comp.DrawOptions.Get(e)
-	itemData := comp.Item.Get(e)
-	// Item sin animation
-	datai := comp.Index.Get(e)
-	pos.Y += sinSpaceFrames[datai.Index]
-	applyDIO(drawOpt, pos)
-	camera.Draw(getSprite(itemData.ID), globalDIO, kar.Screen)
+func drawDropItems() {
+	q := arc.DropItemFilter.Query(&kar.WorldECS)
+	for q.Next() {
+		dop, bd, itm, _, _, idx := q.Get()
+		pos := bd.Body.Position()
+		pos.Y += sinSpaceFrames[idx.Index]
+		applyDIO(dop, pos)
+		camera.Draw(getSprite(itm.ID), globalDIO, kar.Screen)
+	}
 }
-
-func drawBlock(e *donburi.Entry) {
-	body := comp.Body.Get(e)
-	pos := body.Position()
-	itemData := comp.Item.Get(e)
-	healthData := comp.Health.Get(e)
-	imgIndex := int(
-		mathutil.MapRange(healthData.Health, healthData.MaxHealth, 0, 0, 10),
-	)
-	if util.CheckIndex(res.Frames[itemData.ID], imgIndex) {
-		drawOpt := comp.DrawOptions.Get(e)
-		applyDIO(drawOpt, pos)
-		camera.Draw(res.Frames[itemData.ID][imgIndex], globalDIO, kar.Screen)
+func drawBlocks() {
+	q := arc.BlockFilter.Query(&kar.WorldECS)
+	for q.Next() {
+		h, dop, bd, itm := q.Get()
+		imgIndex := int(mathutil.MapRange(h.Health, h.MaxHealth, 0, 0, 10))
+		if util.CheckIndex(res.Frames[itm.ID], imgIndex) {
+			applyDIO(dop, bd.Body.Position())
+			if items.IsHarvestable(itm.ID) {
+				camera.Draw(res.Frames[itm.ID][0], globalDIO, kar.Screen)
+			} else {
+				camera.Draw(res.Frames[itm.ID][imgIndex], globalDIO, kar.Screen)
+			}
+		}
 	}
 }
 
-func drawHarvestableBlock(e *donburi.Entry) {
-	body := comp.Body.Get(e)
-	pos := body.Position()
-	itemData := comp.Item.Get(e)
-	drawOpt := comp.DrawOptions.Get(e)
-	applyDIO(drawOpt, pos)
-	camera.Draw(
-		res.Frames[itemData.ID][0],
-		globalDIO,
-		kar.Screen,
-	)
-}
-
-func drawDebugBox(e *donburi.Entry) {
-	b := comp.Body.Get(e)
-	pos := b.Position()
-	drawOpt := comp.DrawOptions.Get(e)
-	drawOpt.Rotation = b.Angle()
-	applyDIO(drawOpt, pos)
-	camera.Draw(
-		res.Frames[items.Stone][0],
-		globalDIO,
-		kar.Screen,
-	)
-}
-
-func applyDIO(drawOpt *types.DrawOptions, pos vec.Vec2) {
+func applyDIO(drawOpt *arc.DrawOptions, pos vec.Vec2) {
 	scl := drawOpt.Scale
 	if drawOpt.FlipX {
 		scl.X *= -1

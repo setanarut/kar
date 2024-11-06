@@ -1,27 +1,22 @@
-package types
+package arc
 
 import (
 	"image"
 	"image/color"
 	"time"
 
+	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
-
-	"github.com/yohamta/donburi"
 )
 
-type ISystem interface {
-	Init()
-	Update()
-	Draw()
+type CmBody struct {
+	Body *cm.Body
 }
+
+type CollisionTimer Timer
+
 type Countdown struct {
 	Duration uint8
-}
-type AI struct {
-	Target     *donburi.Entry
-	Follow     bool
-	FollowDist float64
 }
 
 type DrawOptions struct {
@@ -59,6 +54,7 @@ type ItemStack struct {
 	ID       uint16
 	Quantity uint8
 }
+
 type Health struct {
 	Health    float64
 	MaxHealth float64

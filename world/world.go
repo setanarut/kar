@@ -4,16 +4,17 @@ import (
 	"image"
 	"image/color"
 	"kar"
-	"kar/arche"
-	"kar/comp"
+	"kar/arc"
 	"kar/items"
 	"math"
 	"slices"
 
+	"github.com/mlange-42/arche/ecs"
 	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
-	"github.com/yohamta/donburi"
 )
+
+var toRemove []ecs.Entity
 
 var mooreNeighbors = [8]image.Point{
 	{1, 0},
@@ -47,7 +48,7 @@ func NewWorld(w, h float64, chunkSize vec.Vec2, blockSize float64) *World {
 	return terr
 }
 
-func (tr *World) SpawnChunk(s *cm.Space, w donburi.World, chunkCoord image.Point) {
+func (tr *World) SpawnChunk(chunkCoord image.Point) {
 	ChunkSizeX, ChunkSizeY := int(tr.ChunkSize.X), int(tr.ChunkSize.Y)
 	for y := 0; y < ChunkSizeY; y++ {
 		for x := 0; x < ChunkSizeX; x++ {
@@ -57,31 +58,21 @@ func (tr *World) SpawnChunk(s *cm.Space, w donburi.World, chunkCoord image.Point
 			blockPos := vec.Vec2{float64(blockX), float64(blockY)}
 			blockPos = blockPos.Scale(tr.BlockSize)
 			if blockType != items.Air {
-				// arche.SpawnBlock(s, w, PixelToWorld(x, y), blockType)
-				arche.SpawnBlock(s, w, blockPos, blockType)
-
-				// if Camera != nil {
-				// 	x, y := resources.Cam.Target()
-				// 	camPos := vec.Vec2{x, y}
-				// 	if blockPos.Distance(camPos) < 10000 {
-				// 		arche.SpawnBlock(blockPos, blockType)
-				// 	}
-				// }
-
+				arc.SpawnBlock(blockPos, blockType)
 			}
 		}
 	}
 }
 
-func (tr *World) LoadChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
+func (tr *World) LoadChunks(playerPos vec.Vec2) {
 	tr.LoadedChunks = GetPlayerNeighborChunks(WorldToChunk(playerPos))
 	for _, coord := range tr.LoadedChunks {
-		tr.SpawnChunk(s, w, coord)
+		tr.SpawnChunk(coord)
 	}
 }
 
 // Spawn/Destroy chunks
-func (tr *World) UpdateChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) {
+func (tr *World) UpdateChunks(playerPos vec.Vec2) {
 
 	playerChunkTemp := WorldToChunk(playerPos)
 	if tr.PlayerChunk != playerChunkTemp {
@@ -91,13 +82,13 @@ func (tr *World) UpdateChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) 
 
 		for _, toLoad := range neighborChunks {
 			if !slices.Contains(intersectionChunks, toLoad) {
-				tr.SpawnChunk(s, w, toLoad)
+				tr.SpawnChunk(toLoad)
 			}
 		}
 
 		for _, toUnload := range tr.LoadedChunks {
 			if !slices.Contains(intersectionChunks, toUnload) {
-				tr.DeSpawnChunk(w, toUnload)
+				tr.DeSpawnChunk(toUnload)
 			}
 		}
 
@@ -107,13 +98,27 @@ func (tr *World) UpdateChunks(s *cm.Space, w donburi.World, playerPos vec.Vec2) 
 
 }
 
-func (tr *World) DeSpawnChunk(w donburi.World, chunkCoord image.Point) {
-	comp.Item.Each(w, func(e *donburi.Entry) {
-		if comp.Item.Get(e).Chunk == chunkCoord {
-			b := comp.Body.Get(e)
-			destroyBodyWithEntry(b)
+func (tr *World) DeSpawnChunk(chunkCoord image.Point) {
+
+	q := arc.ItemFilter.Query(&kar.WorldECS)
+	for q.Next() {
+		itm := q.Get()
+		e := q.Entity()
+		if itm.Chunk == chunkCoord {
+			b := arc.BodyMapper.Get(e)
+			kar.Space.AddPostStepCallback(removeBodyPostStep, b.Body, nil)
+			toRemove = append(toRemove, e)
 		}
-	})
+	}
+
+	// The world is unlocked again.
+	// Actually remove the collected entities.
+	for _, e := range toRemove {
+		kar.WorldECS.RemoveEntity(e)
+	}
+
+	// Empty the slice, so we can reuse it in the next time step.
+	toRemove = toRemove[:0]
 }
 
 func (tr *World) ChunkImage(chunkCoord image.Point) *image.Gray16 {
@@ -202,15 +207,6 @@ func GetPlayerNeighborChunks(playerChunk image.Point) []image.Point {
 		playerChunks = append(playerChunks, playerChunk.Add(neighbor))
 	}
 	return playerChunks
-}
-
-func destroyBodyWithEntry(b *cm.Body) {
-	s := b.Shapes[0].Space
-	if s.ContainsBody(b) {
-		e := b.UserData.(*donburi.Entry)
-		e.Remove()
-		s.AddPostStepCallback(removeBodyPostStep, b, false)
-	}
 }
 
 func removeBodyPostStep(space *cm.Space, body, data interface{}) {

@@ -1,11 +1,11 @@
 package system
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"kar"
-	"kar/arche"
-	"kar/comp"
+	"kar/arc"
 	"kar/engine/mathutil"
 	"kar/engine/util"
 	"kar/items"
@@ -13,6 +13,7 @@ import (
 	"kar/world"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
+	"github.com/mlange-42/arche/ecs"
 	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
 )
@@ -22,7 +23,7 @@ type vec2 = vec.Vec2
 var (
 	attackSegQuery                                             cm.SegmentQueryInfo
 	hitShape                                                   *cm.Shape
-	playerPos, placeBlockPos, hitBlockPos, attackSegEnd        vec2
+	placeBlockPos, hitBlockPos, attackSegEnd                   vec2
 	playerPixelCoord, placeBlockPixelCoord, hitBlockPixelCoord image.Point
 	hitItemID                                                  uint16
 )
@@ -30,8 +31,8 @@ var (
 var (
 	filterPlayerRaycast = cm.ShapeFilter{
 		0,
-		arche.PlayerRayBit,
-		cm.AllCategories &^ arche.PlayerBit &^ arche.DropItemBit,
+		arc.PlayerRayBit,
+		cm.AllCategories &^ arc.PlayerBit &^ arc.DropItemBit,
 	}
 )
 var playerFlyModeDisabled = true
@@ -46,27 +47,28 @@ func (plr *Player) Draw() {
 }
 func (plr *Player) Update() {
 
-	if playerEntry.Valid() {
+	if kar.WorldECS.Alive(playerEntity) {
+
 		playerPixelCoord = world.WorldToPixel(playerPos)
 		attackSegEnd = playerPos.Add(inputAxisLast.Scale(kar.BlockSize * 3.5))
 		hitShape = attackSegQuery.Shape
-
 		if hitShape != nil {
-			if checkEntry(hitShape.Body) {
-				e := getEntry(hitShape.Body)
-				if e.HasComponent(comp.TagBlock) {
-					hitItemID = comp.Item.Get(e).ID
+			e := hitShape.Body.UserData.(ecs.Entity)
+			if kar.WorldECS.Alive(e) {
+				if hitShape.CollisionType == arc.Block {
+					hitItemID = arc.ItemMapper.Get(e).ID
 				} else {
 					hitItemID = items.Air
 				}
+				hitBlockPos = hitShape.Body.Position()
+				hitBlockPixelCoord = world.WorldToPixel(hitBlockPos)
+				placeBlockPos = hitBlockPos.Add(attackSegQuery.Normal.Scale(kar.BlockSize))
+				placeBlockPixelCoord = world.WorldToPixel(placeBlockPos)
 			}
-			hitBlockPos = hitShape.Body.Position()
-			hitBlockPixelCoord = world.WorldToPixel(hitBlockPos)
-			placeBlockPos = hitBlockPos.Add(attackSegQuery.Normal.Scale(kar.BlockSize))
-			placeBlockPixelCoord = world.WorldToPixel(placeBlockPos)
+
 		}
 
-		attackSegQuery = Space.SegmentQueryFirst(
+		attackSegQuery = kar.Space.SegmentQueryFirst(
 			playerPos,
 			attackSegEnd,
 			0,
@@ -123,9 +125,6 @@ func (plr *Player) Update() {
 	UpdateFunctionKeys()
 }
 func UpdateFunctionKeys() {
-	if justPressed(eb.KeyX) {
-		debugDrawingEnabled = !debugDrawingEnabled
-	}
 	if justPressed(eb.KeyF4) {
 		go util.WritePNG(
 			res.Frames[items.Dirt][0],
@@ -150,6 +149,20 @@ func UpdateFunctionKeys() {
 }
 
 func UpdateSlotInput() {
+
+	if justPressed(eb.KeyK) {
+		// playerBody.SetVelocity(1, 0)
+		// fmt.Println(playerBody.Velocity(), playerBody.Position())
+		playerBody.SetPosition(playerBody.Position().Add(vec.Vec2{10, 0}))
+		kar.Space.ReindexShape(playerBody.ShapeAtIndex(0))
+	}
+	if justPressed(eb.KeyJ) {
+		// playerBody.SetVelocity(1, 0)
+		// fmt.Println(playerBody.Velocity(), playerBody.Position())
+		playerBody.SetPosition(playerBody.Position().Add(vec.Vec2{0, 10}))
+		kar.Space.ReindexShape(playerBody.ShapeAtIndex(0))
+	}
+
 	if justPressed(eb.Key1) {
 		selectedSlotIndex = 0
 	}
@@ -199,43 +212,75 @@ func DropSlotItem() {
 	id := playerInv.Slots[selectedSlotIndex].ID
 	if playerInv.Slots[selectedSlotIndex].Quantity > 0 {
 		playerInv.Slots[selectedSlotIndex].Quantity--
-		e := arche.SpawnDropItem(Space, ecsWorld, playerPos, id)
-		b := comp.Body.Get(e)
+		dropItemEntity := arc.SpawnDropItem(playerPos, id)
+		bd := arc.BodyMapper.Get(dropItemEntity)
 		if IsFacingLeft {
-			b.ApplyImpulseAtLocalPoint(
+			bd.Body.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
 		}
 		if IsFacingRight {
-			b.ApplyImpulseAtLocalPoint(
+			bd.Body.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
 		}
 
 	}
 }
 
-func playerFlyVelocityFunc(b *cm.Body, _ vec.Vec2, _, _ float64) {
-	velocity := inputAxis.Unit().Scale(300)
-	b.SetVelocityVector(velocity)
+func PlayerFlyVelocityFunc(b *cm.Body, _ vec.Vec2, _, _ float64) {
+	v := inputAxis.Unit().Scale(300)
+	b.SetVelocityVector(v)
 }
 
 func ResetHitBlockHealth() {
 	if hitShape != nil {
-		if checkEntry(hitShape.Body) {
-			e := getEntry(hitShape.Body)
-			if e.HasComponent(comp.TagBlock) && e.HasComponent(comp.Health) {
-				resetHealthComponent(e)
+		e := hitShape.Body.UserData.(ecs.Entity)
+		if kar.WorldECS.Alive(e) {
+			if hitShape.CollisionType == arc.Block {
+				h := arc.HealthMapper.Get(e)
+				h.Health = h.MaxHealth
 			}
 		}
 	}
 }
+
+// BlockQuery := arc.BlockFilter.Query(&kar.WorldECS)
+// for BlockQuery.Next() {
+// 	healthComponent, _, body, _ := BlockQuery.Get()
+// 	if healthComponent.Health <= 0 {
+// 		pos := body.Position()
+// 		body.Shapes[0].SetSensor(true)
+// 		kar.Space.AddPostStepCallback(removeBodyPostStep, body, nil)
+// 		s.toRemove = append(s.toRemove, BlockQuery.Entity())
+// 		blockPos := world.WorldToPixel(pos)
+// 		gameWorld.Image.SetGray16(blockPos.X, blockPos.Y, color.Gray16{items.Air})
+
+// 		// dropID := items.Property[item.ID].Drops
+// 		// arc.SpawnDropItem(pos, dropID)
+// 	}
+// }
+
 func GiveDamageToBlock() {
 	if hitShape != nil {
-		if checkEntry(hitShape.Body) {
-			e := getEntry(hitShape.Body)
-			if e.HasComponent(comp.TagBreakable) && e.HasComponent(comp.Health) {
-				isAttacking = true
-				h := comp.Health.Get(e)
+		e := hitShape.Body.UserData.(ecs.Entity)
+		if kar.WorldECS.Alive(e) {
+			itm := arc.ItemMapper.Get(e)
+			if items.IsBreakable(itm.ID) && arc.HealthMapper.Has(e) {
+				h := arc.HealthMapper.Get(e)
+				if h.Health <= 0 {
+					fmt.Println("Blok Yok Edildi!")
+					removeBodyPostStep(kar.Space, hitShape.Body, nil)
+					kar.WorldECS.RemoveEntity(e)
+
+					gameWorld.Image.SetGray16(
+						hitBlockPixelCoord.X,
+						hitBlockPixelCoord.Y, color.Gray16{items.Air})
+
+					dropID := items.Property[itm.ID].Drops
+					arc.SpawnDropItem(hitBlockPos, dropID)
+
+				}
 				h.Health -= 0.2
+				isAttacking = true
 			}
 		}
 	} else {
@@ -250,9 +295,7 @@ func PlaceBlock() {
 				placeBB := cm.NewBBForExtents(placeBlockPos, kar.BlockSize/2, kar.BlockSize/2)
 				if !playerBody.ShapeAtIndex(0).BB.Intersects(placeBB) {
 					if removeItem(playerInv, id) {
-						arche.SpawnBlock(
-							Space,
-							ecsWorld,
+						arc.SpawnBlock(
 							placeBlockPos,
 							playerInv.Slots[selectedSlotIndex].ID,
 						)
@@ -283,7 +326,7 @@ func toggleFlyMode() {
 		playerBody.SetVelocityUpdateFunc(VelocityFunc)
 	case true:
 		playerBody.Shapes[0].SetSensor(true)
-		playerBody.SetVelocityUpdateFunc(playerFlyVelocityFunc)
+		playerBody.SetVelocityUpdateFunc(PlayerFlyVelocityFunc)
 	}
 	playerFlyModeDisabled = !playerFlyModeDisabled
 }

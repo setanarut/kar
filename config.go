@@ -41,7 +41,7 @@ var (
 )
 
 var (
-	UseSpatialHash           = true
+	UseSpatialHash           = false
 	SpatialHashDim   float64 = 128.0
 	SpatialHashCount int     = 256
 )

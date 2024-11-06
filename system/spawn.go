@@ -2,29 +2,39 @@ package system
 
 import (
 	"kar"
-	"kar/arche"
-	"kar/comp"
+	"kar/arc"
 	"kar/items"
-	"kar/types"
 	"kar/world"
 
+	"github.com/mlange-42/arche/ecs"
 	"github.com/setanarut/anim"
 	"github.com/setanarut/cm"
-	"github.com/yohamta/donburi"
+	"github.com/setanarut/vec"
 )
 
 var (
-	playerEntry       *donburi.Entry
+	playerEntity      ecs.Entity
 	playerSpawnPos    vec2
 	playerBody        *cm.Body
-	playerInv         *types.Inventory
+	playerPos         vec.Vec2
+	playerInv         *arc.Inventory
 	playerAnim        *anim.AnimationPlayer
-	playerDrawOptions *types.DrawOptions
+	playerDrawOptions *arc.DrawOptions
 )
+
+// func EntityRemoveCallback(w *ecs.World, e ecs.EntityEvent) {
+// 	fmt.Println(w.Alive(e.Entity))
+// }
+
+// var ls = listener.NewCallback(
+// 	EntityRemoveCallback,
+// 	event.EntityRemoved,
+// )
 
 type Spawn struct{}
 
 func (s *Spawn) Init() {
+	// kar.WorldECS.SetListener(&ls)
 	gameWorld = world.NewWorld(
 		kar.WorldSize.X,
 		kar.WorldSize.Y,
@@ -32,20 +42,18 @@ func (s *Spawn) Init() {
 		kar.BlockSize,
 	)
 	findSpawnPosition()
-	gameWorld.LoadChunks(Space, ecsWorld, playerSpawnPos)
-	// playerEntry = arche.SpawnPlayer(Space, ecsWorld, playerSpawnPos, 2, 0, 0)
-	playerEntry = arche.SpawnMario(Space, ecsWorld, playerSpawnPos, 2, 0, 0)
-	playerInv = comp.Inventory.Get(playerEntry)
-	playerBody = comp.Body.Get(playerEntry)
-	playerAnim = comp.AnimPlayer.Get(playerEntry)
-	playerDrawOptions = comp.DrawOptions.Get(playerEntry)
-	playerBody.SetVelocityUpdateFunc(VelocityFunc)
+	// playerSpawnPos = vec.Vec2{400, 400}
+	playerEntity = arc.SpawnMario(playerSpawnPos)
+	playerBody = arc.BodyMapper.Get(playerEntity).Body
+	_, playerDrawOptions, playerAnim, _, playerInv = arc.PlayerMapper5.Get(playerEntity)
+	gameWorld.LoadChunks(playerSpawnPos)
+
 }
 func (s *Spawn) Update() {
-	if playerEntry.Valid() {
-		playerPos = playerBody.Position()
-		gameWorld.UpdateChunks(Space, ecsWorld, playerPos)
-
+	playerPos = playerBody.Position()
+	// playerBody.SetVelocityUpdateFunc(PlayerFlyVelocityFunc)
+	if kar.WorldECS.Alive(playerEntity) {
+		gameWorld.UpdateChunks(playerBody.Position())
 	}
 }
 
