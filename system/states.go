@@ -86,7 +86,6 @@ func (sys *States) Draw() {}
 func (sys *States) Update() {
 
 	if kar.WorldECS.Alive(playerEntity) {
-		fmt.Println(inputAxis, inputAxisLast)
 		velocity := playerBody.Velocity()
 		isOnFloor = OnFloor(playerBody)
 
@@ -167,7 +166,6 @@ func (s *Idle) Enter() {
 	fmt.Println("Entering Idle State")
 }
 func (s *Idle) Exit() {
-	fmt.Println("Exit Idle State")
 }
 
 func (s *Idle) Update() {
@@ -192,7 +190,6 @@ func (s *Attacking) Enter() {
 	fmt.Println("Entering Attacking State")
 }
 func (s *Attacking) Exit() {
-	fmt.Println("Exit Attacking State")
 }
 
 func (s *Attacking) Update() {

@@ -106,8 +106,8 @@ func drawPlayer() {
 func drawDropItems() {
 	q := arc.DropItemFilter.Query(&kar.WorldECS)
 	for q.Next() {
-		dop, body, itm, _, _, idx := q.Get()
-		pos := body.Position()
+		dop, bd, itm, _, _, idx := q.Get()
+		pos := bd.Body.Position()
 		pos.Y += sinSpaceFrames[idx.Index]
 		applyDIO(dop, pos)
 		camera.Draw(getSprite(itm.ID), globalDIO, kar.Screen)
@@ -116,10 +116,10 @@ func drawDropItems() {
 func drawBlocks() {
 	q := arc.BlockFilter.Query(&kar.WorldECS)
 	for q.Next() {
-		h, dop, body, itm := q.Get()
+		h, dop, bd, itm := q.Get()
 		imgIndex := int(mathutil.MapRange(h.Health, h.MaxHealth, 0, 0, 10))
 		if util.CheckIndex(res.Frames[itm.ID], imgIndex) {
-			applyDIO(dop, body.Position())
+			applyDIO(dop, bd.Body.Position())
 			if items.IsHarvestable(itm.ID) {
 				camera.Draw(res.Frames[itm.ID][0], globalDIO, kar.Screen)
 			} else {

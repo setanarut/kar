@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"kar"
 	"kar/arc"
 	"kar/items"
@@ -45,9 +44,8 @@ func (s *Spawn) Init() {
 	findSpawnPosition()
 	// playerSpawnPos = vec.Vec2{400, 400}
 	playerEntity = arc.SpawnMario(playerSpawnPos)
-	_, playerDrawOptions, playerAnim, playerBody, playerInv = arc.PlayerMapper5.Get(playerEntity)
-	fmt.Println(playerBody.Shapes[0].UserData)
-	playerBody.SetPosition(playerSpawnPos)
+	playerBody = arc.BodyMapper.Get(playerEntity).Body
+	_, playerDrawOptions, playerAnim, _, playerInv = arc.PlayerMapper5.Get(playerEntity)
 	gameWorld.LoadChunks(playerSpawnPos)
 
 }

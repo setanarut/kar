@@ -213,13 +213,13 @@ func DropSlotItem() {
 	if playerInv.Slots[selectedSlotIndex].Quantity > 0 {
 		playerInv.Slots[selectedSlotIndex].Quantity--
 		dropItemEntity := arc.SpawnDropItem(playerPos, id)
-		dropItemBody := arc.BodyMapper.Get(dropItemEntity)
+		bd := arc.BodyMapper.Get(dropItemEntity)
 		if IsFacingLeft {
-			dropItemBody.ApplyImpulseAtLocalPoint(
+			bd.Body.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
 		}
 		if IsFacingRight {
-			dropItemBody.ApplyImpulseAtLocalPoint(
+			bd.Body.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(-45)), vec2{})
 		}
 
@@ -267,9 +267,17 @@ func GiveDamageToBlock() {
 			if items.IsBreakable(itm.ID) && arc.HealthMapper.Has(e) {
 				h := arc.HealthMapper.Get(e)
 				if h.Health <= 0 {
-					fmt.Println("Blok sağlığı 0")
+					fmt.Println("Blok Yok Edildi!")
 					removeBodyPostStep(kar.Space, hitShape.Body, nil)
 					kar.WorldECS.RemoveEntity(e)
+
+					gameWorld.Image.SetGray16(
+						hitBlockPixelCoord.X,
+						hitBlockPixelCoord.Y, color.Gray16{items.Air})
+
+					dropID := items.Property[itm.ID].Drops
+					arc.SpawnDropItem(hitBlockPos, dropID)
+
 				}
 				h.Health -= 0.2
 				isAttacking = true

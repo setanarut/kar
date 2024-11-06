@@ -41,7 +41,7 @@ func (g *Game) Init() {
 		&system.Spawn{},
 		&system.Player{},
 		&system.Physics{},
-		// &system.States{},
+		&system.States{},
 		&system.Destroy{},
 		&system.Render{},
 		&system.RenderGUI{},

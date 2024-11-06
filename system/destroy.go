@@ -21,13 +21,13 @@ func (s *Destroy) Update() {
 
 	for dropItemQuery.Next() {
 
-		_, body, _, collisionTimer, stuckCountDown, index := dropItemQuery.Get()
-		dropShape := body.Shapes[0]
+		_, bd, _, collisionTimer, stuckCountDown, index := dropItemQuery.Get()
+		dropShape := bd.Body.Shapes[0]
 
 		UpdateItemAnimationIndex(index)
 		TimerUpdate((*arc.Timer)(collisionTimer))
 		if TimerIsReady((*arc.Timer)(collisionTimer)) {
-			body.Shapes[0].SetShapeFilter(dropItemFilterCooldown)
+			bd.Body.Shapes[0].SetShapeFilter(dropItemFilterCooldown)
 		}
 
 		kar.Space.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
@@ -45,27 +45,11 @@ func (s *Destroy) Update() {
 
 	}
 
-	// BlockQuery := arc.BlockFilter.Query(&kar.WorldECS)
-	// for BlockQuery.Next() {
-	// 	healthComponent, _, body, _ := BlockQuery.Get()
-	// 	if healthComponent.Health <= 0 {
-	// 		pos := body.Position()
-	// 		body.Shapes[0].SetSensor(true)
-	// 		kar.Space.AddPostStepCallback(removeBodyPostStep, body, nil)
-	// 		s.toRemove = append(s.toRemove, BlockQuery.Entity())
-	// 		blockPos := world.WorldToPixel(pos)
-	// 		gameWorld.Image.SetGray16(blockPos.X, blockPos.Y, color.Gray16{items.Air})
-
-	// 		// dropID := items.Property[item.ID].Drops
-	// 		// arc.SpawnDropItem(pos, dropID)
-	// 	}
-	// }
-
 	// The world is unlocked again.
 	// Actually remove the collected entities.
 	for _, e := range s.toRemove {
-		body := arc.BodyMapper.Get(e)
-		kar.Space.AddPostStepCallback(removeBodyPostStep, body, nil)
+		bd := arc.BodyMapper.Get(e)
+		kar.Space.AddPostStepCallback(removeBodyPostStep, bd.Body, nil)
 		kar.WorldECS.RemoveEntity(e)
 	}
 

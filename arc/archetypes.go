@@ -19,20 +19,20 @@ import (
 
 type vec2 = vec.Vec2
 
-var PlayerMapper5 = generic.NewMap5[Health, DrawOptions, anim.AnimationPlayer, cm.Body, Inventory](&kar.WorldECS)
-var DropItemMapper = generic.NewMap6[DrawOptions, cm.Body, Item, CollisionTimer, Countdown, Index](&kar.WorldECS)
-var BlockMapper4 = generic.NewMap4[Health, DrawOptions, cm.Body, Item](&kar.WorldECS)
-var BodyMapper = generic.NewMap1[cm.Body](&kar.WorldECS)
+var PlayerMapper5 = generic.NewMap5[Health, DrawOptions, anim.AnimationPlayer, CmBody, Inventory](&kar.WorldECS)
+var DropItemMapper = generic.NewMap6[DrawOptions, CmBody, Item, CollisionTimer, Countdown, Index](&kar.WorldECS)
+var BlockMapper4 = generic.NewMap4[Health, DrawOptions, CmBody, Item](&kar.WorldECS)
+var BodyMapper = generic.NewMap1[CmBody](&kar.WorldECS)
 var ItemMapper = generic.NewMap1[Item](&kar.WorldECS)
 var HealthMapper = generic.NewMap[Health](&kar.WorldECS)
 var AnimPlayerMapper = generic.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
 var InventoryMapper = generic.NewMap1[Inventory](&kar.WorldECS)
 
-var PlayerFilter = *generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer, cm.Body, Inventory]()
-var DropItemFilter = generic.NewFilter6[DrawOptions, cm.Body, Item, CollisionTimer, Countdown, Index]()
+var PlayerFilter = *generic.NewFilter5[Health, DrawOptions, anim.AnimationPlayer, CmBody, Inventory]()
+var DropItemFilter = generic.NewFilter6[DrawOptions, CmBody, Item, CollisionTimer, Countdown, Index]()
 var ItemFilter = generic.NewFilter1[Item]()
 var FilterInventory = generic.NewFilter1[Inventory]()
-var BlockFilter = generic.NewFilter4[Health, DrawOptions, cm.Body, Item]()
+var BlockFilter = generic.NewFilter4[Health, DrawOptions, CmBody, Item]()
 var CountdownFilter = generic.NewFilter1[Countdown]()
 var AnimationPlayerFilter = generic.NewFilter1[anim.AnimationPlayer]()
 
@@ -45,7 +45,7 @@ func NewInventory() *Inventory {
 	return inv
 }
 
-func SpawnBlock(pos vec2, id uint16) *cm.Shape {
+func SpawnBlock(pos vec2, id uint16) {
 	hlt := &Health{
 		Health:    items.Property[id].MaxHealth,
 		MaxHealth: items.Property[id].MaxHealth,
@@ -68,11 +68,12 @@ func SpawnBlock(pos vec2, id uint16) *cm.Shape {
 	shape.SetFriction(0.1)
 	shape.CollisionType = Block
 	body.SetPosition(pos)
-	kar.Space.AddBodyWithShapes(body)
 
-	e := BlockMapper4.NewWith(hlt, dop, body, itm)
+	b := &CmBody{Body: body}
+	kar.Space.AddBodyWithShapes(b.Body)
+
+	e := BlockMapper4.NewWith(hlt, dop, b, itm)
 	body.UserData = e
-	return shape
 }
 
 func SpawnDropItem(pos vec2, id uint16) ecs.Entity {
@@ -97,10 +98,12 @@ func SpawnDropItem(pos vec2, id uint16) ecs.Entity {
 	shape.CollisionType = DropItem
 	shape.SetElasticity(0)
 	shape.SetFriction(1)
-
 	body.SetPosition(pos)
-	kar.Space.AddBodyWithShapes(body)
-	e := DropItemMapper.NewWith(dop, body, itm, collt, ct, idx)
+
+	b := &CmBody{Body: body}
+	kar.Space.AddBodyWithShapes(b.Body)
+
+	e := DropItemMapper.NewWith(dop, b, itm, collt, ct, idx)
 	body.UserData = e
 	return e
 }
@@ -124,16 +127,17 @@ func SpawnMario(pos vec2) ecs.Entity {
 	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
 	geom := cm.NewTransformTranslate(vec.Vec2{0, 0})
 	geom.Scale(playerScaleFactor, playerScaleFactor)
-
 	shape := cm.NewPolyShape(body, verts, geom, 3)
 	shape.Elasticity, shape.Friction = 0, 0
 	shape.SetCollisionType(Player)
 	shape.SetShapeFilter(PlayerCollisionFilter)
-	shape.UserData = "DENEME"
-	kar.Space.AddBodyWithShapes(body)
-	e := PlayerMapper5.NewWith(hlt, dop, ap, body, NewInventory())
-	body.SetPosition(pos)
-	body.UserData = e
+
+	b := &CmBody{Body: body}
+	kar.Space.AddBodyWithShapes(b.Body)
+
+	e := PlayerMapper5.NewWith(hlt, dop, ap, b, NewInventory())
+	b.Body.SetPosition(pos)
+	b.Body.UserData = e
 	return e
 }
 

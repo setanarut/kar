@@ -5,8 +5,13 @@ import (
 	"image/color"
 	"time"
 
+	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
 )
+
+type CmBody struct {
+	Body *cm.Body
+}
 
 type CollisionTimer Timer
 
@@ -49,6 +54,7 @@ type ItemStack struct {
 	ID       uint16
 	Quantity uint8
 }
+
 type Health struct {
 	Health    float64
 	MaxHealth float64
