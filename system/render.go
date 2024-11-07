@@ -81,6 +81,10 @@ func (rn *Render) Draw() {
 	drawBlocks()
 	drawPlayer()
 
+	if debugDrawingEnabled {
+		cm.DrawSpace(kar.Space, cmDrawer.WithScreen(kar.Screen))
+		vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
+	}
 	if drawBlockBorderEnabled {
 		drawBlockBorder()
 	}
@@ -101,10 +105,7 @@ func drawPlayer() {
 		if playerAnim.CurrentFrame != nil {
 			camera.Draw(playerAnim.CurrentFrame, globalDIO, kar.Screen)
 		}
-		if debugDrawingEnabled {
-			cm.DrawSpace(kar.Space, cmDrawer.WithScreen(kar.Screen))
-			vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
-		}
+
 	}
 }
 
@@ -140,10 +141,7 @@ func applyDIO(drawOpt *arc.DrawOptions, pos vec.Vec2) {
 		scl.X *= -1
 	}
 	globalDIO.GeoM.Reset()
-	globalDIO.GeoM.Translate(
-		drawOpt.CenterOffset.X,
-		drawOpt.CenterOffset.Y,
-	)
+	globalDIO.GeoM.Translate(drawOpt.CenterOffset.X, drawOpt.CenterOffset.Y)
 	globalDIO.GeoM.Scale(scl.X, scl.Y)
 	// globalDIO.GeoM.Rotate(drawOpt.Rotation)
 	globalDIO.GeoM.Translate(pos.X, pos.Y)
