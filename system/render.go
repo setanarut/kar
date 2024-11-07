@@ -65,11 +65,6 @@ func (rn *Render) Update() {
 		camera.ZoomFactor = 1
 	}
 
-	q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
-	for q.Next() {
-		q.Get().Update()
-	}
-
 }
 
 func (rn *Render) Draw() {

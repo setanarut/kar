@@ -49,6 +49,8 @@ func (plr *Player) Update() {
 
 	if kar.WorldECS.Alive(playerEntity) {
 
+		playerAnim.Update()
+
 		playerPixelCoord = world.WorldToPixel(playerPos)
 		attackSegEnd = playerPos.Add(inputAxisLast.Scale(kar.BlockSize * 3.5))
 		hitShape = attackSegQuery.Shape
