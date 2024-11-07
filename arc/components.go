@@ -2,7 +2,6 @@ package arc
 
 import (
 	"image"
-	"image/color"
 	"time"
 
 	"github.com/setanarut/cm"
@@ -13,18 +12,18 @@ type CmBody struct {
 	Body *cm.Body
 }
 
-type CollisionTimer Timer
+type CollisionActivationCountdown struct {
+	Tick uint8
+}
 
-type Countdown struct {
-	Duration uint8
+type SelfDestuctionCountdown struct {
+	Tick uint8
 }
 
 type DrawOptions struct {
 	CenterOffset vec.Vec2
 	Scale        vec.Vec2
-	Rotation     float64
 	FlipX        bool
-	ScaleColor   color.Color
 }
 
 type Mobile struct {
@@ -36,7 +35,7 @@ type Timer struct {
 	Elapsed  time.Duration
 }
 
-type Index struct {
+type AnimationFrameIndex struct {
 	Index int
 }
 

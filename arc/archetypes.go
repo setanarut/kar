@@ -8,7 +8,6 @@ import (
 	"kar/items"
 	"kar/res"
 	"math"
-	"time"
 
 	"github.com/mlange-42/arche/ecs"
 	gn "github.com/mlange-42/arche/generic"
@@ -29,9 +28,9 @@ var (
 		DrawOptions,
 		CmBody,
 		Item,
-		CollisionTimer,
-		Countdown,
-		Index](&kar.WorldECS)
+		CollisionActivationCountdown,
+		SelfDestuctionCountdown,
+		AnimationFrameIndex](&kar.WorldECS)
 )
 
 var (
@@ -42,12 +41,13 @@ var (
 		DrawOptions,
 		CmBody,
 		Item,
-		CollisionTimer,
-		Countdown,
-		Index]()
+		CollisionActivationCountdown,
+		SelfDestuctionCountdown,
+		AnimationFrameIndex]()
 )
 
 func SpawnBlock(pos vec.Vec2, id uint16) {
+
 	hlt := &Health{
 		Health:    items.Property[id].MaxHealth,
 		MaxHealth: items.Property[id].MaxHealth,
@@ -86,9 +86,9 @@ func SpawnDropItem(pos vec.Vec2, id uint16) ecs.Entity {
 		Scale:        mathutil.GetRectScaleFactor(16, 16, itemWidth, itemWidth),
 	}
 
-	collt := &CollisionTimer{Duration: time.Second / 2}
-	ct := &Countdown{Duration: 120}
-	idx := &Index{Index: 0}
+	cac := &CollisionActivationCountdown{Tick: 30}
+	ct := &SelfDestuctionCountdown{Tick: 120}
+	idx := &AnimationFrameIndex{Index: 0}
 	itm := &Item{
 		Chunk: WorldToChunk(pos),
 		ID:    id,
@@ -105,7 +105,7 @@ func SpawnDropItem(pos vec.Vec2, id uint16) ecs.Entity {
 	b := &CmBody{Body: body}
 	kar.Space.AddBodyWithShapes(b.Body)
 
-	e := MapDropItem.NewWith(dop, b, itm, collt, ct, idx)
+	e := MapDropItem.NewWith(dop, b, itm, cac, ct, idx)
 	body.UserData = e
 	return e
 }

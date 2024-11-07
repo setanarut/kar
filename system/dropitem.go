@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"kar"
 	"kar/arc"
 
@@ -8,38 +9,52 @@ import (
 	"github.com/setanarut/cm"
 )
 
-type Destroy struct {
+var dropItemFilterCooldown = cm.ShapeFilter{
+	Group:      2,
+	Categories: arc.DropItemBit,
+	Mask:       cm.AllCategories &^ arc.PlayerRayBit,
+}
+
+type DropItem struct {
 	toRemove []ecs.Entity
 }
 
-func (s *Destroy) Init() {
+func (s *DropItem) Init() {
 }
 
-func (s *Destroy) Update() {
+func (s *DropItem) Update() {
 
 	dropItemQuery := arc.FilterDropItem.Query(&kar.WorldECS)
 
 	for dropItemQuery.Next() {
 
-		_, bd, _, collisionTimer, stuckCountDown, index := dropItemQuery.Get()
+		_, bd, _, cac, stuckDestuctionCountdown, idx := dropItemQuery.Get()
 		dropShape := bd.Body.Shapes[0]
 
-		UpdateItemAnimationIndex(index)
-		TimerUpdate((*arc.Timer)(collisionTimer))
-		if TimerIsReady((*arc.Timer)(collisionTimer)) {
+		// Update drop item aimation frames
+		if idx.Index < itemAnimFrameCount {
+			idx.Index++
+		} else {
+			idx.Index = 0
+		}
+
+		// Collision Activation Countdown
+		cac.Tick -= 1
+		if cac.Tick <= 0 {
 			bd.Body.Shapes[0].SetShapeFilter(dropItemFilterCooldown)
 		}
 
+		// eğer Item blok içinde sıkışmışsa yok etme sayacını ilerlet
 		kar.Space.ShapeQuery(dropShape, func(shape *cm.Shape, points *cm.ContactPointSet) {
 			if shape.CollisionType == arc.Block {
 				if shape.BB.Contains(dropShape.BB.Offset(vec2{-3, -3})) {
-					stuckCountDown.Duration -= 1
+					stuckDestuctionCountdown.Tick -= 1
 				}
 			}
 		})
 
-		if collisionTimer.Duration <= 0 {
-			// destroy stucked item
+		if stuckDestuctionCountdown.Tick <= 0 {
+			fmt.Println("Stucked item destroyed!")
 			s.toRemove = append(s.toRemove, dropItemQuery.Entity())
 		}
 
@@ -57,12 +72,4 @@ func (s *Destroy) Update() {
 	s.toRemove = s.toRemove[:0]
 }
 
-func (s *Destroy) Draw() {}
-
-func UpdateItemAnimationIndex(i *arc.Index) {
-	if i.Index < itemAnimFrameCount {
-		i.Index++
-	} else {
-		i.Index = 0
-	}
-}
+func (s *DropItem) Draw() {}

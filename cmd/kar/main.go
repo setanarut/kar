@@ -40,9 +40,9 @@ func (g *Game) Init() {
 		&system.Input{},
 		&system.Spawn{},
 		&system.Player{},
-		&system.Physics{},
+		&system.DropItem{},
 		&system.States{},
-		&system.Destroy{},
+		&system.CollisionHandler{},
 		&system.Render{},
 		&system.RenderGUI{},
 	}

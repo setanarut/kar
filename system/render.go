@@ -32,13 +32,18 @@ func (rn *Render) Init() {
 }
 
 func (rn *Render) Update() {
+
 	if justPressed(eb.KeyX) {
 		debugDrawingEnabled = !debugDrawingEnabled
 	}
-	vectorg.GlobalTransform.Reset()
-	cmDrawer.GeoM.Reset()
-	camera.ApplyCameraTransform(cmDrawer.GeoM)
-	camera.ApplyCameraTransform(vectorg.GlobalTransform)
+
+	if debugDrawingEnabled {
+		vectorg.GlobalTransform.Reset()
+		cmDrawer.GeoM.Reset()
+		camera.ApplyCameraTransform(cmDrawer.GeoM)
+		camera.ApplyCameraTransform(vectorg.GlobalTransform)
+	}
+
 	camera.LookAt(playerPos.X, playerPos.Y)
 
 	if pressed(eb.KeyP) {
@@ -140,7 +145,7 @@ func applyDIO(drawOpt *arc.DrawOptions, pos vec.Vec2) {
 		drawOpt.CenterOffset.Y,
 	)
 	globalDIO.GeoM.Scale(scl.X, scl.Y)
-	globalDIO.GeoM.Rotate(drawOpt.Rotation)
+	// globalDIO.GeoM.Rotate(drawOpt.Rotation)
 	globalDIO.GeoM.Translate(pos.X, pos.Y)
 	globalDIO.ColorScale.Reset()
 }

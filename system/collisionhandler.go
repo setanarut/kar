@@ -9,15 +9,9 @@ import (
 	"github.com/setanarut/vec"
 )
 
-var dropItemFilterCooldown = cm.ShapeFilter{
-	Group:      2,
-	Categories: arc.DropItemBit,
-	Mask:       cm.AllCategories &^ arc.PlayerRayBit,
-}
+type CollisionHandler struct{}
 
-type Physics struct{}
-
-func (ps *Physics) Init() {
+func (ps *CollisionHandler) Init() {
 	kar.Space.SetGravity(vec.Vec2{0, kar.Gravity})
 	kar.Space.CollisionBias = kar.CollisionBias
 	kar.Space.CollisionSlop = kar.CollisionSlop
@@ -50,7 +44,7 @@ func (ps *Physics) Init() {
 	kar.Space.AddCollisionHandler2(PlayerDropItemHandler)
 }
 
-func (ps *Physics) Update() {
+func (ps *CollisionHandler) Update() {
 	kar.Space.Step(kar.DeltaTime)
 }
-func (ps *Physics) Draw() {}
+func (ps *CollisionHandler) Draw() {}

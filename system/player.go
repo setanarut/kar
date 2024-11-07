@@ -264,7 +264,7 @@ func GiveDamageToBlock() {
 		e := hitShape.Body.UserData.(ecs.Entity)
 		if kar.WorldECS.Alive(e) {
 			itm := arc.MapItem.Get(e)
-			if items.IsBreakable(itm.ID) && arc.MapHealth.Has(e) {
+			if items.IsBreakable(itm.ID) && arc.MapHealth.HasUnchecked(e) {
 				h := arc.MapHealth.Get(e)
 				if h.Health <= 0 {
 					fmt.Println("Blok Yok Edildi!")
