@@ -39,6 +39,7 @@ var (
 
 // States
 var (
+	isOnFloor                   bool
 	isAttacking                 bool
 	isCrouching                 bool
 	IsFacingLeft, IsFacingRight bool
@@ -70,20 +71,18 @@ var (
 	zero  = vec.Vec2{0, 0}
 )
 
-var isOnFloor = true
-
 const MovingThreshold float64 = 0.1
 
-type States struct{}
+type Controller struct{}
 
-func (sys *States) Init() {
+func (sys *Controller) Init() {
 
 	fsm.SetState(fsm.Idle)
 	playerBody.SetVelocityUpdateFunc(VelocityFunc)
 
 }
-func (sys *States) Draw() {}
-func (sys *States) Update() {
+func (sys *Controller) Draw() {}
+func (sys *Controller) Update() {
 
 	if kar.WorldECS.Alive(playerEntity) {
 		velocity := playerBody.Velocity()
@@ -319,6 +318,7 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 	velocity := body.Velocity()
 
 	if isOnFloor {
+		velocity.Y = 0
 		if isCrouching && inputAxis.X != 0 {
 			isCrouching = false
 			inputAxis.X = 0.0

@@ -41,7 +41,7 @@ func (g *Game) Init() {
 		&system.Spawn{},
 		&system.Player{},
 		&system.DropItem{},
-		&system.States{},
+		&system.Controller{},
 		&system.CollisionHandler{},
 		&system.Render{},
 		&system.RenderGUI{},

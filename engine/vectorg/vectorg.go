@@ -59,7 +59,14 @@ func Line(dst *ebiten.Image, start, end vec.Vec2, strokeWidth float32, clr color
 	drawVertices(dst, vs, is, clr)
 }
 
-func Rect(dst *ebiten.Image, topLeft vec.Vec2, w, h float64, clr color.Color, strokeWidth float32, mode drawMode) {
+func Rect(
+	dst *ebiten.Image,
+	topLeft vec.Vec2,
+	w, h float64,
+	clr color.Color,
+	strokeWidth float32,
+	mode drawMode,
+) {
 	x, y, width, height := float32(topLeft.X), float32(topLeft.Y), float32(w), float32(h)
 	var path vector.Path
 	path.MoveTo(x, y)

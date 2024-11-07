@@ -35,7 +35,7 @@ func (s *DropItem) Update() {
 		// Collision Activation Countdown
 		cac.Tick -= 1
 		if cac.Tick <= 0 {
-			bd.Body.Shapes[0].Filter.Mask = (cm.AllCategories &^ arc.PlayerRayBit)
+			dropShape.Filter.Mask = (cm.AllCategories &^ arc.PlayerRayBit)
 		}
 
 		// eğer Item blok içinde sıkışmışsa yok etme sayacını ilerlet

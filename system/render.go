@@ -10,7 +10,6 @@ import (
 	"kar/items"
 	"kar/res"
 
-	"github.com/setanarut/cm"
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/vec"
 
@@ -24,11 +23,11 @@ func (rn *Render) Init() {
 	vectorg.GlobalTransform = &eb.GeoM{}
 	if kar.WorldECS.Alive(playerEntity) {
 		x, y := playerSpawnPos.X, playerSpawnPos.Y
-		camera = kamera.NewCamera(x, y, kar.ScreenSize.X, kar.ScreenSize.Y)
+		Camera = kamera.NewCamera(x, y, kar.ScreenSize.X, kar.ScreenSize.Y)
 	} else {
-		camera = kamera.NewCamera(0, 0, kar.ScreenSize.X, kar.ScreenSize.Y)
+		Camera = kamera.NewCamera(0, 0, kar.ScreenSize.X, kar.ScreenSize.Y)
 	}
-	camera.LerpEnabled = true
+	Camera.LerpEnabled = true
 }
 
 func (rn *Render) Update() {
@@ -40,29 +39,29 @@ func (rn *Render) Update() {
 	if debugDrawingEnabled {
 		vectorg.GlobalTransform.Reset()
 		cmDrawer.GeoM.Reset()
-		camera.ApplyCameraTransform(cmDrawer.GeoM)
-		camera.ApplyCameraTransform(vectorg.GlobalTransform)
+		Camera.ApplyCameraTransform(cmDrawer.GeoM)
+		Camera.ApplyCameraTransform(vectorg.GlobalTransform)
 	}
 
-	camera.LookAt(playerPos.X, playerPos.Y)
+	Camera.LookAt(playerPos.X, playerPos.Y)
 
 	if pressed(eb.KeyP) {
-		camera.ZoomFactor *= 1.02
+		Camera.ZoomFactor *= 1.02
 	}
 
 	if pressed(eb.KeyO) {
-		camera.ZoomFactor /= 1.02
+		Camera.ZoomFactor /= 1.02
 	}
 
 	if justPressed(eb.KeyT) {
-		camera.AddTrauma(1)
+		Camera.AddTrauma(1)
 	}
 	if justPressed(eb.KeyV) {
 		drawBlockBorderEnabled = !drawBlockBorderEnabled
 	}
 
 	if justPressed(eb.KeyBackspace) {
-		camera.ZoomFactor = 1
+		Camera.ZoomFactor = 1
 	}
 
 }
@@ -77,8 +76,18 @@ func (rn *Render) Draw() {
 	drawPlayer()
 
 	if debugDrawingEnabled {
-		cm.DrawSpace(kar.Space, cmDrawer.WithScreen(kar.Screen))
+		// cm.DrawShape(playerBody.ShapeAtIndex(0), cmDrawer.WithScreen(kar.Screen))
+		// cm.DrawSpace(kar.Space, cmDrawer.WithScreen(kar.Screen))
 		vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
+		vectorg.Rect(
+			kar.Screen,
+			playerPos.Sub(vec.Vec2{12, 16}),
+			24,
+			32,
+			color.White,
+			0,
+			vectorg.Fill,
+		)
 	}
 	if drawBlockBorderEnabled {
 		drawBlockBorder()
@@ -90,7 +99,7 @@ func drawBlockBorder() {
 	if hitShape != nil {
 		dio := &eb.DrawImageOptions{}
 		dio.GeoM.Translate(hitBlockPos.X+blockCenterOffset.X, hitBlockPos.Y+blockCenterOffset.Y)
-		camera.Draw(res.Border, dio, kar.Screen)
+		Camera.Draw(res.Border, dio, kar.Screen)
 	}
 }
 
@@ -98,7 +107,7 @@ func drawPlayer() {
 	if kar.WorldECS.Alive(playerEntity) {
 		applyDIO(playerDrawOptions, playerBody.Position())
 		if playerAnim.CurrentFrame != nil {
-			camera.Draw(playerAnim.CurrentFrame, globalDIO, kar.Screen)
+			Camera.Draw(playerAnim.CurrentFrame, globalDIO, kar.Screen)
 		}
 
 	}
@@ -111,10 +120,11 @@ func drawDropItems() {
 		pos := bd.Body.Position()
 		pos.Y += sinSpaceFrames[idx.Index]
 		applyDIO(dop, pos)
-		camera.Draw(getSprite(itm.ID), globalDIO, kar.Screen)
+		Camera.Draw(getSprite(itm.ID), globalDIO, kar.Screen)
 	}
 }
 func drawBlocks() {
+
 	q := arc.FilterBlock.Query(&kar.WorldECS)
 	for q.Next() {
 		h, dop, bd, itm := q.Get()
@@ -122,9 +132,9 @@ func drawBlocks() {
 		if util.CheckIndex(res.Frames[itm.ID], imgIndex) {
 			applyDIO(dop, bd.Body.Position())
 			if items.IsHarvestable(itm.ID) {
-				camera.Draw(res.Frames[itm.ID][0], globalDIO, kar.Screen)
+				Camera.Draw(res.Frames[itm.ID][0], globalDIO, kar.Screen)
 			} else {
-				camera.Draw(res.Frames[itm.ID][imgIndex], globalDIO, kar.Screen)
+				Camera.Draw(res.Frames[itm.ID][imgIndex], globalDIO, kar.Screen)
 			}
 		}
 	}

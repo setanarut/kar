@@ -19,7 +19,7 @@ const itemAnimFrameCount int = 200
 
 var (
 	gameWorld         *world.World
-	camera            *kamera.Camera
+	Camera            *kamera.Camera
 	selectedSlotIndex = 0
 	desktopDir        string
 	blockCenterOffset = vec2{kar.BlockSize / 2, kar.BlockSize / 2}.Neg()
@@ -53,6 +53,6 @@ var (
 )
 
 func init() {
-	cmDrawer.StrokeDisabled = true
+	cmDrawer.StrokeDisabled = false
 	cmDrawer.Theme.ShapeSleeping = colornames.Green
 }

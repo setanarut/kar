@@ -54,7 +54,8 @@ func SpawnBlock(pos vec.Vec2, id uint16) {
 
 	dop := &DrawOptions{
 		CenterOffset: vec.Vec2{-8, -8},
-		Scale:        mathutil.GetRectScaleFactor(16, 16, kar.BlockSize, kar.BlockSize),
+		Scale:        vec.Vec2{3, 3},
+		// Scale:        mathutil.GetRectScaleFactor(16, 16, kar.BlockSize, kar.BlockSize),
 	}
 
 	itm := &Item{
@@ -66,7 +67,7 @@ func SpawnBlock(pos vec.Vec2, id uint16) {
 	shape := cm.NewBoxShape(body, kar.BlockSize, kar.BlockSize, 0)
 	shape.SetShapeFilter(BlockCollisionFilter)
 	shape.SetElasticity(0)
-	shape.SetFriction(0.1)
+	shape.SetFriction(0)
 	shape.CollisionType = Block
 	body.SetPosition(pos)
 
@@ -124,14 +125,19 @@ func SpawnMario(pos vec.Vec2) ecs.Entity {
 		Scale:        vec.Vec2{playerScaleFactor, playerScaleFactor},
 	}
 
-	body := cm.NewBody(1, math.MaxFloat64)
-	verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
-	geom := cm.NewTransformTranslate(vec.Vec2{0, 0})
-	geom.Scale(playerScaleFactor, playerScaleFactor)
-	shape := cm.NewPolyShape(body, verts, geom, 3)
-	shape.Elasticity, shape.Friction = 0, 0
-	shape.SetCollisionType(Player)
-	shape.SetShapeFilter(PlayerCollisionFilter)
+	body := cm.NewBody(0.0001, math.MaxFloat64)
+	// body := cm.NewKinematicBody()
+
+	// verts := []vec.Vec2{{0, -5}, {5, 6}, {4, 7}, {4, 7}, {-4, 7}, {-5, 6}}
+	// geom := cm.NewTransformTranslate(vec.Vec2{0, -2})
+	// geom.Scale(playerScaleFactor+0.4, playerScaleFactor+0.4)
+	// shape := cm.NewPolyShape(body, verts, geom, 0)
+
+	shape := cm.NewBoxShape(body, 12*2, 16*2, 0)
+	// shape := cm.NewCircleShape(body, 16, vec.Vec2{})
+
+	shape.CollisionType = Player
+	shape.Filter = PlayerCollisionFilter
 
 	b := &CmBody{Body: body}
 	kar.Space.AddBodyWithShapes(b.Body)

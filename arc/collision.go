@@ -30,7 +30,6 @@ var (
 	DropItemCollisionFilter = cm.ShapeFilter{
 		Group:      2,
 		Categories: DropItemBit,
-		// Mask:       cm.AllCategories &^ PlayerRayBit,
-		Mask: AllBits &^ PlayerRayBit &^ PlayerBit,
+		Mask:       AllBits &^ PlayerRayBit &^ PlayerBit,
 	}
 )
