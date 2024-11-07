@@ -25,11 +25,12 @@ const (
 )
 
 var (
+	PlayerCollisionFilter   = cm.ShapeFilter{0, PlayerBit, AllBits &^ PlayerRayBit}
+	BlockCollisionFilter    = cm.ShapeFilter{0, BlockBit, cm.AllCategories}
 	DropItemCollisionFilter = cm.ShapeFilter{
 		Group:      2,
 		Categories: DropItemBit,
-		Mask:       AllBits &^ PlayerRayBit &^ PlayerBit,
+		// Mask:       cm.AllCategories &^ PlayerRayBit,
+		Mask: AllBits &^ PlayerRayBit &^ PlayerBit,
 	}
-	PlayerCollisionFilter = cm.ShapeFilter{0, PlayerBit, AllBits &^ PlayerRayBit}
-	BlockCollisionFilter  = cm.ShapeFilter{0, BlockBit, cm.AllCategories}
 )

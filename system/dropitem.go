@@ -9,12 +9,6 @@ import (
 	"github.com/setanarut/cm"
 )
 
-var dropItemFilterCooldown = cm.ShapeFilter{
-	Group:      2,
-	Categories: arc.DropItemBit,
-	Mask:       cm.AllCategories &^ arc.PlayerRayBit,
-}
-
 type DropItem struct {
 	toRemove []ecs.Entity
 }
@@ -41,7 +35,7 @@ func (s *DropItem) Update() {
 		// Collision Activation Countdown
 		cac.Tick -= 1
 		if cac.Tick <= 0 {
-			bd.Body.Shapes[0].SetShapeFilter(dropItemFilterCooldown)
+			bd.Body.Shapes[0].Filter.Mask = (cm.AllCategories &^ arc.PlayerRayBit)
 		}
 
 		// eğer Item blok içinde sıkışmışsa yok etme sayacını ilerlet
