@@ -34,10 +34,9 @@ var (
 )
 
 var (
-	FilterAnimPlayer = gn.NewFilter1[anim.AnimationPlayer]()
-	FilterItem       = gn.NewFilter1[Item]()
-	FilterBlock      = gn.NewFilter4[Health, DrawOptions, CmBody, Item]()
-	FilterDropItem   = gn.NewFilter6[
+	FilterItem     = gn.NewFilter1[Item]()
+	FilterBlock    = gn.NewFilter4[Health, DrawOptions, CmBody, Item]()
+	FilterDropItem = gn.NewFilter6[
 		DrawOptions,
 		CmBody,
 		Item,
