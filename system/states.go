@@ -44,7 +44,7 @@ var (
 	IsFacingLeft, IsFacingRight bool
 	isFacingUp, isFacingDown    bool
 	isFalling                   bool
-	isSkiding                   bool
+	isSkidding                  bool
 	isDigDown, isDigUp          bool
 	isWalking                   bool
 	isMovingHorizontal          bool
@@ -103,7 +103,7 @@ func (sys *States) Update() {
 		isWalking = isOnFloor && isMovingHorizontal
 		isIdle = !isAttacking && isOnFloor && !isMovingHorizontal
 		isFalling = velocity.Y > MovingThreshold
-		isSkiding = velocity.X < 0 != IsFacingLeft
+		isSkidding = velocity.X < 0 != IsFacingLeft
 
 		if IsFacingLeft {
 			playerDrawOptions.FlipX = true
@@ -248,7 +248,7 @@ func (s *Walking) Update() {
 	playerAnim.SetStateFPS("walkRight", fps)
 	playerAnim.SetState("walkRight")
 
-	if isSkiding {
+	if isSkidding {
 		fsm.SetState(fsm.Skidding)
 	}
 
@@ -279,7 +279,7 @@ func (s *Skidding) Update() {
 
 	playerAnim.SetState("skidding")
 
-	if !isSkiding && isWalking {
+	if !isSkidding && isWalking {
 		fsm.SetState(fsm.Walking)
 	}
 
@@ -353,9 +353,9 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 		if isOnFloor {
 			if velocity.X != 0 {
 				IsFacingLeft = inputAxis.X < 0.0
-				isSkiding = velocity.X < 0.0 != IsFacingLeft
+				isSkidding = velocity.X < 0.0 != IsFacingLeft
 			}
-			if isSkiding {
+			if isSkidding {
 				minSpeedTemp = MinSlowDownSpeed
 				maxSpeedTemp = MaxWalkSpeed
 				acceleration = SkidFriction
@@ -376,7 +376,7 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 		var target_speed = inputAxis.X * maxSpeedTemp
 		velocity.X = MoveToward(velocity.X, target_speed, acceleration*delta)
 	} else if isOnFloor && velocity.X != 0 {
-		if !isSkiding {
+		if !isSkidding {
 			acceleration = WalkFriction
 		}
 		if inputAxis.Y != 0 {
@@ -391,7 +391,7 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 		}
 	}
 	if math.Abs(velocity.X) < MinSlowDownSpeed {
-		isSkiding = false
+		isSkidding = false
 	}
 	body.SetVelocityVector(velocity)
 }
