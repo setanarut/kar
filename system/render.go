@@ -60,7 +60,7 @@ func (rn *Render) Update() {
 		camera.ZoomFactor = 1
 	}
 
-	q := arc.AnimationPlayerFilter.Query(&kar.WorldECS)
+	q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
 	for q.Next() {
 		q.Get().Update()
 	}
@@ -104,7 +104,7 @@ func drawPlayer() {
 }
 
 func drawDropItems() {
-	q := arc.DropItemFilter.Query(&kar.WorldECS)
+	q := arc.FilterDropItem.Query(&kar.WorldECS)
 	for q.Next() {
 		dop, bd, itm, _, _, idx := q.Get()
 		pos := bd.Body.Position()
@@ -114,7 +114,7 @@ func drawDropItems() {
 	}
 }
 func drawBlocks() {
-	q := arc.BlockFilter.Query(&kar.WorldECS)
+	q := arc.FilterBlock.Query(&kar.WorldECS)
 	for q.Next() {
 		h, dop, bd, itm := q.Get()
 		imgIndex := int(mathutil.MapRange(h.Health, h.MaxHealth, 0, 0, 10))

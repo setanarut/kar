@@ -11,46 +11,51 @@ import (
 	"time"
 
 	"github.com/mlange-42/arche/ecs"
-	"github.com/mlange-42/arche/generic"
+	gn "github.com/mlange-42/arche/generic"
 	"github.com/setanarut/anim"
 	"github.com/setanarut/cm"
 	"github.com/setanarut/vec"
 )
 
-type vec2 = vec.Vec2
+var (
+	MapHealth     = gn.NewMap[Health](&kar.WorldECS)
+	MapAnimPlayer = gn.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
+	MapBody       = gn.NewMap1[CmBody](&kar.WorldECS)
+	MapInventory  = gn.NewMap1[Inventory](&kar.WorldECS)
+	MapItem       = gn.NewMap1[Item](&kar.WorldECS)
+	MapBlock      = gn.NewMap4[Health, DrawOptions, CmBody, Item](&kar.WorldECS)
+	MapPlayer     = gn.NewMap5[Health, DrawOptions, anim.AnimationPlayer, CmBody, Inventory](&kar.WorldECS)
+	MapDropItem   = gn.NewMap6[
+		DrawOptions,
+		CmBody,
+		Item,
+		CollisionTimer,
+		Countdown,
+		Index](&kar.WorldECS)
+)
 
-var PlayerMapper5 = generic.NewMap5[Health, DrawOptions, anim.AnimationPlayer, CmBody, Inventory](&kar.WorldECS)
-var DropItemMapper = generic.NewMap6[DrawOptions, CmBody, Item, CollisionTimer, Countdown, Index](&kar.WorldECS)
-var BlockMapper4 = generic.NewMap4[Health, DrawOptions, CmBody, Item](&kar.WorldECS)
-var BodyMapper = generic.NewMap1[CmBody](&kar.WorldECS)
-var ItemMapper = generic.NewMap1[Item](&kar.WorldECS)
-var HealthMapper = generic.NewMap[Health](&kar.WorldECS)
-var AnimPlayerMapper = generic.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
-var InventoryMapper = generic.NewMap1[Inventory](&kar.WorldECS)
+var (
+	FilterAnimPlayer = gn.NewFilter1[anim.AnimationPlayer]()
+	FilterItem       = gn.NewFilter1[Item]()
+	FilterBlock      = gn.NewFilter4[Health, DrawOptions, CmBody, Item]()
+	FilterDropItem   = gn.NewFilter6[
+		DrawOptions,
+		CmBody,
+		Item,
+		CollisionTimer,
+		Countdown,
+		Index]()
+)
 
-var DropItemFilter = generic.NewFilter6[DrawOptions, CmBody, Item, CollisionTimer, Countdown, Index]()
-var ItemFilter = generic.NewFilter1[Item]()
-var BlockFilter = generic.NewFilter4[Health, DrawOptions, CmBody, Item]()
-var AnimationPlayerFilter = generic.NewFilter1[anim.AnimationPlayer]()
-
-func NewInventory() *Inventory {
-	inv := &Inventory{}
-	inv.HandSlot = ItemStack{}
-	for i := range inv.Slots {
-		inv.Slots[i] = ItemStack{}
-	}
-	return inv
-}
-
-func SpawnBlock(pos vec2, id uint16) {
+func SpawnBlock(pos vec.Vec2, id uint16) {
 	hlt := &Health{
 		Health:    items.Property[id].MaxHealth,
 		MaxHealth: items.Property[id].MaxHealth,
 	}
 
 	dop := &DrawOptions{
-		CenterOffset: vec2{-8, -8},
-		Scale:        mathutil.GetRectScale(16, 16, kar.BlockSize, kar.BlockSize),
+		CenterOffset: vec.Vec2{-8, -8},
+		Scale:        mathutil.GetRectScaleFactor(16, 16, kar.BlockSize, kar.BlockSize),
 	}
 
 	itm := &Item{
@@ -69,16 +74,16 @@ func SpawnBlock(pos vec2, id uint16) {
 	b := &CmBody{Body: body}
 	kar.Space.AddBodyWithShapes(b.Body)
 
-	e := BlockMapper4.NewWith(hlt, dop, b, itm)
+	e := MapBlock.NewWith(hlt, dop, b, itm)
 	body.UserData = e
 }
 
-func SpawnDropItem(pos vec2, id uint16) ecs.Entity {
+func SpawnDropItem(pos vec.Vec2, id uint16) ecs.Entity {
 
 	itemWidth := kar.BlockSize / 3
 	dop := &DrawOptions{
-		CenterOffset: vec2{-8, -8},
-		Scale:        mathutil.GetRectScale(16, 16, itemWidth, itemWidth),
+		CenterOffset: vec.Vec2{-8, -8},
+		Scale:        mathutil.GetRectScaleFactor(16, 16, itemWidth, itemWidth),
 	}
 
 	collt := &CollisionTimer{Duration: time.Second / 2}
@@ -90,7 +95,7 @@ func SpawnDropItem(pos vec2, id uint16) ecs.Entity {
 	}
 
 	body := cm.NewBody(0.8, math.MaxFloat64)
-	shape := cm.NewCircleShape(body, itemWidth, vec2{})
+	shape := cm.NewCircleShape(body, itemWidth, vec.Vec2{})
 	shape.SetShapeFilter(DropItemCollisionFilter)
 	shape.CollisionType = DropItem
 	shape.SetElasticity(0)
@@ -100,12 +105,12 @@ func SpawnDropItem(pos vec2, id uint16) ecs.Entity {
 	b := &CmBody{Body: body}
 	kar.Space.AddBodyWithShapes(b.Body)
 
-	e := DropItemMapper.NewWith(dop, b, itm, collt, ct, idx)
+	e := MapDropItem.NewWith(dop, b, itm, collt, ct, idx)
 	body.UserData = e
 	return e
 }
 
-func SpawnMario(pos vec2) ecs.Entity {
+func SpawnMario(pos vec.Vec2) ecs.Entity {
 	hlt := &Health{100, 100}
 
 	ap := anim.NewAnimationPlayer(res.Mario)
@@ -132,14 +137,13 @@ func SpawnMario(pos vec2) ecs.Entity {
 	b := &CmBody{Body: body}
 	kar.Space.AddBodyWithShapes(b.Body)
 
-	e := PlayerMapper5.NewWith(hlt, dop, ap, b, NewInventory())
+	e := MapPlayer.NewWith(hlt, dop, ap, b, NewInventory())
 	b.Body.SetPosition(pos)
 	b.Body.UserData = e
 	return e
 }
 
 func WorldToChunk(pos vec.Vec2) image.Point {
-	// pos = pos.Add(kar.BlockCenterOffset)
 	return image.Point{
 		int(math.Floor((pos.X / kar.ChunkSize.X) / kar.BlockSize)),
 		int(math.Floor((pos.Y / kar.ChunkSize.Y) / kar.BlockSize))}

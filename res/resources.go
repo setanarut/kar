@@ -10,7 +10,6 @@ import (
 
 	"github.com/anthonynsimon/bild/blend"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 //go:embed assets/*
@@ -23,11 +22,6 @@ var (
 	Hotbar          = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
 	HotbarSelection = util.ReadEbImgFS(fs, "assets/img/gui/hotbarBorder.png")
 	Font            = util.LoadFontFromFS("assets/font/pixelcode.otf", 18, fs)
-	FontSmall       = &text.GoTextFace{
-		Source:    Font.Source,
-		Direction: 0,
-		Size:      13,
-	}
 )
 
 var (

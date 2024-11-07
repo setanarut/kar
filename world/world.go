@@ -100,12 +100,12 @@ func (tr *World) UpdateChunks(playerPos vec.Vec2) {
 
 func (tr *World) DeSpawnChunk(chunkCoord image.Point) {
 
-	q := arc.ItemFilter.Query(&kar.WorldECS)
+	q := arc.FilterItem.Query(&kar.WorldECS)
 	for q.Next() {
 		itm := q.Get()
 		e := q.Entity()
 		if itm.Chunk == chunkCoord {
-			b := arc.BodyMapper.Get(e)
+			b := arc.MapBody.Get(e)
 			kar.Space.AddPostStepCallback(removeBodyPostStep, b.Body, nil)
 			toRemove = append(toRemove, e)
 		}

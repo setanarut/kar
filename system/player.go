@@ -56,7 +56,7 @@ func (plr *Player) Update() {
 			e := hitShape.Body.UserData.(ecs.Entity)
 			if kar.WorldECS.Alive(e) {
 				if hitShape.CollisionType == arc.Block {
-					hitItemID = arc.ItemMapper.Get(e).ID
+					hitItemID = arc.MapItem.Get(e).ID
 				} else {
 					hitItemID = items.Air
 				}
@@ -213,7 +213,7 @@ func DropSlotItem() {
 	if playerInv.Slots[selectedSlotIndex].Quantity > 0 {
 		playerInv.Slots[selectedSlotIndex].Quantity--
 		dropItemEntity := arc.SpawnDropItem(playerPos, id)
-		bd := arc.BodyMapper.Get(dropItemEntity)
+		bd := arc.MapBody.Get(dropItemEntity)
 		if IsFacingLeft {
 			bd.Body.ApplyImpulseAtLocalPoint(
 				inputAxisLast.Scale(200).Rotate(mathutil.Radians(45)), vec2{})
@@ -236,7 +236,7 @@ func ResetHitBlockHealth() {
 		e := hitShape.Body.UserData.(ecs.Entity)
 		if kar.WorldECS.Alive(e) {
 			if hitShape.CollisionType == arc.Block {
-				h := arc.HealthMapper.Get(e)
+				h := arc.MapHealth.Get(e)
 				h.Health = h.MaxHealth
 			}
 		}
@@ -263,9 +263,9 @@ func GiveDamageToBlock() {
 	if hitShape != nil {
 		e := hitShape.Body.UserData.(ecs.Entity)
 		if kar.WorldECS.Alive(e) {
-			itm := arc.ItemMapper.Get(e)
-			if items.IsBreakable(itm.ID) && arc.HealthMapper.Has(e) {
-				h := arc.HealthMapper.Get(e)
+			itm := arc.MapItem.Get(e)
+			if items.IsBreakable(itm.ID) && arc.MapHealth.Has(e) {
+				h := arc.MapHealth.Get(e)
 				if h.Health <= 0 {
 					fmt.Println("Blok Yok Edildi!")
 					removeBodyPostStep(kar.Space, hitShape.Body, nil)

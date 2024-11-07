@@ -59,3 +59,12 @@ type Health struct {
 	Health    float64
 	MaxHealth float64
 }
+
+func NewInventory() *Inventory {
+	inv := &Inventory{}
+	inv.HandSlot = ItemStack{}
+	for i := range inv.Slots {
+		inv.Slots[i] = ItemStack{}
+	}
+	return inv
+}

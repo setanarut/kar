@@ -3,7 +3,6 @@ package system
 import (
 	"kar"
 	"kar/engine/mathutil"
-	"kar/res"
 	"kar/world"
 	"log"
 	"math"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/setanarut/ebitencm"
 	"github.com/setanarut/kamera/v2"
 	"golang.org/x/image/colornames"
@@ -20,15 +18,12 @@ import (
 const itemAnimFrameCount int = 200
 
 var (
-	gameWorld            *world.World
-	camera               *kamera.Camera
-	selectedSlotIndex    = 0
-	desktopDir           string
-	blockCenterOffset    = vec2{kar.BlockSize / 2, kar.BlockSize / 2}.Neg()
-	globalDIO            = &ebiten.DrawImageOptions{}
-	fontSmallDrawOptions = &text.DrawOptions{
-		LayoutOptions: text.LayoutOptions{LineSpacing: res.FontSmall.Size * 1.3},
-	}
+	gameWorld         *world.World
+	camera            *kamera.Camera
+	selectedSlotIndex = 0
+	desktopDir        string
+	blockCenterOffset = vec2{kar.BlockSize / 2, kar.BlockSize / 2}.Neg()
+	globalDIO         = &ebiten.DrawImageOptions{}
 )
 
 func init() {

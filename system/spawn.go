@@ -44,8 +44,8 @@ func (s *Spawn) Init() {
 	findSpawnPosition()
 	// playerSpawnPos = vec.Vec2{400, 400}
 	playerEntity = arc.SpawnMario(playerSpawnPos)
-	playerBody = arc.BodyMapper.Get(playerEntity).Body
-	_, playerDrawOptions, playerAnim, _, playerInv = arc.PlayerMapper5.Get(playerEntity)
+	playerBody = arc.MapBody.Get(playerEntity).Body
+	_, playerDrawOptions, playerAnim, _, playerInv = arc.MapPlayer.Get(playerEntity)
 	gameWorld.LoadChunks(playerSpawnPos)
 
 }

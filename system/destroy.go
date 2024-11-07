@@ -17,7 +17,7 @@ func (s *Destroy) Init() {
 
 func (s *Destroy) Update() {
 
-	dropItemQuery := arc.DropItemFilter.Query(&kar.WorldECS)
+	dropItemQuery := arc.FilterDropItem.Query(&kar.WorldECS)
 
 	for dropItemQuery.Next() {
 
@@ -48,7 +48,7 @@ func (s *Destroy) Update() {
 	// The world is unlocked again.
 	// Actually remove the collected entities.
 	for _, e := range s.toRemove {
-		bd := arc.BodyMapper.Get(e)
+		bd := arc.MapBody.Get(e)
 		kar.Space.AddPostStepCallback(removeBodyPostStep, bd.Body, nil)
 		kar.WorldECS.RemoveEntity(e)
 	}

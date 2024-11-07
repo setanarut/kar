@@ -89,21 +89,6 @@ func SinSpace(start, end, amplitude float64, n int) []float64 {
 	return points
 }
 
-// RotateAbout rotates point about origin
-func RotateAbout(angle float64, point, origin vec.Vec2) vec.Vec2 {
-	b := vec.Vec2{}
-	b.X = math.Cos(angle)*(point.X-origin.X) - math.Sin(angle)*(point.Y-origin.Y) + origin.X
-	b.Y = math.Sin(angle)*(point.X-origin.X) + math.Cos(angle)*(point.Y-origin.Y) + origin.Y
-	return b
-}
-
-// PointOnCircle returns point at angle
-func PointOnCircle(center vec.Vec2, radius float64, angle float64) vec.Vec2 {
-	x := center.X + (radius * math.Cos(angle))
-	y := center.Y + (radius * math.Sin(angle))
-	return vec.Vec2{x, y}
-}
-
 func RandomPoint(minX, maxX, minY, maxY float64) vec.Vec2 {
 	return vec.Vec2{X: minX + rand.Float64()*(maxX-minX), Y: minY + rand.Float64()*(maxY-minY)}
 }
@@ -112,24 +97,11 @@ func RandomPointInBB(bb cm.BB, margin float64) vec.Vec2 {
 	return RandomPoint(bb.L+margin, bb.R-margin, bb.T-margin, bb.B+margin)
 }
 
-// IsMoving is velocity vector moving?
-func IsMoving(velocityVector vec.Vec2, minSpeed float64) bool {
-	if math.Abs(velocityVector.X) < minSpeed && math.Abs(velocityVector.Y) < minSpeed {
-		return true
-	} else {
-		return false
-	}
-}
-
-func GetRectScale(W, H, targetW, targetH float64) vec.Vec2 {
+func GetRectScaleFactor(W, H, targetW, targetH float64) vec.Vec2 {
 	return vec.Vec2{(targetW / W), (targetH / H)}
 }
 
-func CircleScaleFactor(radius float64, imageWidth int) vec.Vec2 {
+func GetCircleScaleFactor(radius float64, imageWidth int) vec.Vec2 {
 	scaleX := 2 * radius / float64(imageWidth)
 	return vec.Vec2{scaleX, scaleX}
 }
-
-// func DistanceSq(a, b image.Point) float64 {
-// 	return PointToVec2(a).DistanceSq(PointToVec2(b))
-// }

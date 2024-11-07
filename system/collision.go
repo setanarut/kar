@@ -33,11 +33,9 @@ func (ps *Physics) Init() {
 		TypeB: arc.DropItem,
 		BeginFunc: func(arb *cm.Arbiter, _ *cm.Space, _ any) bool {
 			a, b := arb.Bodies()
-			player := a.UserData.(ecs.Entity)
 			dropItem := b.UserData.(ecs.Entity)
-			inv := arc.InventoryMapper.Get(player)
-			itm := arc.ItemMapper.Get(dropItem)
-			ok := addItem(inv, itm.ID)
+			itm := arc.MapItem.Get(dropItem)
+			ok := addItem(arc.MapInventory.Get(a.UserData.(ecs.Entity)), itm.ID)
 			if ok {
 				kar.Space.AddPostStepCallback(removeBodyPostStep, b, nil)
 				kar.WorldECS.RemoveEntity(dropItem)

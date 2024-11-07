@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
@@ -27,7 +28,6 @@ func (gui *RenderGUI) Init() {
 	gui.hotbarDIO = &eb.DrawImageOptions{}
 	gui.itemsDIO = &eb.DrawImageOptions{}
 	gui.itemQuantityTextDO = &text.DrawOptions{}
-	fontSmallDrawOptions.GeoM.Translate(30, 26)
 	selectedIm.Fill(color.White)
 
 	hudTextTemplate = `
@@ -88,6 +88,7 @@ func (gui *RenderGUI) Draw() {
 			}
 		}
 
+		vel := playerBody.Velocity()
 		// Draw stats text
 		txt := fmt.Sprintf(
 			hudTextTemplate,
@@ -104,10 +105,12 @@ func (gui *RenderGUI) Draw() {
 			items.Property[playerInv.HandSlot.ID].DisplayName,
 			playerInv.HandSlot.Quantity,
 			selectedSlotDisplayName,
-			playerBody.Position(),
+			fmt.Sprintf("X %.0f Y %.0f", vel.X, vel.Y),
 		)
 
-		text.Draw(kar.Screen, txt, res.FontSmall, fontSmallDrawOptions)
+		ebitenutil.DebugPrintAt(kar.Screen, txt, 20, 0)
+
+		// text.Draw(kar.Screen, txt, res.FontSmall, fontSmallDrawOptions)
 
 	}
 }
