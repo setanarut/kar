@@ -36,13 +36,6 @@ func (rn *Render) Update() {
 		debugDrawingEnabled = !debugDrawingEnabled
 	}
 
-	if debugDrawingEnabled {
-		vectorg.GlobalTransform.Reset()
-		cmDrawer.GeoM.Reset()
-		Camera.ApplyCameraTransform(cmDrawer.GeoM)
-		Camera.ApplyCameraTransform(vectorg.GlobalTransform)
-	}
-
 	Camera.LookAt(playerPos.X, playerPos.Y)
 
 	if pressed(eb.KeyP) {
@@ -67,27 +60,25 @@ func (rn *Render) Update() {
 }
 
 func (rn *Render) Draw() {
-
-	// Clear color
 	kar.Screen.Fill(color.RGBA{64, 68, 108, 255})
 
 	drawDropItems()
 	drawBlocks()
 	drawPlayer()
 
+	// Clear color
 	if debugDrawingEnabled {
-		// cm.DrawShape(playerBody.ShapeAtIndex(0), cmDrawer.WithScreen(kar.Screen))
-		// cm.DrawSpace(kar.Space, cmDrawer.WithScreen(kar.Screen))
+		cmDrawer.DrawSpace(kar.Space, kar.Screen)
 		vectorg.Line(kar.Screen, playerPos, attackSegEnd, 1, color.White)
-		vectorg.Rect(
-			kar.Screen,
-			playerPos.Sub(vec.Vec2{12, 16}),
-			24,
-			32,
-			color.White,
-			0,
-			vectorg.Fill,
-		)
+		// vectorg.Rect(
+		// 	kar.Screen,
+		// 	playerPos.Sub(vec.Vec2{12, 16}),
+		// 	24,
+		// 	32,
+		// 	color.White,
+		// 	0,
+		// 	vectorg.Fill,
+		// )
 	}
 	if drawBlockBorderEnabled {
 		drawBlockBorder()

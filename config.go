@@ -18,7 +18,7 @@ var (
 var (
 	GUIScale    = 1.0
 	ScreenScale = 1.0
-	Gravity     = 0.0
+	Gravity     = 800.
 	SpaceStep   = 1.0 / 60.0
 
 	// CollisionBias determines how fast overlapping shapes are pushed apart.

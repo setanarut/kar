@@ -12,7 +12,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/setanarut/ebitencm"
 	"github.com/setanarut/kamera/v2"
-	"golang.org/x/image/colornames"
 )
 
 const itemAnimFrameCount int = 200
@@ -53,6 +52,5 @@ var (
 )
 
 func init() {
-	cmDrawer.StrokeDisabled = false
-	cmDrawer.Theme.ShapeSleeping = colornames.Green
+	cmDrawer.DrawingOptions.AllStrokesDisabled = true
 }

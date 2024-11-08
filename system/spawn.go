@@ -3,6 +3,7 @@ package system
 import (
 	"kar"
 	"kar/arc"
+	"kar/engine/vectorg"
 	"kar/items"
 	"kar/world"
 
@@ -50,6 +51,14 @@ func (s *Spawn) Init() {
 
 }
 func (s *Spawn) Update() {
+
+	if debugDrawingEnabled {
+		vectorg.GlobalTransform.Reset()
+		cmDrawer.GeoM.Reset()
+		Camera.ApplyCameraTransform(cmDrawer.GeoM)
+		Camera.ApplyCameraTransform(vectorg.GlobalTransform)
+	}
+
 	playerPos = playerBody.Position()
 	// playerBody.SetVelocityUpdateFunc(PlayerFlyVelocityFunc)
 	if kar.WorldECS.Alive(playerEntity) {

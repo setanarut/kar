@@ -318,7 +318,6 @@ func VelocityFunc(body *cm.Body, grav vec.Vec2, damping, dt float64) {
 	velocity := body.Velocity()
 
 	if isOnFloor {
-		velocity.Y = 0
 		if isCrouching && inputAxis.X != 0 {
 			isCrouching = false
 			inputAxis.X = 0.0
