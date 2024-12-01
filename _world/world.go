@@ -105,7 +105,7 @@ func (tr *World) DeSpawnChunk(chunkCoord image.Point) {
 		itm := q.Get()
 		e := q.Entity()
 		if itm.Chunk == chunkCoord {
-			b := arc.MapBody.Get(e)
+			b := arc.MapRect.Get(e)
 			kar.Space.AddPostStepCallback(removeBodyPostStep, b.Body, nil)
 			toRemove = append(toRemove, e)
 		}

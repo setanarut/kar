@@ -2,7 +2,6 @@ package system
 
 import (
 	"fmt"
-	"image/color"
 	"kar"
 	"kar/items"
 	"kar/res"
@@ -16,7 +15,6 @@ import (
 var (
 	selectedSlotDisplayName string
 	hudTextTemplate         string
-	selectedIm              = eb.NewImage(16, 16)
 )
 
 type RenderGUI struct {
@@ -28,8 +26,6 @@ func (gui *RenderGUI) Init() {
 	gui.hotbarDIO = &eb.DrawImageOptions{}
 	gui.itemsDIO = &eb.DrawImageOptions{}
 	gui.itemQuantityTextDO = &text.DrawOptions{}
-	selectedIm.Fill(color.White)
-
 	hudTextTemplate = `
 Player   %d %d
 Look     %d %d %s
@@ -46,7 +42,7 @@ func (gui *RenderGUI) Update() {
 }
 func (gui *RenderGUI) Draw() {
 
-	if kar.WorldECS.Alive(playerEntity) {
+	if kar.WorldECS.Alive(Mario) {
 		// Draw hotbar
 		if playerInv.Slots[selectedSlotIndex].ID == items.Air {
 			selectedSlotDisplayName = ""
@@ -88,7 +84,6 @@ func (gui *RenderGUI) Draw() {
 			}
 		}
 
-		vel := playerBody.Velocity()
 		// Draw stats text
 		txt := fmt.Sprintf(
 			hudTextTemplate,

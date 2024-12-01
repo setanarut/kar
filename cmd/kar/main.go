@@ -39,12 +39,8 @@ func (g *Game) Init() {
 	g.systems = []kar.ISystem{
 		&system.Input{},
 		&system.Spawn{},
-		&system.Player{},
-		&system.DropItem{},
-		&system.Controller{},
-		&system.CollisionHandler{},
 		&system.Render{},
-		&system.RenderGUI{},
+		// &system.RenderGUI{},
 	}
 
 	// Initalize systems
