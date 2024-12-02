@@ -18,8 +18,8 @@ const DeltaTime float64 = 1.0 / 60.0
 
 var (
 	Screen      *ebiten.Image
-	Camera      *kamera.Camera
-	WorldECS    = ecs.NewWorld()
+	Camera      *kamera.Camera = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
+	WorldECS                   = ecs.NewWorld()
 	DesktopPath string
 	GlobalDIO   = &ebiten.DrawImageOptions{}
 )

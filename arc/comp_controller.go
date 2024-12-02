@@ -7,7 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Controller struct {
+type PlatformerController struct {
 	MinSpeed         float64
 	MaxSpeed         float64
 	MaxWalkSpeed     float64
@@ -39,8 +39,8 @@ type Controller struct {
 	speedThresholdIndex int
 }
 
-func NewController() *Controller {
-	pc := &Controller{
+func NewPlatformerController() *PlatformerController {
+	pc := &PlatformerController{
 		MinSpeed:            0.07421875,
 		MaxSpeed:            2.5625,
 		MaxWalkSpeed:        1.5625,
@@ -74,7 +74,7 @@ func NewController() *Controller {
 	return pc
 }
 
-func (pc *Controller) SetPhyicsScale(s float64) {
+func (pc *PlatformerController) SetPhyicsScale(s float64) {
 	pc.MinSpeed *= s
 	pc.MaxSpeed *= s
 	pc.MaxWalkSpeed *= s
@@ -98,7 +98,7 @@ func (pc *Controller) SetPhyicsScale(s float64) {
 	pc.SpeedThresholds[1] *= s
 }
 
-func (pc *Controller) ProcessVelocity(inputAxis, vel vec2) vec2 {
+func (pc *PlatformerController) ProcessVelocity(inputAxis, vel vec2) vec2 {
 
 	if pc.IsOnFloor {
 		pc.IsRunning = ebiten.IsKeyPressed(ebiten.KeyShift)
