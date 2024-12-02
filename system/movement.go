@@ -21,8 +21,7 @@ func (s *Movement) Update() {
 		if marioVel.Y < 0 {
 			ctrl.IsOnFloor = false
 		}
-		marioVel := ctrl.ProcessVelocity(InputAxis, marioVel)
-
+		marioVel = ctrl.ProcessVelocity(InputAxis, marioVel)
 		dx, dy := TCollider.Collide(
 			rect.X,
 			rect.Y,
@@ -45,7 +44,6 @@ func (s *Movement) Update() {
 				}
 			},
 		)
-
 		rect.X += dx
 		rect.Y += dy
 	}

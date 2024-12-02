@@ -53,7 +53,7 @@ func SpawnMario(x, y float64) ecs.Entity {
 	a.NewAnimationState("skidding", 16*7, 0, 16, 16, 1, false, false)
 	a.SetState("idleRight")
 	i := NewInventory()
-	d := &DrawOptions{Scale: 2}
+	d := &DrawOptions{Scale: 1}
 	r := &Rect{X: x, Y: y, W: 16, H: 16}
 	c := NewPlatformerController()
 	c.SetPhyicsScale(2)
