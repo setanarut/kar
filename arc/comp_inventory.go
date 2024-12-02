@@ -14,6 +14,15 @@ type Inventory struct {
 	HandSlot ItemStack
 }
 
+func NewInventory() *Inventory {
+	inv := &Inventory{}
+	inv.HandSlot = ItemStack{}
+	for i := range inv.Slots {
+		inv.Slots[i] = ItemStack{}
+	}
+	return inv
+}
+
 // Add item to inventory if empty
 func (i *Inventory) AddItem(id uint16) bool {
 	is, ok1 := i.HasItemStackSpace(id)

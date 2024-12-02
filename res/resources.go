@@ -4,7 +4,6 @@ package res
 import (
 	"embed"
 	"image"
-	"kar"
 	"kar/engine/util"
 	"kar/items"
 
@@ -33,16 +32,7 @@ var Border *ebiten.Image
 
 func init() {
 
-	switch kar.BlockSize {
-	case 32:
-		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border32.png")
-	case 48:
-		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border48.png")
-	case 64:
-		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border64.png")
-	case 80:
-		Border = util.ReadEbImgFS(fs, "assets/img/overlay/border80.png")
-	}
+	Border = util.ReadEbImgFS(fs, "assets/img/overlay/border48.png")
 
 	Images[items.Air] = util.ReadEbImgFS(fs, "assets/img/air.png")
 	Frames[items.Andesite] = blockImgs("andesite.png")

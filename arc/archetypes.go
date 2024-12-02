@@ -56,6 +56,7 @@ func SpawnMario(x, y float64) ecs.Entity {
 	d := &DrawOptions{Scale: 2}
 	r := &Rect{X: x, Y: y, W: 16, H: 16}
 	c := NewPlatformerController()
+	c.SetPhyicsScale(2)
 	entity := MapPlayer.NewWith(h, d, a, r, i, c)
 	return entity
 }

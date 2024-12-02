@@ -4,10 +4,8 @@ import (
 	"image/color"
 	"kar"
 	"kar/arc"
-	"kar/res"
 
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Render struct{}
@@ -28,16 +26,28 @@ func (rn *Render) Update() {
 func (rn *Render) Draw() {
 	kar.Screen.Fill(color.RGBA{64, 68, 108, 255})
 
-	dio := &ebiten.DrawImageOptions{}
-	kar.Camera.Draw(res.Border, dio, kar.Screen)
+	for y, row := range Map.Grid {
+		for x, value := range row {
+			if value != 0 {
+				px, py := float64(x*Map.TileW), float64(y*Map.TileH)
+				px, py = kar.Camera.ApplyCameraTransformToPoint(px, py)
+				vector.DrawFilledRect(
+					kar.Screen,
+					float32(px),
+					float32(py),
+					float32(Map.TileW),
+					float32(Map.TileH),
+					color.Gray{127},
+					false,
+				)
+			}
+		}
+	}
 
+	// draw player
 	q := arc.FilterDraw.Query(&kar.WorldECS)
 	for q.Next() {
 		dop, anim, rect := q.Get()
-
-		ebitenutil.DebugPrint(kar.Screen, rect.String())
-
-		anim.Update()
 		kar.Camera.LookAt(rect.X, rect.Y)
 		sclX := dop.Scale
 		if dop.FlipX {

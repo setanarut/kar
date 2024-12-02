@@ -3,7 +3,7 @@ package tilemap
 import "fmt"
 
 type TileMap struct {
-	Grid         [][]uint8
+	Grid         [][]uint16
 	W, H         int
 	TileW, TileH int
 }
@@ -29,15 +29,15 @@ func (t *TileMap) String() string {
 	return s
 }
 
-func MakeGrid(width, height int) [][]uint8 {
-	var tm [][]uint8
+func MakeGrid(width, height int) [][]uint16 {
+	var tm [][]uint16
 	for i := 0; i < height; i++ {
-		tm = append(tm, make([]uint8, width))
+		tm = append(tm, make([]uint16, width))
 	}
 	return tm
 }
 
-func Raycast(tm [][]uint8, x, y int, dirX, dirY int) (pos [2]int, id uint8, ok bool) {
+func Raycast(tm [][]uint16, x, y int, dirX, dirY int) (pos [2]int, id uint16, ok bool) {
 	cursorX, cursorY := x, y
 	for range 3 {
 		cursorX += dirX
