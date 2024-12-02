@@ -8,7 +8,11 @@
 *.so
 *.dylib
 
+# Sadece .go uzantılı alt tire ile başlayan dosyaları yoksay
+_*.go
+
 /internal
+/cmd/dene
 /wasm
 
 # Test binary, built with `go test -c`
