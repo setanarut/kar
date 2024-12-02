@@ -24,7 +24,7 @@ func (rn *Render) Draw() {
 	// drawPlayer()
 }
 
-func applyDIO(drawOpt *arc.DrawOptions, pos vec.Vec2) {
+func ApplyDIO(drawOpt *arc.DrawOptions, pos vec.Vec2) {
 	sclX := drawOpt.Scale
 	if drawOpt.FlipX {
 		sclX *= -1

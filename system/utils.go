@@ -7,10 +7,9 @@ import (
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/setanarut/cm"
 )
 
-func getSprite(id uint16) *ebiten.Image {
+func GetSprite(id uint16) *ebiten.Image {
 	im, ok := res.Images[id]
 	if ok {
 		return im
@@ -21,10 +20,6 @@ func getSprite(id uint16) *ebiten.Image {
 			return res.Images[items.Air]
 		}
 	}
-}
-
-func removeBodyPostStep(space *cm.Space, body, data interface{}) {
-	space.RemoveBodyWithShapes(body.(*cm.Body))
 }
 
 func TimerIsReady(t *arc.Timer) bool {

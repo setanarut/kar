@@ -4,8 +4,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-var inputAxis vec2
-var inputAxisLast vec2
+var InputAxis vec2
+var InputAxisLast vec2
 
 type Input struct{}
 
@@ -13,10 +13,10 @@ func (sys *Input) Init() {}
 func (sys *Input) Draw() {}
 func (sys *Input) Update() {
 
-	if !inputAxis.Equals(vec2{}) {
-		inputAxisLast = inputAxis
+	if !InputAxis.Equals(vec2{}) {
+		InputAxisLast = InputAxis
 	}
-	inputAxis = Axis()
+	InputAxis = Axis()
 }
 
 func Axis() (axis vec2) {
