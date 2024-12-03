@@ -25,7 +25,7 @@ var (
 		anim.AnimationPlayer,
 		Rect,
 		Inventory,
-		PlatformerController](&kar.WorldECS)
+		Controller](&kar.WorldECS)
 )
 
 var (
@@ -37,7 +37,7 @@ var (
 		Inventory]()
 
 	FilterDraw       = gn.NewFilter3[DrawOptions, anim.AnimationPlayer, Rect]()
-	FilterMovement   = gn.NewFilter2[PlatformerController, Rect]()
+	FilterMovement   = gn.NewFilter2[Controller, Rect]()
 	FilterAnimPlayer = gn.NewFilter1[anim.AnimationPlayer]()
 )
 
@@ -55,8 +55,7 @@ func SpawnMario(x, y float64) ecs.Entity {
 	i := NewInventory()
 	d := &DrawOptions{Scale: 1}
 	r := &Rect{X: x, Y: y, W: 16, H: 16}
-	c := NewPlatformerController()
-	c.SetPhyicsScale(2)
+	c := NewController()
 	entity := MapPlayer.NewWith(h, d, a, r, i, c)
 	return entity
 }
