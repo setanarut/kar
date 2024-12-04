@@ -8,11 +8,21 @@ type TileMap struct {
 	TileW, TileH int
 }
 
-func NewTileMap(w, h, tileW, tileH int) *TileMap {
+func MakeTileMap(w, h, tileW, tileH int) *TileMap {
 	return &TileMap{
 		Grid:  MakeGrid(w, h),
 		W:     w,
 		H:     h,
+		TileW: tileW,
+		TileH: tileH,
+	}
+}
+
+func NewTileMap(tm [][]uint16, tileW, tileH int) *TileMap {
+	return &TileMap{
+		Grid:  tm,
+		W:     len(tm[0]),
+		H:     len(tm),
 		TileW: tileW,
 		TileH: tileH,
 	}

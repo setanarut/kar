@@ -8,272 +8,183 @@ import (
 )
 
 type Controller struct {
-	CurrentState string
+	CurrentState                        string
+	VelX                                float64
+	VelY                                float64
+	JumpPower                           float64
+	Gravity                             float64
+	MaxFallSpeed                        float64
+	MaxRunSpeed                         float64
+	MaxWalkSpeed                        float64
+	Acceleration                        float64
+	Deceleration                        float64
+	JumpHoldTime                        float64
+	JumpBoost                           float64
+	JumpTimer                           float64
+	MinSpeedThresForJumpBoostMultiplier float64 // Yüksek zıplama için gereken minimum hız
+	JumpBoostMultiplier                 float64 // Yüksek zıplamada kullanılacak çarpan
+	SpeedJumpFactor                     float64 // Yatay hızın zıplama yüksekliğine etkisini kontrol eden çarpan
+	ShortJumpVelocity                   float64 // Kısa zıplama için hız
+	JumpReleaseTimer                    float64 // Zıplama tuşu bırakıldığında geçen süre
 
-	VelocityX float64
-	VelocityY float64
-
-	OnFloor                bool
-	EarthGravity           float64
-	JumpPower              float64
-	MinJumpPower           float64
-	MaxWalkSpeed           float64
-	MaxRunSpeed            float64
-	RunSpeedMultiplier     float64
-	XFriction              float64
-	Acceleration           float64
-	calculatedJumpVelocity float64
-	WalkJumpMultiplier     float64
-	RunJumpMultiplier      float64
-
-	isKeyLeftPressed      bool
-	isKeyRightPressed     bool
-	isKeyJumpJustPressed  bool
-	isKeyJumpJustReleased bool
-	isKeyRunPressed       bool
+	IsOnFloor bool
+	// Input durumları
+	IsLeftKeyPressed     bool
+	IsRightKeyPressed    bool
+	IsJumpKeyPressed     bool
+	IsJumpKeyJustPressed bool
+	IsRunKeyPressed      bool
 }
 
-func NewController() *Controller {
-	p := &Controller{
-		CurrentState: "idle",
+func NewController(velX, velY float64) *Controller {
+	return &Controller{
+		CurrentState: "falling",
 
-		EarthGravity:       0.50,
-		JumpPower:          10.0,
-		MinJumpPower:       3.00,
-		MaxWalkSpeed:       10.0,
-		MaxRunSpeed:        14.0,
-		RunSpeedMultiplier: 1.50,
-		WalkJumpMultiplier: 1.01,
-		RunJumpMultiplier:  1.01,
-		XFriction:          0.90,
-		Acceleration:       0.30,
+		VelX:                                velX,
+		VelY:                                velY,
+		JumpPower:                           -3.7,
+		Gravity:                             0.19,
+		MaxFallSpeed:                        6.0,
+		MaxRunSpeed:                         2.5,
+		MaxWalkSpeed:                        2.0,
+		Acceleration:                        0.08,
+		Deceleration:                        0.1,
+		JumpHoldTime:                        20.0,
+		JumpBoost:                           -0.1,
+		MinSpeedThresForJumpBoostMultiplier: 0.1,
+		JumpBoostMultiplier:                 1.01,
+		SpeedJumpFactor:                     0.3,
+		ShortJumpVelocity:                   -2.0,
+		JumpReleaseTimer:                    5,
+	}
+}
+
+func (c *Controller) UpdateInput() {
+	c.IsRunKeyPressed = ebiten.IsKeyPressed(ebiten.KeyShift)
+	c.IsLeftKeyPressed = ebiten.IsKeyPressed(ebiten.KeyA)
+	c.IsRightKeyPressed = ebiten.IsKeyPressed(ebiten.KeyD)
+	c.IsJumpKeyPressed = ebiten.IsKeyPressed(ebiten.KeySpace)
+	c.IsJumpKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeySpace)
+}
+
+func (c *Controller) UpdatePhysics() {
+	maxSpeed := c.MaxWalkSpeed
+	if c.IsRunKeyPressed {
+		maxSpeed = c.MaxRunSpeed
 	}
 
-	// İstenen yükseklik için zıplama hızını hesapla
-	desiredHeight := 63.0
-	p.calculatedJumpVelocity = p.calculateJumpPower(desiredHeight)
+	if c.IsRightKeyPressed {
+		if c.VelX < maxSpeed {
+			c.VelX += c.Acceleration
+		}
+	} else if c.IsLeftKeyPressed {
+		if c.VelX > -maxSpeed {
+			c.VelX -= c.Acceleration
+		}
+	} else {
+		if c.VelX > 0 {
+			c.VelX = max(0, c.VelX-c.Deceleration)
+		} else if c.VelX < 0 {
+			c.VelX = min(0, c.VelX+c.Deceleration)
+		}
+	}
 
-	return p
+	c.VelY += c.Gravity
+	if c.VelY > c.MaxFallSpeed {
+		c.VelY = c.MaxFallSpeed
+	}
 }
 
-func (c *Controller) Update() {
-
-	c.isKeyLeftPressed = ebiten.IsKeyPressed(ebiten.KeyA)
-	c.isKeyRightPressed = ebiten.IsKeyPressed(ebiten.KeyD)
-	c.isKeyJumpJustPressed = inpututil.IsKeyJustPressed(ebiten.KeySpace)
-	c.isKeyJumpJustReleased = inpututil.IsKeyJustReleased(ebiten.KeySpace)
-	c.isKeyRunPressed = ebiten.IsKeyPressed(ebiten.KeyShiftRight)
-
-	// Durum güncellemesi
+func (c *Controller) UpdateState() {
 	switch c.CurrentState {
 	case "idle":
-		c.Idle()
-
-	case "walking":
-		c.Walking()
-
-	case "running":
-		c.Running()
-
-	case "jumping":
-		c.Jumping()
-
-	case "falling":
-		c.Falling()
-	}
-}
-
-func (c *Controller) calculateJumpPower(desiredHeight float64) float64 {
-	jumpVelocity := math.Sqrt(2 * c.EarthGravity * desiredHeight)
-	return -jumpVelocity
-}
-
-func (c *Controller) Idle() {
-	// Sürtünme uygulaması - daha yumuşak bir kayma için değiştirildi
-	c.VelocityX *= c.XFriction
-
-	// Çok küçük hızları sıfırla (titreşimi önlemek için)
-	if math.Abs(c.VelocityX) < 0.1 {
-		c.VelocityX = 0
-	}
-
-	// Yerçekimi ve dikey hareket
-	c.VelocityY += c.EarthGravity
-
-	// Durum geçişleri
-	if c.isKeyLeftPressed || c.isKeyRightPressed {
-		if c.isKeyRunPressed {
-			c.CurrentState = "running"
-		} else {
-			c.CurrentState = "walking"
-		}
-	}
-	if c.OnFloor && c.isKeyJumpJustPressed {
-		c.CurrentState = "jumping"
-		c.VelocityY = c.calculatedJumpVelocity
-		c.isKeyJumpJustReleased = false
-	}
-}
-
-func (c *Controller) Walking() {
-	// Yatay hareket
-	if c.isKeyLeftPressed {
-		c.VelocityX -= c.Acceleration
-	} else if c.isKeyRightPressed {
-		c.VelocityX += c.Acceleration
-	}
-
-	// Sürtünme uygulaması (basitleştirilmiş)
-	c.VelocityX *= c.XFriction
-
-	// Hız sınırlaması
-	if c.VelocityX > c.MaxWalkSpeed {
-		c.VelocityX = c.MaxWalkSpeed
-	} else if c.VelocityX < -c.MaxWalkSpeed {
-		c.VelocityX = -c.MaxWalkSpeed
-	}
-
-	// Yerçekimi ve dikey hareket
-	c.VelocityY += c.EarthGravity
-
-	// Durum geçişleri
-	if c.isKeyRunPressed {
-		c.CurrentState = "running"
-	}
-	if !c.isKeyLeftPressed && !c.isKeyRightPressed {
-		c.CurrentState = "idle"
-	}
-	if c.OnFloor && c.isKeyJumpJustPressed {
-		c.CurrentState = "jumping"
-		c.VelocityY = c.calculatedJumpVelocity * c.WalkJumpMultiplier
-		c.isKeyJumpJustReleased = false
-	}
-}
-
-func (c *Controller) Running() {
-	// Yatay hareket
-	if c.isKeyLeftPressed {
-		c.VelocityX -= c.Acceleration * c.RunSpeedMultiplier
-	} else if c.isKeyRightPressed {
-		c.VelocityX += c.Acceleration * c.RunSpeedMultiplier
-	}
-
-	// Sürtünme uygulaması (Walking ile aynı basitleştirilmiş mantık kullanılmalı)
-	c.VelocityX *= c.XFriction
-
-	// Hız sınırlaması
-	if c.VelocityX > c.MaxRunSpeed {
-		c.VelocityX = c.MaxRunSpeed
-	} else if c.VelocityX < -c.MaxRunSpeed {
-		c.VelocityX = -c.MaxRunSpeed
-	}
-
-	// Yerçekimi ve dikey hareket
-	c.VelocityY += c.EarthGravity
-
-	// Durum geçişleri
-	if !c.isKeyRunPressed {
-		c.CurrentState = "walking"
-	}
-	if !c.isKeyLeftPressed && !c.isKeyRightPressed {
-		c.CurrentState = "idle"
-	}
-	if c.OnFloor && c.isKeyJumpJustPressed {
-		c.CurrentState = "jumping"
-		c.VelocityY = c.calculatedJumpVelocity * c.RunJumpMultiplier
-		c.isKeyJumpJustReleased = false
-	}
-}
-
-func (c *Controller) Jumping() {
-	if c.isKeyJumpJustPressed {
-		c.VelocityY = c.calculatedJumpVelocity
-		c.isKeyJumpJustReleased = false
-	}
-
-	// Yatay hareket kontrolü
-	acceleration := c.Acceleration
-	if c.isKeyRunPressed {
-		acceleration *= c.RunSpeedMultiplier
-	}
-
-	if c.isKeyLeftPressed {
-		c.VelocityX -= acceleration
-	} else if c.isKeyRightPressed {
-		c.VelocityX += acceleration
-	}
-
-	// Sürtünme uygulaması
-	c.VelocityX *= c.XFriction
-
-	// Hız sınırlaması
-	maxSpeed := c.MaxWalkSpeed
-	if c.isKeyRunPressed {
-		maxSpeed = c.MaxRunSpeed
-	}
-	if c.VelocityX > maxSpeed {
-		c.VelocityX = maxSpeed
-	} else if c.VelocityX < -maxSpeed {
-		c.VelocityX = -maxSpeed
-	}
-
-	// Yerçekimi ve dikey hareket
-	c.VelocityY += c.EarthGravity
-
-	// Zıplama yüksekliği kontrolü
-	if c.isKeyJumpJustReleased {
-		if c.VelocityY < -c.MinJumpPower {
-			c.VelocityY = -c.MinJumpPower
-		}
-		c.isKeyJumpJustReleased = true
-	}
-
-	// Durum geçişi
-	if c.VelocityY > 0 {
-		c.CurrentState = "falling"
-	}
-}
-
-func (c *Controller) Falling() {
-	// Yatay hareket kontrolü
-	acceleration := c.Acceleration
-	if c.isKeyRunPressed {
-		acceleration *= c.RunSpeedMultiplier
-	}
-
-	if c.isKeyLeftPressed {
-		c.VelocityX -= acceleration
-	} else if c.isKeyRightPressed {
-		c.VelocityX += acceleration
-	}
-
-	// Sürtünme uygulaması
-	c.VelocityX *= c.XFriction
-
-	// Hız sınırlaması
-	maxSpeed := c.MaxWalkSpeed
-	if c.isKeyRunPressed {
-		maxSpeed = c.MaxRunSpeed
-	}
-	if c.VelocityX > maxSpeed {
-		c.VelocityX = maxSpeed
-	} else if c.VelocityX < -maxSpeed {
-		c.VelocityX = -maxSpeed
-	}
-
-	// Yerçekimi ve dikey hareket
-	c.VelocityY += c.EarthGravity
-
-	// Durum geçişi
-	if c.OnFloor {
-		if c.isKeyLeftPressed || c.isKeyRightPressed {
-			if c.isKeyRunPressed {
+		if c.IsJumpKeyJustPressed {
+			c.CurrentState = "jumping"
+			c.VelY = c.JumpPower
+			c.JumpTimer = 0
+		} else if c.VelX != 0 {
+			if c.IsRunKeyPressed {
 				c.CurrentState = "running"
 			} else {
 				c.CurrentState = "walking"
 			}
-		} else {
+		}
+
+	case "walking":
+		if c.VelY > 0 && !c.IsOnFloor {
+			c.CurrentState = "falling"
+		}
+
+		// Koşma hızından yürüme hızına kademeli geçiş
+		if math.Abs(c.VelX) > c.MaxWalkSpeed {
+			if c.VelX > 0 {
+				c.VelX = math.Max(c.MaxWalkSpeed, c.VelX-c.Deceleration)
+			} else {
+				c.VelX = math.Min(-c.MaxWalkSpeed, c.VelX+c.Deceleration)
+			}
+		}
+
+		if c.IsJumpKeyJustPressed {
+			c.CurrentState = "jumping"
+			if math.Abs(c.VelX) > c.MinSpeedThresForJumpBoostMultiplier {
+				c.VelY = c.JumpPower * c.JumpBoostMultiplier
+			} else {
+				c.VelY = c.JumpPower
+			}
+			c.JumpTimer = 0
+		} else if math.Abs(c.VelX) <= 0 {
 			c.CurrentState = "idle"
 		}
+
+		if c.IsRunKeyPressed {
+			c.CurrentState = "running"
+		}
+
+	case "running":
+		if c.IsJumpKeyJustPressed {
+			c.CurrentState = "jumping"
+			if math.Abs(c.VelX) > c.MinSpeedThresForJumpBoostMultiplier {
+				c.VelY = c.JumpPower * c.JumpBoostMultiplier
+			} else {
+				c.VelY = c.JumpPower
+			}
+			c.JumpTimer = 0
+		} else if c.VelX == 0 {
+			c.CurrentState = "idle"
+		}
+
+		if !c.IsRunKeyPressed {
+			c.CurrentState = "walking"
+		}
+
+	case "jumping":
+		if !c.IsJumpKeyPressed && c.JumpTimer < c.JumpReleaseTimer {
+			c.VelY = c.ShortJumpVelocity
+			c.JumpTimer = c.JumpHoldTime // Zıplama süresini bitir
+		} else if c.IsJumpKeyPressed && c.JumpTimer < c.JumpHoldTime {
+			speedFactor := (math.Abs(c.VelX) / c.MaxRunSpeed) * c.SpeedJumpFactor
+			c.VelY += c.JumpBoost * (1 + speedFactor)
+			c.JumpTimer++
+		} else if c.VelY >= 0 {
+			c.CurrentState = "falling"
+		}
+
+		if c.IsLeftKeyPressed && c.VelX > 0 {
+			c.VelX -= c.Deceleration
+		} else if c.IsRightKeyPressed && c.VelX < 0 {
+			c.VelX += c.Deceleration
+		}
+
+	case "falling":
+		if c.IsOnFloor {
+			if c.VelX == 0 {
+				c.CurrentState = "idle"
+			} else if c.IsRunKeyPressed {
+				c.CurrentState = "running"
+			} else {
+				c.CurrentState = "walking"
+			}
+		}
 	}
+
 }

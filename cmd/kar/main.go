@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-
+	// ebiten.SetTPS(15)
 	game := NewGame()
 	game.Init()
 	ebiten.SetScreenClearedEveryFrame(false)

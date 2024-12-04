@@ -24,8 +24,6 @@ func (rn *Render) Update() {
 }
 
 func (rn *Render) Draw() {
-	kar.Screen.Fill(color.RGBA{64, 68, 108, 255})
-
 	for y, row := range Map.Grid {
 		for x, value := range row {
 			if value != 0 {

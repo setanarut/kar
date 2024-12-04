@@ -2,15 +2,12 @@ package arc
 
 import (
 	"kar"
-	"kar/engine/v"
 	"kar/res"
 
 	"github.com/mlange-42/arche/ecs"
 	gn "github.com/mlange-42/arche/generic"
 	"github.com/setanarut/anim"
 )
-
-type vec2 = v.Vec
 
 var (
 	// MapHealth               = gn.NewMap[Health](&kar.WorldECS)
@@ -55,7 +52,7 @@ func SpawnMario(x, y float64) ecs.Entity {
 	i := NewInventory()
 	d := &DrawOptions{Scale: 1}
 	r := &Rect{X: x, Y: y, W: 16, H: 16}
-	c := NewController()
+	c := NewController(0, 3)
 	entity := MapPlayer.NewWith(h, d, a, r, i, c)
 	return entity
 }
