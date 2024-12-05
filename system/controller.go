@@ -10,15 +10,14 @@ import (
 
 var state string
 
-func (s *Movement) Init() {
+func (c *Controller) Init() {
 
 }
-func (s *Movement) Update() {
+func (c *Controller) Update() {
 	q := arc.FilterMovement.Query(&kar.WorldECS)
 	for q.Next() {
 		controller, rect, anim, dop := q.Get()
 
-		// dop.FlipX = math.Signbit(controller.VelX)
 		if controller.VelX > 0 {
 			dop.FlipX = false
 		} else if controller.VelX < 0 {
@@ -59,8 +58,8 @@ func (s *Movement) Update() {
 
 	}
 }
-func (s *Movement) Draw() {
+func (c *Controller) Draw() {
 	ebitenutil.DebugPrint(kar.Screen, state)
 }
 
-type Movement struct{}
+type Controller struct{}

@@ -37,7 +37,7 @@ func (s *Spawn) Init() {
 		{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
 		{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}}
 
-	Map = tilemap.NewTileMap(tm, 16, 16)
+	Map = tilemap.NewTileMap(tm, 48, 48)
 
 	Collider = tilecollider.NewCollider(Map.Grid, Map.TileW, Map.TileH)
 

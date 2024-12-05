@@ -44,7 +44,7 @@ func NewController(velX, velY float64) *Controller {
 
 		VelX:                                velX,
 		VelY:                                velY,
-		JumpPower:                           -3.7,
+		JumpPower:                           -3.5,
 		Gravity:                             0.19,
 		MaxFallSpeed:                        6.0,
 		MaxRunSpeed:                         2.5,
@@ -59,6 +59,23 @@ func NewController(velX, velY float64) *Controller {
 		ShortJumpVelocity:                   -2.0,
 		JumpReleaseTimer:                    5,
 	}
+}
+
+func (c *Controller) SetScale(s float64) {
+	c.JumpPower *= s
+	c.Gravity *= s
+	c.MaxFallSpeed *= s
+	c.MaxRunSpeed *= s
+	c.MaxWalkSpeed *= s
+	c.Acceleration *= s
+	c.Deceleration *= s
+	// c.JumpHoldTime *= s
+	c.JumpBoost *= s
+	// c.MinSpeedThresForJumpBoostMultiplier *= s
+	// c.JumpBoostMultiplier *= s
+	// c.SpeedJumpFactor *= s
+	c.ShortJumpVelocity *= s
+	// c.JumpReleaseTimer *= s
 }
 
 func (c *Controller) UpdateInput() {
