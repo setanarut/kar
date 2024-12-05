@@ -3,7 +3,6 @@ package system
 import (
 	"kar"
 	"kar/arc"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/setanarut/tilecollider"
@@ -22,7 +21,7 @@ func (s *Movement) Update() {
 		controller.UpdatePhysics()
 		controller.IsOnFloor = false
 		Collider.Collide(
-			math.Round(rect.X),
+			rect.X,
 			rect.Y,
 			rect.W,
 			rect.H,

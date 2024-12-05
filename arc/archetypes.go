@@ -12,7 +12,7 @@ import (
 var (
 	// MapHealth               = gn.NewMap[Health](&kar.WorldECS)
 	// MapAnimPlayer           = gn.NewMap1[anim.AnimationPlayer](&kar.WorldECS)
-	// MapRect                 = gn.NewMap1[Rect](&kar.WorldECS)
+	MapRect = gn.NewMap1[Rect](&kar.WorldECS)
 	// MapInventory            = gn.NewMap1[Inventory](&kar.WorldECS)
 	// MapPlatformerController = gn.NewMap1[PlatformerController](&kar.WorldECS)
 	// MapDraw                 = gn.NewMap3[DrawOptions, anim.AnimationPlayer, Rect](&kar.WorldECS)

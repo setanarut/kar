@@ -14,6 +14,12 @@ func (rn *Render) Init() {
 }
 
 func (rn *Render) Update() {
+
+	if kar.WorldECS.Alive(Mario) {
+		rect := arc.MapRect.Get(Mario)
+		kar.Camera.LookAt(rect.X, rect.Y)
+	}
+
 	q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
 
 	for q.Next() {
@@ -46,7 +52,6 @@ func (rn *Render) Draw() {
 	q := arc.FilterDraw.Query(&kar.WorldECS)
 	for q.Next() {
 		dop, anim, rect := q.Get()
-		kar.Camera.LookAt(rect.X, rect.Y)
 		sclX := dop.Scale
 		if dop.FlipX {
 			sclX *= -1
@@ -54,7 +59,6 @@ func (rn *Render) Draw() {
 		kar.GlobalDIO.GeoM.Reset()
 		kar.GlobalDIO.GeoM.Scale(sclX, dop.Scale)
 		kar.GlobalDIO.GeoM.Translate(rect.X, rect.Y)
-
 		kar.Camera.Draw(anim.CurrentFrame, kar.GlobalDIO, kar.Screen)
 
 	}
