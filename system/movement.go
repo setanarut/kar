@@ -16,9 +16,18 @@ func (s *Movement) Init() {
 func (s *Movement) Update() {
 	q := arc.FilterMovement.Query(&kar.WorldECS)
 	for q.Next() {
-		controller, rect := q.Get()
+		controller, rect, anim, dop := q.Get()
+
+		// dop.FlipX = math.Signbit(controller.VelX)
+		if controller.VelX > 0 {
+			dop.FlipX = false
+		} else if controller.VelX < 0 {
+			dop.FlipX = true
+		}
+
 		controller.UpdateInput()
 		controller.UpdatePhysics()
+		controller.UpdateState(anim)
 		controller.IsOnFloor = false
 		Collider.Collide(
 			rect.X,
@@ -47,7 +56,7 @@ func (s *Movement) Update() {
 				rect.Y += dy
 			},
 		)
-		controller.UpdateState()
+
 	}
 }
 func (s *Movement) Draw() {

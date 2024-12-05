@@ -34,7 +34,7 @@ var (
 		Inventory]()
 
 	FilterDraw       = gn.NewFilter3[DrawOptions, anim.AnimationPlayer, Rect]()
-	FilterMovement   = gn.NewFilter2[Controller, Rect]()
+	FilterMovement   = gn.NewFilter4[Controller, Rect, anim.AnimationPlayer, DrawOptions]()
 	FilterAnimPlayer = gn.NewFilter1[anim.AnimationPlayer]()
 )
 
@@ -46,8 +46,9 @@ func SpawnMario(x, y float64) ecs.Entity {
 	a := anim.NewAnimationPlayer(res.Mario)
 	a.NewAnimationState("idleRight", 0, 0, 16, 16, 1, false, false).FPS = 1
 	a.NewAnimationState("walkRight", 16, 0, 16, 16, 4, false, false)
-	a.NewAnimationState("jump", 16*6, 0, 16, 16, 1, false, false)
-	a.NewAnimationState("skidding", 16*7, 0, 16, 16, 1, false, false)
+	a.NewAnimationState("jump", 16*5, 0, 16, 16, 1, false, false)
+	a.NewAnimationState("skidding", 16*6, 0, 16, 16, 1, false, false)
+
 	a.SetState("idleRight")
 	i := NewInventory()
 	d := &DrawOptions{Scale: 1}

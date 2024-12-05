@@ -53,12 +53,18 @@ func (rn *Render) Draw() {
 	for q.Next() {
 		dop, anim, rect := q.Get()
 		sclX := dop.Scale
+
+		kar.GlobalDIO.GeoM.Reset()
+
 		if dop.FlipX {
 			sclX *= -1
+			kar.GlobalDIO.GeoM.Scale(sclX, dop.Scale)
+			kar.GlobalDIO.GeoM.Translate(rect.X+rect.W, rect.Y)
+		} else {
+			kar.GlobalDIO.GeoM.Scale(sclX, dop.Scale)
+			kar.GlobalDIO.GeoM.Translate(rect.X, rect.Y)
 		}
-		kar.GlobalDIO.GeoM.Reset()
-		kar.GlobalDIO.GeoM.Scale(sclX, dop.Scale)
-		kar.GlobalDIO.GeoM.Translate(rect.X, rect.Y)
+
 		kar.Camera.Draw(anim.CurrentFrame, kar.GlobalDIO, kar.Screen)
 
 	}

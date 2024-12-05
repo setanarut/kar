@@ -1,10 +1,12 @@
 package arc
 
 import (
+	"kar/engine/mathutil"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/setanarut/anim"
 )
 
 type Controller struct {
@@ -95,9 +97,10 @@ func (c *Controller) UpdatePhysics() {
 	}
 }
 
-func (c *Controller) UpdateState() {
+func (c *Controller) UpdateState(anim *anim.AnimationPlayer) {
 	switch c.CurrentState {
 	case "idle":
+		anim.SetState("idleRight")
 		if c.IsJumpKeyJustPressed {
 			c.CurrentState = "jumping"
 			c.VelY = c.JumpPower
@@ -111,6 +114,9 @@ func (c *Controller) UpdateState() {
 		}
 
 	case "walking":
+		anim.SetState("walkRight")
+		fps := mathutil.MapRange(math.Abs(c.VelX), 0, c.MaxRunSpeed, 0, 10)
+		anim.SetStateFPS("walkRight", fps)
 		if c.VelY > 0 && !c.IsOnFloor {
 			c.CurrentState = "falling"
 		}
@@ -141,6 +147,9 @@ func (c *Controller) UpdateState() {
 		}
 
 	case "running":
+		anim.SetState("walkRight")
+		fps := mathutil.MapRange(math.Abs(c.VelX), 0, c.MaxRunSpeed, 0, 10)
+		anim.SetStateFPS("walkRight", fps)
 		if c.IsJumpKeyJustPressed {
 			c.CurrentState = "jumping"
 			if math.Abs(c.VelX) > c.MinSpeedThresForJumpBoostMultiplier {
@@ -158,6 +167,7 @@ func (c *Controller) UpdateState() {
 		}
 
 	case "jumping":
+		anim.SetState("jump")
 		if !c.IsJumpKeyPressed && c.JumpTimer < c.JumpReleaseTimer {
 			c.VelY = c.ShortJumpVelocity
 			c.JumpTimer = c.JumpHoldTime // Zıplama süresini bitir
@@ -176,6 +186,7 @@ func (c *Controller) UpdateState() {
 		}
 
 	case "falling":
+		anim.SetState("jump")
 		if c.IsOnFloor {
 			if c.VelX == 0 {
 				c.CurrentState = "idle"
