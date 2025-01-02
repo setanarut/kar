@@ -38,7 +38,7 @@ type ItemProperty struct {
 
 var Property = map[uint16]ItemProperty{
 	Air: {
-		DisplayName: "",
+		DisplayName: "Air",
 		DropID:      Air,
 		Stackable:   0,
 		Tags:        None | Unbreakable,

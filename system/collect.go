@@ -5,15 +5,12 @@ import (
 	"kar/arc"
 	"kar/engine/mathutil"
 	"math"
-
-	"github.com/mlange-42/arche/ecs"
 )
 
 var (
 	itemGravity float64 = 3
-	toRemove    []ecs.Entity
-	sinspace    = mathutil.SinSpace(0, 2*math.Pi, 3, 60)
-	sinspaceLen = len(sinspace) - 1
+	sinspace            = mathutil.SinSpace(0, 2*math.Pi, 3, 60)
+	sinspaceLen         = len(sinspace) - 1
 )
 
 type Collect struct {
@@ -43,11 +40,6 @@ func (c *Collect) Update() {
 			// rect.Y += sinspace[timers.AnimationIndex]
 			timers.AnimationIndex = (timers.AnimationIndex + 1) % sinspaceLen
 		}
-		for _, e := range toRemove {
-			kar.WorldECS.RemoveEntity(e)
-		}
-		toRemove = toRemove[:0]
-
 	}
 
 }

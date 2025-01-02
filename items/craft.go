@@ -6,45 +6,49 @@ import (
 
 type Recipe [][]uint16
 
-type CraftingManager struct {
+var Recipes map[uint16][]Recipe
+
+type CraftTable struct {
+	Slots [][]uint16
 }
 
-var recipes map[uint16][]Recipe
-
-var emptyGrid = [][]uint16{
-	{0, 0, 0},
-	{0, 0, 0},
-	{0, 0, 0},
+func NewCraftTable() *CraftTable {
+	return &CraftTable{
+		Slots: [][]uint16{
+			{0, 0, 0},
+			{0, 0, 0},
+			{0, 0, 0}},
+	}
 }
 
-func NewCraftingManager() *CraftingManager {
-	return &CraftingManager{}
-}
-
-func (ct *CraftingManager) CheckRecipe(pattern [][]uint16) (item uint16, ok bool) {
-	cropped := ct.CropGrid(pattern)
-	for itemIDKey, subRecipes := range recipes {
+func (ct *CraftTable) CheckRecipeID() uint16 {
+	cropped := ct.cropRecipe(ct.Slots)
+	for itemIDKey, subRecipes := range Recipes {
 		for _, subRecipe := range subRecipes {
-			if ct.Equal(cropped, subRecipe) {
-				return itemIDKey, true
+			if ct.equal(cropped, subRecipe) {
+				return itemIDKey
 			}
 		}
 	}
-	return 0, false
+	return 0
 }
 
-func (ct *CraftingManager) Equal(grid1, grid2 [][]uint16) bool {
+func (ct *CraftTable) CheckRecipe() ItemProperty {
+	return Property[ct.CheckRecipeID()]
+}
+
+func (ct *CraftTable) equal(recipeA, recipeB Recipe) bool {
 	// Öncelikle boyutlarını karşılaştır
-	if len(grid1) != len(grid2) {
+	if len(recipeA) != len(recipeB) {
 		return false
 	}
-	for i := range grid1 {
-		if len(grid1[i]) != len(grid2[i]) {
+	for i := range recipeA {
+		if len(recipeA[i]) != len(recipeB[i]) {
 			return false
 		}
 		// Her hücreyi tek tek karşılaştır
-		for j := range grid1[i] {
-			if grid1[i][j] != grid2[i][j] {
+		for j := range recipeA[i] {
+			if recipeA[i][j] != recipeB[i][j] {
 				return false
 			}
 		}
@@ -52,13 +56,13 @@ func (ct *CraftingManager) Equal(grid1, grid2 [][]uint16) bool {
 	return true
 }
 
-// CropGrid normalizes grid
-func (ct *CraftingManager) CropGrid(grid [][]uint16) [][]uint16 {
-	minRow, maxRow := len(grid), 0
-	minCol, maxCol := len(grid[0]), 0
-	for i := 0; i < len(grid); i++ {
-		for j := 0; j < len(grid[i]); j++ {
-			if grid[i][j] != 0 {
+// cropRecipe normalizes grid
+func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
+	minRow, maxRow := len(reci), 0
+	minCol, maxCol := len(reci[0]), 0
+	for i := 0; i < len(reci); i++ {
+		for j := 0; j < len(reci[i]); j++ {
+			if reci[i][j] != 0 {
 				if i < minRow {
 					minRow = i
 				}
@@ -75,28 +79,28 @@ func (ct *CraftingManager) CropGrid(grid [][]uint16) [][]uint16 {
 		}
 	}
 	if minRow > maxRow || minCol > maxCol {
-		return emptyGrid
+		return reci
 	}
 	normalizedGrid := make([][]uint16, maxRow-minRow+1)
 	for i := range normalizedGrid {
 		normalizedGrid[i] = make([]uint16, maxCol-minCol+1)
 		for j := range normalizedGrid[i] {
-			normalizedGrid[i][j] = grid[minRow+i][minCol+j]
+			normalizedGrid[i][j] = reci[minRow+i][minCol+j]
 		}
 	}
-	return normalizedGrid
+	return Recipe(normalizedGrid)
 }
 
-func (ct *CraftingManager) PrintGrid(grid [][]uint16) {
-	for _, row := range grid {
+func (ct *CraftTable) PrintGrid(r Recipe) {
+	for _, row := range r {
 		fmt.Println(row)
 	}
 	fmt.Println()
 }
 
 func init() {
-	recipes = make(map[uint16][]Recipe)
-	recipes[Torch] = []Recipe{
+	Recipes = make(map[uint16][]Recipe)
+	Recipes[Torch] = []Recipe{
 		[][]uint16{
 			{Coal},
 			{Stick},

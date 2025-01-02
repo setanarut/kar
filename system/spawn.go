@@ -16,6 +16,7 @@ var (
 	Map          *tilemap.TileMap
 	Collider     *tilecollider.Collider[uint16]
 	ToSpawn      = []arc.SpawnData{}
+	toRemove     []ecs.Entity
 )
 
 func AppendToSpawnList(x, y float64, id uint16, durability int) {
@@ -28,6 +29,7 @@ func AppendToSpawnList(x, y float64, id uint16, durability int) {
 }
 
 func (s *Spawn) Init() {
+
 	Map = tilemap.MakeTileMap(512, 512, int(20*kar.ScreenScale), int(20*kar.ScreenScale))
 	tilemap.Generate(Map)
 	Collider = tilecollider.NewCollider(Map.Grid, Map.TileW, Map.TileH)
@@ -48,12 +50,19 @@ func (s *Spawn) Init() {
 	CTRL.EnterFalling()
 
 }
+
 func (s *Spawn) Update() {
 	// Spawn item
 	for _, spawnData := range ToSpawn {
 		arc.SpawnItem(spawnData)
 	}
 	ToSpawn = ToSpawn[:0]
+
+	for _, e := range toRemove {
+		kar.WorldECS.RemoveEntity(e)
+	}
+	toRemove = toRemove[:0]
+
 }
 func (s *Spawn) Draw() {
 	kar.Screen.Fill(kar.BackgroundColor)

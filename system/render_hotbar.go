@@ -59,19 +59,20 @@ func (gui *DrawHotbar) Draw() {
 				// Draw border
 				kar.GlobalDIO.GeoM.Translate(-10, -10)
 				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalDIO)
-
-				// Draw display name
-				itemQuantityTextDO.GeoM.Reset()
-				itemQuantityTextDO.GeoM.Scale(2, 2)
-				itemQuantityTextDO.GeoM.Translate(SlotOffsetX-2, hotbarPositionY+28)
-				if items.HasTag(slotID, items.Tool) {
-					text.Draw(kar.Screen, fmt.Sprintf(
-						"%v\nDurability %v",
-						items.Property[slotID].DisplayName,
-						CTRL.Inventory.Slots[x].Durability,
-					), res.Font, itemQuantityTextDO)
-				} else {
-					text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, itemQuantityTextDO)
+				if !CTRL.Inventory.IsSelectedSlotEmpty() {
+					// Draw display name
+					itemQuantityTextDO.GeoM.Reset()
+					itemQuantityTextDO.GeoM.Scale(2, 2)
+					itemQuantityTextDO.GeoM.Translate(SlotOffsetX-2, hotbarPositionY+28)
+					if items.HasTag(slotID, items.Tool) {
+						text.Draw(kar.Screen, fmt.Sprintf(
+							"%v\nDurability %v",
+							items.Property[slotID].DisplayName,
+							CTRL.Inventory.Slots[x].Durability,
+						), res.Font, itemQuantityTextDO)
+					} else {
+						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, itemQuantityTextDO)
+					}
 				}
 			}
 			// Draw item quantity number

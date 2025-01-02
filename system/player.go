@@ -90,6 +90,11 @@ func (c *PlayerSys) Update() {
 			kar.DrawDebugTextEnabled = !kar.DrawDebugTextEnabled
 		}
 
+		// Remove dead player entity
+		if CTRL.Health.Health <= 0 {
+			toRemove = append(toRemove, PlayerEntity)
+		}
+
 	}
 
 }
