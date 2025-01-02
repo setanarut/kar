@@ -281,7 +281,7 @@ func (c *Controller) Attacking() {
 		blockID := Map.TileID(targetBlockPos)
 		if !items.HasTag(blockID, items.Unbreakable) {
 			if items.IsBestTool(blockID, c.Inventory.SelectedSlotID()) {
-				blockHealth += 3
+				blockHealth += 4.5
 			} else {
 				blockHealth += 1
 			}
