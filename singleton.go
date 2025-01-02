@@ -19,12 +19,13 @@ type ISystem interface {
 
 var (
 	// DesktopPath      string
-	ScreenW, ScreenH   = 860., 480.0
+	ScreenW, ScreenH   = 800., 480.0
 	Screen             *ebiten.Image
 	Camera                 = kamera.NewCamera(0, 0, ScreenW, ScreenH)
 	WorldECS               = ecs.NewWorld()
 	GlobalDIO              = &colorm.DrawImageOptions{}
 	GlobalColorM           = colorm.ColorM{}
+	ScreenScale            = 2.0
 	ItemScale              = 2.0
 	PlayerScale            = 2.0
 	ItemCollisionDelay     = 10

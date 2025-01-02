@@ -28,19 +28,16 @@ func AppendToSpawnList(x, y float64, id uint16, durability int) {
 }
 
 func (s *Spawn) Init() {
-	Map = tilemap.MakeTileMap(512, 512, 40, 40)
+	Map = tilemap.MakeTileMap(512, 512, int(20*kar.ScreenScale), int(20*kar.ScreenScale))
 	tilemap.Generate(Map)
 	Collider = tilecollider.NewCollider(Map.Grid, Map.TileW, Map.TileH)
 	CTRL = NewController(0, 10, Collider)
 	CTRL.Collider = Collider
-	CTRL.SetScale(2)
+	CTRL.SetScale(kar.ScreenScale)
 	CTRL.SkiddingJumpEnabled = true
 	SpawnX, SpawnY := Map.FindSpawnPosition()
-	p := Map.WorldToTile(SpawnX, SpawnY)
-	px, py := Map.TileToWorld(p)
-	kar.Camera.TopLeftX = px - kar.Camera.Width()/2
-	kar.Camera.TopLeftY = py - kar.Camera.Height()/2
-
+	kar.Camera.LookAt(SpawnX, SpawnY)
+	kar.Camera.SetTopLeft(Map.FloorToBlockCenter(kar.Camera.TopLeft()))
 	PlayerEntity = arc.SpawnPlayer(SpawnX, SpawnY)
 	anim, hlt, dop, rect, inv := arc.MapPlayer.Get(PlayerEntity)
 	CTRL.AnimPlayer = anim

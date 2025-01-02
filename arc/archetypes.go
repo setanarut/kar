@@ -62,11 +62,13 @@ func SpawnPlayer(x, y float64) ecs.Entity {
 	inv.ClearSlot(1)
 	inv.ClearSlot(4)
 
+	w, h := 16*kar.PlayerScale, 16*kar.PlayerScale
+
 	return MapPlayer.NewWith(
 		AP,
 		&Health{20, 20},
 		&DrawOptions{Scale: kar.PlayerScale},
-		&Rect{x, y, 16 * kar.PlayerScale, 16 * kar.PlayerScale},
+		&Rect{x - w*0.5, y - h*0.5, w, h},
 		inv,
 	)
 }

@@ -52,7 +52,7 @@ func (rn *Render) Draw() {
 			if tileID != 0 {
 				px, py := float64(x*Map.TileW), float64(y*Map.TileH)
 				kar.GlobalDIO.GeoM.Reset()
-				kar.GlobalDIO.GeoM.Scale(2, 2)
+				kar.GlobalDIO.GeoM.Scale(kar.ScreenScale, kar.ScreenScale)
 				kar.GlobalDIO.GeoM.Translate(px, py)
 				if x == targetBlockPos.X && y == targetBlockPos.Y {
 					i := mathutil.MapRange(blockHealth, 0, 180, 0, 5)

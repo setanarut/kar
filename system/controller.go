@@ -278,7 +278,7 @@ func (c *Controller) Attacking() {
 	}
 
 	if IsRayHit {
-		blockID := Map.TileID(targetBlockPos)
+		blockID := Map.TileID(targetBlockPos.X, targetBlockPos.Y)
 		if !items.HasTag(blockID, items.Unbreakable) {
 			if items.IsBestTool(blockID, c.Inventory.SelectedSlotID()) {
 				blockHealth += 4.5
@@ -289,7 +289,7 @@ func (c *Controller) Attacking() {
 		// Destroy block
 		if blockHealth >= 180 {
 			blockHealth = 0
-			Map.SetTile(targetBlockPos, items.Air)
+			Map.SetTileID(targetBlockPos.X, targetBlockPos.Y, items.Air)
 
 			if items.HasTag(c.Inventory.SelectedSlotID(), items.Tool) {
 				c.Inventory.SelectedSlot().Durability--
@@ -299,7 +299,7 @@ func (c *Controller) Attacking() {
 			}
 
 			// spawn drop item
-			x, y := Map.TileToWorld(targetBlockPos)
+			x, y := Map.TileToWorldCenter(targetBlockPos.X, targetBlockPos.Y)
 			AppendToSpawnList(x, y, items.Property[blockID].DropID, 0)
 		}
 	}

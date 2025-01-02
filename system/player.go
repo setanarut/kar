@@ -66,7 +66,7 @@ func (c *PlayerSys) Update() {
 				}
 				if !anyItemOverlapsWithPlaceCoords {
 					if !CTRL.Rect.Overlaps(Map.GetTileRect(placeBlock)) {
-						Map.SetTile(placeBlock, CTRL.Inventory.SelectedSlotID())
+						Map.SetTileID(placeBlock.X, placeBlock.Y, CTRL.Inventory.SelectedSlotID())
 						CTRL.Inventory.RemoveItemFromSelectedSlot()
 					}
 				}
