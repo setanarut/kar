@@ -89,6 +89,9 @@ func (t *TileMap) TileID(x, y int) uint16 {
 	}
 	return t.Grid[y][x]
 }
+func (t *TileMap) TileIDProperty(x, y int) items.ItemProperty {
+	return items.Property[t.TileID(x, y)]
+}
 
 func (t *TileMap) SetTileID(x, y int, v uint16) {
 	if x < 0 || x >= t.W || y < 0 || y >= t.H {
@@ -101,16 +104,16 @@ func (t *TileMap) GetTileRect(pos image.Point) (x, y, w, h float64) {
 	return float64(pos.X * t.TileW), float64(pos.Y * t.TileH), float64(t.TileW), float64(t.TileH)
 }
 
-func (t *TileMap) FindSpawnPosition() (px, py float64) {
+func (t *TileMap) FindSpawnPosition() (px, py int) {
 	x := 20 * 20
 	for y := range t.H - 1 {
 		upperTile := t.TileID(x, y)
 		downTile := t.TileID(x, y+1)
 		if downTile != items.Air && upperTile == items.Air {
-			px, py = t.TileToWorldCenter(x, y-1)
+			// px, py = t.TileToWorldCenter(x, y-1)
+			px, py = x, y-1
 			break
 		}
 	}
 	return px, py
-
 }

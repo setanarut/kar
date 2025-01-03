@@ -37,10 +37,10 @@ func (gui *DrawHotbar) Draw() {
 	if kar.WorldECS.Alive(PlayerEntity) {
 
 		// Background
-		kar.GlobalDIO.GeoM.Reset()
-		kar.GlobalDIO.GeoM.Scale(2, 2)
-		kar.GlobalDIO.GeoM.Translate(hotbarPositionX, hotbarPositionY)
-		colorm.DrawImage(kar.Screen, res.Hotbar, kar.GlobalColorM, kar.GlobalDIO)
+		kar.GlobalColorMDIO.GeoM.Reset()
+		kar.GlobalColorMDIO.GeoM.Scale(2, 2)
+		kar.GlobalColorMDIO.GeoM.Translate(hotbarPositionX, hotbarPositionY)
+		colorm.DrawImage(kar.Screen, res.Hotbar, kar.GlobalColorM, kar.GlobalColorMDIO)
 
 		for x := range 9 {
 			// draw item
@@ -48,17 +48,17 @@ func (gui *DrawHotbar) Draw() {
 			quantity := CTRL.Inventory.Slots[x].Quantity
 			SlotOffsetX := float64(x) * 34
 			SlotOffsetX += hotbarPositionX
-			kar.GlobalDIO.GeoM.Reset()
-			kar.GlobalDIO.GeoM.Scale(2, 2)
-			kar.GlobalDIO.GeoM.Translate(SlotOffsetX+8, hotbarPositionY+8)
+			kar.GlobalColorMDIO.GeoM.Reset()
+			kar.GlobalColorMDIO.GeoM.Scale(2, 2)
+			kar.GlobalColorMDIO.GeoM.Translate(SlotOffsetX+8, hotbarPositionY+8)
 			if slotID != items.Air && CTRL.Inventory.Slots[x].Quantity > 0 {
-				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.GlobalColorM, kar.GlobalDIO)
+				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.GlobalColorM, kar.GlobalColorMDIO)
 			}
 
 			if x == CTRL.Inventory.SelectedSlotIndex {
 				// Draw border
-				kar.GlobalDIO.GeoM.Translate(-10, -10)
-				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalDIO)
+				kar.GlobalColorMDIO.GeoM.Translate(-10, -10)
+				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalColorMDIO)
 				if !CTRL.Inventory.IsSelectedSlotEmpty() {
 					// Draw display name
 					itemQuantityTextDO.GeoM.Reset()
@@ -88,10 +88,20 @@ func (gui *DrawHotbar) Draw() {
 			}
 		}
 
+		// Draw player health text
 		itemQuantityTextDO.GeoM.Reset()
 		itemQuantityTextDO.GeoM.Scale(2, 2)
 		itemQuantityTextDO.GeoM.Translate(400, 16)
 		text.Draw(kar.Screen, fmt.Sprintf("Health %v", CTRL.Health.Health), res.Font, itemQuantityTextDO)
+
+		if craftingState {
+			kar.GlobalColorMDIO.GeoM.Reset()
+			kar.GlobalColorMDIO.GeoM.Scale(2, 2)
+			halfX := float64(res.CraftingTable.Bounds().Dx())
+			halfY := float64(res.CraftingTable.Bounds().Dy())
+			kar.GlobalColorMDIO.GeoM.Translate((kar.ScreenW/2 - halfX), kar.ScreenH/2-halfY)
+			colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
+		}
 
 		// Draw debug info
 		if kar.DrawDebugTextEnabled {
@@ -101,6 +111,7 @@ func (gui *DrawHotbar) Draw() {
 				CTRL.InputAxisLast,
 			), 10, 50)
 		}
+
 	}
 }
 

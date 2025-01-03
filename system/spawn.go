@@ -3,6 +3,7 @@ package system
 import (
 	"kar"
 	"kar/arc"
+	"kar/items"
 	"kar/tilemap"
 
 	"github.com/mlange-42/arche/ecs"
@@ -10,13 +11,14 @@ import (
 )
 
 var (
-	TempFallingY float64
-	PlayerEntity ecs.Entity
-	CTRL         *Controller
-	Map          *tilemap.TileMap
-	Collider     *tilecollider.Collider[uint16]
-	ToSpawn      = []arc.SpawnData{}
-	toRemove     []ecs.Entity
+	TempFallingY  float64
+	PlayerEntity  ecs.Entity
+	CTRL          *Controller
+	Map           *tilemap.TileMap
+	Collider      *tilecollider.Collider[uint16]
+	ToSpawn       = []arc.SpawnData{}
+	toRemove      []ecs.Entity
+	craftingState bool
 )
 
 func AppendToSpawnList(x, y float64, id uint16, durability int) {
@@ -37,7 +39,9 @@ func (s *Spawn) Init() {
 	CTRL.Collider = Collider
 	CTRL.SetScale(kar.ScreenScale)
 	CTRL.SkiddingJumpEnabled = true
-	SpawnX, SpawnY := Map.FindSpawnPosition()
+	x, y := Map.FindSpawnPosition()
+	Map.SetTileID(x, y+2, items.CraftingTable)
+	SpawnX, SpawnY := Map.TileToWorldCenter(x, y)
 	kar.Camera.LookAt(SpawnX, SpawnY)
 	kar.Camera.SetTopLeft(Map.FloorToBlockCenter(kar.Camera.TopLeft()))
 	PlayerEntity = arc.SpawnPlayer(SpawnX, SpawnY)

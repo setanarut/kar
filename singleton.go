@@ -23,7 +23,7 @@ var (
 	Screen             *ebiten.Image
 	Camera                 = kamera.NewCamera(0, 0, ScreenW, ScreenH)
 	WorldECS               = ecs.NewWorld()
-	GlobalDIO              = &colorm.DrawImageOptions{}
+	GlobalColorMDIO        = &colorm.DrawImageOptions{}
 	GlobalColorM           = colorm.ColorM{}
 	ScreenScale            = 2.0
 	ItemScale              = 2.0

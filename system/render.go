@@ -17,24 +17,27 @@ func (rn *Render) Init() {
 }
 
 func (rn *Render) Update() {
-	if playerCenterX < kar.Camera.TopLeftX {
-		kar.Camera.TopLeftX -= kar.Camera.Width()
-	}
-	if playerCenterX > kar.Camera.Right() {
-		kar.Camera.TopLeftX += kar.Camera.Width()
-	}
-	if playerCenterY < kar.Camera.TopLeftY {
-		kar.Camera.TopLeftY -= kar.Camera.Height()
-	}
-	if playerCenterY > kar.Camera.Bottom() {
-		kar.Camera.TopLeftY += kar.Camera.Height()
-	}
-	q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
-	for q.Next() {
-		a := q.Get()
-		a.Update()
-	}
 
+	if !craftingState {
+		if playerCenterX < kar.Camera.TopLeftX {
+			kar.Camera.TopLeftX -= kar.Camera.Width()
+		}
+		if playerCenterX > kar.Camera.Right() {
+			kar.Camera.TopLeftX += kar.Camera.Width()
+		}
+		if playerCenterY < kar.Camera.TopLeftY {
+			kar.Camera.TopLeftY -= kar.Camera.Height()
+		}
+		if playerCenterY > kar.Camera.Bottom() {
+			kar.Camera.TopLeftY += kar.Camera.Height()
+		}
+		q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
+		for q.Next() {
+			a := q.Get()
+			a.Update()
+		}
+
+	}
 }
 
 func (rn *Render) Draw() {
@@ -51,16 +54,16 @@ func (rn *Render) Draw() {
 			tileID := Map.Grid[y][x]
 			if tileID != 0 {
 				px, py := float64(x*Map.TileW), float64(y*Map.TileH)
-				kar.GlobalDIO.GeoM.Reset()
-				kar.GlobalDIO.GeoM.Scale(kar.ScreenScale, kar.ScreenScale)
-				kar.GlobalDIO.GeoM.Translate(px, py)
+				kar.GlobalColorMDIO.GeoM.Reset()
+				kar.GlobalColorMDIO.GeoM.Scale(kar.ScreenScale, kar.ScreenScale)
+				kar.GlobalColorMDIO.GeoM.Translate(px, py)
 				if x == targetBlockPos.X && y == targetBlockPos.Y {
 					i := mathutil.MapRange(blockHealth, 0, 180, 0, 5)
 					if res.BlockCrackFrames[tileID] != nil {
-						kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], kar.GlobalColorM, kar.GlobalDIO, kar.Screen)
+						kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 					}
 				} else {
-					kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][0], kar.GlobalColorM, kar.GlobalDIO, kar.Screen)
+					kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][0], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 				}
 			}
 
@@ -70,10 +73,10 @@ func (rn *Render) Draw() {
 	if kar.WorldECS.Alive(PlayerEntity) {
 		// Draw target tile border
 		if IsRayHit {
-			kar.GlobalDIO.GeoM.Reset()
-			kar.GlobalDIO.GeoM.Scale(2, 2)
-			kar.GlobalDIO.GeoM.Translate(float64(targetBlockPos.X*Map.TileW)-2, float64(targetBlockPos.Y*Map.TileH)-2)
-			kar.Camera.DrawWithColorM(res.SelectionBlock, kar.GlobalColorM, kar.GlobalDIO, kar.Screen)
+			kar.GlobalColorMDIO.GeoM.Reset()
+			kar.GlobalColorMDIO.GeoM.Scale(2, 2)
+			kar.GlobalColorMDIO.GeoM.Translate(float64(targetBlockPos.X*Map.TileW)-2, float64(targetBlockPos.Y*Map.TileH)-2)
+			kar.Camera.DrawWithColorM(res.SelectionBlock, kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 		}
 
 		// Draw player
@@ -81,16 +84,16 @@ func (rn *Render) Draw() {
 		for playerQuery.Next() {
 			anim, _, dop, rect, _ := playerQuery.Get()
 			sclX := dop.Scale
-			kar.GlobalDIO.GeoM.Reset()
+			kar.GlobalColorMDIO.GeoM.Reset()
 			if dop.FlipX {
 				sclX *= -1
-				kar.GlobalDIO.GeoM.Scale(sclX, dop.Scale)
-				kar.GlobalDIO.GeoM.Translate(rect.X+rect.W, rect.Y)
+				kar.GlobalColorMDIO.GeoM.Scale(sclX, dop.Scale)
+				kar.GlobalColorMDIO.GeoM.Translate(rect.X+rect.W, rect.Y)
 			} else {
-				kar.GlobalDIO.GeoM.Scale(sclX, dop.Scale)
-				kar.GlobalDIO.GeoM.Translate(rect.X, rect.Y)
+				kar.GlobalColorMDIO.GeoM.Scale(sclX, dop.Scale)
+				kar.GlobalColorMDIO.GeoM.Translate(rect.X, rect.Y)
 			}
-			kar.Camera.DrawWithColorM(anim.CurrentFrame, kar.GlobalColorM, kar.GlobalDIO, kar.Screen)
+			kar.Camera.DrawWithColorM(anim.CurrentFrame, kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 		}
 	}
 	// Draw all rects for debug
@@ -125,12 +128,13 @@ func (rn *Render) Draw() {
 	itemQuery := arc.FilterItem.Query(&kar.WorldECS)
 	for itemQuery.Next() {
 		id, rect, timers, _ := itemQuery.Get()
-		kar.GlobalDIO.GeoM.Reset()
-		kar.GlobalDIO.GeoM.Scale(kar.ItemScale, kar.ItemScale)
-		kar.GlobalDIO.GeoM.Translate(rect.X, rect.Y+sinspace[timers.AnimationIndex])
+		kar.GlobalColorMDIO.GeoM.Reset()
+		kar.GlobalColorMDIO.GeoM.Scale(kar.ItemScale, kar.ItemScale)
+		kar.GlobalColorMDIO.GeoM.Translate(rect.X, rect.Y+sinspace[timers.AnimationIndex])
 		if res.Icon8[id.ID] == nil {
 			log.Fatal("image not found", id.ID)
 		}
-		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.GlobalColorM, kar.GlobalDIO, kar.Screen)
+		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 	}
+
 }
