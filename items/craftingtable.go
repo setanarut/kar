@@ -2,7 +2,6 @@ package items
 
 import (
 	"fmt"
-	"image"
 )
 
 type Recipe [][]uint16
@@ -10,8 +9,8 @@ type Recipe [][]uint16
 var Recipes map[uint16][]Recipe
 
 type CraftTable struct {
-	Pos   image.Point
-	Slots [][]uint16
+	PosX, PosY int
+	Slots      [][]uint16
 }
 
 func NewCraftTable() *CraftTable {
@@ -36,7 +35,7 @@ func (ct *CraftTable) CheckRecipeID() uint16 {
 }
 
 func (ct *CraftTable) CurrentSlot() uint16 {
-	return ct.Slots[ct.Pos.Y][ct.Pos.X]
+	return ct.Slots[ct.PosY][ct.PosX]
 }
 
 func (ct *CraftTable) CheckRecipe() ItemProperty {

@@ -38,9 +38,23 @@ type DrawUI struct{}
 
 func (ui *DrawUI) Init() {}
 func (ui *DrawUI) Update() {
+
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
 		kar.DrawDebugHitboxesEnabled = !kar.DrawDebugHitboxesEnabled
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) {
+		craftingTable.PosX = min(craftingTable.PosX+1, 2)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+		craftingTable.PosX = max(craftingTable.PosX-1, 0)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+		craftingTable.PosY = min(craftingTable.PosY+1, 2)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
+		craftingTable.PosY = max(craftingTable.PosY-1, 0)
+	}
+
 }
 func (ui *DrawUI) Draw() {
 	if kar.WorldECS.Alive(player) {
@@ -102,9 +116,16 @@ func (ui *DrawUI) Draw() {
 
 		// Draw crafting table GUI
 		if craftingState {
+
 			kar.GlobalColorMDIO.GeoM.Reset()
 			kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
 			colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
+
+			// Draw selected slot border
+			// kar.GlobalColorMDIO.GeoM.Reset()
+			kar.GlobalColorMDIO.GeoM.Translate(float64(craftingTable.PosX*18), float64(craftingTable.PosY*18))
+			colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalColorMDIO)
+
 		}
 
 		// Draw all rects for debug
