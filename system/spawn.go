@@ -1,0 +1,62 @@
+package system
+
+import (
+	"kar"
+	"kar/arc"
+	"kar/items"
+	"kar/tilemap"
+
+	"github.com/mlange-42/arche/ecs"
+	"github.com/setanarut/tilecollider"
+)
+
+var (
+	fallingDamageTempPosY float64
+	player                ecs.Entity
+	ctrl                  *Controller
+	tileMap               *tilemap.TileMap
+	// craftingTable         = items.NewCraftTable()
+	collider      *tilecollider.Collider[uint16]
+	toSpawn       = []arc.SpawnData{}
+	toRemove      []ecs.Entity
+	craftingState bool
+)
+
+func AppendToSpawnList(x, y float64, id uint16, dur int) {
+	toSpawn = append(toSpawn, arc.SpawnData{X: x - 4, Y: y - 4, Id: id, Durability: dur})
+}
+
+func (s *Spawn) Init() {
+	tileMap = tilemap.MakeTileMap(512, 512, 20, 20)
+	tilemap.Generate(tileMap)
+	collider = tilecollider.NewCollider(tileMap.Grid, tileMap.TileW, tileMap.TileH)
+	ctrl = NewController(0, 10, collider)
+	ctrl.Collider = collider
+	ctrl.SkiddingJumpEnabled = true
+	x, y := tileMap.FindSpawnPosition()
+	tileMap.SetTileID(x, y+2, items.CraftingTable)
+	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
+	kar.Camera.LookAt(SpawnX, SpawnY)
+	kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
+	player = arc.SpawnPlayer(SpawnX, SpawnY)
+
+}
+
+func (s *Spawn) Update() {
+	// Spawn item
+	for _, spawnData := range toSpawn {
+		arc.SpawnItem(spawnData)
+	}
+	toSpawn = toSpawn[:0]
+
+	for _, e := range toRemove {
+		kar.WorldECS.RemoveEntity(e)
+	}
+	toRemove = toRemove[:0]
+
+}
+func (s *Spawn) Draw() {
+	kar.Screen.Fill(kar.BackgroundColor)
+}
+
+type Spawn struct{}
