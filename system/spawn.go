@@ -11,15 +11,14 @@ import (
 )
 
 var (
-	fallingDamageTempPosY float64
-	player                ecs.Entity
-	ctrl                  *Controller
-	tileMap               *tilemap.TileMap
-	craftingTable         = items.NewCraftTable()
-	collider              *tilecollider.Collider[uint16]
-	toSpawn               = []arc.SpawnData{}
-	toRemove              []ecs.Entity
-	craftingState         bool
+	player        ecs.Entity
+	ctrl          *Controller
+	tileMap       *tilemap.TileMap
+	craftingTable = items.NewCraftTable()
+	collider      *tilecollider.Collider[uint16]
+	toSpawn       = []arc.SpawnData{}
+	toRemove      []ecs.Entity
+	craftingState bool
 )
 
 func AppendToSpawnList(x, y float64, id uint16, dur int) {

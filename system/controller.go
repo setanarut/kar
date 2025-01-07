@@ -19,6 +19,8 @@ type Controller struct {
 	Inventory  *arc.Inventory
 	Rect       *arc.Rect
 
+	fallingDamageTempPosY float64
+
 	CurrentState string
 	Collider     *tilecollider.Collider[uint16]
 
@@ -493,11 +495,11 @@ func (c *Controller) ExitAttacking() {
 // }
 
 func (c *Controller) EnterFalling() {
-	fallingDamageTempPosY = c.Rect.Y
+	c.fallingDamageTempPosY = c.Rect.Y
 }
 
 func (c *Controller) ExitFalling() {
-	d := int((c.Rect.Y - fallingDamageTempPosY) / 60)
+	d := int((c.Rect.Y - c.fallingDamageTempPosY) / 30)
 	if d > 3 {
 		c.Health.Health -= d - 3
 	}
