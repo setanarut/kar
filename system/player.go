@@ -35,24 +35,6 @@ func (c *Player) Update() {
 
 	if kar.WorldECS.Alive(player) {
 
-		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-			ctrl.Inventory.SelectPrevSlot()
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-			ctrl.Inventory.SelectNextSlot()
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-			ctrl.Inventory.ClearSelectedSlot()
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-			ctrl.Inventory.RandomFillAllSlots()
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-			kar.DrawDebugTextEnabled = !kar.DrawDebugTextEnabled
-		}
-
 		if !craftingState {
 			ctrl.UpdateInput()
 			ctrl.UpdateState()
@@ -103,16 +85,6 @@ func (c *Player) Update() {
 				toRemove = append(toRemove, player)
 			}
 
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-			id := tileMap.TileID(targetBlockPos.X, targetBlockPos.Y)
-			if id == items.CraftingTable {
-				craftingState = true
-			}
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-			craftingState = false
 		}
 	}
 

@@ -41,8 +41,8 @@ func (g *Game) Init() {
 		&system.Spawn{},
 		&system.Player{},
 		&system.Item{},
-		&system.DrawEntity{},
-		&system.DrawUI{},
+		&system.Camera{},
+		&system.UI{},
 	}
 
 	// Initalize systems

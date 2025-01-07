@@ -34,29 +34,58 @@ inputAxisLast %v
 `
 )
 
-type DrawUI struct{}
+type UI struct{}
 
-func (ui *DrawUI) Init() {}
-func (ui *DrawUI) Update() {
+func (ui *UI) Init() {}
+func (ui *UI) Update() {
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		id := tileMap.TileID(targetBlockPos.X, targetBlockPos.Y)
+		if id == items.CraftingTable {
+			craftingTable.PosX, craftingTable.PosY = 1, 1
+			craftingState = !craftingState
+		}
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+		ctrl.Inventory.SelectPrevSlot()
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyE) {
+		ctrl.Inventory.SelectNextSlot()
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		ctrl.Inventory.ClearSelectedSlot()
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		ctrl.Inventory.RandomFillAllSlots()
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
+		kar.DrawDebugTextEnabled = !kar.DrawDebugTextEnabled
+	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
 		kar.DrawDebugHitboxesEnabled = !kar.DrawDebugHitboxesEnabled
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-		craftingTable.PosX = min(craftingTable.PosX+1, 2)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		craftingTable.PosX = max(craftingTable.PosX-1, 0)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-		craftingTable.PosY = min(craftingTable.PosY+1, 2)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		craftingTable.PosY = max(craftingTable.PosY-1, 0)
+
+	if craftingState {
+		if inpututil.IsKeyJustPressed(ebiten.KeyD) {
+			craftingTable.PosX = min(craftingTable.PosX+1, 2)
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+			craftingTable.PosX = max(craftingTable.PosX-1, 0)
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+			craftingTable.PosY = min(craftingTable.PosY+1, 2)
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyW) {
+			craftingTable.PosY = max(craftingTable.PosY-1, 0)
+		}
 	}
 
 }
-func (ui *DrawUI) Draw() {
+func (ui *UI) Draw() {
 	if kar.WorldECS.Alive(player) {
 		// Draw hotbar background
 		kar.GlobalColorMDIO.GeoM.Reset()

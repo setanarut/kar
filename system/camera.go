@@ -7,11 +7,11 @@ import (
 	"kar/res"
 )
 
-type DrawEntity struct{}
+type Camera struct{}
 
-func (de *DrawEntity) Init() {}
+func (c *Camera) Init() {}
 
-func (de *DrawEntity) Update() {
+func (c *Camera) Update() {
 
 	if !craftingState {
 		if playerCenterX < kar.Camera.TopLeftX {
@@ -36,7 +36,7 @@ func (de *DrawEntity) Update() {
 	}
 }
 
-func (de *DrawEntity) Draw() {
+func (c *Camera) Draw() {
 
 	// Draw tilemap
 	camMin := tileMap.WorldToTile(kar.Camera.TopLeft())
