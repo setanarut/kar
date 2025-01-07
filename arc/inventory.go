@@ -78,14 +78,18 @@ func (i *Inventory) RemoveItem(id uint16) bool {
 	}
 	return false
 }
-func (i *Inventory) RemoveItemFromSelectedSlot() {
-	if i.Slots[i.CurrentSlotIndex].ItemQuantity == 1 {
+func (i *Inventory) RemoveItemFromSelectedSlot() uint16 {
+	quantity := i.SelectedSlotQuantity()
+	id := i.SelectedSlotID()
+	if quantity == 1 {
 		i.ClearSelectedSlot()
-		return
+		return id
 	}
-	if i.Slots[i.CurrentSlotIndex].ItemQuantity > 0 {
+	if quantity > 0 {
 		i.Slots[i.CurrentSlotIndex].ItemQuantity--
+		return id
 	}
+	return 0
 }
 
 func (i *Inventory) SelectedSlot() *SlotData {

@@ -37,6 +37,9 @@ func (ct *CraftTable) CheckRecipeID() uint16 {
 func (ct *CraftTable) CurrentSlot() uint16 {
 	return ct.Slots[ct.PosY][ct.PosX]
 }
+func (ct *CraftTable) SetCurrentSlot(id uint16) {
+	ct.Slots[ct.PosY][ct.PosX] = id
+}
 
 func (ct *CraftTable) CheckRecipe() ItemProperty {
 	return Property[ct.CheckRecipeID()]
