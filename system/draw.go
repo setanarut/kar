@@ -85,23 +85,6 @@ func (de *DrawEntity) Draw() {
 		kar.Camera.DrawWithColorM(ctrl.AnimPlayer.CurrentFrame, kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 		// }
 	}
-	// // Draw all rects for debug
-	// if kar.DrawDebugHitboxesEnabled {
-	// 	rectQ := arc.FilterRect.Query(&kar.WorldECS)
-	// 	for rectQ.Next() {
-	// 		rect := rectQ.Get()
-	// 		x, y := kar.Camera.ApplyCameraTransformToPoint(rect.X, rect.Y)
-	// 		vector.DrawFilledRect(
-	// 			kar.Screen,
-	// 			float32(x),
-	// 			float32(y),
-	// 			float32(rect.W),
-	// 			float32(rect.H),
-	// 			color.RGBA{255, 0, 0, 50},
-	// 			false,
-	// 		)
-	// 	}
-	// }
 
 	// Draw Items
 	itemQuery := arc.FilterItem.Query(&kar.WorldECS)

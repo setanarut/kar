@@ -7,13 +7,12 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.8.6
 	github.com/setanarut/anim v1.0.2
 	github.com/setanarut/tilecollider v1.4.7
-	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
-	golang.org/x/image v0.23.0
+	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
+	golang.org/x/image v0.23.0 // indirect
 	golang.org/x/text v0.21.0
 )
 
 require github.com/setanarut/fastnoise v1.1.1
-
 
 require (
 	github.com/ebitengine/gomobile v0.0.0-20241016134836-cc2e38a7c0ee // indirect
@@ -21,8 +20,8 @@ require (
 	github.com/ebitengine/purego v0.8.1 // indirect
 	github.com/go-text/typesetting v0.2.1 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
-	github.com/mlange-42/arche v0.14.4
+	github.com/mlange-42/arche v0.14.5
 	github.com/setanarut/kamera/v2 v2.95.1
 	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 )

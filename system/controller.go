@@ -168,12 +168,22 @@ func (c *Controller) UpdatePhysics() {
 		c.FlipXFactor = -1 // sola gidiyor
 		c.InputAxisLast.X = -1
 	}
-	dx, dy := c.Collider.Collide(math.Round(c.Rect.X), c.Rect.Y, c.Rect.W, c.Rect.H, c.VelX, c.VelY, c.handleCollision)
-	c.Rect.X += dx
-	c.Rect.Y += dy
+
+	// Player and tilemap collision
+	c.Collider.Collide(
+		math.Round(c.Rect.X),
+		c.Rect.Y,
+		c.Rect.W,
+		c.Rect.H,
+		c.VelX,
+		c.VelY,
+		c.HandleCollision,
+	)
 }
 
-func (c *Controller) handleCollision(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+func (c *Controller) HandleCollision(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+	c.Rect.X += dx
+	c.Rect.Y += dy
 	c.IsOnFloor = false
 	for _, v := range ci {
 		if v.Normal[1] == -1 {
@@ -458,11 +468,11 @@ func (c *Controller) UpdateState() {
 func (c *Controller) EnterWalking() {
 	c.AnimPlayer.SetStateAndReset("walkRight")
 }
-func (c *Controller) enterRunning() {
+func (c *Controller) EnterRunning() {
 	c.AnimPlayer.SetStateAndReset("walkRight")
 }
 
-func (c *Controller) enterIdle() {
+func (c *Controller) EnterIdle() {
 	if c.InputAxisLast.Y == 0 {
 		c.AnimPlayer.SetStateAndReset("idleRight")
 	}
@@ -470,15 +480,17 @@ func (c *Controller) enterIdle() {
 		c.AnimPlayer.SetStateAndReset("idleUp")
 	}
 }
-func (c *Controller) enterAttacking() {
-}
-func (c *Controller) exitAttacking() {
+
+// func (c *Controller) enterAttacking() {
+// }
+
+func (c *Controller) ExitAttacking() {
 	blockHealth = 0
 }
 
-func (c *Controller) enterJumping() {
+// func (c *Controller) enterJumping() {
 
-}
+// }
 
 func (c *Controller) EnterFalling() {
 	fallingDamageTempPosY = c.Rect.Y
@@ -491,7 +503,7 @@ func (c *Controller) ExitFalling() {
 	}
 }
 
-func (c *Controller) enterSkidding() {
+func (c *Controller) EnterSkidding() {
 	c.AnimPlayer.SetStateAndReset("skidding")
 }
 
@@ -503,7 +515,7 @@ func (c *Controller) ChangeState(newState string) {
 	// Mevcut durumdan çık
 	switch c.CurrentState {
 	case "attacking":
-		c.exitAttacking()
+		c.ExitAttacking()
 	// case "idle":
 	// c.exitIdle()
 	// case "walking":
@@ -522,18 +534,18 @@ func (c *Controller) ChangeState(newState string) {
 	// Yeni duruma gir
 	switch newState {
 	case "idle":
-		c.enterIdle()
-	case "attacking":
-		c.enterAttacking()
+		c.EnterIdle()
 	case "walking":
 		c.EnterWalking()
 	case "running":
-		c.enterRunning()
-	case "jumping":
-		c.enterJumping()
+		c.EnterRunning()
 	case "falling":
 		c.EnterFalling()
 	case "skidding":
-		c.enterSkidding()
+		c.EnterSkidding()
+		// case "attacking":
+		// 	c.enterAttacking()
+		// case "jumping":
+		// 	c.enterJumping()
 	}
 }

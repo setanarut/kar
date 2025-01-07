@@ -18,10 +18,12 @@ import (
 )
 
 var (
-	hotbarPositionX     = 8.
-	hotbarPositionY     = 8.
-	hotbarRightEdgePosX = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
-	itemQuantityTextDO  = &text.DrawOptions{
+	hotbarPositionX        = kar.ScreenW/2 - float64(res.Hotbar.Bounds().Dx())/2
+	hotbarPositionY        = 8.
+	hotbarRightEdgePosX    = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
+	craftingTablePositionX = 50 + hotbarPositionX
+	craftingTablePositionY = 40 + hotbarPositionY
+	itemQuantityTextDO     = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
@@ -101,9 +103,7 @@ func (ui *DrawUI) Draw() {
 		// Draw crafting table GUI
 		if craftingState {
 			kar.GlobalColorMDIO.GeoM.Reset()
-			halfX := float64(res.CraftingTable.Bounds().Dx())
-			halfY := float64(res.CraftingTable.Bounds().Dy())
-			kar.GlobalColorMDIO.GeoM.Translate((kar.ScreenW/2 - halfX), kar.ScreenH/2-halfY)
+			kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
 			colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
 		}
 

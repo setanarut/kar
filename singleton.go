@@ -19,21 +19,21 @@ type ISystem interface {
 
 var (
 	// DesktopPath      string
-	WindowScale      = 2.0
-	ScreenW, ScreenH = 400.0, 240.0
+	WindowScale              float64     = 2.0
+	ScreenW, ScreenH         float64     = 400.0, 240.0
+	ItemCollisionDelay       int         = 10
+	RaycastDist              int         = 4 // block unit
+	DrawDebugHitboxesEnabled bool        = false
+	DrawDebugTextEnabled     bool        = false
+	RenderArea               image.Point = image.Point{23, 13} // cam w/h blocks
+	BackgroundColor          color.RGBA  = rgb(36, 36, 39)
 
-	Screen             *ebiten.Image
-	Camera                 = kamera.NewCamera(0, 0, ScreenW, ScreenH)
-	WorldECS               = ecs.NewWorld()
-	GlobalColorMDIO        = &colorm.DrawImageOptions{}
-	GlobalColorM           = colorm.ColorM{}
-	ItemCollisionDelay     = 10
-	RaycastDist        int = 4                   // block unit
-	RenderArea             = image.Point{23, 13} // cam w/h blocks
+	Screen          *ebiten.Image
+	Camera          = kamera.NewCamera(0, 0, ScreenW, ScreenH)
+	WorldECS        = ecs.NewWorld()
+	GlobalColorMDIO = &colorm.DrawImageOptions{}
+	GlobalColorM    = colorm.ColorM{}
 	// Debug
-	DrawDebugHitboxesEnabled = false
-	DrawDebugTextEnabled     = false
-	BackgroundColor          = rgb(36, 36, 39)
 )
 var ItemColorMap = map[uint16]color.RGBA{
 	items.Air:        rgb(1, 1, 1),
