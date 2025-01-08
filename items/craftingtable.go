@@ -9,8 +9,8 @@ type Recipe [][]uint16
 var Recipes map[uint16][]Recipe
 
 type CraftTable struct {
-	PosX, PosY int
-	Slots      [][]uint16
+	SlotPosX, SlotPosY int
+	Slots              [][]uint16
 }
 
 func NewCraftTable() *CraftTable {
@@ -35,10 +35,10 @@ func (ct *CraftTable) CheckRecipeID() uint16 {
 }
 
 func (ct *CraftTable) CurrentSlot() uint16 {
-	return ct.Slots[ct.PosY][ct.PosX]
+	return ct.Slots[ct.SlotPosY][ct.SlotPosX]
 }
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
-	ct.Slots[ct.PosY][ct.PosX] = id
+	ct.Slots[ct.SlotPosY][ct.SlotPosX] = id
 }
 
 func (ct *CraftTable) CheckRecipe() ItemProperty {

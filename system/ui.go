@@ -52,7 +52,7 @@ func (ui *UI) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 		id := tileMap.TileID(targetBlockPos.X, targetBlockPos.Y)
 		if id == items.CraftingTable {
-			craftingTable.PosX, craftingTable.PosY = 1, 1
+			craftingTable.SlotPosX, craftingTable.SlotPosY = 1, 1
 			craftingState = !craftingState
 		}
 	}
@@ -60,26 +60,32 @@ func (ui *UI) Update() {
 	// Crafting table slot navigation
 	if craftingState {
 		if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-			craftingTable.PosX = min(craftingTable.PosX+1, 2)
+			craftingTable.SlotPosX = min(craftingTable.SlotPosX+1, 2)
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-			craftingTable.PosX = max(craftingTable.PosX-1, 0)
+			craftingTable.SlotPosX = max(craftingTable.SlotPosX-1, 0)
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-			craftingTable.PosY = min(craftingTable.PosY+1, 2)
+			craftingTable.SlotPosY = min(craftingTable.SlotPosY+1, 2)
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-			craftingTable.PosY = max(craftingTable.PosY-1, 0)
+			craftingTable.SlotPosY = max(craftingTable.SlotPosY-1, 0)
 		}
 
+		// move items from hotbar to crafting table
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-
-			id := ctrl.Inventory.RemoveItemFromSelectedSlot()
-
-			if id > 0 {
+			if ctrl.Inventory.CurrentSlot() != 0 && craftingTable.CurrentSlot() == 0 {
+				id := ctrl.Inventory.RemoveItemFromSelectedSlot()
 				craftingTable.SetCurrentSlot(id)
 			}
-
+		}
+		// move items from crafting table to hotbar
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
+			if craftingTable.CurrentSlot() != 0 {
+				if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot(), 100) {
+					craftingTable.SetCurrentSlot(0)
+				}
+			}
 		}
 
 	}
@@ -94,7 +100,7 @@ func (ui *UI) Update() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		ctrl.Inventory.ClearSelectedSlot()
+		ctrl.Inventory.ClearCurrentSlot()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		ctrl.Inventory.RandomFillAllSlots()
@@ -127,7 +133,7 @@ func (ui *UI) Draw() {
 				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalColorMDIO)
 
 				// Draw slot item display name
-				if !ctrl.Inventory.IsSelectedSlotEmpty() {
+				if !ctrl.Inventory.IsCurrentSlotEmpty() {
 					itemQuantityTextDO.GeoM.Reset()
 					itemQuantityTextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
 					if items.HasTag(slotID, items.Tool) {
@@ -178,7 +184,7 @@ func (ui *UI) Draw() {
 
 					}
 
-					if x == craftingTable.PosX && y == craftingTable.PosY {
+					if x == craftingTable.SlotPosX && y == craftingTable.SlotPosY {
 						sx := craftingTablePositionX + float64(x*17)
 						sy := craftingTablePositionY + float64(y*17)
 						kar.GlobalColorMDIO.GeoM.Reset()

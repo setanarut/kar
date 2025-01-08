@@ -79,10 +79,10 @@ func (i *Inventory) RemoveItem(id uint16) bool {
 	return false
 }
 func (i *Inventory) RemoveItemFromSelectedSlot() uint16 {
-	quantity := i.SelectedSlotQuantity()
-	id := i.SelectedSlotID()
+	quantity := i.CurrentSlotQuantity()
+	id := i.CurrentSlot()
 	if quantity == 1 {
-		i.ClearSelectedSlot()
+		i.ClearCurrentSlot()
 		return id
 	}
 	if quantity > 0 {
@@ -92,15 +92,15 @@ func (i *Inventory) RemoveItemFromSelectedSlot() uint16 {
 	return 0
 }
 
-func (i *Inventory) SelectedSlot() *SlotData {
+func (i *Inventory) CurrentSlotData() *SlotData {
 	return &i.Slots[i.CurrentSlotIndex]
 }
 
-func (i *Inventory) SelectedSlotID() uint16 {
+func (i *Inventory) CurrentSlot() uint16 {
 	return i.Slots[i.CurrentSlotIndex].ItemID
 }
 
-func (i *Inventory) SelectedSlotQuantity() uint8 {
+func (i *Inventory) CurrentSlotQuantity() uint8 {
 	return i.Slots[i.CurrentSlotIndex].ItemQuantity
 }
 
@@ -110,7 +110,7 @@ func (i *Inventory) ClearSlot(index int) {
 		ItemQuantity: 0,
 	}
 }
-func (i *Inventory) IsSelectedSlotEmpty() bool {
+func (i *Inventory) IsCurrentSlotEmpty() bool {
 	return i.Slots[i.CurrentSlotIndex].ItemQuantity <= 0 || i.Slots[i.CurrentSlotIndex].ItemID == items.Air
 }
 
@@ -127,13 +127,13 @@ func (i *Inventory) RandomFillAllSlots() {
 	}
 }
 
-func (i *Inventory) ClearSelectedSlot() {
+func (i *Inventory) ClearCurrentSlot() {
 	i.ClearSlot(i.CurrentSlotIndex)
 }
 
 func (i *Inventory) HasEmptySlot() (index int, ok bool) {
 	// önce seçili slot boşsa tercih et
-	if i.SelectedSlotQuantity() == 0 {
+	if i.CurrentSlotQuantity() == 0 {
 		return i.CurrentSlotIndex, true
 	} else {
 		for idx, v := range i.Slots {
