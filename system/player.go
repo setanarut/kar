@@ -24,11 +24,8 @@ func (c *Player) Init() {
 	ctrl.AnimPlayer = anim
 	ctrl.Rect = rect
 	ctrl.Health = hlt
-	inv.SetSlot(0, items.Stick, 64, 0)
-	inv.SetSlot(1, items.Coal, 64, 0)
 	inv.SetSlot(2, items.OakLog, 64, 0)
-	inv.SetSlot(3, items.DiamondPickaxe, 1, items.GetDefaultDurability(items.DiamondPickaxe))
-	inv.SetSlot(4, items.DiamondAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
+	inv.SetSlot(5, items.IronIngot, 32, 0)
 	ctrl.Inventory = inv
 	ctrl.EnterFalling()
 }

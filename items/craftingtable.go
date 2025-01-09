@@ -117,10 +117,13 @@ func (ct *CraftTable) PrintGrid(r Recipe) {
 
 func init() {
 	Recipes = make(map[uint16][]Recipe)
-	Recipes[Torch] = []Recipe{
-		[][]uint16{
-			{Coal},
-			{Stick},
-		},
-	}
+	Recipes[OakPlanks] = []Recipe{[][]uint16{{OakLog}}}
+	Recipes[Stick] = []Recipe{[][]uint16{{OakPlanks}, {OakPlanks}}}
+	Recipes[Torch] = []Recipe{[][]uint16{{Coal}, {Stick}}}
+	Recipes[IronPickaxe] = []Recipe{[][]uint16{
+		{IronIngot, IronIngot, IronIngot},
+		{0, Stick, 0},
+		{0, Stick, 0},
+	}}
+
 }
