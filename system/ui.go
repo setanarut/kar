@@ -87,6 +87,15 @@ func (ui *UI) Update() {
 				}
 			}
 		}
+		// apply recipe
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+			craftingTable.UpdateResultSlot()
+			if craftingTable.ResultSlot != 0 {
+				if ctrl.Inventory.AddItemIfEmpty(craftingTable.ResultSlot, 100) {
+					craftingTable.SetCurrentSlot(0)
+				}
+			}
+		}
 
 	}
 
@@ -149,7 +158,7 @@ func (ui *UI) Draw() {
 			}
 
 			// Draw item quantity number
-			if quantity > 0 && items.IsStackable(slotID) {
+			if quantity > 1 && items.IsStackable(slotID) {
 				itemQuantityTextDO.GeoM.Reset()
 				itemQuantityTextDO.GeoM.Translate(SlotOffsetX+6, hotbarPositionY+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
@@ -173,6 +182,7 @@ func (ui *UI) Draw() {
 			kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
 			colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
 
+			// draw table item icons
 			for x := 0; x < 3; x++ {
 				for y := 0; y < 3; y++ {
 					if craftingTable.Slots[y][x] != items.Air {
@@ -180,10 +190,14 @@ func (ui *UI) Draw() {
 						sy := craftingTablePositionY + float64(y*17)
 						kar.GlobalColorMDIO.GeoM.Reset()
 						kar.GlobalColorMDIO.GeoM.Translate(sx+5, sy+5)
-						colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.Slots[y][x]], kar.GlobalColorM, kar.GlobalColorMDIO)
-
+						colorm.DrawImage(
+							kar.Screen,
+							res.Icon8[craftingTable.Slots[y][x]],
+							kar.GlobalColorM,
+							kar.GlobalColorMDIO,
+						)
 					}
-
+					// draw selected table slot border
 					if x == craftingTable.SlotPosX && y == craftingTable.SlotPosY {
 						sx := craftingTablePositionX + float64(x*17)
 						sy := craftingTablePositionY + float64(y*17)
@@ -195,6 +209,12 @@ func (ui *UI) Draw() {
 				}
 			}
 
+			// draw result item
+			if craftingTable.ResultSlot != 0 {
+				kar.GlobalColorMDIO.GeoM.Reset()
+				kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+60, craftingTablePositionY+21)
+				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot], kar.GlobalColorM, kar.GlobalColorMDIO)
+			}
 		}
 
 		// Draw all rects for debug
