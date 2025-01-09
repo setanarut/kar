@@ -39,6 +39,12 @@ func (ct *CraftTable) CheckRecipe() uint16 {
 func (ct *CraftTable) UpdateResultSlot() {
 	ct.ResultSlot = ct.CheckRecipe()
 }
+func (ct *CraftTable) ClearTable() {
+	ct.Slots = [][]uint16{
+		{0, 0, 0},
+		{0, 0, 0},
+		{0, 0, 0}}
+}
 
 func (ct *CraftTable) CurrentSlot() uint16 {
 	return ct.Slots[ct.SlotPosY][ct.SlotPosX]
