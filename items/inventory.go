@@ -1,8 +1,4 @@
-package arc
-
-import (
-	"kar/items"
-)
+package items
 
 type SlotData struct {
 	ItemID         uint16
@@ -65,7 +61,7 @@ func (i *Inventory) RemoveHandItem(id uint16) bool {
 		i.HandSlot.ItemQuantity--
 		return true
 	} else {
-		i.HandSlot.ItemID = items.Air
+		i.HandSlot.ItemID = Air
 	}
 	return false
 }
@@ -106,12 +102,12 @@ func (i *Inventory) CurrentSlotQuantity() uint8 {
 
 func (i *Inventory) ClearSlot(index int) {
 	i.Slots[index] = SlotData{
-		ItemID:       items.Air,
+		ItemID:       Air,
 		ItemQuantity: 0,
 	}
 }
 func (i *Inventory) IsCurrentSlotEmpty() bool {
-	return i.Slots[i.CurrentSlotIndex].ItemQuantity <= 0 || i.Slots[i.CurrentSlotIndex].ItemID == items.Air
+	return i.Slots[i.CurrentSlotIndex].ItemQuantity <= 0 || i.Slots[i.CurrentSlotIndex].ItemID == Air
 }
 
 func (i *Inventory) ClearAllSlots() {
@@ -121,9 +117,9 @@ func (i *Inventory) ClearAllSlots() {
 }
 func (i *Inventory) RandomFillAllSlots() {
 	for idx := range i.Slots {
-		randItemID := items.RandomItem()
-		dur := items.GetDefaultDurability(randItemID)
-		i.SetSlot(idx, randItemID, items.Property[randItemID].MaxStackSize, dur)
+		randItemID := RandomItem()
+		dur := GetDefaultDurability(randItemID)
+		i.SetSlot(idx, randItemID, Property[randItemID].MaxStackSize, dur)
 	}
 }
 
@@ -147,7 +143,7 @@ func (i *Inventory) HasEmptySlot() (index int, ok bool) {
 
 func (i *Inventory) HasItemStackSpace(id uint16) (index int, ok bool) {
 	for idx, v := range i.Slots {
-		s := items.Property[v.ItemID].MaxStackSize
+		s := Property[v.ItemID].MaxStackSize
 		if v.ItemID == id && v.ItemQuantity < 64 && v.ItemQuantity > 0 && s != 1 {
 			return idx, true
 		}

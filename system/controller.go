@@ -16,7 +16,7 @@ import (
 type Controller struct {
 	AnimPlayer *anim.AnimationPlayer
 	Health     *arc.Health
-	Inventory  *arc.Inventory
+	Inventory  *items.Inventory
 	Rect       *arc.Rect
 
 	fallingDamageTempPosY float64

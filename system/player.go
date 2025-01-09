@@ -20,13 +20,13 @@ var (
 )
 
 func (c *Player) Init() {
-	anim, hlt, rect, inv := arc.MapPlayer.Get(player)
+	anim, hlt, rect := arc.MapPlayer.Get(player)
 	ctrl.AnimPlayer = anim
 	ctrl.Rect = rect
 	ctrl.Health = hlt
-	inv.SetSlot(2, items.OakLog, 64, 0)
-	inv.SetSlot(5, items.IronIngot, 32, 0)
-	ctrl.Inventory = inv
+	ctrl.Inventory = items.NewInventory()
+	ctrl.Inventory.SetSlot(2, items.OakLog, 64, 0)
+	ctrl.Inventory.SetSlot(5, items.IronIngot, 32, 0)
 	ctrl.EnterFalling()
 }
 

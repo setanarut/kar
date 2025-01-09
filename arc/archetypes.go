@@ -12,11 +12,7 @@ import (
 var (
 	MapRect   = gn.NewMap1[Rect](&kar.WorldECS)
 	MapItem   = gn.NewMap4[ItemID, Durability, Rect, ItemTimers](&kar.WorldECS)
-	MapPlayer = gn.NewMap4[
-		anim.AnimationPlayer,
-		Health,
-		Rect,
-		Inventory](&kar.WorldECS)
+	MapPlayer = gn.NewMap3[anim.AnimationPlayer, Health, Rect](&kar.WorldECS)
 )
 
 // Query Filters
@@ -24,11 +20,7 @@ var (
 	FilterRect       = gn.NewFilter1[Rect]()
 	FilterAnimPlayer = gn.NewFilter1[anim.AnimationPlayer]()
 	FilterItem       = gn.NewFilter4[ItemID, Rect, ItemTimers, Durability]()
-	FilterPlayer     = gn.NewFilter4[
-		anim.AnimationPlayer,
-		Health,
-		Rect,
-		Inventory]()
+	FilterPlayer     = gn.NewFilter3[anim.AnimationPlayer, Health, Rect]()
 )
 
 func SpawnPlayer(x, y float64) ecs.Entity {
@@ -44,12 +36,10 @@ func SpawnPlayer(x, y float64) ecs.Entity {
 	AP.NewAnimationState("attackWalk", 0, 16, 16, 16, 4, false, false).FPS = 8
 	AP.NewAnimationState("attackUp", 16*11, 0, 16, 16, 2, false, false).FPS = 8
 	AP.SetState("idleRight")
-	inv := NewInventory()
 	return MapPlayer.NewWith(
 		AP,
 		&Health{20, 20},
 		&Rect{x - 16*0.5, y - 16*0.5, 16, 16},
-		inv,
 	)
 }
 
