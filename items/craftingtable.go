@@ -36,17 +36,6 @@ func (ct *CraftTable) CheckRecipe() uint16 {
 
 func (ct *CraftTable) UpdateResultSlot() {
 	ct.ResultSlot.ID = ct.CheckRecipe()
-	// if ct.ResultSlot.ID != 0 {
-	// 	for y := 0; y < 3; y++ {
-	// 		for x := 0; x < 3; x++ {
-	// 			ct.Slots[y][x].Quantity--
-	// 			if ct.Slots[y][x].Quantity == 0 {
-	// 				ct.ClearCurrenSlot()
-	// 			}
-	// 		}
-	// 	}
-	// 	ct.ResultSlot.Quantity++
-	// }
 }
 func (ct *CraftTable) ClearTable() {
 	ct.Slots = [][]SlotData{
