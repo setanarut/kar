@@ -36,6 +36,17 @@ func (ct *CraftTable) CheckRecipe() uint16 {
 
 func (ct *CraftTable) UpdateResultSlot() {
 	ct.ResultSlot.ID = ct.CheckRecipe()
+	// if ct.ResultSlot.ID != 0 {
+	// 	for y := 0; y < 3; y++ {
+	// 		for x := 0; x < 3; x++ {
+	// 			ct.Slots[y][x].Quantity--
+	// 			if ct.Slots[y][x].Quantity == 0 {
+	// 				ct.ClearCurrenSlot()
+	// 			}
+	// 		}
+	// 	}
+	// 	ct.ResultSlot.Quantity++
+	// }
 }
 func (ct *CraftTable) ClearTable() {
 	ct.Slots = [][]SlotData{
@@ -47,6 +58,19 @@ func (ct *CraftTable) ClearTable() {
 func (ct *CraftTable) CurrentSlot() SlotData {
 	return ct.Slots[ct.SlotPosY][ct.SlotPosX]
 }
+func (ct *CraftTable) SetCurrentSlotQuantity(q uint8) {
+	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity = q
+}
+func (ct *CraftTable) AddCurrentSlotQuantity(q uint8) {
+	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity += q
+}
+func (ct *CraftTable) SubCurrentSlotQuantity(q uint8) {
+	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity -= q
+}
+func (ct *CraftTable) ClearCurrenSlot() {
+	ct.Slots[ct.SlotPosY][ct.SlotPosX] = SlotData{}
+}
+
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
 	ct.Slots[ct.SlotPosY][ct.SlotPosX].ID = id
 	ct.UpdateResultSlot()

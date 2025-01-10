@@ -74,30 +74,58 @@ func (ui *UI) Update() {
 
 		// move items from hotbar to crafting table
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-			if ctrl.Inventory.CurrentSlot() != 0 && craftingTable.CurrentSlot().ID == 0 {
-				id := ctrl.Inventory.RemoveItemFromSelectedSlot()
-				craftingTable.SetCurrentSlot(id)
+			if ctrl.Inventory.CurrentSlot() != 0 {
+				if craftingTable.CurrentSlot().ID == 0 {
+					id := ctrl.Inventory.RemoveItemFromSelectedSlot()
+					craftingTable.SetCurrentSlot(id)
+					craftingTable.SetCurrentSlotQuantity(1)
+				} else if craftingTable.CurrentSlot().ID == ctrl.Inventory.CurrentSlot() {
+					ctrl.Inventory.RemoveItemFromSelectedSlot()
+					craftingTable.AddCurrentSlotQuantity(1)
+				}
 			}
 		}
 		// move items from crafting table to hotbar
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
 			if craftingTable.CurrentSlot().ID != 0 {
-				if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot().ID, 100) {
-					craftingTable.SetCurrentSlot(0)
+				if craftingTable.CurrentSlot().Quantity == 1 {
+					if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot().ID, craftingTable.CurrentSlot().Durability) {
+						craftingTable.ClearCurrenSlot()
+					}
+				} else if craftingTable.CurrentSlot().Quantity > 1 {
+					if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot().ID, craftingTable.CurrentSlot().Durability) {
+						craftingTable.SubCurrentSlotQuantity(1)
+
+					}
 				}
+
 			}
+			craftingTable.UpdateResultSlot()
 		}
 		// apply recipe
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 			craftingTable.UpdateResultSlot()
-			if craftingTable.ResultSlot.ID != 0 {
-				if ctrl.Inventory.AddItemIfEmpty(craftingTable.ResultSlot.ID, 100) {
-					craftingTable.ClearTable()
+			resultID := craftingTable.ResultSlot.ID
+			dur := items.GetDefaultDurability(resultID)
+			if resultID != 0 {
+				if ctrl.Inventory.AddItemIfEmpty(resultID, dur) {
+					for y := 0; y < 3; y++ {
+						for x := 0; x < 3; x++ {
+							if craftingTable.Slots[y][x].Quantity > 0 {
+								craftingTable.Slots[y][x].Quantity--
+							}
+							if craftingTable.Slots[y][x].Quantity == 0 {
+								craftingTable.Slots[y][x].ID = 0
+							}
+						}
+					}
 					craftingTable.ResultSlot.ID = 0
 				}
 			}
+			// fmt.Println(craftingTable.Slots)
+			// fmt.Println(craftingTable.ResultSlot)
+			craftingTable.UpdateResultSlot()
 		}
-
 	}
 
 	// Debug
@@ -197,7 +225,20 @@ func (ui *UI) Draw() {
 							kar.GlobalColorM,
 							kar.GlobalColorMDIO,
 						)
+
+						// Draw item quantity number
+						quantity := craftingTable.Slots[y][x].Quantity
+						if quantity > 1 {
+							itemQuantityTextDO.GeoM.Reset()
+							itemQuantityTextDO.GeoM.Translate(sx+4, sy+4)
+							num := strconv.FormatUint(uint64(quantity), 10)
+							if quantity < 10 {
+								num = " " + num
+							}
+							text.Draw(kar.Screen, num, res.Font, itemQuantityTextDO)
+						}
 					}
+
 					// draw selected slot border of crqfting table
 					if x == craftingTable.SlotPosX && y == craftingTable.SlotPosY {
 						sx := craftingTablePositionX + float64(x*17)
