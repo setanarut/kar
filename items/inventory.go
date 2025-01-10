@@ -1,9 +1,9 @@
 package items
 
 type SlotData struct {
-	ItemID         uint16
-	ItemQuantity   uint8
-	ItemDurability int
+	ID         uint16
+	Quantity   uint8
+	Durability int
 }
 
 type Inventory struct {
@@ -25,14 +25,14 @@ func NewInventory() *Inventory {
 func (i *Inventory) AddItemIfEmpty(id uint16, dura int) bool {
 	idx, ok1 := i.HasItemStackSpace(id)
 	if ok1 {
-		i.Slots[idx].ItemQuantity++
+		i.Slots[idx].Quantity++
 		return true
 	} else {
 		i2, ok2 := i.HasEmptySlot()
 		if ok2 {
-			i.Slots[i2].ItemQuantity++
-			i.Slots[i2].ItemID = id
-			i.Slots[i2].ItemDurability = dura
+			i.Slots[i2].Quantity++
+			i.Slots[i2].ID = id
+			i.Slots[i2].Durability = dura
 			return true
 		}
 	}
@@ -42,9 +42,9 @@ func (i *Inventory) AddItemIfEmpty(id uint16, dura int) bool {
 func (i *Inventory) SetSlot(slotIndex int, id uint16, quantity uint8, dur int) {
 	if quantity > 0 {
 		i.Slots[slotIndex] = SlotData{
-			ItemID:         id,
-			ItemQuantity:   quantity,
-			ItemDurability: dur,
+			ID:         id,
+			Quantity:   quantity,
+			Durability: dur,
 		}
 	}
 }
@@ -58,10 +58,10 @@ func (i *Inventory) SelectPrevSlot() {
 func (i *Inventory) RemoveHandItem(id uint16) bool {
 	ok := i.HasHandItem(id)
 	if ok {
-		i.HandSlot.ItemQuantity--
+		i.HandSlot.Quantity--
 		return true
 	} else {
-		i.HandSlot.ItemID = Air
+		i.HandSlot.ID = Air
 	}
 	return false
 }
@@ -69,7 +69,7 @@ func (i *Inventory) RemoveHandItem(id uint16) bool {
 func (i *Inventory) RemoveItem(id uint16) bool {
 	idx, ok := i.HasItem(id)
 	if ok {
-		i.Slots[idx].ItemQuantity--
+		i.Slots[idx].Quantity--
 		return true
 	}
 	return false
@@ -82,7 +82,7 @@ func (i *Inventory) RemoveItemFromSelectedSlot() uint16 {
 		return id
 	}
 	if quantity > 0 {
-		i.Slots[i.CurrentSlotIndex].ItemQuantity--
+		i.Slots[i.CurrentSlotIndex].Quantity--
 		return id
 	}
 	return 0
@@ -93,21 +93,21 @@ func (i *Inventory) CurrentSlotData() *SlotData {
 }
 
 func (i *Inventory) CurrentSlot() uint16 {
-	return i.Slots[i.CurrentSlotIndex].ItemID
+	return i.Slots[i.CurrentSlotIndex].ID
 }
 
 func (i *Inventory) CurrentSlotQuantity() uint8 {
-	return i.Slots[i.CurrentSlotIndex].ItemQuantity
+	return i.Slots[i.CurrentSlotIndex].Quantity
 }
 
 func (i *Inventory) ClearSlot(index int) {
 	i.Slots[index] = SlotData{
-		ItemID:       Air,
-		ItemQuantity: 0,
+		ID:       Air,
+		Quantity: 0,
 	}
 }
 func (i *Inventory) IsCurrentSlotEmpty() bool {
-	return i.Slots[i.CurrentSlotIndex].ItemQuantity <= 0 || i.Slots[i.CurrentSlotIndex].ItemID == Air
+	return i.Slots[i.CurrentSlotIndex].Quantity <= 0 || i.Slots[i.CurrentSlotIndex].ID == Air
 }
 
 func (i *Inventory) ClearAllSlots() {
@@ -133,7 +133,7 @@ func (i *Inventory) HasEmptySlot() (index int, ok bool) {
 		return i.CurrentSlotIndex, true
 	} else {
 		for idx, v := range i.Slots {
-			if v.ItemQuantity == 0 {
+			if v.Quantity == 0 {
 				return idx, true
 			}
 		}
@@ -143,8 +143,8 @@ func (i *Inventory) HasEmptySlot() (index int, ok bool) {
 
 func (i *Inventory) HasItemStackSpace(id uint16) (index int, ok bool) {
 	for idx, v := range i.Slots {
-		s := Property[v.ItemID].MaxStackSize
-		if v.ItemID == id && v.ItemQuantity < 64 && v.ItemQuantity > 0 && s != 1 {
+		s := Property[v.ID].MaxStackSize
+		if v.ID == id && v.Quantity < 64 && v.Quantity > 0 && s != 1 {
 			return idx, true
 		}
 	}
@@ -153,14 +153,14 @@ func (i *Inventory) HasItemStackSpace(id uint16) (index int, ok bool) {
 
 func (i *Inventory) HasItem(id uint16) (index int, ok bool) {
 	for idx, v := range i.Slots {
-		if v.ItemID == id && v.ItemQuantity > 0 {
+		if v.ID == id && v.Quantity > 0 {
 			return idx, true
 		}
 	}
 	return -1, false
 }
 func (i *Inventory) HasHandItem(id uint16) bool {
-	if i.HandSlot.ItemID == id && i.HandSlot.ItemQuantity > 0 {
+	if i.HandSlot.ID == id && i.HandSlot.Quantity > 0 {
 		return true
 	}
 	return false

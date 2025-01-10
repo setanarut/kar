@@ -74,15 +74,15 @@ func (ui *UI) Update() {
 
 		// move items from hotbar to crafting table
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-			if ctrl.Inventory.CurrentSlot() != 0 && craftingTable.CurrentSlot() == 0 {
+			if ctrl.Inventory.CurrentSlot() != 0 && craftingTable.CurrentSlot().ID == 0 {
 				id := ctrl.Inventory.RemoveItemFromSelectedSlot()
 				craftingTable.SetCurrentSlot(id)
 			}
 		}
 		// move items from crafting table to hotbar
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-			if craftingTable.CurrentSlot() != 0 {
-				if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot(), 100) {
+			if craftingTable.CurrentSlot().ID != 0 {
+				if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot().ID, 100) {
 					craftingTable.SetCurrentSlot(0)
 				}
 			}
@@ -90,10 +90,10 @@ func (ui *UI) Update() {
 		// apply recipe
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 			craftingTable.UpdateResultSlot()
-			if craftingTable.ResultSlot != 0 {
-				if ctrl.Inventory.AddItemIfEmpty(craftingTable.ResultSlot, 100) {
+			if craftingTable.ResultSlot.ID != 0 {
+				if ctrl.Inventory.AddItemIfEmpty(craftingTable.ResultSlot.ID, 100) {
 					craftingTable.ClearTable()
-					craftingTable.ResultSlot = 0
+					craftingTable.ResultSlot.ID = 0
 				}
 			}
 		}
@@ -126,15 +126,15 @@ func (ui *UI) Draw() {
 
 		// Draw slots
 		for x := range 9 {
-			slotID := ctrl.Inventory.Slots[x].ItemID
-			quantity := ctrl.Inventory.Slots[x].ItemQuantity
+			slotID := ctrl.Inventory.Slots[x].ID
+			quantity := ctrl.Inventory.Slots[x].Quantity
 			SlotOffsetX := float64(x) * 17
 			SlotOffsetX += hotbarPositionX
 
 			// draw hotbar item icons
 			kar.GlobalColorMDIO.GeoM.Reset()
 			kar.GlobalColorMDIO.GeoM.Translate(SlotOffsetX+(5), hotbarPositionY+(5))
-			if slotID != items.Air && ctrl.Inventory.Slots[x].ItemQuantity > 0 {
+			if slotID != items.Air && ctrl.Inventory.Slots[x].Quantity > 0 {
 				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.GlobalColorM, kar.GlobalColorMDIO)
 			}
 			if x == ctrl.Inventory.CurrentSlotIndex {
@@ -150,7 +150,7 @@ func (ui *UI) Draw() {
 						text.Draw(kar.Screen, fmt.Sprintf(
 							"%v\nDurability %v",
 							items.Property[slotID].DisplayName,
-							ctrl.Inventory.Slots[x].ItemDurability,
+							ctrl.Inventory.Slots[x].Durability,
 						), res.Font, itemQuantityTextDO)
 					} else {
 						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, itemQuantityTextDO)
@@ -186,14 +186,14 @@ func (ui *UI) Draw() {
 			// draw crafting table item icons
 			for x := 0; x < 3; x++ {
 				for y := 0; y < 3; y++ {
-					if craftingTable.Slots[y][x] != items.Air {
+					if craftingTable.Slots[y][x].ID != items.Air {
 						sx := craftingTablePositionX + float64(x*17)
 						sy := craftingTablePositionY + float64(y*17)
 						kar.GlobalColorMDIO.GeoM.Reset()
 						kar.GlobalColorMDIO.GeoM.Translate(sx+6, sy+6)
 						colorm.DrawImage(
 							kar.Screen,
-							res.Icon8[craftingTable.Slots[y][x]],
+							res.Icon8[craftingTable.Slots[y][x].ID],
 							kar.GlobalColorM,
 							kar.GlobalColorMDIO,
 						)
@@ -211,10 +211,10 @@ func (ui *UI) Draw() {
 			}
 
 			// draw crafting table output item icon
-			if craftingTable.ResultSlot != 0 {
+			if craftingTable.ResultSlot.ID != 0 {
 				kar.GlobalColorMDIO.GeoM.Reset()
 				kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
-				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot], kar.GlobalColorM, kar.GlobalColorMDIO)
+				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot.ID], kar.GlobalColorM, kar.GlobalColorMDIO)
 			}
 		}
 

@@ -291,8 +291,8 @@ func (c *Controller) Attacking() {
 			tileMap.SetTileID(targetBlockPos.X, targetBlockPos.Y, items.Air)
 
 			if items.HasTag(c.Inventory.CurrentSlot(), items.Tool) {
-				c.Inventory.CurrentSlotData().ItemDurability--
-				if c.Inventory.CurrentSlotData().ItemDurability <= 0 {
+				c.Inventory.CurrentSlotData().Durability--
+				if c.Inventory.CurrentSlotData().Durability <= 0 {
 					c.Inventory.ClearCurrentSlot()
 				}
 			}

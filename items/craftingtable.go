@@ -4,53 +4,55 @@ import (
 	"fmt"
 )
 
-type Recipe [][]uint16
+type Recipe [][]SlotData
 
-var Recipes map[uint16][]Recipe
+var Recipes map[uint16]Recipe
 
 type CraftTable struct {
 	SlotPosX, SlotPosY int
-	Slots              [][]uint16
-	ResultSlot         uint16
+	Slots              [][]SlotData
+	ResultSlot         SlotData
 }
 
 func NewCraftTable() *CraftTable {
 	return &CraftTable{
-		Slots: [][]uint16{
-			{0, 0, 0},
-			{0, 0, 0},
-			{0, 0, 0}},
+		Slots: [][]SlotData{
+			{SlotData{}, SlotData{}, SlotData{}},
+			{SlotData{}, SlotData{}, SlotData{}},
+			{SlotData{}, SlotData{}, SlotData{}}},
 	}
 }
 
 // tarif yoksa sıfır döndürür (air)
 func (ct *CraftTable) CheckRecipe() uint16 {
 	cropped := ct.cropRecipe(ct.Slots)
-	for itemIDKey, subRecipes := range Recipes {
-		for _, subRecipe := range subRecipes {
-			if ct.Equal(cropped, subRecipe) {
-				return itemIDKey
-			}
+	for itemIDKey, recipe := range Recipes {
+		if ct.Equal(cropped, ct.cropRecipe(recipe)) {
+			return itemIDKey
 		}
 	}
 	return 0
 }
 
 func (ct *CraftTable) UpdateResultSlot() {
-	ct.ResultSlot = ct.CheckRecipe()
+	ct.ResultSlot.ID = ct.CheckRecipe()
 }
 func (ct *CraftTable) ClearTable() {
-	ct.Slots = [][]uint16{
-		{0, 0, 0},
-		{0, 0, 0},
-		{0, 0, 0}}
+	ct.Slots = [][]SlotData{
+		{SlotData{}, SlotData{}, SlotData{}},
+		{SlotData{}, SlotData{}, SlotData{}},
+		{SlotData{}, SlotData{}, SlotData{}}}
 }
 
-func (ct *CraftTable) CurrentSlot() uint16 {
+func (ct *CraftTable) CurrentSlot() SlotData {
 	return ct.Slots[ct.SlotPosY][ct.SlotPosX]
 }
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX] = id
+	ct.Slots[ct.SlotPosY][ct.SlotPosX].ID = id
+	ct.UpdateResultSlot()
+}
+func (ct *CraftTable) SetSlot(x, y, id uint16) {
+	ct.Slots[y][x].ID = id
 	ct.UpdateResultSlot()
 }
 
@@ -65,7 +67,7 @@ func (ct *CraftTable) Equal(recipeA, recipeB Recipe) bool {
 		}
 		// Her hücreyi tek tek karşılaştır
 		for j := range recipeA[i] {
-			if recipeA[i][j] != recipeB[i][j] {
+			if recipeA[i][j].ID != recipeB[i][j].ID {
 				return false
 			}
 		}
@@ -79,7 +81,7 @@ func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 	minCol, maxCol := len(reci[0]), 0
 	for i := 0; i < len(reci); i++ {
 		for j := 0; j < len(reci[i]); j++ {
-			if reci[i][j] != 0 {
+			if reci[i][j].ID != 0 {
 				if i < minRow {
 					minRow = i
 				}
@@ -98,9 +100,9 @@ func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 	if minRow > maxRow || minCol > maxCol {
 		return reci
 	}
-	normalizedGrid := make([][]uint16, maxRow-minRow+1)
+	normalizedGrid := make([][]SlotData, maxRow-minRow+1)
 	for i := range normalizedGrid {
-		normalizedGrid[i] = make([]uint16, maxCol-minCol+1)
+		normalizedGrid[i] = make([]SlotData, maxCol-minCol+1)
 		for j := range normalizedGrid[i] {
 			normalizedGrid[i][j] = reci[minRow+i][minCol+j]
 		}
@@ -108,22 +110,23 @@ func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 	return Recipe(normalizedGrid)
 }
 
-func (ct *CraftTable) PrintGrid(r Recipe) {
-	for _, row := range r {
+func (ct *CraftTable) PrintGrid() {
+	for _, row := range ct.Slots {
 		fmt.Println(row)
 	}
 	fmt.Println()
 }
 
 func init() {
-	Recipes = make(map[uint16][]Recipe)
-	Recipes[OakPlanks] = []Recipe{[][]uint16{{OakLog}}}
-	Recipes[Stick] = []Recipe{[][]uint16{{OakPlanks}, {OakPlanks}}}
-	Recipes[Torch] = []Recipe{[][]uint16{{Coal}, {Stick}}}
-	Recipes[IronPickaxe] = []Recipe{[][]uint16{
-		{IronIngot, IronIngot, IronIngot},
-		{0, Stick, 0},
-		{0, Stick, 0},
-	}}
+	Recipes = make(map[uint16]Recipe)
 
+	Recipes[OakPlanks] = [][]SlotData{{SlotData{ID: OakLog}}}
+	Recipes[Stick] = [][]SlotData{
+		{SlotData{ID: OakPlanks}, SlotData{}, SlotData{}},
+		{SlotData{ID: OakPlanks}, SlotData{}, SlotData{}},
+		{SlotData{}, SlotData{}, SlotData{}}}
+	Recipes[IronPickaxe] = [][]SlotData{
+		{SlotData{ID: IronIngot}, SlotData{ID: IronIngot}, SlotData{ID: IronIngot}},
+		{SlotData{ID: 0}, SlotData{ID: Stick}, SlotData{ID: 0}},
+		{SlotData{ID: 0}, SlotData{ID: Stick}, SlotData{ID: 0}}}
 }

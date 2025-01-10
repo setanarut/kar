@@ -49,6 +49,9 @@ func GetDefaultDurability(id uint16) int {
 func RandomBlock() uint16 {
 	return BlockIDs[rand.IntN(len(BlockIDs))]
 }
+func DisplayName(id uint16) string {
+	return Property[id].DisplayName
+}
 func RandomItem() uint16 {
 	return uint16(mathutil.RandRangeInt(1, len(Property)-1))
 }
