@@ -122,8 +122,6 @@ func (ui *UI) Update() {
 					craftingTable.ResultSlot.ID = 0
 				}
 			}
-			// fmt.Println(craftingTable.Slots)
-			// fmt.Println(craftingTable.ResultSlot)
 			craftingTable.UpdateResultSlot()
 		}
 	}
@@ -230,7 +228,7 @@ func (ui *UI) Draw() {
 						quantity := craftingTable.Slots[y][x].Quantity
 						if quantity > 1 {
 							itemQuantityTextDO.GeoM.Reset()
-							itemQuantityTextDO.GeoM.Translate(sx+4, sy+4)
+							itemQuantityTextDO.GeoM.Translate(sx+7, sy+5)
 							num := strconv.FormatUint(uint64(quantity), 10)
 							if quantity < 10 {
 								num = " " + num
