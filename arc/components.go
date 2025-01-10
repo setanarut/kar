@@ -1,8 +1,22 @@
 package arc
 
-import (
-	"strconv"
-)
+type ItemID struct {
+	ID uint16
+}
+
+type ItemTimers struct {
+	CollisionCountdown int
+	AnimationIndex     int
+}
+
+type Durability struct {
+	Durability int
+}
+
+type Health struct {
+	Health    int
+	MaxHealth int
+}
 
 type Rect struct {
 	X, Y, W, H float64
@@ -14,40 +28,7 @@ func (r *Rect) Overlaps(x, y, w, h float64) bool {
 
 }
 
-// Overlaps checks if the rectangle overlaps with another rectangle
-func (r *Rect) OverlapsRect(box *Rect) bool {
+// Overlaps2 checks if the rectangle overlaps with another rectangle
+func (r *Rect) Overlaps2(box *Rect) bool {
 	return r.X+r.W > box.X && box.X+box.W > r.X && r.Y+r.H > box.Y && box.Y+box.H > r.Y
-}
-
-func (r *Rect) String() string {
-	x := "X: " + strconv.FormatFloat(r.X, 'f', -1, 64)
-	y := "Y: " + strconv.FormatFloat(r.X, 'f', -1, 64)
-	return x + y
-}
-
-type DrawOptions struct {
-	// flip x axis
-	ScaleX float64
-}
-
-type ItemTimers struct {
-	CollisionCountdown int
-	AnimationIndex     int
-}
-
-type AnimationFrameIndex struct {
-	Index int
-}
-
-type ItemID struct {
-	ID uint16
-}
-
-type Durability struct {
-	Durability int
-}
-
-type Health struct {
-	Health    int
-	MaxHealth int
 }
