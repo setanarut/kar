@@ -34,8 +34,29 @@ func (ct *CraftTable) CheckRecipe() uint16 {
 	return 0
 }
 
-func (ct *CraftTable) UpdateResultSlot() {
+func (ct *CraftTable) UpdateResultSlot() uint8 {
 	ct.ResultSlot.ID = ct.CheckRecipe()
+	minimum := uint8(255)
+	for y := range 3 {
+		for x := range 3 {
+			if ct.Get(x, y).Quantity != 0 {
+				minimum = min(minimum, ct.Get(x, y).Quantity)
+			}
+		}
+	}
+
+	if minimum == 255 {
+		minimum = 0
+	}
+
+	if ct.ResultSlot.ID != 0 {
+		ct.ResultSlot.Quantity = minimum
+	}
+
+	ct.PrintGrid()
+	fmt.Println("min:", minimum)
+	fmt.Println("result:", ct.ResultSlot)
+	return minimum
 }
 func (ct *CraftTable) ClearTable() {
 	ct.Slots = [][]Slot{
@@ -62,11 +83,14 @@ func (ct *CraftTable) ClearCurrenSlot() {
 
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
 	ct.Slots[ct.SlotPosY][ct.SlotPosX].ID = id
-	ct.UpdateResultSlot()
 }
-func (ct *CraftTable) SetSlot(x, y, id uint16) {
+func (ct *CraftTable) Set(x, y, id uint16) {
 	ct.Slots[y][x].ID = id
 	ct.UpdateResultSlot()
+}
+
+func (ct *CraftTable) Get(x, y int) *Slot {
+	return &ct.Slots[y][x]
 }
 
 func (ct *CraftTable) Equal(recipeA, recipeB Recipe) bool {
@@ -92,8 +116,8 @@ func (ct *CraftTable) Equal(recipeA, recipeB Recipe) bool {
 func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 	minRow, maxRow := len(reci), 0
 	minCol, maxCol := len(reci[0]), 0
-	for i := 0; i < len(reci); i++ {
-		for j := 0; j < len(reci[i]); j++ {
+	for i := range len(reci) {
+		for j := range len(reci[i]) {
 			if reci[i][j].ID != 0 {
 				if i < minRow {
 					minRow = i
@@ -127,7 +151,6 @@ func (ct *CraftTable) PrintGrid() {
 	for _, row := range ct.Slots {
 		fmt.Println(row)
 	}
-	fmt.Println()
 }
 
 func init() {

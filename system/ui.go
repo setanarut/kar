@@ -85,6 +85,7 @@ func (ui *UI) Update() {
 					craftingTable.AddCurrentSlotQuantity(1)
 				}
 			}
+			craftingTable.UpdateResultSlot()
 		}
 		// move items from crafting table to hotbar
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
@@ -105,22 +106,24 @@ func (ui *UI) Update() {
 		}
 		// apply recipe
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-			craftingTable.UpdateResultSlot()
+			minimum := craftingTable.UpdateResultSlot()
 			resultID := craftingTable.ResultSlot.ID
 			dur := items.GetDefaultDurability(resultID)
 			if resultID != 0 {
-				if ctrl.Inventory.AddItemIfEmpty(resultID, dur) {
-					for y := 0; y < 3; y++ {
-						for x := 0; x < 3; x++ {
-							if craftingTable.Slots[y][x].Quantity > 0 {
-								craftingTable.Slots[y][x].Quantity--
-							}
-							if craftingTable.Slots[y][x].Quantity == 0 {
-								craftingTable.Slots[y][x].ID = 0
+				for range minimum {
+					if ctrl.Inventory.AddItemIfEmpty(resultID, dur) {
+						for y := range 3 {
+							for x := range 3 {
+								if craftingTable.Slots[y][x].Quantity > 0 {
+									craftingTable.Slots[y][x].Quantity--
+								}
+								if craftingTable.Slots[y][x].Quantity == 0 {
+									craftingTable.Slots[y][x].ID = 0
+								}
 							}
 						}
+						craftingTable.ResultSlot.ID = 0
 					}
-					craftingTable.ResultSlot.ID = 0
 				}
 			}
 			craftingTable.UpdateResultSlot()
@@ -250,12 +253,25 @@ func (ui *UI) Draw() {
 				}
 			}
 
-			// draw crafting table output item icon
+			// draw crafting table result item icon
 			if craftingTable.ResultSlot.ID != 0 {
 				kar.GlobalColorMDIO.GeoM.Reset()
 				kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
 				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot.ID], kar.GlobalColorM, kar.GlobalColorMDIO)
+
+				// Draw result item quantity number
+				quantity := craftingTable.ResultSlot.Quantity
+				if quantity > 1 {
+					itemQuantityTextDO.GeoM.Reset()
+					itemQuantityTextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
+					num := strconv.FormatUint(uint64(quantity), 10)
+					if quantity < 10 {
+						num = " " + num
+					}
+					text.Draw(kar.Screen, num, res.Font, itemQuantityTextDO)
+				}
 			}
+
 		}
 
 		// Draw all rects for debug
