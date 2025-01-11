@@ -20,6 +20,7 @@ var (
 	BlockCrackFrames = make(map[uint16][]*ebiten.Image, 0)
 	Hotbar           = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
 	CraftingTable    = util.ReadEbImgFS(fs, "assets/img/gui/table.png")
+	CraftingTable4   = util.ReadEbImgFS(fs, "assets/img/gui/table4.png")
 	SelectionBlock   = util.ReadEbImgFS(fs, "assets/img/gui/selection_block.png")
 	SelectionBar     = util.ReadEbImgFS(fs, "assets/img/gui/selection_bar.png")
 	PlayerAtlas      = util.ReadEbImgFS(fs, "assets/img/player.png")

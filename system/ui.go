@@ -51,53 +51,61 @@ func (ui *UI) Update() {
 
 	// Toggle crafting state
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		id := tileMap.Get(targetBlockPos.X, targetBlockPos.Y)
-		if id == items.CraftingTable {
-			craftingTable.SlotPosX, craftingTable.SlotPosY = 1, 1
+		if tileMap.Get(targetBlockPos.X, targetBlockPos.Y) == items.CraftingTable {
+			craftingState4 = false
+		} else {
+			craftingState4 = true
+		}
 
-			// clear crafting table when exit
-			if craftingState {
-				for y := range 3 {
-					for x := range 3 {
-						id2 := craftingTable.Get(x, y).ID
-						if id2 != 0 {
-							quantity := craftingTable.Get(x, y).Quantity
-							for range quantity {
-								if ctrl.Inventory.AddItemIfEmpty(
-									craftingTable.Get(x, y).ID,
-									craftingTable.Get(x, y).Durability,
-								) {
-									craftingTable.RemoveItem(x, y)
-								} else {
-									craftingTable.RemoveItem(x, y)
-									arc.SpawnItem(arc.SpawnData{
-										X:          playerCenterX,
-										Y:          playerCenterY,
-										Id:         id2,
-										Durability: craftingTable.Get(x, y).Durability,
-									}, rand.IntN(sinspaceLen))
-								}
+		// clear crafting table when exit
+		if craftingState {
+			for y := range 3 {
+				for x := range 3 {
+					id2 := craftingTable.Get(x, y).ID
+					if id2 != 0 {
+						quantity := craftingTable.Get(x, y).Quantity
+						for range quantity {
+							if ctrl.Inventory.AddItemIfEmpty(
+								craftingTable.Get(x, y).ID,
+								craftingTable.Get(x, y).Durability,
+							) {
+								craftingTable.RemoveItem(x, y)
+							} else {
+								craftingTable.RemoveItem(x, y)
+								arc.SpawnItem(arc.SpawnData{
+									X:          playerCenterX,
+									Y:          playerCenterY,
+									Id:         id2,
+									Durability: craftingTable.Get(x, y).Durability,
+								}, rand.IntN(sinspaceLen))
 							}
 						}
 					}
 				}
-				craftingTable.ResultSlot = items.Slot{}
 			}
-
-			craftingState = !craftingState
+			craftingTable.ResultSlot = items.Slot{}
 		}
+		craftingState = !craftingState
 	}
 
 	// Crafting table slot navigation
 	if craftingState {
 		if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-			craftingTable.SlotPosX = min(craftingTable.SlotPosX+1, 2)
+			if craftingState4 {
+				craftingTable.SlotPosX = min(craftingTable.SlotPosX+1, 1)
+			} else {
+				craftingTable.SlotPosX = min(craftingTable.SlotPosX+1, 2)
+			}
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyA) {
 			craftingTable.SlotPosX = max(craftingTable.SlotPosX-1, 0)
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-			craftingTable.SlotPosY = min(craftingTable.SlotPosY+1, 2)
+			if craftingState4 {
+				craftingTable.SlotPosY = min(craftingTable.SlotPosY+1, 1)
+			} else {
+				craftingTable.SlotPosY = min(craftingTable.SlotPosY+1, 2)
+			}
 		}
 		if inpututil.IsKeyJustPressed(ebiten.KeyW) {
 			craftingTable.SlotPosY = max(craftingTable.SlotPosY-1, 0)
@@ -243,7 +251,12 @@ func (ui *UI) Draw() {
 			// crafting table Background
 			kar.GlobalColorMDIO.GeoM.Reset()
 			kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
-			colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
+
+			if craftingState4 {
+				colorm.DrawImage(kar.Screen, res.CraftingTable4, kar.GlobalColorM, kar.GlobalColorMDIO)
+			} else {
+				colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
+			}
 
 			// draw crafting table item icons
 			for x := 0; x < 3; x++ {
@@ -288,14 +301,24 @@ func (ui *UI) Draw() {
 			// draw crafting table result item icon
 			if craftingTable.ResultSlot.ID != 0 {
 				kar.GlobalColorMDIO.GeoM.Reset()
-				kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
+
+				if craftingState4 {
+					kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+41, craftingTablePositionY+14)
+				} else {
+					kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
+				}
+
 				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot.ID], kar.GlobalColorM, kar.GlobalColorMDIO)
 
 				// Draw result item quantity number
 				quantity := craftingTable.ResultSlot.Quantity
 				if quantity > 1 {
 					itemQuantityTextDO.GeoM.Reset()
-					itemQuantityTextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
+					if craftingState4 {
+						itemQuantityTextDO.GeoM.Translate(craftingTablePositionX+42, craftingTablePositionY+13)
+					} else {
+						itemQuantityTextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
+					}
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
 						num = " " + num
