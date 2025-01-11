@@ -50,9 +50,10 @@ func (ui *UI) Update() {
 
 	// Toggle crafting state
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		id := tileMap.TileID(targetBlockPos.X, targetBlockPos.Y)
+		id := tileMap.Get(targetBlockPos.X, targetBlockPos.Y)
 		if id == items.CraftingTable {
 			craftingTable.SlotPosX, craftingTable.SlotPosY = 1, 1
+
 			craftingState = !craftingState
 		}
 	}

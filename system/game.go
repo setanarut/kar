@@ -5,13 +5,21 @@ import (
 	"kar/arc"
 	"kar/engine/mathutil"
 	"kar/res"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type DrawGame struct{}
+type Game struct{}
 
-func (d *DrawGame) Init() {}
+func (d *Game) Init() {}
 
-func (d *DrawGame) Update() {
+func (d *Game) Update() {
+
+	// Hotbar slot navigation
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		tileMap.SaveTileMapAsImage(playerTile.X, playerTile.Y)
+	}
 
 	if !craftingState {
 		if playerCenterX < kar.Camera.TopLeftX {
@@ -36,7 +44,7 @@ func (d *DrawGame) Update() {
 	}
 }
 
-func (d *DrawGame) Draw() {
+func (d *Game) Draw() {
 
 	// Draw tilemap
 	camMin := tileMap.WorldToTile(kar.Camera.TopLeft())

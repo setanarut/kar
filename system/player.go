@@ -25,8 +25,8 @@ func (c *Player) Init() {
 	ctrl.Rect = rect
 	ctrl.Health = hlt
 	ctrl.Inventory = items.NewInventory()
-	ctrl.Inventory.SetSlot(2, items.OakLog, 64, 0)
-	ctrl.Inventory.SetSlot(5, items.IronIngot, 32, 0)
+	// ctrl.Inventory.SetSlot(2, items.OakLog, 64, 0)
+	// ctrl.Inventory.SetSlot(5, items.IronIngot, 32, 0)
 	ctrl.EnterFalling()
 }
 
@@ -75,7 +75,7 @@ func (c *Player) Update() {
 					}
 					if !anyItemOverlapsWithPlaceCoords {
 						if !ctrl.Rect.Overlaps(tileMap.GetTileRect(placeBlock)) {
-							tileMap.SetTileID(placeBlock.X, placeBlock.Y, ctrl.Inventory.CurrentSlot())
+							tileMap.Set(placeBlock.X, placeBlock.Y, ctrl.Inventory.CurrentSlot())
 							ctrl.Inventory.RemoveItemFromSelectedSlot()
 						}
 					}

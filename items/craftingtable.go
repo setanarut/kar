@@ -4,22 +4,22 @@ import (
 	"fmt"
 )
 
-type Recipe [][]SlotData
+type Recipe [][]Slot
 
 var Recipes map[uint16]Recipe
 
 type CraftTable struct {
 	SlotPosX, SlotPosY int
-	Slots              [][]SlotData
-	ResultSlot         SlotData
+	Slots              [][]Slot
+	ResultSlot         Slot
 }
 
 func NewCraftTable() *CraftTable {
 	return &CraftTable{
-		Slots: [][]SlotData{
-			{SlotData{}, SlotData{}, SlotData{}},
-			{SlotData{}, SlotData{}, SlotData{}},
-			{SlotData{}, SlotData{}, SlotData{}}},
+		Slots: [][]Slot{
+			{Slot{}, Slot{}, Slot{}},
+			{Slot{}, Slot{}, Slot{}},
+			{Slot{}, Slot{}, Slot{}}},
 	}
 }
 
@@ -38,13 +38,13 @@ func (ct *CraftTable) UpdateResultSlot() {
 	ct.ResultSlot.ID = ct.CheckRecipe()
 }
 func (ct *CraftTable) ClearTable() {
-	ct.Slots = [][]SlotData{
-		{SlotData{}, SlotData{}, SlotData{}},
-		{SlotData{}, SlotData{}, SlotData{}},
-		{SlotData{}, SlotData{}, SlotData{}}}
+	ct.Slots = [][]Slot{
+		{Slot{}, Slot{}, Slot{}},
+		{Slot{}, Slot{}, Slot{}},
+		{Slot{}, Slot{}, Slot{}}}
 }
 
-func (ct *CraftTable) CurrentSlot() SlotData {
+func (ct *CraftTable) CurrentSlot() Slot {
 	return ct.Slots[ct.SlotPosY][ct.SlotPosX]
 }
 func (ct *CraftTable) SetCurrentSlotQuantity(q uint8) {
@@ -57,7 +57,7 @@ func (ct *CraftTable) SubCurrentSlotQuantity(q uint8) {
 	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity -= q
 }
 func (ct *CraftTable) ClearCurrenSlot() {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX] = SlotData{}
+	ct.Slots[ct.SlotPosY][ct.SlotPosX] = Slot{}
 }
 
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
@@ -113,9 +113,9 @@ func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 	if minRow > maxRow || minCol > maxCol {
 		return reci
 	}
-	normalizedGrid := make([][]SlotData, maxRow-minRow+1)
+	normalizedGrid := make([][]Slot, maxRow-minRow+1)
 	for i := range normalizedGrid {
-		normalizedGrid[i] = make([]SlotData, maxCol-minCol+1)
+		normalizedGrid[i] = make([]Slot, maxCol-minCol+1)
 		for j := range normalizedGrid[i] {
 			normalizedGrid[i][j] = reci[minRow+i][minCol+j]
 		}
@@ -133,13 +133,17 @@ func (ct *CraftTable) PrintGrid() {
 func init() {
 	Recipes = make(map[uint16]Recipe)
 
-	Recipes[OakPlanks] = [][]SlotData{{SlotData{ID: OakLog}}}
-	Recipes[Stick] = [][]SlotData{
-		{SlotData{ID: OakPlanks}, SlotData{}, SlotData{}},
-		{SlotData{ID: OakPlanks}, SlotData{}, SlotData{}},
-		{SlotData{}, SlotData{}, SlotData{}}}
-	Recipes[IronPickaxe] = [][]SlotData{
-		{SlotData{ID: IronIngot}, SlotData{ID: IronIngot}, SlotData{ID: IronIngot}},
-		{SlotData{ID: 0}, SlotData{ID: Stick}, SlotData{ID: 0}},
-		{SlotData{ID: 0}, SlotData{ID: Stick}, SlotData{ID: 0}}}
+	Recipes[OakPlanks] = [][]Slot{{Slot{ID: OakLog}}}
+	Recipes[Stick] = [][]Slot{
+		{Slot{ID: OakPlanks}, Slot{}, Slot{}},
+		{Slot{ID: OakPlanks}, Slot{}, Slot{}},
+		{Slot{}, Slot{}, Slot{}}}
+	Recipes[IronPickaxe] = [][]Slot{
+		{Slot{ID: IronIngot}, Slot{ID: IronIngot}, Slot{ID: IronIngot}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
+	Recipes[CraftingTable] = [][]Slot{
+		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
+		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
+	}
 }

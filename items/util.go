@@ -1,7 +1,7 @@
 package items
 
 import (
-	"kar/engine/mathutil"
+	"image/color"
 	"math/rand/v2"
 )
 
@@ -53,5 +53,26 @@ func DisplayName(id uint16) string {
 	return Property[id].DisplayName
 }
 func RandomItem() uint16 {
-	return uint16(mathutil.RandRangeInt(1, len(Property)-1))
+	max := len(Property) - 1
+	return uint16(1 + rand.IntN(max-1+1))
+}
+
+var ColorMap = map[uint16]color.RGBA{
+	Air:           rgb(1, 1, 1),
+	CraftingTable: rgb(194, 137, 62),
+	GrassBlock:    rgb(133, 75, 54),
+	Dirt:          rgb(133, 75, 54),
+	Sand:          rgb(199, 193, 158),
+	Stone:         rgb(139, 139, 139),
+	CoalOre:       rgb(0, 0, 0),
+	GoldOre:       rgb(255, 221, 0),
+	IronOre:       rgb(171, 162, 147),
+	DiamondOre:    rgb(0, 247, 255),
+	OakLog:        rgb(227, 131, 104),
+	OakPlanks:     rgb(224, 153, 145),
+	OakLeaves:     rgb(0, 160, 16),
+}
+
+func rgb(r, g, b uint8) color.RGBA {
+	return color.RGBA{r, g, b, 255}
 }

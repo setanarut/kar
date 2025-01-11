@@ -1,6 +1,6 @@
 package items
 
-type SlotData struct {
+type Slot struct {
 	ID         uint16
 	Quantity   uint8
 	Durability int
@@ -8,15 +8,15 @@ type SlotData struct {
 
 type Inventory struct {
 	CurrentSlotIndex int
-	Slots            [9]SlotData
-	HandSlot         SlotData
+	Slots            [9]Slot
+	HandSlot         Slot
 }
 
 func NewInventory() *Inventory {
 	inv := &Inventory{}
-	inv.HandSlot = SlotData{}
+	inv.HandSlot = Slot{}
 	for i := range inv.Slots {
-		inv.Slots[i] = SlotData{}
+		inv.Slots[i] = Slot{}
 	}
 	return inv
 }
@@ -41,7 +41,7 @@ func (i *Inventory) AddItemIfEmpty(id uint16, dura int) bool {
 
 func (i *Inventory) SetSlot(slotIndex int, id uint16, quantity uint8, dur int) {
 	if quantity > 0 {
-		i.Slots[slotIndex] = SlotData{
+		i.Slots[slotIndex] = Slot{
 			ID:         id,
 			Quantity:   quantity,
 			Durability: dur,
@@ -88,7 +88,7 @@ func (i *Inventory) RemoveItemFromSelectedSlot() uint16 {
 	return 0
 }
 
-func (i *Inventory) CurrentSlotData() *SlotData {
+func (i *Inventory) CurrentSlotData() *Slot {
 	return &i.Slots[i.CurrentSlotIndex]
 }
 
@@ -101,7 +101,7 @@ func (i *Inventory) CurrentSlotQuantity() uint8 {
 }
 
 func (i *Inventory) ClearSlot(index int) {
-	i.Slots[index] = SlotData{
+	i.Slots[index] = Slot{
 		ID:       Air,
 		Quantity: 0,
 	}
@@ -112,7 +112,7 @@ func (i *Inventory) IsCurrentSlotEmpty() bool {
 
 func (i *Inventory) ClearAllSlots() {
 	for idx := range i.Slots {
-		i.Slots[idx] = SlotData{}
+		i.Slots[idx] = Slot{}
 	}
 }
 func (i *Inventory) RandomFillAllSlots() {

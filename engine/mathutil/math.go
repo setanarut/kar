@@ -2,7 +2,6 @@ package mathutil
 
 import (
 	"math"
-	"math/rand/v2"
 
 	"golang.org/x/exp/constraints"
 )
@@ -15,37 +14,12 @@ func MapRange[T Number](v, a, b, c, d T) T {
 	return (v-a)/(b-a)*(d-c) + c
 }
 
-// InRange checks if a number is within a given range
-func InRange[T constraints.Ordered](num, min, max T) bool {
-	return num >= min && num <= max
-}
-
 func Radians(degrees float64) float64 {
 	return degrees * math.Pi / 180.0
 }
 
 func Degrees(radians float64) float64 {
 	return radians * 180.0 / math.Pi
-}
-
-func RandRange(min, max float64) float64 {
-	return min + rand.Float64()*(max-min)
-
-}
-
-func RandRangeInt(min, max int) int {
-	return rand.IntN(max-min+1) + min
-}
-
-// Clamp returns f clamped to [low, high]
-func Clamp(f, low, high float64) float64 {
-	if f < low {
-		return low
-	}
-	if f > high {
-		return high
-	}
-	return f
 }
 
 // Linspace returns evenly spaced numbers over a specified closed interval.

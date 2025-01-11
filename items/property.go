@@ -185,7 +185,7 @@ var Property = map[uint16]ItemProperty{
 		DropID:       OakLeaves,
 		MaxStackSize: 64,
 		Tags:         Block,
-		BestToolTag:  ToolAxe,
+		BestToolTag:  All,
 	},
 	OakLog: {
 		DisplayName:  "Oak Log",
