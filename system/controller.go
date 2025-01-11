@@ -279,7 +279,7 @@ func (c *Controller) Attacking() {
 	if isRayHit {
 		blockID := tileMap.Get(targetBlockPos.X, targetBlockPos.Y)
 		if !items.HasTag(blockID, items.Unbreakable) {
-			if items.IsBestTool(blockID, c.Inventory.CurrentSlot()) {
+			if items.IsBestTool(blockID, c.Inventory.CurrentSlotID()) {
 				blockHealth += 4.5
 			} else {
 				blockHealth += 1
@@ -290,9 +290,9 @@ func (c *Controller) Attacking() {
 			blockHealth = 0
 			tileMap.Set(targetBlockPos.X, targetBlockPos.Y, items.Air)
 
-			if items.HasTag(c.Inventory.CurrentSlot(), items.Tool) {
-				c.Inventory.CurrentSlotData().Durability--
-				if c.Inventory.CurrentSlotData().Durability <= 0 {
+			if items.HasTag(c.Inventory.CurrentSlotID(), items.Tool) {
+				c.Inventory.CurrentSlot().Durability--
+				if c.Inventory.CurrentSlot().Durability <= 0 {
 					c.Inventory.ClearCurrentSlot()
 				}
 			}

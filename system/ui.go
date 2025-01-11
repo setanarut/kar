@@ -62,29 +62,19 @@ func (ui *UI) Update() {
 						id2 := craftingTable.Get(x, y).ID
 						if id2 != 0 {
 							quantity := craftingTable.Get(x, y).Quantity
-							dur := craftingTable.Get(x, y).Durability
 							for range quantity {
-								if ctrl.Inventory.AddItemIfEmpty(craftingTable.Get(x, y).ID, dur) {
-									slot := craftingTable.Get(x, y)
-									if slot.Quantity == 1 {
-										slot.ID = 0
-										slot.Quantity = 0
-									} else {
-										slot.Quantity--
-									}
+								if ctrl.Inventory.AddItemIfEmpty(
+									craftingTable.Get(x, y).ID,
+									craftingTable.Get(x, y).Durability,
+								) {
+									craftingTable.RemoveItem(x, y)
 								} else {
-									slot := craftingTable.Get(x, y)
-									if slot.Quantity == 1 {
-										slot.ID = 0
-										slot.Quantity = 0
-									} else {
-										slot.Quantity--
-									}
+									craftingTable.RemoveItem(x, y)
 									arc.SpawnItem(arc.SpawnData{
-										X:          playerCenterX + rand.Float64()*2,
+										X:          playerCenterX,
 										Y:          playerCenterY,
 										Id:         id2,
-										Durability: dur,
+										Durability: craftingTable.Get(x, y).Durability,
 									}, rand.IntN(sinspaceLen))
 								}
 							}
@@ -115,14 +105,16 @@ func (ui *UI) Update() {
 
 		// move items from hotbar to crafting table
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-			if ctrl.Inventory.CurrentSlot() != 0 {
+			if ctrl.Inventory.CurrentSlotID() != 0 {
+				Tableslot := craftingTable.CurrentSLot()
 				if craftingTable.CurrentSlot().ID == 0 {
-					id := ctrl.Inventory.RemoveItemFromSelectedSlot()
-					craftingTable.SetCurrentSlot(id)
-					craftingTable.SetCurrentSlotQuantity(1)
-				} else if craftingTable.CurrentSlot().ID == ctrl.Inventory.CurrentSlot() {
+					id, dur := ctrl.Inventory.RemoveItemFromSelectedSlot()
+					Tableslot.ID = id
+					Tableslot.Durability = dur
+					Tableslot.Quantity = 1
+				} else if craftingTable.CurrentSlot().ID == ctrl.Inventory.CurrentSlotID() {
 					ctrl.Inventory.RemoveItemFromSelectedSlot()
-					craftingTable.AddCurrentSlotQuantity(1)
+					Tableslot.Quantity++
 				}
 			}
 			craftingTable.UpdateResultSlot()

@@ -74,25 +74,27 @@ func (i *Inventory) RemoveItem(id uint16) bool {
 	}
 	return false
 }
-func (i *Inventory) RemoveItemFromSelectedSlot() uint16 {
+func (i *Inventory) RemoveItemFromSelectedSlot() (uint16, int) {
 	quantity := i.CurrentSlotQuantity()
-	id := i.CurrentSlot()
+	id := i.CurrentSlotID()
+	dura := i.CurrentSlot().Durability
 	if quantity == 1 {
 		i.ClearCurrentSlot()
-		return id
+		return id, dura
 	}
 	if quantity > 0 {
+
 		i.Slots[i.CurrentSlotIndex].Quantity--
-		return id
+		return id, dura
 	}
-	return 0
+	return 0, 0
 }
 
-func (i *Inventory) CurrentSlotData() *Slot {
+func (i *Inventory) CurrentSlot() *Slot {
 	return &i.Slots[i.CurrentSlotIndex]
 }
 
-func (i *Inventory) CurrentSlot() uint16 {
+func (i *Inventory) CurrentSlotID() uint16 {
 	return i.Slots[i.CurrentSlotIndex].ID
 }
 
@@ -101,10 +103,7 @@ func (i *Inventory) CurrentSlotQuantity() uint8 {
 }
 
 func (i *Inventory) ClearSlot(index int) {
-	i.Slots[index] = Slot{
-		ID:       Air,
-		Quantity: 0,
-	}
+	i.Slots[index] = Slot{}
 }
 func (i *Inventory) IsCurrentSlotEmpty() bool {
 	return i.Slots[i.CurrentSlotIndex].Quantity <= 0 || i.Slots[i.CurrentSlotIndex].ID == Air

@@ -83,6 +83,11 @@ func (ct *CraftTable) ClearSlot(x, y int) {
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
 	ct.Slots[ct.SlotPosY][ct.SlotPosX].ID = id
 }
+
+func (ct *CraftTable) CurrentSLot() *Slot {
+	return &ct.Slots[ct.SlotPosY][ct.SlotPosX]
+}
+
 func (ct *CraftTable) Set(x, y int, id uint16) {
 	ct.Slots[y][x].ID = id
 }
@@ -92,6 +97,14 @@ func (ct *CraftTable) SetQuantity(x, y int, q uint8) {
 
 func (ct *CraftTable) Get(x, y int) *Slot {
 	return &ct.Slots[y][x]
+}
+func (ct *CraftTable) RemoveItem(x, y int) {
+	if ct.Slots[y][x].Quantity == 1 {
+		ct.Slots[y][x].ID = 0
+		ct.Slots[y][x].Quantity = 0
+	} else {
+		ct.Slots[y][x].Quantity--
+	}
 }
 
 func (ct *CraftTable) Equal(recipeA, recipeB Recipe) bool {
