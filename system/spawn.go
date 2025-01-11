@@ -5,6 +5,7 @@ import (
 	"kar/arc"
 	"kar/items"
 	"kar/tilemap"
+	"math/rand/v2"
 
 	"github.com/mlange-42/arche/ecs"
 	"github.com/setanarut/tilecollider"
@@ -44,7 +45,7 @@ func (s *Spawn) Init() {
 func (s *Spawn) Update() {
 	// Spawn item
 	for _, spawnData := range toSpawn {
-		arc.SpawnItem(spawnData)
+		arc.SpawnItem(spawnData, rand.IntN(sinspaceLen))
 	}
 	toSpawn = toSpawn[:0]
 

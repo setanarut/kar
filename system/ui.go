@@ -7,6 +7,7 @@ import (
 	"kar/arc"
 	"kar/items"
 	"kar/res"
+	"math/rand/v2"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -80,11 +81,11 @@ func (ui *UI) Update() {
 										slot.Quantity--
 									}
 									arc.SpawnItem(arc.SpawnData{
-										X:          playerCenterX,
+										X:          playerCenterX + rand.Float64()*2,
 										Y:          playerCenterY,
 										Id:         id2,
 										Durability: dur,
-									})
+									}, rand.IntN(sinspaceLen))
 								}
 							}
 						}

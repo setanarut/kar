@@ -43,12 +43,12 @@ func SpawnPlayer(x, y float64) ecs.Entity {
 	)
 }
 
-func SpawnItem(data SpawnData) ecs.Entity {
+func SpawnItem(data SpawnData, animIndex int) ecs.Entity {
 	return MapItem.NewWith(
 		&ItemID{data.Id},
 		&Durability{data.Durability},
 		&Rect{data.X, data.Y, 8, 8},
-		&ItemTimers{kar.ItemCollisionDelay, 0},
+		&ItemTimers{kar.ItemCollisionDelay, animIndex},
 	)
 }
 
