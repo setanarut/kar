@@ -35,7 +35,7 @@ func (s *Spawn) Init() {
 	ctrl.Collider = collider
 	ctrl.SkiddingJumpEnabled = true
 	x, y := tileMap.FindSpawnPosition()
-	tileMap.Set(x, y+2, items.CraftingTable)
+	// tileMap.Set(x, y+2, items.CraftingTable)
 	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
 	kar.Camera.LookAt(SpawnX, SpawnY)
 	kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
