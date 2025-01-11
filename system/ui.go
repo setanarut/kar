@@ -54,6 +54,45 @@ func (ui *UI) Update() {
 		if id == items.CraftingTable {
 			craftingTable.SlotPosX, craftingTable.SlotPosY = 1, 1
 
+			// clear crafting table when exit
+			if craftingState {
+				for y := range 3 {
+					for x := range 3 {
+						id2 := craftingTable.Get(x, y).ID
+						if id2 != 0 {
+							quantity := craftingTable.Get(x, y).Quantity
+							dur := craftingTable.Get(x, y).Durability
+							for range quantity {
+								if ctrl.Inventory.AddItemIfEmpty(craftingTable.Get(x, y).ID, dur) {
+									slot := craftingTable.Get(x, y)
+									if slot.Quantity == 1 {
+										slot.ID = 0
+										slot.Quantity = 0
+									} else {
+										slot.Quantity--
+									}
+								} else {
+									slot := craftingTable.Get(x, y)
+									if slot.Quantity == 1 {
+										slot.ID = 0
+										slot.Quantity = 0
+									} else {
+										slot.Quantity--
+									}
+									arc.SpawnItem(arc.SpawnData{
+										X:          playerCenterX,
+										Y:          playerCenterY,
+										Id:         id2,
+										Durability: dur,
+									})
+								}
+							}
+						}
+					}
+				}
+				craftingTable.ResultSlot = items.Slot{}
+			}
+
 			craftingState = !craftingState
 		}
 	}

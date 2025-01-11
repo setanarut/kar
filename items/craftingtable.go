@@ -4,10 +4,6 @@ import (
 	"fmt"
 )
 
-type Recipe [][]Slot
-
-var Recipes map[uint16]Recipe
-
 type CraftTable struct {
 	SlotPosX, SlotPosY int
 	Slots              [][]Slot
@@ -53,9 +49,9 @@ func (ct *CraftTable) UpdateResultSlot() uint8 {
 		ct.ResultSlot.Quantity = minimum
 	}
 
-	ct.PrintGrid()
-	fmt.Println("min:", minimum)
-	fmt.Println("result:", ct.ResultSlot)
+	// ct.PrintGrid()
+	// fmt.Println("min:", minimum)
+	// fmt.Println("result:", ct.ResultSlot)
 	return minimum
 }
 func (ct *CraftTable) ClearTable() {
@@ -80,13 +76,18 @@ func (ct *CraftTable) SubCurrentSlotQuantity(q uint8) {
 func (ct *CraftTable) ClearCurrenSlot() {
 	ct.Slots[ct.SlotPosY][ct.SlotPosX] = Slot{}
 }
+func (ct *CraftTable) ClearSlot(x, y int) {
+	ct.Slots[y][x] = Slot{}
+}
 
 func (ct *CraftTable) SetCurrentSlot(id uint16) {
 	ct.Slots[ct.SlotPosY][ct.SlotPosX].ID = id
 }
-func (ct *CraftTable) Set(x, y, id uint16) {
+func (ct *CraftTable) Set(x, y int, id uint16) {
 	ct.Slots[y][x].ID = id
-	ct.UpdateResultSlot()
+}
+func (ct *CraftTable) SetQuantity(x, y int, q uint8) {
+	ct.Slots[y][x].Quantity = q
 }
 
 func (ct *CraftTable) Get(x, y int) *Slot {
@@ -150,23 +151,5 @@ func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 func (ct *CraftTable) PrintGrid() {
 	for _, row := range ct.Slots {
 		fmt.Println(row)
-	}
-}
-
-func init() {
-	Recipes = make(map[uint16]Recipe)
-
-	Recipes[OakPlanks] = [][]Slot{{Slot{ID: OakLog}}}
-	Recipes[Stick] = [][]Slot{
-		{Slot{ID: OakPlanks}, Slot{}, Slot{}},
-		{Slot{ID: OakPlanks}, Slot{}, Slot{}},
-		{Slot{}, Slot{}, Slot{}}}
-	Recipes[IronPickaxe] = [][]Slot{
-		{Slot{ID: IronIngot}, Slot{ID: IronIngot}, Slot{ID: IronIngot}},
-		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
-		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
-	Recipes[CraftingTable] = [][]Slot{
-		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
-		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
 	}
 }
