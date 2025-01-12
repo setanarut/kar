@@ -37,7 +37,7 @@ func init() {
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
-	Recipes[OakPlanks][0][0].Quantity = 1
+	Recipes[OakPlanks][0][0].Quantity = 4
 	Recipes[Stick][0][0].Quantity = 4
 	Recipes[CraftingTable][0][0].Quantity = 1
 	Recipes[WoodenAxe][0][0].Quantity = 1
