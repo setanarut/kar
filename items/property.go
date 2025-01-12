@@ -78,7 +78,7 @@ var Property = map[uint16]ItemProperty{
 		DropID:       CraftingTable,
 		MaxStackSize: 1,
 		Tags:         Block,
-		BestToolTag:  ToolPickaxe,
+		BestToolTag:  ToolAxe,
 	},
 	Diamond: {
 		DisplayName:  "Diamond",
@@ -182,7 +182,7 @@ var Property = map[uint16]ItemProperty{
 	},
 	OakLeaves: {
 		DisplayName:  "Oak Leaves",
-		DropID:       OakLeaves,
+		DropID:       OakSapling,
 		MaxStackSize: 64,
 		Tags:         Block,
 		BestToolTag:  All,

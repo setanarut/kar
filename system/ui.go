@@ -57,6 +57,9 @@ func (ui *UI) Update() {
 			craftingState4 = true
 		}
 
+		craftingTable.SlotPosX = 1
+		craftingTable.SlotPosY = 1
+
 		// clear crafting table when exit
 		if craftingState {
 			for y := range 3 {

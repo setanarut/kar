@@ -9,15 +9,27 @@ func init() {
 
 	Recipes[OakPlanks] = [][]Slot{{Slot{ID: OakLog}}}
 	Recipes[Stick] = [][]Slot{
-		{Slot{ID: OakPlanks}, Slot{}, Slot{}},
-		{Slot{ID: OakPlanks}, Slot{}, Slot{}},
-		{Slot{}, Slot{}, Slot{}}}
-	Recipes[IronPickaxe] = [][]Slot{
-		{Slot{ID: IronIngot}, Slot{ID: IronIngot}, Slot{ID: IronIngot}},
-		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
-		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
+		{Slot{ID: OakPlanks}, Slot{}},
+		{Slot{ID: OakPlanks}, Slot{}},
+	}
 	Recipes[CraftingTable] = [][]Slot{
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
 	}
+	Recipes[WoodenAxe] = [][]Slot{
+		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}, Slot{ID: 0}},
+		{Slot{ID: OakPlanks}, Slot{ID: Stick}, Slot{ID: 0}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
+	Recipes[WoodenShovel] = [][]Slot{
+		{Slot{ID: 0}, Slot{ID: OakPlanks}, Slot{ID: 0}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
+	Recipes[WoodenPickaxe] = [][]Slot{
+		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
+	Recipes[IronPickaxe] = [][]Slot{
+		{Slot{ID: IronIngot}, Slot{ID: IronIngot}, Slot{ID: IronIngot}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
+		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}}}
 }
