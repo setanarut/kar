@@ -40,7 +40,7 @@ func (d *Game) Update() {
 			kar.Camera.TopLeftY += kar.Camera.Height()
 		}
 	} else {
-		kar.Camera.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
+		kar.Camera.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY-40))
 	}
 
 	if !craftingState {

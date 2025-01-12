@@ -21,13 +21,16 @@ type ISystem interface {
 var (
 	DesktopPath              string
 	WindowScale              float64     = 2.0
-	ScreenW, ScreenH         float64     = 400.0, 240.0
+	ScreenW, ScreenH         float64     = 500.0, 340.0
 	ItemCollisionDelay       int         = 10
 	RaycastDist              int         = 4 // block unit
 	DrawDebugHitboxesEnabled bool        = false
 	DrawDebugTextEnabled     bool        = false
-	RenderArea               image.Point = image.Point{23, 13} // cam w/h blocks
-	BackgroundColor          color.RGBA  = color.RGBA{36, 36, 39, 255}
+	RenderArea               image.Point = image.Point{
+		(int(ScreenW) / 20) + 3,
+		(int(ScreenH) / 20) + 3,
+	} // cam w/h blocks
+	BackgroundColor color.RGBA = color.RGBA{36, 36, 39, 255}
 
 	Screen          *ebiten.Image
 	Camera          = kamera.NewCamera(0, 0, ScreenW, ScreenH)
@@ -39,8 +42,8 @@ var (
 
 func init() {
 	// GlobalColorM.ChangeHSV(1, 0, 1)
-	// Camera.SmoothType = kamera.SmoothDamp
-	Camera.SmoothType = kamera.Lerp
+	Camera.SmoothType = kamera.SmoothDamp
+	// Camera.SmoothType = kamera.Lerp
 	Camera.SmoothOptions.LerpSpeedX = 0.5
 	Camera.SmoothOptions.LerpSpeedY = 0.05
 	homePath, err := os.UserHomeDir()
