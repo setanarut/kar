@@ -1,18 +1,23 @@
 package system
 
 import (
+	"fmt"
 	"kar"
 	"kar/arc"
 	"kar/engine/mathutil"
 	"kar/res"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/setanarut/kamera/v2"
 )
 
 type Game struct{}
 
-func (d *Game) Init() {}
+func (d *Game) Init() {
+	fmt.Println(kar.Camera.SmoothType)
+}
 
 func (d *Game) Update() {
 
@@ -21,7 +26,7 @@ func (d *Game) Update() {
 		tileMap.SaveTileMapAsImage(playerTile.X, playerTile.Y)
 	}
 
-	if !craftingState {
+	if kar.Camera.SmoothType == kamera.None {
 		if playerCenterX < kar.Camera.TopLeftX {
 			kar.Camera.TopLeftX -= kar.Camera.Width()
 		}
@@ -34,7 +39,11 @@ func (d *Game) Update() {
 		if playerCenterY > kar.Camera.Bottom() {
 			kar.Camera.TopLeftY += kar.Camera.Height()
 		}
+	} else {
+		kar.Camera.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
+	}
 
+	if !craftingState {
 		q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
 		for q.Next() {
 			a := q.Get()

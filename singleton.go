@@ -38,9 +38,11 @@ var (
 )
 
 func init() {
-	Camera.SmoothType = kamera.None
 	// GlobalColorM.ChangeHSV(1, 0, 1)
-
+	// Camera.SmoothType = kamera.SmoothDamp
+	Camera.SmoothType = kamera.Lerp
+	Camera.SmoothOptions.LerpSpeedX = 0.5
+	Camera.SmoothOptions.LerpSpeedY = 0.05
 	homePath, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)

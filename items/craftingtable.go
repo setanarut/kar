@@ -19,19 +19,22 @@ func NewCraftTable() *CraftTable {
 	}
 }
 
-// tarif yoksa sıfır döndürür (air)
-func (ct *CraftTable) CheckRecipe() uint16 {
+// tarif yoksa sıfır döndürür (air) tarif sonucu ve miktarını döndürür.
+func (ct *CraftTable) CheckRecipe() (uint16, uint8) {
 	cropped := ct.cropRecipe(ct.Slots)
 	for itemIDKey, recipe := range Recipes {
 		if ct.Equal(cropped, ct.cropRecipe(recipe)) {
-			return itemIDKey
+
+			return itemIDKey, recipe[0][0].Quantity
 		}
 	}
-	return 0
+	return 0, 0
 }
 
+// returns minimum result item quantity
 func (ct *CraftTable) UpdateResultSlot() uint8 {
-	ct.ResultSlot.ID = ct.CheckRecipe()
+	id, quantity := ct.CheckRecipe()
+	ct.ResultSlot.ID = id
 	minimum := uint8(255)
 	for y := range 3 {
 		for x := range 3 {
@@ -46,13 +49,13 @@ func (ct *CraftTable) UpdateResultSlot() uint8 {
 	}
 
 	if ct.ResultSlot.ID != 0 {
-		ct.ResultSlot.Quantity = minimum
+		ct.ResultSlot.Quantity = minimum * quantity
 	}
 
 	// ct.PrintGrid()
 	// fmt.Println("min:", minimum)
 	// fmt.Println("result:", ct.ResultSlot)
-	return minimum
+	return minimum * quantity
 }
 func (ct *CraftTable) ClearTable() {
 	ct.Slots = [][]Slot{

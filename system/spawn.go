@@ -38,7 +38,7 @@ func (s *Spawn) Init() {
 	// tileMap.Set(x, y+2, items.CraftingTable)
 	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
 	kar.Camera.LookAt(SpawnX, SpawnY)
-	kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
+	// kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
 	player = arc.SpawnPlayer(SpawnX, SpawnY)
 
 }
