@@ -60,7 +60,8 @@ func (c *Player) Update() {
 			}
 
 			// Place block
-			if ctrl.IsPlaceKeyJustPressed {
+			if ctrl.IsAttackKeyJustPressed {
+
 				anyItemOverlapsWithPlaceCoords := false
 				if isRayHit && items.HasTag(ctrl.Inventory.CurrentSlot().ID, items.Block) {
 					placeBlock = targetBlockPos.Sub(ctrl.InputAxisLast)
@@ -80,6 +81,7 @@ func (c *Player) Update() {
 						}
 					}
 				}
+
 			}
 
 			// Remove dead player entity

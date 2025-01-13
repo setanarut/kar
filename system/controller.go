@@ -51,13 +51,13 @@ type Controller struct {
 	SkiddingJumpEnabled bool
 
 	// Input durumları
-	IsBreakKeyPressed     bool
-	IsPlaceKeyJustPressed bool
-	IsJumpKeyPressed      bool
-	IsJumpKeyJustPressed  bool
-	IsRunKeyPressed       bool
-	InputAxis             image.Point
-	InputAxisLast         image.Point
+	IsBreakKeyPressed      bool
+	IsAttackKeyJustPressed bool
+	IsJumpKeyPressed       bool
+	IsJumpKeyJustPressed   bool
+	IsRunKeyPressed        bool
+	InputAxis              image.Point
+	InputAxisLast          image.Point
 
 	WalkAcceleration float64
 	WalkDeceleration float64
@@ -103,7 +103,7 @@ func (c *Controller) UpdateInput() {
 	c.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
 	c.IsRunKeyPressed = ebiten.IsKeyPressed(ebiten.KeyShift)
 	c.IsJumpKeyPressed = ebiten.IsKeyPressed(ebiten.KeySpace)
-	c.IsPlaceKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeyLeft)
+	c.IsAttackKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeyLeft)
 	c.IsJumpKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeySpace)
 	c.InputAxis = image.Point{}
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
@@ -256,8 +256,9 @@ func (c *Controller) Falling() {
 	}
 }
 
-func (c *Controller) Attacking() {
+func (c *Controller) Breaking() {
 
+	// set animation states
 	if c.InputAxisLast.X == 1 {
 		if c.HorizontalVelocity > 0.01 {
 			c.AnimPlayer.SetStateAndReset("attackWalk")
@@ -437,7 +438,7 @@ func (c *Controller) Idle() {
 	} else if !c.IsOnFloor && c.VelY > 0.01 {
 		c.ChangeState("falling")
 	} else if c.IsBreakKeyPressed && isRayHit {
-		c.ChangeState("attacking")
+		c.ChangeState("breaking")
 	}
 
 	if c.VelY != 0 && c.VelY < -0.1 {
@@ -457,8 +458,8 @@ func (c *Controller) UpdateState() {
 		c.Jumping()
 	case "falling":
 		c.Falling()
-	case "attacking":
-		c.Attacking()
+	case "breaking":
+		c.Breaking()
 	case "skidding":
 		c.Skidding()
 	}
@@ -487,7 +488,7 @@ func (c *Controller) EnterIdle() {
 // func (c *Controller) enterAttacking() {
 // }
 
-func (c *Controller) ExitAttacking() {
+func (c *Controller) ExitBreaking() {
 	blockHealth = 0
 }
 
@@ -517,8 +518,8 @@ func (c *Controller) ChangeState(newState string) {
 
 	// Mevcut durumdan çık
 	switch c.CurrentState {
-	case "attacking":
-		c.ExitAttacking()
+	case "breaking":
+		c.ExitBreaking()
 	// case "idle":
 	// c.exitIdle()
 	// case "walking":
@@ -546,8 +547,8 @@ func (c *Controller) ChangeState(newState string) {
 		c.EnterFalling()
 	case "skidding":
 		c.EnterSkidding()
-		// case "attacking":
-		// 	c.enterAttacking()
+		// case "breaking":
+		// 	c.enterBreaking()
 		// case "jumping":
 		// 	c.enterJumping()
 	}
