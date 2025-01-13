@@ -66,7 +66,7 @@ var ColorMap = map[uint16]color.RGBA{
 	Stone:         rgb(139, 139, 139),
 	CoalOre:       rgb(0, 0, 0),
 	GoldOre:       rgb(255, 221, 0),
-	IronOre:       rgb(171, 162, 147),
+	IronOre:       rgb(151, 176, 205),
 	DiamondOre:    rgb(0, 247, 255),
 	OakLog:        rgb(227, 131, 104),
 	OakPlanks:     rgb(224, 153, 145),

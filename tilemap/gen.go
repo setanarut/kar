@@ -93,7 +93,17 @@ func BlockState(x, y, w, h int) uint16 {
 			return items.Dirt
 		}
 	}
+
 	if depth >= n2 && depth <= amp*4 {
+		if depth >= float64(h)/4 && depth <= float64(h)*3/4 {
+			ironNoiseVal := ns.Noise2D(x/3, y)
+			secondaryNoise := ns.Noise2D(x/2+100, y-50)
+			combinedNoise := (ironNoiseVal + secondaryNoise) / 2
+
+			if combinedNoise > 0.5 && random.Float64() > 0.7 {
+				return items.IronOre
+			}
+		}
 		return items.Stone
 	}
 

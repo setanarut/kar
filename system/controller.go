@@ -2,6 +2,7 @@ package system
 
 import (
 	"image"
+	"kar"
 	"kar/arc"
 	"kar/engine/mathutil"
 	"kar/items"
@@ -280,9 +281,9 @@ func (c *Controller) Attacking() {
 		blockID := tileMap.Get(targetBlockPos.X, targetBlockPos.Y)
 		if !items.HasTag(blockID, items.Unbreakable) {
 			if items.IsBestTool(blockID, c.Inventory.CurrentSlotID()) {
-				blockHealth += 4.5
+				blockHealth += kar.PlayerBestToolDamage
 			} else {
-				blockHealth += 1
+				blockHealth += kar.PlayerDefaultDamage
 			}
 		}
 		// Destroy block

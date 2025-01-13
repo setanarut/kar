@@ -26,6 +26,8 @@ var (
 	RaycastDist              int         = 4 // block unit
 	DrawDebugHitboxesEnabled bool        = false
 	DrawDebugTextEnabled     bool        = false
+	PlayerBestToolDamage                 = 5.0
+	PlayerDefaultDamage                  = 1.0
 	RenderArea               image.Point = image.Point{
 		(int(ScreenW) / 20) + 3,
 		(int(ScreenH) / 20) + 3,
@@ -33,7 +35,7 @@ var (
 	BackgroundColor color.RGBA = color.RGBA{36, 36, 39, 255}
 
 	Screen          *ebiten.Image
-	Camera          = kamera.NewCamera(0, 0, ScreenW, ScreenH)
+	Camera          *kamera.Camera
 	WorldECS        = ecs.NewWorld()
 	GlobalColorMDIO = &colorm.DrawImageOptions{}
 	GlobalColorM    = colorm.ColorM{}
@@ -42,10 +44,7 @@ var (
 
 func init() {
 	// GlobalColorM.ChangeHSV(1, 0, 1)
-	Camera.SmoothType = kamera.SmoothDamp
-	// Camera.SmoothType = kamera.Lerp
-	Camera.SmoothOptions.LerpSpeedX = 0.5
-	Camera.SmoothOptions.LerpSpeedY = 0.05
+
 	homePath, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)

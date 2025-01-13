@@ -8,6 +8,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/mlange-42/arche/ecs"
+	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/tilecollider"
 )
 
@@ -37,7 +38,10 @@ func (s *Spawn) Init() {
 	x, y := tileMap.FindSpawnPosition()
 	// tileMap.Set(x, y+2, items.CraftingTable)
 	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
-	kar.Camera.LookAt(SpawnX, SpawnY)
+	kar.Camera = kamera.NewCamera(SpawnX, SpawnY, kar.ScreenW, kar.ScreenH)
+	kar.Camera.SmoothType = kamera.SmoothDamp
+	kar.Camera.SmoothOptions.LerpSpeedX = 0.5
+	kar.Camera.SmoothOptions.LerpSpeedY = 0.05
 	// kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
 	player = arc.SpawnPlayer(SpawnX, SpawnY)
 
