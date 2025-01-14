@@ -2,6 +2,7 @@ package arc
 
 import (
 	"kar"
+	"kar/items"
 	"kar/res"
 
 	"github.com/mlange-42/arche/ecs"
@@ -10,17 +11,19 @@ import (
 )
 
 var (
-	MapRect   = gn.NewMap1[Rect](&kar.WorldECS)
-	MapItem   = gn.NewMap4[ItemID, Durability, Rect, ItemTimers](&kar.WorldECS)
-	MapPlayer = gn.NewMap3[anim.AnimationPlayer, Health, Rect](&kar.WorldECS)
+	MapRect     = gn.NewMap1[Rect](&kar.WorldECS)
+	MapItem     = gn.NewMap4[ItemID, Durability, Rect, ItemTimers](&kar.WorldECS)
+	MapSnowBall = gn.NewMap3[ItemID, Rect, Velocity](&kar.WorldECS)
+	MapPlayer   = gn.NewMap3[anim.AnimationPlayer, Health, Rect](&kar.WorldECS)
 )
 
 // Query Filters
 var (
-	FilterRect       = gn.NewFilter1[Rect]()
-	FilterAnimPlayer = gn.NewFilter1[anim.AnimationPlayer]()
-	FilterItem       = gn.NewFilter4[ItemID, Rect, ItemTimers, Durability]()
-	FilterPlayer     = gn.NewFilter3[anim.AnimationPlayer, Health, Rect]()
+	FilterMapSnowBall = gn.NewFilter3[ItemID, Rect, Velocity]().Exclusive()
+	FilterRect        = gn.NewFilter1[Rect]()
+	FilterAnimPlayer  = gn.NewFilter1[anim.AnimationPlayer]()
+	FilterItem        = gn.NewFilter4[ItemID, Rect, ItemTimers, Durability]()
+	FilterPlayer      = gn.NewFilter3[anim.AnimationPlayer, Health, Rect]()
 )
 
 func SpawnPlayer(x, y float64) ecs.Entity {
@@ -49,6 +52,13 @@ func SpawnItem(data SpawnData, animIndex int) ecs.Entity {
 		&Durability{data.Durability},
 		&Rect{data.X, data.Y, 8, 8},
 		&ItemTimers{kar.ItemCollisionDelay, animIndex},
+	)
+}
+func SpawnSnowBall(x, y, vx, vy float64) ecs.Entity {
+	return MapSnowBall.NewWith(
+		&ItemID{items.Snowball},
+		&Rect{x, y, 8, 8},
+		&Velocity{vx, vy},
 	)
 }
 

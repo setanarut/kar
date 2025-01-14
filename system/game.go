@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"kar"
 	"kar/arc"
 	"kar/engine/mathutil"
@@ -16,7 +15,6 @@ import (
 type Game struct{}
 
 func (d *Game) Init() {
-	fmt.Println(kar.Camera.SmoothType)
 }
 
 func (d *Game) Update() {
@@ -109,6 +107,15 @@ func (d *Game) Draw() {
 		id, rect, timers, _ := itemQuery.Get()
 		kar.GlobalColorMDIO.GeoM.Reset()
 		kar.GlobalColorMDIO.GeoM.Translate(rect.X, rect.Y+sinspace[timers.AnimationIndex])
+		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+	}
+
+	// draw snowball
+	q := arc.FilterMapSnowBall.Query(&kar.WorldECS)
+	for q.Next() {
+		id, rect, _ := q.Get()
+		kar.GlobalColorMDIO.GeoM.Reset()
+		kar.GlobalColorMDIO.GeoM.Translate(rect.X, rect.Y)
 		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
 	}
 

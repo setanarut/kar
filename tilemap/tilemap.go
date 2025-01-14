@@ -90,6 +90,9 @@ func (t *TileMap) Raycast(pos, dir image.Point, dist int) (image.Point, bool) {
 func (t *TileMap) WorldToTile(x, y float64) image.Point {
 	return image.Point{int(math.Floor(x / float64(t.TileW))), int(math.Floor(y / float64(t.TileH)))}
 }
+func (t *TileMap) WorldToTile2(x, y float64) (int, int) {
+	return int(math.Floor(x / float64(t.TileW))), int(math.Floor(y / float64(t.TileH)))
+}
 
 func (t *TileMap) FloorToBlockCenter(x, y float64) (float64, float64) {
 	p := t.WorldToTile(x, y)

@@ -51,10 +51,6 @@ func (ct *CraftTable) UpdateResultSlot() uint8 {
 	if ct.ResultSlot.ID != 0 {
 		ct.ResultSlot.Quantity = minimum * quantity
 	}
-
-	// ct.PrintGrid()
-	// fmt.Println("min:", minimum)
-	// fmt.Println("result:", ct.ResultSlot)
 	return minimum * quantity
 }
 func (ct *CraftTable) ClearTable() {

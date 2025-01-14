@@ -55,7 +55,9 @@ func (s *Spawn) Update() {
 	toSpawn = toSpawn[:0]
 
 	for _, e := range toRemove {
-		kar.WorldECS.RemoveEntity(e)
+		if kar.WorldECS.Alive(e) {
+			kar.WorldECS.RemoveEntity(e)
+		}
 	}
 	toRemove = toRemove[:0]
 

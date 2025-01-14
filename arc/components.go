@@ -3,6 +3,10 @@ package arc
 type ItemID struct {
 	ID uint16
 }
+type Velocity struct {
+	VelX float64
+	VelY float64
+}
 
 type ItemTimers struct {
 	CollisionCountdown int
