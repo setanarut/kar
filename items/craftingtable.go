@@ -12,10 +12,7 @@ type CraftTable struct {
 
 func NewCraftTable() *CraftTable {
 	return &CraftTable{
-		Slots: [][]Slot{
-			{Slot{}, Slot{}, Slot{}},
-			{Slot{}, Slot{}, Slot{}},
-			{Slot{}, Slot{}, Slot{}}},
+		Slots: [][]Slot{{{}, {}, {}}, {{}, {}, {}}, {{}, {}, {}}},
 	}
 }
 
@@ -38,12 +35,11 @@ func (ct *CraftTable) UpdateResultSlot() uint8 {
 	minimum := uint8(255)
 	for y := range 3 {
 		for x := range 3 {
-			if ct.Get(x, y).Quantity != 0 {
-				minimum = min(minimum, ct.Get(x, y).Quantity)
+			if ct.Slots[y][x].Quantity != 0 {
+				minimum = min(minimum, ct.Slots[y][x].Quantity)
 			}
 		}
 	}
-
 	if minimum == 255 {
 		minimum = 0
 	}
@@ -54,54 +50,22 @@ func (ct *CraftTable) UpdateResultSlot() uint8 {
 	return minimum * quantity
 }
 func (ct *CraftTable) ClearTable() {
-	ct.Slots = [][]Slot{
-		{Slot{}, Slot{}, Slot{}},
-		{Slot{}, Slot{}, Slot{}},
-		{Slot{}, Slot{}, Slot{}}}
+	ct.Slots = [][]Slot{{{}, {}, {}}, {{}, {}, {}}, {{}, {}, {}}}
 }
 
-func (ct *CraftTable) CurrentSlot() Slot {
-	return ct.Slots[ct.SlotPosY][ct.SlotPosX]
-}
-func (ct *CraftTable) SetCurrentSlotQuantity(q uint8) {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity = q
-}
-func (ct *CraftTable) AddCurrentSlotQuantity(q uint8) {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity += q
-}
-func (ct *CraftTable) SubCurrentSlotQuantity(q uint8) {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX].Quantity -= q
-}
-func (ct *CraftTable) ClearCurrenSlot() {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX] = Slot{}
-}
-func (ct *CraftTable) ClearSlot(x, y int) {
-	ct.Slots[y][x] = Slot{}
-}
-
-func (ct *CraftTable) SetCurrentSlot(id uint16) {
-	ct.Slots[ct.SlotPosY][ct.SlotPosX].ID = id
-}
-
-func (ct *CraftTable) CurrentSLot() *Slot {
+func (ct *CraftTable) CurrentSlot() *Slot {
 	return &ct.Slots[ct.SlotPosY][ct.SlotPosX]
 }
 
-func (ct *CraftTable) Set(x, y int, id uint16) {
-	ct.Slots[y][x].ID = id
-}
-func (ct *CraftTable) SetQuantity(x, y int, q uint8) {
-	ct.Slots[y][x].Quantity = q
+func (ct *CraftTable) ClearCurrenSlot() {
+	ct.Slots[ct.SlotPosY][ct.SlotPosX] = Slot{}
 }
 
-func (ct *CraftTable) Get(x, y int) *Slot {
-	return &ct.Slots[y][x]
-}
 func (ct *CraftTable) RemoveItem(x, y int) {
 	if ct.Slots[y][x].Quantity == 1 {
 		ct.Slots[y][x].ID = 0
 		ct.Slots[y][x].Quantity = 0
-	} else {
+	} else if ct.Slots[y][x].Quantity > 0 {
 		ct.Slots[y][x].Quantity--
 	}
 }

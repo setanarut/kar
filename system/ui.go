@@ -64,22 +64,19 @@ func (ui *UI) Update() {
 		if craftingState {
 			for y := range 3 {
 				for x := range 3 {
-					id2 := craftingTable.Get(x, y).ID
-					if id2 != 0 {
-						quantity := craftingTable.Get(x, y).Quantity
+					itemID := craftingTable.Slots[y][x].ID
+					if itemID != 0 {
+						quantity := craftingTable.Slots[y][x].Quantity
 						for range quantity {
-							if ctrl.Inventory.AddItemIfEmpty(
-								craftingTable.Get(x, y).ID,
-								craftingTable.Get(x, y).Durability,
-							) {
+							if ctrl.Inventory.AddItemIfEmpty(craftingTable.Slots[y][x].ID, craftingTable.Slots[y][x].Durability) {
 								craftingTable.RemoveItem(x, y)
 							} else {
 								craftingTable.RemoveItem(x, y)
 								arc.SpawnItem(arc.SpawnData{
 									X:          playerCenterX,
 									Y:          playerCenterY,
-									Id:         id2,
-									Durability: craftingTable.Get(x, y).Durability,
+									Id:         itemID,
+									Durability: craftingTable.Slots[y][x].Durability,
 								}, rand.IntN(sinspaceLen))
 							}
 						}
@@ -116,30 +113,31 @@ func (ui *UI) Update() {
 
 		// move items from hotbar to crafting table
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
+			cs := craftingTable.CurrentSlot()
 			if ctrl.Inventory.CurrentSlotID() != 0 {
-				Tableslot := craftingTable.CurrentSLot()
 				if craftingTable.CurrentSlot().ID == 0 {
 					id, dur := ctrl.Inventory.RemoveItemFromSelectedSlot()
-					Tableslot.ID = id
-					Tableslot.Durability = dur
-					Tableslot.Quantity = 1
-				} else if craftingTable.CurrentSlot().ID == ctrl.Inventory.CurrentSlotID() {
+					cs.ID = id
+					cs.Durability = dur
+					cs.Quantity = 1
+				} else if cs.ID == ctrl.Inventory.CurrentSlotID() {
 					ctrl.Inventory.RemoveItemFromSelectedSlot()
-					Tableslot.Quantity++
+					cs.Quantity++
 				}
 			}
 			craftingTable.UpdateResultSlot()
 		}
 		// move items from crafting table to hotbar
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-			if craftingTable.CurrentSlot().ID != 0 {
-				if craftingTable.CurrentSlot().Quantity == 1 {
-					if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot().ID, craftingTable.CurrentSlot().Durability) {
+			cs := craftingTable.CurrentSlot()
+			if cs.ID != 0 {
+				if cs.Quantity == 1 {
+					if ctrl.Inventory.AddItemIfEmpty(cs.ID, cs.Durability) {
 						craftingTable.ClearCurrenSlot()
 					}
-				} else if craftingTable.CurrentSlot().Quantity > 1 {
-					if ctrl.Inventory.AddItemIfEmpty(craftingTable.CurrentSlot().ID, craftingTable.CurrentSlot().Durability) {
-						craftingTable.SubCurrentSlotQuantity(1)
+				} else if cs.Quantity > 1 {
+					if ctrl.Inventory.AddItemIfEmpty(cs.ID, cs.Durability) {
+						cs.Quantity--
 
 					}
 				}
