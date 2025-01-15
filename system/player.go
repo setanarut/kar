@@ -8,7 +8,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/setanarut/tilecollider"
 )
 
 var (
@@ -26,7 +25,7 @@ func (c *Player) Init() {
 	ctrl.Rect = rect
 	ctrl.Health = hlt
 	ctrl.Inventory = items.NewInventory()
-	ctrl.Inventory.SetSlot(1, items.Snowball, 64, 0)
+	ctrl.Inventory.SetSlot(0, items.Snowball, 64, 0)
 	// ctrl.Inventory.SetSlot(5, items.IronIngot, 32, 0)
 	ctrl.EnterFalling()
 }
@@ -90,23 +89,15 @@ func (c *Player) Update() {
 			q := arc.FilterMapSnowBall.Query(&kar.WorldECS)
 			for q.Next() {
 				_, rect, v := q.Get()
-				collider.Collide(
-					rect.X,
-					rect.Y,
-					rect.W,
-					rect.H,
-					v.VelX,
-					v.VelY,
-					func(ci []tilecollider.CollisionInfo[uint16], f1, f2 float64) {
-						rect.X += f1
-						rect.Y += f2
-						for _, v := range ci {
-							if v.Normal != [2]int{} {
-								toRemove = append(toRemove, q.Entity())
-							}
-						}
-					},
-				)
+				dx, dy := collider.Collide(rect.X, rect.Y, rect.W, rect.H, v.VelX, v.VelY, nil)
+				if dx != v.VelX || dy != v.VelY {
+					if kar.WorldECS.Alive(q.Entity()) {
+						toRemove = append(toRemove, q.Entity())
+					}
+				}
+				rect.X += dx
+				rect.Y += dy
+
 			}
 
 			// Remove dead player entity
@@ -123,3 +114,13 @@ func (c *Player) Update() {
 func (c *Player) Draw() {
 
 }
+
+// func onHit(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+// 	rect.X += dx
+// 	rect.Y += dy
+// 	for _, v := range ci {
+// 		if v.Normal != [2]int{} {
+// 			toRemove = append(toRemove, q.Entity())
+// 		}
+// 	}
+// },
