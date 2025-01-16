@@ -25,13 +25,20 @@ var (
 )
 
 func AppendToSpawnList(x, y float64, id uint16, dur int) {
-	toSpawn = append(toSpawn, arc.SpawnData{X: x - 4, Y: y - 4, Id: id, Durability: dur})
+	toSpawn = append(
+		toSpawn,
+		arc.SpawnData{X: x - 4, Y: y - 4, Id: id, Durability: dur},
+	)
 }
 
 func (s *Spawn) Init() {
 	tileMap = tilemap.MakeTileMap(512, 512, 20, 20)
 	tilemap.Generate(tileMap)
-	collider = tilecollider.NewCollider(tileMap.Grid, tileMap.TileW, tileMap.TileH)
+	collider = tilecollider.NewCollider(
+		tileMap.Grid,
+		tileMap.TileW,
+		tileMap.TileH,
+	)
 	ctrl = NewController(0, 10, collider)
 	ctrl.Collider = collider
 	ctrl.SkiddingJumpEnabled = true
@@ -39,10 +46,15 @@ func (s *Spawn) Init() {
 	// tileMap.Set(x, y+2, items.CraftingTable)
 	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
 	kar.Camera = kamera.NewCamera(SpawnX, SpawnY, kar.ScreenW, kar.ScreenH)
-	kar.Camera.SmoothType = kamera.SmoothDamp
+
 	kar.Camera.SmoothOptions.LerpSpeedX = 0.5
 	kar.Camera.SmoothOptions.LerpSpeedY = 0.05
-	// kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
+	if kar.CameraFollow {
+		kar.Camera.SmoothType = kamera.SmoothDamp
+	} else {
+		kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
+	}
+
 	player = arc.SpawnPlayer(SpawnX, SpawnY)
 
 }
@@ -55,9 +67,7 @@ func (s *Spawn) Update() {
 	toSpawn = toSpawn[:0]
 
 	for _, e := range toRemove {
-		// if kar.WorldECS.Alive(e) {
 		kar.WorldECS.RemoveEntity(e)
-		// }
 	}
 	toRemove = toRemove[:0]
 

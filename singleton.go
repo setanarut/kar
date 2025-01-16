@@ -26,6 +26,7 @@ var (
 	RaycastDist              int         = 4 // block unit
 	DrawDebugHitboxesEnabled bool        = false
 	DrawDebugTextEnabled     bool        = false
+	CameraFollow             bool        = false
 	PlayerBestToolDamage                 = 5.0
 	PlayerDefaultDamage                  = 1.0
 	RenderArea               image.Point = image.Point{
@@ -34,11 +35,11 @@ var (
 	} // cam w/h blocks
 	BackgroundColor color.RGBA = color.RGBA{36, 36, 39, 255}
 
-	Screen          *ebiten.Image
-	Camera          *kamera.Camera
-	WorldECS        = ecs.NewWorld()
-	GlobalColorMDIO = &colorm.DrawImageOptions{}
-	GlobalColorM    = colorm.ColorM{}
+	Screen    *ebiten.Image
+	Camera    *kamera.Camera
+	WorldECS  = ecs.NewWorld()
+	ColorMDIO = &colorm.DrawImageOptions{}
+	ColorM    = colorm.ColorM{}
 	// Debug
 )
 

@@ -57,7 +57,7 @@ type Controller struct {
 	IsJumpKeyJustPressed   bool
 	IsRunKeyPressed        bool
 	InputAxis              image.Point
-	InputAxisLast          image.Point
+	AxisLast               image.Point
 
 	WalkAcceleration float64
 	WalkDeceleration float64
@@ -119,7 +119,7 @@ func (c *Controller) UpdateInput() {
 		c.InputAxis.X += 1
 	}
 	if !c.InputAxis.Eq(image.Point{}) {
-		c.InputAxisLast = c.InputAxis
+		c.AxisLast = c.InputAxis
 	}
 }
 
@@ -166,10 +166,10 @@ func (c *Controller) UpdatePhysics() {
 
 	if c.VelX > 0.01 {
 		c.FlipXFactor = 1 // sağa gidiyor
-		c.InputAxisLast.X = 1
+		c.AxisLast.X = 1
 	} else if c.VelX < -0.01 {
 		c.FlipXFactor = -1 // sola gidiyor
-		c.InputAxisLast.X = -1
+		c.AxisLast.X = -1
 	}
 
 	// Player and tilemap collision
@@ -259,22 +259,22 @@ func (c *Controller) Falling() {
 func (c *Controller) Breaking() {
 
 	// set animation states
-	if c.InputAxisLast.X == 1 {
+	if c.AxisLast.X == 1 {
 		if c.HorizontalVelocity > 0.01 {
 			c.AnimPlayer.SetStateAndReset("attackWalk")
 		} else {
 			c.AnimPlayer.SetStateAndReset("attackRight")
 		}
-	} else if c.InputAxisLast.X == -1 {
+	} else if c.AxisLast.X == -1 {
 		if c.HorizontalVelocity > 0.01 {
 			c.AnimPlayer.SetStateAndReset("attackWalk")
 		} else {
 			c.AnimPlayer.SetStateAndReset("attackRight")
 		}
 		c.FlipXFactor = -1
-	} else if c.InputAxisLast.Y == 1 {
+	} else if c.AxisLast.Y == 1 {
 		c.AnimPlayer.SetStateAndReset("attackDown")
-	} else if c.InputAxisLast.Y == -1 {
+	} else if c.AxisLast.Y == -1 {
 		c.AnimPlayer.SetStateAndReset("attackUp")
 	}
 
@@ -414,9 +414,9 @@ func (c *Controller) Walking() {
 
 func (c *Controller) Idle() {
 
-	if c.InputAxisLast.Y == -1 {
+	if c.AxisLast.Y == -1 {
 		c.AnimPlayer.SetStateAndReset("idleUp")
-	} else if c.InputAxisLast.Y == 1 {
+	} else if c.AxisLast.Y == 1 {
 		c.AnimPlayer.SetStateAndReset("idleDown")
 	}
 	if c.IsJumpKeyJustPressed {
@@ -477,10 +477,10 @@ func (c *Controller) EnterRunning() {
 }
 
 func (c *Controller) EnterIdle() {
-	if c.InputAxisLast.Y == 0 {
+	if c.AxisLast.Y == 0 {
 		c.AnimPlayer.SetStateAndReset("idleRight")
 	}
-	if c.InputAxisLast.X == 0 {
+	if c.AxisLast.X == 0 {
 		c.AnimPlayer.SetStateAndReset("idleUp")
 	}
 }

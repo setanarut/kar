@@ -14,10 +14,12 @@ func MapRange[T Number](v, a, b, c, d T) T {
 	return (v-a)/(b-a)*(d-c) + c
 }
 
+// degrees to radians
 func Radians(degrees float64) float64 {
 	return degrees * math.Pi / 180.0
 }
 
+// radians to degrees
 func Degrees(radians float64) float64 {
 	return radians * 180.0 / math.Pi
 }

@@ -24,7 +24,7 @@ var (
 	hotbarRightEdgePosX    = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
 	craftingTablePositionX = hotbarPositionX + 49
 	craftingTablePositionY = hotbarPositionY + 39
-	itemQuantityTextDO     = &text.DrawOptions{
+	TextDO                 = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
@@ -68,7 +68,10 @@ func (ui *UI) Update() {
 					if itemID != 0 {
 						quantity := craftingTable.Slots[y][x].Quantity
 						for range quantity {
-							if ctrl.Inventory.AddItemIfEmpty(craftingTable.Slots[y][x].ID, craftingTable.Slots[y][x].Durability) {
+							if ctrl.Inventory.AddItemIfEmpty(
+								craftingTable.Slots[y][x].ID,
+								craftingTable.Slots[y][x].Durability,
+							) {
 								craftingTable.RemoveItem(x, y)
 							} else {
 								craftingTable.RemoveItem(x, y)
@@ -191,9 +194,9 @@ func (ui *UI) Update() {
 func (ui *UI) Draw() {
 	if kar.WorldECS.Alive(player) {
 		// Draw hotbar background
-		kar.GlobalColorMDIO.GeoM.Reset()
-		kar.GlobalColorMDIO.GeoM.Translate(hotbarPositionX, hotbarPositionY)
-		colorm.DrawImage(kar.Screen, res.Hotbar, kar.GlobalColorM, kar.GlobalColorMDIO)
+		kar.ColorMDIO.GeoM.Reset()
+		kar.ColorMDIO.GeoM.Translate(hotbarPositionX, hotbarPositionY)
+		colorm.DrawImage(kar.Screen, res.Hotbar, kar.ColorM, kar.ColorMDIO)
 
 		// Draw slots
 		for x := range 9 {
@@ -203,60 +206,60 @@ func (ui *UI) Draw() {
 			SlotOffsetX += hotbarPositionX
 
 			// draw hotbar item icons
-			kar.GlobalColorMDIO.GeoM.Reset()
-			kar.GlobalColorMDIO.GeoM.Translate(SlotOffsetX+(5), hotbarPositionY+(5))
+			kar.ColorMDIO.GeoM.Reset()
+			kar.ColorMDIO.GeoM.Translate(SlotOffsetX+(5), hotbarPositionY+(5))
 			if slotID != items.Air && ctrl.Inventory.Slots[x].Quantity > 0 {
-				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.GlobalColorM, kar.GlobalColorMDIO)
+				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.ColorM, kar.ColorMDIO)
 			}
 			if x == ctrl.Inventory.CurrentSlotIndex {
 				// Draw hotbar selected slot border
-				kar.GlobalColorMDIO.GeoM.Translate(-5, -5)
-				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalColorMDIO)
+				kar.ColorMDIO.GeoM.Translate(-5, -5)
+				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.ColorM, kar.ColorMDIO)
 
 				// Draw hotbar slot item display name
 				if !ctrl.Inventory.IsCurrentSlotEmpty() {
-					itemQuantityTextDO.GeoM.Reset()
-					itemQuantityTextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
+					TextDO.GeoM.Reset()
+					TextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
 					if items.HasTag(slotID, items.Tool) {
 						text.Draw(kar.Screen, fmt.Sprintf(
 							"%v\nDurability %v",
 							items.Property[slotID].DisplayName,
 							ctrl.Inventory.Slots[x].Durability,
-						), res.Font, itemQuantityTextDO)
+						), res.Font, TextDO)
 					} else {
-						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, itemQuantityTextDO)
+						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, TextDO)
 					}
 				}
 			}
 
 			// Draw item quantity number
 			if quantity > 1 && items.IsStackable(slotID) {
-				itemQuantityTextDO.GeoM.Reset()
-				itemQuantityTextDO.GeoM.Translate(SlotOffsetX+6, hotbarPositionY+4)
+				TextDO.GeoM.Reset()
+				TextDO.GeoM.Translate(SlotOffsetX+6, hotbarPositionY+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
 				if quantity < 10 {
 					num = " " + num
 				}
-				text.Draw(kar.Screen, num, res.Font, itemQuantityTextDO)
+				text.Draw(kar.Screen, num, res.Font, TextDO)
 			}
 		}
 
 		// Draw player health text
-		itemQuantityTextDO.GeoM.Reset()
-		itemQuantityTextDO.GeoM.Translate(hotbarRightEdgePosX+8, hotbarPositionY)
-		text.Draw(kar.Screen, fmt.Sprintf("Health %v", ctrl.Health.Health), res.Font, itemQuantityTextDO)
+		TextDO.GeoM.Reset()
+		TextDO.GeoM.Translate(hotbarRightEdgePosX+8, hotbarPositionY)
+		text.Draw(kar.Screen, fmt.Sprintf("Health %v", ctrl.Health.Health), res.Font, TextDO)
 
 		// Draw crafting table
 		if craftingState {
 
 			// crafting table Background
-			kar.GlobalColorMDIO.GeoM.Reset()
-			kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
+			kar.ColorMDIO.GeoM.Reset()
+			kar.ColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
 
 			if craftingState4 {
-				colorm.DrawImage(kar.Screen, res.CraftingTable4, kar.GlobalColorM, kar.GlobalColorMDIO)
+				colorm.DrawImage(kar.Screen, res.CraftingTable4, kar.ColorM, kar.ColorMDIO)
 			} else {
-				colorm.DrawImage(kar.Screen, res.CraftingTable, kar.GlobalColorM, kar.GlobalColorMDIO)
+				colorm.DrawImage(kar.Screen, res.CraftingTable, kar.ColorM, kar.ColorMDIO)
 			}
 
 			// draw crafting table item icons
@@ -265,25 +268,25 @@ func (ui *UI) Draw() {
 					if craftingTable.Slots[y][x].ID != items.Air {
 						sx := craftingTablePositionX + float64(x*17)
 						sy := craftingTablePositionY + float64(y*17)
-						kar.GlobalColorMDIO.GeoM.Reset()
-						kar.GlobalColorMDIO.GeoM.Translate(sx+6, sy+6)
+						kar.ColorMDIO.GeoM.Reset()
+						kar.ColorMDIO.GeoM.Translate(sx+6, sy+6)
 						colorm.DrawImage(
 							kar.Screen,
 							res.Icon8[craftingTable.Slots[y][x].ID],
-							kar.GlobalColorM,
-							kar.GlobalColorMDIO,
+							kar.ColorM,
+							kar.ColorMDIO,
 						)
 
 						// Draw item quantity number
 						quantity := craftingTable.Slots[y][x].Quantity
 						if quantity > 1 {
-							itemQuantityTextDO.GeoM.Reset()
-							itemQuantityTextDO.GeoM.Translate(sx+7, sy+5)
+							TextDO.GeoM.Reset()
+							TextDO.GeoM.Translate(sx+7, sy+5)
 							num := strconv.FormatUint(uint64(quantity), 10)
 							if quantity < 10 {
 								num = " " + num
 							}
-							text.Draw(kar.Screen, num, res.Font, itemQuantityTextDO)
+							text.Draw(kar.Screen, num, res.Font, TextDO)
 						}
 					}
 
@@ -291,9 +294,9 @@ func (ui *UI) Draw() {
 					if x == craftingTable.SlotPosX && y == craftingTable.SlotPosY {
 						sx := craftingTablePositionX + float64(x*17)
 						sy := craftingTablePositionY + float64(y*17)
-						kar.GlobalColorMDIO.GeoM.Reset()
-						kar.GlobalColorMDIO.GeoM.Translate(sx+1, sy+1)
-						colorm.DrawImage(kar.Screen, res.SelectionBar, kar.GlobalColorM, kar.GlobalColorMDIO)
+						kar.ColorMDIO.GeoM.Reset()
+						kar.ColorMDIO.GeoM.Translate(sx+1, sy+1)
+						colorm.DrawImage(kar.Screen, res.SelectionBar, kar.ColorM, kar.ColorMDIO)
 					}
 
 				}
@@ -301,30 +304,30 @@ func (ui *UI) Draw() {
 
 			// draw crafting table result item icon
 			if craftingTable.ResultSlot.ID != 0 {
-				kar.GlobalColorMDIO.GeoM.Reset()
+				kar.ColorMDIO.GeoM.Reset()
 
 				if craftingState4 {
-					kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+41, craftingTablePositionY+14)
+					kar.ColorMDIO.GeoM.Translate(craftingTablePositionX+41, craftingTablePositionY+14)
 				} else {
-					kar.GlobalColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
+					kar.ColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
 				}
 
-				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot.ID], kar.GlobalColorM, kar.GlobalColorMDIO)
+				colorm.DrawImage(kar.Screen, res.Icon8[craftingTable.ResultSlot.ID], kar.ColorM, kar.ColorMDIO)
 
 				// Draw result item quantity number
 				quantity := craftingTable.ResultSlot.Quantity
 				if quantity > 1 {
-					itemQuantityTextDO.GeoM.Reset()
+					TextDO.GeoM.Reset()
 					if craftingState4 {
-						itemQuantityTextDO.GeoM.Translate(craftingTablePositionX+42, craftingTablePositionY+13)
+						TextDO.GeoM.Translate(craftingTablePositionX+42, craftingTablePositionY+13)
 					} else {
-						itemQuantityTextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
+						TextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
 					}
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
 						num = " " + num
 					}
-					text.Draw(kar.Screen, num, res.Font, itemQuantityTextDO)
+					text.Draw(kar.Screen, num, res.Font, TextDO)
 				}
 			}
 
@@ -353,7 +356,7 @@ func (ui *UI) Draw() {
 			ebitenutil.DebugPrintAt(kar.Screen, fmt.Sprintf(
 				debugInfo,
 				ctrl.CurrentState,
-				ctrl.InputAxisLast,
+				ctrl.AxisLast,
 			), 10, 50)
 		}
 

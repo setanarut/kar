@@ -5,9 +5,18 @@ import (
 	"kar"
 	"kar/arc"
 	"kar/items"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/setanarut/tilecollider"
+)
+
+const (
+	ballGravity         = 0.5
+	ballXspeed          = 3.5
+	ballMaxFallVelocity = 2.5
+	ballBounceHeight    = 9
 )
 
 var (
@@ -17,6 +26,7 @@ var (
 	playerTile                   image.Point
 	playerCenterX, playerCenterY float64
 	isRayHit                     bool
+	bounceVelocity               = -math.Sqrt(2 * ballGravity * ballBounceHeight)
 )
 
 func (c *Player) Init() {
@@ -26,7 +36,7 @@ func (c *Player) Init() {
 	ctrl.Health = hlt
 	ctrl.Inventory = items.NewInventory()
 	ctrl.Inventory.SetSlot(0, items.Snowball, 64, 0)
-	// ctrl.Inventory.SetSlot(5, items.IronIngot, 32, 0)
+	ctrl.Inventory.SetSlot(5, items.DiamondPickaxe, 1, 0)
 	ctrl.EnterFalling()
 }
 
@@ -40,11 +50,16 @@ func (c *Player) Update() {
 			ctrl.UpdateInput()
 			ctrl.UpdateState()
 			ctrl.UpdatePhysics()
-			playerCenterX, playerCenterY = ctrl.Rect.X+ctrl.Rect.W/2, ctrl.Rect.Y+ctrl.Rect.H/2
+			playerCenterX = ctrl.Rect.X + ctrl.Rect.W/2
+			playerCenterY = ctrl.Rect.Y + ctrl.Rect.H/2
 			playerTile = tileMap.WorldToTile(playerCenterX, playerCenterY)
 			targetBlockTemp := targetBlockPos
-			targetBlockPos, isRayHit = tileMap.Raycast(playerTile, ctrl.InputAxisLast, kar.RaycastDist)
-			// eğer block odağı değiştiyse saldırıyı sıfırla
+			targetBlockPos, isRayHit = tileMap.Raycast(
+				playerTile,
+				ctrl.AxisLast,
+				kar.RaycastDist,
+			)
+			// reset attack if block focus changed
 			if !targetBlockPos.Eq(targetBlockTemp) || !isRayHit {
 				blockHealth = 0
 			}
@@ -53,21 +68,27 @@ func (c *Player) Update() {
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 				currentSlot := ctrl.Inventory.CurrentSlot()
 				if currentSlot.ID != items.Air {
-					AppendToSpawnList(playerCenterX, playerCenterY, currentSlot.ID, currentSlot.Durability)
+					AppendToSpawnList(
+						playerCenterX,
+						playerCenterY,
+						currentSlot.ID,
+						currentSlot.Durability,
+					)
 					ctrl.Inventory.RemoveItemFromSelectedSlot()
 				}
 			}
 
 			// Place block
 			if ctrl.IsAttackKeyJustPressed {
-
 				anyItemOverlapsWithPlaceCoords := false
 				if isRayHit && items.HasTag(ctrl.Inventory.CurrentSlot().ID, items.Block) {
-					placeBlock = targetBlockPos.Sub(ctrl.InputAxisLast)
+					placeBlock = targetBlockPos.Sub(ctrl.AxisLast)
 					queryItem := arc.FilterItem.Query(&kar.WorldECS)
 					for queryItem.Next() {
 						_, itemRect, _, _ := queryItem.Get()
-						anyItemOverlapsWithPlaceCoords = itemRect.Overlaps(tileMap.GetTileRect(placeBlock))
+						anyItemOverlapsWithPlaceCoords = itemRect.Overlaps(
+							tileMap.GetTileRect(placeBlock),
+						)
 						if anyItemOverlapsWithPlaceCoords {
 							queryItem.Close()
 							break
@@ -80,7 +101,12 @@ func (c *Player) Update() {
 						}
 					}
 				} else if ctrl.Inventory.CurrentSlot().ID == items.Snowball {
-					arc.SpawnSnowBall(playerCenterX, playerCenterY-4, float64(ctrl.InputAxisLast.X), float64(ctrl.InputAxisLast.Y))
+					switch ctrl.AxisLast {
+					case image.Point{1, 0}:
+						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, ballXspeed, ballMaxFallVelocity)
+					case image.Point{-1, 0}:
+						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, -ballXspeed, ballMaxFallVelocity)
+					}
 				}
 
 			}
@@ -89,15 +115,30 @@ func (c *Player) Update() {
 			q := arc.FilterMapSnowBall.Query(&kar.WorldECS)
 			for q.Next() {
 				_, rect, v := q.Get()
-				dx, dy := collider.Collide(rect.X, rect.Y, rect.W, rect.H, v.VelX, v.VelY, nil)
-				if dx != v.VelX || dy != v.VelY {
-					if kar.WorldECS.Alive(q.Entity()) {
-						toRemove = append(toRemove, q.Entity())
-					}
-				}
-				rect.X += dx
-				rect.Y += dy
-
+				v.VelY += ballGravity
+				v.VelY = min(v.VelY, ballMaxFallVelocity)
+				collider.Collide(rect.X, rect.Y, rect.W, rect.H, v.VelX, v.VelY,
+					func(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+						rect.X += dx
+						rect.Y += dy
+						isHorizontalCollision := false
+						for _, c := range ci {
+							if c.Normal[1] == -1 {
+								v.VelY = bounceVelocity
+							}
+							if c.Normal[0] == -1 && v.VelX > 0 && v.VelY > 0 {
+								isHorizontalCollision = true
+							}
+							if c.Normal[0] == 1 && v.VelX < 0 && v.VelY > 0 {
+								isHorizontalCollision = true
+							}
+						}
+						if isHorizontalCollision {
+							if kar.WorldECS.Alive(q.Entity()) {
+								toRemove = append(toRemove, q.Entity())
+							}
+						}
+					})
 			}
 
 			// Remove dead player entity
@@ -114,13 +155,3 @@ func (c *Player) Update() {
 func (c *Player) Draw() {
 
 }
-
-// func onHit(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
-// 	rect.X += dx
-// 	rect.Y += dy
-// 	for _, v := range ci {
-// 		if v.Normal != [2]int{} {
-// 			toRemove = append(toRemove, q.Entity())
-// 		}
-// 	}
-// },

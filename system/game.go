@@ -64,15 +64,15 @@ func (d *Game) Draw() {
 			tileID := tileMap.Grid[y][x]
 			if tileID != 0 {
 				px, py := float64(x*tileMap.TileW), float64(y*tileMap.TileH)
-				kar.GlobalColorMDIO.GeoM.Reset()
-				kar.GlobalColorMDIO.GeoM.Translate(px, py)
+				kar.ColorMDIO.GeoM.Reset()
+				kar.ColorMDIO.GeoM.Translate(px, py)
 				if x == targetBlockPos.X && y == targetBlockPos.Y {
 					i := mathutil.MapRange(blockHealth, 0, 180, 0, 5)
 					if res.BlockCrackFrames[tileID] != nil {
-						kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+						kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], kar.ColorM, kar.ColorMDIO, kar.Screen)
 					}
 				} else {
-					kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][0], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+					kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][0], kar.ColorM, kar.ColorMDIO, kar.Screen)
 				}
 			}
 		}
@@ -81,23 +81,23 @@ func (d *Game) Draw() {
 	if kar.WorldECS.Alive(player) {
 		// Draw target tile border
 		if isRayHit {
-			kar.GlobalColorMDIO.GeoM.Reset()
-			kar.GlobalColorMDIO.GeoM.Translate(
+			kar.ColorMDIO.GeoM.Reset()
+			kar.ColorMDIO.GeoM.Translate(
 				float64(targetBlockPos.X*tileMap.TileW)-1,
 				float64(targetBlockPos.Y*tileMap.TileH)-1,
 			)
-			kar.Camera.DrawWithColorM(res.SelectionBlock, kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+			kar.Camera.DrawWithColorM(res.SelectionBlock, kar.ColorM, kar.ColorMDIO, kar.Screen)
 		}
 
 		// Draw player
-		kar.GlobalColorMDIO.GeoM.Reset()
-		kar.GlobalColorMDIO.GeoM.Scale(ctrl.FlipXFactor, 1)
+		kar.ColorMDIO.GeoM.Reset()
+		kar.ColorMDIO.GeoM.Scale(ctrl.FlipXFactor, 1)
 		if ctrl.FlipXFactor == -1 {
-			kar.GlobalColorMDIO.GeoM.Translate(ctrl.Rect.X+ctrl.Rect.W, ctrl.Rect.Y)
+			kar.ColorMDIO.GeoM.Translate(ctrl.Rect.X+ctrl.Rect.W, ctrl.Rect.Y)
 		} else {
-			kar.GlobalColorMDIO.GeoM.Translate(ctrl.Rect.X, ctrl.Rect.Y)
+			kar.ColorMDIO.GeoM.Translate(ctrl.Rect.X, ctrl.Rect.Y)
 		}
-		kar.Camera.DrawWithColorM(ctrl.AnimPlayer.CurrentFrame, kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+		kar.Camera.DrawWithColorM(ctrl.AnimPlayer.CurrentFrame, kar.ColorM, kar.ColorMDIO, kar.Screen)
 		// }
 	}
 
@@ -105,18 +105,18 @@ func (d *Game) Draw() {
 	itemQuery := arc.FilterItem.Query(&kar.WorldECS)
 	for itemQuery.Next() {
 		id, rect, timers, _ := itemQuery.Get()
-		kar.GlobalColorMDIO.GeoM.Reset()
-		kar.GlobalColorMDIO.GeoM.Translate(rect.X, rect.Y+sinspace[timers.AnimationIndex])
-		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+		kar.ColorMDIO.GeoM.Reset()
+		kar.ColorMDIO.GeoM.Translate(rect.X, rect.Y+sinspace[timers.AnimationIndex])
+		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.ColorM, kar.ColorMDIO, kar.Screen)
 	}
 
 	// draw snowball
 	q := arc.FilterMapSnowBall.Query(&kar.WorldECS)
 	for q.Next() {
 		id, rect, _ := q.Get()
-		kar.GlobalColorMDIO.GeoM.Reset()
-		kar.GlobalColorMDIO.GeoM.Translate(rect.X, rect.Y)
-		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.GlobalColorM, kar.GlobalColorMDIO, kar.Screen)
+		kar.ColorMDIO.GeoM.Reset()
+		kar.ColorMDIO.GeoM.Translate(rect.X, rect.Y)
+		kar.Camera.DrawWithColorM(res.Icon8[id.ID], kar.ColorM, kar.ColorMDIO, kar.Screen)
 	}
 
 }
