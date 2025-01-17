@@ -23,6 +23,7 @@ func (itm *Item) Update() {
 			itemQuery := arc.FilterItem.Query(&kar.WorldECS)
 			for itemQuery.Next() {
 				itemID, rect, timers, durability := itemQuery.Get()
+
 				if timers.CollisionCountdown != 0 {
 					timers.CollisionCountdown--
 				} else {
@@ -36,6 +37,7 @@ func (itm *Item) Update() {
 				dy := collider.CollideY(rect.X, rect.Y+6, rect.W, rect.H, itemGravity)
 				rect.Y += dy
 				timers.AnimationIndex = (timers.AnimationIndex + 1) % sinspaceLen
+
 			}
 		}
 	}

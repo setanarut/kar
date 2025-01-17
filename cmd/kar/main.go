@@ -43,6 +43,7 @@ func (g *Game) Init() {
 		&system.Item{},
 		&system.Game{},
 		&system.UI{},
+		&system.Enemy{},
 	}
 
 	// Initalize systems

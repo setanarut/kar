@@ -12,6 +12,7 @@ import (
 
 var (
 	MapRect     = gn.NewMap1[Rect](&kar.WorldECS)
+	MapEnemy    = gn.NewMap3[Rect, Velocity, Health](&kar.WorldECS)
 	MapItem     = gn.NewMap4[ItemID, Durability, Rect, ItemTimers](&kar.WorldECS)
 	MapSnowBall = gn.NewMap3[ItemID, Rect, Velocity](&kar.WorldECS)
 	MapPlayer   = gn.NewMap3[anim.AnimationPlayer, Health, Rect](&kar.WorldECS)
@@ -19,6 +20,7 @@ var (
 
 // Query Filters
 var (
+	FilterEnemy       = gn.NewFilter3[Rect, Velocity, Health]().Exclusive()
 	FilterMapSnowBall = gn.NewFilter3[ItemID, Rect, Velocity]().Exclusive()
 	FilterRect        = gn.NewFilter1[Rect]()
 	FilterAnimPlayer  = gn.NewFilter1[anim.AnimationPlayer]()
@@ -52,6 +54,17 @@ func SpawnItem(data SpawnData, animIndex int) ecs.Entity {
 		&Durability{data.Durability},
 		&Rect{data.X, data.Y, 8, 8},
 		&ItemTimers{kar.ItemCollisionDelay, animIndex},
+	)
+}
+
+func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
+	return MapEnemy.NewWith(
+		&Rect{x, y, 8, 8},
+		&Velocity{vx, vy},
+		&Health{
+			Health:    0,
+			MaxHealth: 20,
+		},
 	)
 }
 func SpawnSnowBall(x, y, vx, vy float64) ecs.Entity {

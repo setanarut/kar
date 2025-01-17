@@ -2,7 +2,6 @@ package system
 
 import (
 	"fmt"
-	"image/color"
 	"kar"
 	"kar/arc"
 	"kar/items"
@@ -15,7 +14,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 var (
@@ -331,24 +329,6 @@ func (ui *UI) Draw() {
 				}
 			}
 
-		}
-
-		// Draw all rects for debug
-		if kar.DrawDebugHitboxesEnabled {
-			rectQ := arc.FilterRect.Query(&kar.WorldECS)
-			for rectQ.Next() {
-				rect := rectQ.Get()
-				x, y := kar.Camera.ApplyCameraTransformToPoint(rect.X, rect.Y)
-				vector.DrawFilledRect(
-					kar.Screen,
-					float32(x),
-					float32(y),
-					float32(rect.W),
-					float32(rect.H),
-					color.RGBA{128, 0, 0, 10},
-					false,
-				)
-			}
 		}
 
 		// Draw debug info

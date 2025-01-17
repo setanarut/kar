@@ -26,7 +26,6 @@ var (
 	RaycastDist              int         = 4 // block unit
 	DrawDebugHitboxesEnabled bool        = false
 	DrawDebugTextEnabled     bool        = false
-	CameraFollow             bool        = false
 	PlayerBestToolDamage                 = 5.0
 	PlayerDefaultDamage                  = 1.0
 	RenderArea               image.Point = image.Point{

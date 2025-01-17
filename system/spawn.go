@@ -49,13 +49,11 @@ func (s *Spawn) Init() {
 
 	kar.Camera.SmoothOptions.LerpSpeedX = 0.5
 	kar.Camera.SmoothOptions.LerpSpeedY = 0.05
-	if kar.CameraFollow {
-		kar.Camera.SmoothType = kamera.SmoothDamp
-	} else {
-		kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
-	}
+	kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
 
 	player = arc.SpawnPlayer(SpawnX, SpawnY)
+
+	arc.SpawnEnemy(SpawnX, SpawnY-10, -0.5, 0)
 
 }
 

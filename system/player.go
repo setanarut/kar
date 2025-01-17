@@ -14,7 +14,7 @@ import (
 
 const (
 	ballGravity         = 0.5
-	ballXspeed          = 3.5
+	ballSpeedX          = 3.5
 	ballMaxFallVelocity = 2.5
 	ballBounceHeight    = 9
 )
@@ -36,7 +36,9 @@ func (c *Player) Init() {
 	ctrl.Health = hlt
 	ctrl.Inventory = items.NewInventory()
 	ctrl.Inventory.SetSlot(0, items.Snowball, 64, 0)
-	ctrl.Inventory.SetSlot(5, items.DiamondPickaxe, 1, 0)
+	ctrl.Inventory.SetSlot(1, items.DiamondPickaxe, 1, items.GetDefaultDurability(items.DiamondPickaxe))
+	ctrl.Inventory.SetSlot(2, items.DiamondAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
+	ctrl.Inventory.SetSlot(3, items.DiamondShovel, 1, items.GetDefaultDurability(items.DiamondShovel))
 	ctrl.EnterFalling()
 }
 
@@ -103,9 +105,9 @@ func (c *Player) Update() {
 				} else if ctrl.Inventory.CurrentSlot().ID == items.Snowball {
 					switch ctrl.AxisLast {
 					case image.Point{1, 0}:
-						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, ballXspeed, ballMaxFallVelocity)
+						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, ballSpeedX, ballMaxFallVelocity)
 					case image.Point{-1, 0}:
-						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, -ballXspeed, ballMaxFallVelocity)
+						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, -ballSpeedX, ballMaxFallVelocity)
 					}
 				}
 
@@ -117,7 +119,13 @@ func (c *Player) Update() {
 				_, rect, v := q.Get()
 				v.VelY += ballGravity
 				v.VelY = min(v.VelY, ballMaxFallVelocity)
-				collider.Collide(rect.X, rect.Y, rect.W, rect.H, v.VelX, v.VelY,
+				collider.Collide(
+					rect.X,
+					rect.Y,
+					rect.W,
+					rect.H,
+					v.VelX,
+					v.VelY,
 					func(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
 						rect.X += dx
 						rect.Y += dy
@@ -138,7 +146,8 @@ func (c *Player) Update() {
 								toRemove = append(toRemove, q.Entity())
 							}
 						}
-					})
+					},
+				)
 			}
 
 			// Remove dead player entity
