@@ -21,6 +21,7 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>←</kbd>            | Throw throwable item (if selected item in inventory is throwable) |
 | <kbd>↑</kbd>            | Switch to 2x2 Crafting mode                                       |
 | <kbd>↑</kbd>            | Switch to 3x3 Crafting mode (if facing Crafting Table block)      |
+| <kbd>L</kbd>            | Switch between Tracking and Static camera modes                   |
 
 ### Crafting Mode
 
