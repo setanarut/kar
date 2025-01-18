@@ -1,0 +1,34 @@
+[:us: English](README.md)
+
+# Kar
+
+Kar 2D zanaat/madencilik/platform oyunu (Çalışma sürüyor).
+
+## Kontroller
+
+### Özgür Mod
+
+| Tuş               | İşlev                                                                 |
+|-------------------|----------------------------------------------------------------------|
+| <kbd>W</kbd>      | Yukarı bak                                                           |
+| <kbd>S</kbd>      | Aşağı bak                                                            |
+| <kbd>A</kbd>      | Sola hareket et                                                      |
+| <kbd>D</kbd>      | Sağa hareket et                                                      |
+| <kbd>⇧ ShiftRight</kbd> | Koş                                                            |
+| <kbd>Space</kbd>  | Zıpla                                                                |
+| <kbd>→</kbd>      | Blok kır (basılı tut)                                                |
+| <kbd>←</kbd>      | Blok yerleştir (envanterdeki seçili öğe blok ise o bloğu ekler)      |
+| <kbd>←</kbd>      | Atılabilir öğeyi fırlat (envanterdeki seçili öğe atılabilir ise)     |
+| <kbd>↑</kbd>      | 2x2 Crafting kipine geç                                              |
+| <kbd>↑</kbd>      | 3x3 Crafting kipine geç (Crafting Table bloğuna bakıyorsa)           |
+
+
+### Zanaat Modu
+
+| Tuş               | İşlev                                                                 |
+|-------------------|----------------------------------------------------------------------|
+| <kbd>↑</kbd>      | Crafting modundan çıkar ve slotları envantere ekler, yer yoksa öğeleri dünyaya düşürür |
+| <kbd>←</kbd>      | Envanterden masaya 1 adet öğe taşı                                    |
+| <kbd>→</kbd>      | Masadan envantere 1 adet öğe taşı                                     |
+| <kbd>↓</kbd>      | Tarifi uygula ve envantere ekle (eğer yer varsa)                      |
+
