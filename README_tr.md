@@ -35,6 +35,7 @@ Kar 2D zanaat/madencilik/platform oyunu (Çalışma sürüyor).
 | <kbd>↑</kbd> | Zanaat modundan çıkar ve slotları envantere ekler, yer yoksa öğeleri dünyaya düşürür |
 | <kbd>E</kbd> | Sonraki envanter slotunu seç                                                         |
 | <kbd>Q</kbd> | Önceki  envanter slotunu seç                                                         |
-| <kbd>←</kbd> | Envanterden masaya 1 adet öğe taşı                                                   |
-| <kbd>→</kbd> | Masadan envantere 1 adet öğe taşı                                                    |
+| <kbd>←</kbd> | Masadan envantere 1 adet öğe taşı                                                    |
+| <kbd>→</kbd> | Envanterden masaya 1 adet öğe taşı                                                   |
 | <kbd>↓</kbd> | Tarifi uygula ve envantere ekle (eğer yer varsa)                                     |
+  

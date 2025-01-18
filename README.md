@@ -34,6 +34,6 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>↑</kbd> | Exits crafting mode and adds slots to inventory, drops items into world if no space |
 | <kbd>E</kbd> | Select next inventory  slot                                                         |
 | <kbd>Q</kbd> | Select previous inventory  slot                                                     |
-| <kbd>←</kbd> | Move 1 item from inventory to table                                                 |
-| <kbd>→</kbd> | Move 1 item from table to inventory                                                 |
+| <kbd>→</kbd> | Move 1 item from inventory to table                                                 |
+| <kbd>←</kbd> | Move 1 item from table to inventory                                                 |
 | <kbd>↓</kbd> | Apply recipe and add to inventory (if space available)                              |
