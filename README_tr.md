@@ -4,6 +4,8 @@
 
 Kar 2D zanaat/madencilik/platform oyunu (Çalışma sürüyor).
 
+![screenshot](https://github.com/user-attachments/assets/648b2dc2-ceba-4809-a953-8f55b74c8d57)
+
 ## Kontroller
 
 ### Özgür Mod
