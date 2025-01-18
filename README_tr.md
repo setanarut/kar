@@ -21,6 +21,8 @@ Kar 2D zanaat/madencilik/platform oyunu (Çalışma sürüyor).
 | <kbd>→</kbd>            | Blok kır (basılı tut)                                            |
 | <kbd>←</kbd>            | Blok yerleştir (envanterdeki seçili öğe blok ise o bloğu ekler)  |
 | <kbd>←</kbd>            | Atılabilir öğeyi fırlat (envanterdeki seçili öğe atılabilir ise) |
+| <kbd>E</kbd>            | Sonraki envanter slotunu seç                                     |
+| <kbd>Q</kbd>            | Önceki  envanter slotunu seç                                     |
 | <kbd>↑</kbd>            | 2x2 Crafting kipine geç                                          |
 | <kbd>↑</kbd>            | 3x3 Crafting kipine geç (Crafting Table bloğuna bakıyorsa)       |
 | <kbd>L</kbd>            | Takip ve sabit kamera modları arasında geçiş yap                 |
@@ -31,6 +33,8 @@ Kar 2D zanaat/madencilik/platform oyunu (Çalışma sürüyor).
 | Tuş          | İşlev                                                                                |
 | ------------ | ------------------------------------------------------------------------------------ |
 | <kbd>↑</kbd> | Zanaat modundan çıkar ve slotları envantere ekler, yer yoksa öğeleri dünyaya düşürür |
+| <kbd>E</kbd> | Sonraki envanter slotunu seç                                                         |
+| <kbd>Q</kbd> | Önceki  envanter slotunu seç                                                         |
 | <kbd>←</kbd> | Envanterden masaya 1 adet öğe taşı                                                   |
 | <kbd>→</kbd> | Masadan envantere 1 adet öğe taşı                                                    |
 | <kbd>↓</kbd> | Tarifi uygula ve envantere ekle (eğer yer varsa)                                     |
