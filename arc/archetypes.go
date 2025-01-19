@@ -12,6 +12,7 @@ import (
 
 var (
 	MapRect     = gn.NewMap1[Rect](&kar.WorldECS)
+	MapHealth   = gn.NewMap[Health](&kar.WorldECS)
 	MapEnemy    = gn.NewMap3[Rect, Velocity, Health](&kar.WorldECS)
 	MapItem     = gn.NewMap4[ItemID, Durability, Rect, ItemTimers](&kar.WorldECS)
 	MapSnowBall = gn.NewMap3[ItemID, Rect, Velocity](&kar.WorldECS)

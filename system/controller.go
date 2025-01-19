@@ -173,45 +173,66 @@ func (c *Controller) UpdatePhysics() {
 		c.AxisLast.X = -1
 	}
 
+	enemyQuery := arc.FilterEnemy.Query(&kar.WorldECS)
+	for enemyQuery.Next() {
+		rect, _, _ := enemyQuery.Get()
+		collInfo := c.Rect.CheckCollision(rect, ctrl.VelX, ctrl.VelY)
+
+		c.Rect.X += collInfo.DeltaX
+		c.Rect.Y += collInfo.DeltaY
+
+		switch collInfo.Normal[0] {
+		case 1:
+			fmt.Print("yatay")
+			// c.Health.Health -= 5
+			c.VelX = 2
+		case -1:
+			fmt.Print("yatay")
+			c.VelX = -2
+		}
+		switch collInfo.Normal[1] {
+		case 1:
+			fmt.Print("yatay")
+			// c.Health.Health -= 5
+		case -1:
+			fmt.Print("Üstten")
+			c.VelY = -5
+		}
+
+		// c.VelX += collInfo.DeltaX
+		// c.VelY += collInfo.DeltaY
+	}
 	// Player and tilemap collision
-	c.Collider.Collide(
-		math.Round(c.Rect.X),
-		c.Rect.Y,
-		c.Rect.W,
-		c.Rect.H,
-		c.VelX,
-		c.VelY,
-		c.HandleCollision,
-	)
+	c.Collider.Collide(math.Round(c.Rect.X), c.Rect.Y, c.Rect.W, c.Rect.H, c.VelX, c.VelY, c.HandleCollision)
 }
 
-func (c *Controller) HandleCollision(collisions []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+func (c *Controller) HandleCollision(collisionInfos []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+	c.IsOnFloor = false
+
+	// Apply tilemap collision response
 	c.Rect.X += dx
 	c.Rect.Y += dy
-	c.IsOnFloor = false
-	for _, collisionInfo := range collisions {
+
+	// Reset velocity when collide
+	for _, collisionInfo := range collisionInfos {
 		if collisionInfo.Normal[1] == -1 {
-			// floorTile.X = collisionInfo.TileCoords[0]
-			// floorTile.Y = collisionInfo.TileCoords[1]
-			// yere çarpma
 			c.VelY = 0
-			c.IsOnFloor = true
+			c.IsOnFloor = true // on floor collision
 		}
 		if collisionInfo.Normal[1] == 1 {
-			// tavana çarpma
-			c.VelY = 0
+			c.ResetVelocityX()
 		}
 		if collisionInfo.Normal[0] == -1 {
-			c.VelX = 0
+			c.ResetVelocityX()
 		}
 		if collisionInfo.Normal[0] == 1 {
-			c.VelX = 0
+			c.ResetVelocityX()
 		}
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyS) {
 		ids := make([]uint16, 0)
-		for _, collisionInfo := range collisions {
+		for _, collisionInfo := range collisionInfos {
 			if collisionInfo.Normal[1] == -1 {
 				ids = append(ids, collisionInfo.TileID)
 			}

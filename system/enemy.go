@@ -30,6 +30,7 @@ func (en *Enemy) Update() {
 
 		vel.VelY += en.gravity
 		vel.VelY = min(vel.VelY, en.maxFallVelocity)
+
 		collider.Collide(
 			rect.X,
 			rect.Y,
@@ -37,26 +38,20 @@ func (en *Enemy) Update() {
 			rect.H,
 			vel.VelX,
 			vel.VelY,
-			func(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+			func(collisionInfos []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+
+				// Apply tilemap collision response
 				rect.X += dx
 				rect.Y += dy
-				for _, c := range ci {
-					// ground collision
-					if c.Normal[1] == -1 {
-						// vel.VelY = bounceVelocityx
-					}
-					// wall collision
-					if c.Normal[0] == -1 || c.Normal[0] == 1 {
+
+				// change direction when wall collision
+				for _, collisionInfo := range collisionInfos {
+					if collisionInfo.Normal[0] == -1 || collisionInfo.Normal[0] == 1 {
 						vel.VelX *= -1
 					}
 				}
 			},
 		)
-		// enemy fiziği buraya gelecek
-
-		// if rect.Overlaps2(ctrl.Rect) {
-		// 	health.Health -= 4
-		// }
 
 	}
 }

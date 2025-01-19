@@ -340,5 +340,8 @@ func (ui *UI) Draw() {
 			), 10, 50)
 		}
 
+	} else {
+		// Draw debug info
+		ebitenutil.DebugPrintAt(kar.Screen, "YOU ARE DEAD!", int(kar.ScreenW/2)-30, int(kar.ScreenH/2))
 	}
 }

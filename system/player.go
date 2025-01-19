@@ -9,6 +9,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/tilecollider"
 )
 
@@ -47,7 +48,12 @@ type Player struct {
 }
 
 func (c *Player) Update() {
+
 	if kar.WorldECS.Alive(player) {
+
+		if inpututil.IsKeyJustPressed(ebiten.KeyK) {
+			arc.MapHealth.Set(player, &arc.Health{})
+		}
 
 		if !craftingState {
 			ctrl.UpdateInput()
@@ -92,7 +98,7 @@ func (c *Player) Update() {
 					// check overlaps
 					for queryItem.Next() {
 						_, itemRect, _, _ := queryItem.Get()
-						anyItemOverlapsWithPlaceCoords = itemRect.Overlaps(
+						anyItemOverlapsWithPlaceCoords = itemRect.Overlaps2(
 							tileMap.GetTileRect(placeTile.X, placeTile.Y),
 						)
 						if anyItemOverlapsWithPlaceCoords {
@@ -101,7 +107,7 @@ func (c *Player) Update() {
 						}
 					}
 					if !anyItemOverlapsWithPlaceCoords {
-						if !ctrl.Rect.Overlaps(tileMap.GetTileRect(placeTile.X, placeTile.Y)) {
+						if !ctrl.Rect.Overlaps2(tileMap.GetTileRect(placeTile.X, placeTile.Y)) {
 							// place block
 							tileMap.Set(placeTile.X, placeTile.Y, ctrl.Inventory.CurrentSlotID())
 							// remove item
@@ -157,16 +163,16 @@ func (c *Player) Update() {
 					},
 				)
 			}
-
 			// Remove dead player entity
 			if ctrl.Health.Health <= 0 {
+				kar.Camera.ShakeEnabled = true
+				kar.Camera.SmoothType = kamera.Lerp
+				kar.Camera.AddTrauma(1)
 				toRemove = append(toRemove, player)
 			}
-
 		}
 
 	}
-
 }
 
 func (c *Player) Draw() {

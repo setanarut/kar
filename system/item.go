@@ -27,7 +27,7 @@ func (itm *Item) Update() {
 				if timers.CollisionCountdown != 0 {
 					timers.CollisionCountdown--
 				} else {
-					if ctrl.Rect.Overlaps2(rect) {
+					if ctrl.Rect.Overlaps(rect) {
 						// Çarpan öğeyi envantere ekle
 						if ctrl.Inventory.AddItemIfEmpty(itemID.ID, durability.Durability) {
 							toRemove = append(toRemove, itemQuery.Entity())

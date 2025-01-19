@@ -47,6 +47,7 @@ func (s *Spawn) Init() {
 	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
 	kar.Camera = kamera.NewCamera(SpawnX, SpawnY, kar.ScreenW, kar.ScreenH)
 
+	kar.Camera.SmoothType = kamera.SmoothDamp
 	kar.Camera.SmoothOptions.LerpSpeedX = 0.5
 	kar.Camera.SmoothOptions.LerpSpeedY = 0.05
 	kar.Camera.SetTopLeft(tileMap.FloorToBlockCenter(kar.Camera.TopLeft()))
