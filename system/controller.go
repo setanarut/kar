@@ -133,6 +133,36 @@ func (c *Controller) UpdatePhysics() {
 	c.VelY += c.Gravity
 	c.VelY = min(c.MaxFallSpeed, c.VelY)
 
+	enemyQuery := arc.FilterEnemy.Query(&kar.WorldECS)
+	for enemyQuery.Next() {
+		rect, _, _ := enemyQuery.Get()
+		collInfo := c.Rect.CheckCollision(rect, ctrl.VelX, ctrl.VelY)
+
+		c.VelX += collInfo.DeltaX
+		c.VelY += collInfo.DeltaY
+
+		if collInfo.Collided {
+			switch collInfo.Normal[0] {
+			case 1:
+				fmt.Println("left collide")
+				c.VelX += 3
+				c.Health.Health -= 1
+			case -1:
+				fmt.Println("right collide")
+				c.VelX -= 3
+				c.Health.Health -= 1
+			}
+			switch collInfo.Normal[1] {
+			case 1:
+				c.VelY = 0
+				fmt.Println("floor collide")
+			case -1:
+				c.VelY = -5
+				fmt.Println("ceil collide")
+			}
+		}
+	}
+
 	if !c.IsSkidding {
 		if c.IsRunKeyPressed {
 			maxSpeed = c.MaxRunSpeed
@@ -173,32 +203,6 @@ func (c *Controller) UpdatePhysics() {
 		c.AxisLast.X = -1
 	}
 
-	enemyQuery := arc.FilterEnemy.Query(&kar.WorldECS)
-	for enemyQuery.Next() {
-		rect, _, _ := enemyQuery.Get()
-		collInfo := c.Rect.CheckCollision(rect, ctrl.VelX, ctrl.VelY)
-
-		c.Rect.X += collInfo.DeltaX
-		c.Rect.Y += collInfo.DeltaY
-
-		if collInfo.Collided {
-			switch collInfo.Normal[0] {
-			case 1:
-				fmt.Println("left collide")
-			case -1:
-				fmt.Println("right collide")
-			}
-			switch collInfo.Normal[1] {
-			case 1:
-				fmt.Println("floor collide")
-			case -1:
-				if rect.Y < c.Rect.Y+c.Rect.H {
-				}
-				c.VelY = -5
-				fmt.Println("ceil collide")
-			}
-		}
-	}
 	// Player and tilemap collision
 	c.Collider.Collide(math.Round(c.Rect.X), c.Rect.Y, c.Rect.W, c.Rect.H, c.VelX, c.VelY, c.HandleCollision)
 }

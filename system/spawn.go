@@ -41,6 +41,7 @@ func (s *Spawn) Init() {
 	)
 	ctrl = NewController(0, 10, collider)
 	ctrl.Collider = collider
+	// ctrl.Collider.StaticCheck = true
 	ctrl.SkiddingJumpEnabled = true
 	x, y := tileMap.FindSpawnPosition()
 	// tileMap.Set(x, y+2, items.CraftingTable)
@@ -54,7 +55,7 @@ func (s *Spawn) Init() {
 
 	player = arc.SpawnPlayer(SpawnX, SpawnY)
 
-	arc.SpawnEnemy(SpawnX, SpawnY-10, -0.5, 0)
+	arc.SpawnEnemy(SpawnX, SpawnY-40, -1, 0)
 
 }
 
