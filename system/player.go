@@ -20,13 +20,14 @@ const (
 )
 
 var (
-	blockHealth                  float64
-	targetBlockPos               image.Point
-	placeBlock                   image.Point
-	playerTile                   image.Point
+	bounceVelocity = -math.Sqrt(2 * ballGravity * ballBounceHeight)
+	blockHealth    float64
+	targetTile     image.Point
+	placeTile      image.Point
+	playerTile     image.Point
+	// floorTile                    image.Point
 	playerCenterX, playerCenterY float64
 	isRayHit                     bool
-	bounceVelocity               = -math.Sqrt(2 * ballGravity * ballBounceHeight)
 )
 
 func (c *Player) Init() {
@@ -55,14 +56,14 @@ func (c *Player) Update() {
 			playerCenterX = ctrl.Rect.X + ctrl.Rect.W/2
 			playerCenterY = ctrl.Rect.Y + ctrl.Rect.H/2
 			playerTile = tileMap.WorldToTile(playerCenterX, playerCenterY)
-			targetBlockTemp := targetBlockPos
-			targetBlockPos, isRayHit = tileMap.Raycast(
+			targetBlockTemp := targetTile
+			targetTile, isRayHit = tileMap.Raycast(
 				playerTile,
 				ctrl.AxisLast,
 				kar.RaycastDist,
 			)
 			// reset attack if block focus changed
-			if !targetBlockPos.Eq(targetBlockTemp) || !isRayHit {
+			if !targetTile.Eq(targetBlockTemp) || !isRayHit {
 				blockHealth = 0
 			}
 
@@ -78,18 +79,21 @@ func (c *Player) Update() {
 					)
 					ctrl.Inventory.RemoveItemFromSelectedSlot()
 				}
+
 			}
 
-			// Place block
+			// PLACE BLOCK
 			if ctrl.IsAttackKeyJustPressed {
 				anyItemOverlapsWithPlaceCoords := false
+				// if slot item is block
 				if isRayHit && items.HasTag(ctrl.Inventory.CurrentSlot().ID, items.Block) {
-					placeBlock = targetBlockPos.Sub(ctrl.AxisLast)
+					placeTile = targetTile.Sub(ctrl.AxisLast)
 					queryItem := arc.FilterItem.Query(&kar.WorldECS)
+					// check overlaps
 					for queryItem.Next() {
 						_, itemRect, _, _ := queryItem.Get()
 						anyItemOverlapsWithPlaceCoords = itemRect.Overlaps(
-							tileMap.GetTileRect(placeBlock),
+							tileMap.GetTileRect(placeTile.X, placeTile.Y),
 						)
 						if anyItemOverlapsWithPlaceCoords {
 							queryItem.Close()
@@ -97,12 +101,16 @@ func (c *Player) Update() {
 						}
 					}
 					if !anyItemOverlapsWithPlaceCoords {
-						if !ctrl.Rect.Overlaps(tileMap.GetTileRect(placeBlock)) {
-							tileMap.Set(placeBlock.X, placeBlock.Y, ctrl.Inventory.CurrentSlotID())
+						if !ctrl.Rect.Overlaps(tileMap.GetTileRect(placeTile.X, placeTile.Y)) {
+							// place block
+							tileMap.Set(placeTile.X, placeTile.Y, ctrl.Inventory.CurrentSlotID())
+							// remove item
 							ctrl.Inventory.RemoveItemFromSelectedSlot()
 						}
 					}
+					// if slot item snowball, spawn snowball
 				} else if ctrl.Inventory.CurrentSlot().ID == items.Snowball {
+					ctrl.Inventory.RemoveItemFromSelectedSlot()
 					switch ctrl.AxisLast {
 					case image.Point{1, 0}:
 						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, ballSpeedX, ballMaxFallVelocity)

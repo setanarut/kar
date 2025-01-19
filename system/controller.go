@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"image"
 	"kar"
 	"kar/arc"
@@ -184,27 +185,45 @@ func (c *Controller) UpdatePhysics() {
 	)
 }
 
-func (c *Controller) HandleCollision(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+func (c *Controller) HandleCollision(collisions []tilecollider.CollisionInfo[uint16], dx, dy float64) {
 	c.Rect.X += dx
 	c.Rect.Y += dy
 	c.IsOnFloor = false
-	for _, v := range ci {
-		if v.Normal[1] == -1 {
+	for _, collisionInfo := range collisions {
+		if collisionInfo.Normal[1] == -1 {
+			// floorTile.X = collisionInfo.TileCoords[0]
+			// floorTile.Y = collisionInfo.TileCoords[1]
 			// yere çarpma
 			c.VelY = 0
 			c.IsOnFloor = true
 		}
-		if v.Normal[1] == 1 {
+		if collisionInfo.Normal[1] == 1 {
 			// tavana çarpma
 			c.VelY = 0
 		}
-		if v.Normal[0] == -1 {
+		if collisionInfo.Normal[0] == -1 {
 			c.VelX = 0
 		}
-		if v.Normal[0] == 1 {
+		if collisionInfo.Normal[0] == 1 {
 			c.VelX = 0
 		}
 	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+		ids := make([]uint16, 0)
+		for _, collisionInfo := range collisions {
+			if collisionInfo.Normal[1] == -1 {
+				ids = append(ids, collisionInfo.TileID)
+			}
+		}
+		if len(ids) == 2 {
+			if ids[0] == items.Sand && ids[1] == items.GrassBlock {
+				fmt.Println(ids[0], items.DisplayName(ids[0]), ids[1], items.DisplayName(ids[1]))
+				// Pipe logic is here
+			}
+		}
+	}
+
 }
 
 func (c *Controller) ResetVelocityX() {
@@ -279,7 +298,7 @@ func (c *Controller) Breaking() {
 	}
 
 	if isRayHit {
-		blockID := tileMap.Get(targetBlockPos.X, targetBlockPos.Y)
+		blockID := tileMap.Get(targetTile.X, targetTile.Y)
 		if !items.HasTag(blockID, items.Unbreakable) {
 			if items.IsBestTool(blockID, c.Inventory.CurrentSlotID()) {
 				blockHealth += kar.PlayerBestToolDamage
@@ -290,7 +309,7 @@ func (c *Controller) Breaking() {
 		// Destroy block
 		if blockHealth >= 180 {
 			blockHealth = 0
-			tileMap.Set(targetBlockPos.X, targetBlockPos.Y, items.Air)
+			tileMap.Set(targetTile.X, targetTile.Y, items.Air)
 
 			if items.HasTag(c.Inventory.CurrentSlotID(), items.Tool) {
 				c.Inventory.CurrentSlot().Durability--
@@ -300,7 +319,7 @@ func (c *Controller) Breaking() {
 			}
 
 			// spawn drop item
-			x, y := tileMap.TileToWorldCenter(targetBlockPos.X, targetBlockPos.Y)
+			x, y := tileMap.TileToWorldCenter(targetTile.X, targetTile.Y)
 			AppendToSpawnList(x, y, items.Property[blockID].DropID, 0)
 		}
 	}

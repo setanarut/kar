@@ -123,8 +123,8 @@ func (t *TileMap) Set(x, y int, id uint16) {
 	t.Grid[y][x] = id
 }
 
-func (t *TileMap) GetTileRect(pos image.Point) (x, y, w, h float64) {
-	return float64(pos.X * t.TileW), float64(pos.Y * t.TileH), float64(t.TileW), float64(t.TileH)
+func (t *TileMap) GetTileRect(x, y int) (rectX, rectY, rectW, rectH float64) {
+	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)
 }
 
 func (t *TileMap) FindSpawnPosition() (px, py int) {

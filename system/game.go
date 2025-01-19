@@ -84,7 +84,7 @@ func (d *Game) Draw() {
 				px, py := float64(x*tileMap.TileW), float64(y*tileMap.TileH)
 				kar.ColorMDIO.GeoM.Reset()
 				kar.ColorMDIO.GeoM.Translate(px, py)
-				if x == targetBlockPos.X && y == targetBlockPos.Y {
+				if x == targetTile.X && y == targetTile.Y {
 					i := mathutil.MapRange(blockHealth, 0, 180, 0, 5)
 					kar.Camera.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], kar.ColorM, kar.ColorMDIO, kar.Screen)
 				} else {
@@ -110,8 +110,8 @@ func (d *Game) Draw() {
 		if isRayHit {
 			kar.ColorMDIO.GeoM.Reset()
 			kar.ColorMDIO.GeoM.Translate(
-				float64(targetBlockPos.X*tileMap.TileW)-1,
-				float64(targetBlockPos.Y*tileMap.TileH)-1,
+				float64(targetTile.X*tileMap.TileW)-1,
+				float64(targetTile.Y*tileMap.TileH)-1,
 			)
 			kar.Camera.DrawWithColorM(res.SelectionBlock, kar.ColorM, kar.ColorMDIO, kar.Screen)
 		}
@@ -151,6 +151,18 @@ func (d *Game) Draw() {
 				false,
 			)
 		}
-	}
 
+		// Draw player tile for debug
+		x, y, w, h := tileMap.GetTileRect(playerTile.X, playerTile.Y)
+		x, y = kar.Camera.ApplyCameraTransformToPoint(x, y)
+		vector.DrawFilledRect(
+			kar.Screen,
+			float32(x),
+			float32(y),
+			float32(w),
+			float32(h),
+			color.RGBA{0, 0, 128, 10},
+			false,
+		)
+	}
 }

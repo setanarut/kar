@@ -49,7 +49,7 @@ func (ui *UI) Update() {
 
 	// Toggle crafting state
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		if tileMap.Get(targetBlockPos.X, targetBlockPos.Y) == items.CraftingTable {
+		if tileMap.Get(targetTile.X, targetTile.Y) == items.CraftingTable {
 			craftingState4 = false
 		} else {
 			craftingState4 = true
@@ -341,5 +341,4 @@ func (ui *UI) Draw() {
 		}
 
 	}
-
 }

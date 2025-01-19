@@ -40,10 +40,10 @@ func (g *Game) Init() {
 	g.systems = []kar.ISystem{
 		&system.Spawn{},
 		&system.Player{},
+		&system.Enemy{},
 		&system.Item{},
 		&system.Game{},
 		&system.UI{},
-		&system.Enemy{},
 	}
 
 	// Initalize systems
