@@ -181,26 +181,23 @@ func (c *Controller) UpdatePhysics() {
 		c.Rect.X += collInfo.DeltaX
 		c.Rect.Y += collInfo.DeltaY
 
-		switch collInfo.Normal[0] {
-		case 1:
-			fmt.Print("yatay")
-			// c.Health.Health -= 5
-			c.VelX = 2
-		case -1:
-			fmt.Print("yatay")
-			c.VelX = -2
+		if collInfo.Collided {
+			switch collInfo.Normal[0] {
+			case 1:
+				fmt.Println("left collide")
+			case -1:
+				fmt.Println("right collide")
+			}
+			switch collInfo.Normal[1] {
+			case 1:
+				fmt.Println("floor collide")
+			case -1:
+				if rect.Y < c.Rect.Y+c.Rect.H {
+				}
+				c.VelY = -5
+				fmt.Println("ceil collide")
+			}
 		}
-		switch collInfo.Normal[1] {
-		case 1:
-			fmt.Print("yatay")
-			// c.Health.Health -= 5
-		case -1:
-			fmt.Print("Üstten")
-			c.VelY = -5
-		}
-
-		// c.VelX += collInfo.DeltaX
-		// c.VelY += collInfo.DeltaY
 	}
 	// Player and tilemap collision
 	c.Collider.Collide(math.Round(c.Rect.X), c.Rect.Y, c.Rect.W, c.Rect.H, c.VelX, c.VelY, c.HandleCollision)

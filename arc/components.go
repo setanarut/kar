@@ -1,7 +1,5 @@
 package arc
 
-import "math"
-
 type ItemID struct {
 	ID uint16
 }
@@ -49,43 +47,33 @@ func (r *Rect) CheckCollision(r2 *Rect, velX, velY float64) CollisionInfo {
 		Normal: [2]int{0, 0},
 	}
 
-	// Hareket sonrası pozisyonu kontrol et
+	// İlk pozisyonları belirle
 	nextX := r.X + velX
 	nextY := r.Y + velY
 
-	if !r2.Overlaps2(nextX, nextY, r.W, r.H) {
+	// Önce X ekseninde hareket et ve kontrol et
+	if r2.Overlaps2(nextX, r.Y, r.W, r.H) {
+		info.Collided = true
+		if velX > 0 {
+			info.DeltaX = r2.X - (nextX + r.W)
+			info.Normal[0] = -1
+		} else if velX < 0 {
+			info.DeltaX = (r2.X + r2.W) - nextX
+			info.Normal[0] = 1
+		}
+		// X çarpışması varsa Y hareketini koru ama çarpışmayı X olarak işaretle
 		return info
 	}
 
-	// Çarpışma var
-	info.Collided = true
-
-	// X ekseni çarpışması
-	if velX > 0 {
-		info.DeltaX = r2.X - (nextX + r.W)
-		info.Normal[0] = -1
-	} else if velX < 0 {
-		info.DeltaX = (r2.X + r2.W) - nextX
-		info.Normal[0] = 1
-	}
-
-	// Y ekseni çarpışması
-	if velY > 0 {
-		info.DeltaY = r2.Y - (nextY + r.H)
-		info.Normal[1] = -1
-	} else if velY < 0 {
-		info.DeltaY = (r2.Y + r2.H) - nextY
-		info.Normal[1] = 1
-	}
-
-	// Sadece bir eksende çarpışma olsun
-	if math.Abs(velX) > 0 && math.Abs(velY) > 0 {
-		if math.Abs(info.DeltaX) < math.Abs(info.DeltaY) {
-			info.DeltaY = 0
-			info.Normal[1] = 0
-		} else {
-			info.DeltaX = 0
-			info.Normal[0] = 0
+	// Sonra Y ekseninde hareket et ve kontrol et
+	if r2.Overlaps2(nextX, nextY, r.W, r.H) {
+		info.Collided = true
+		if velY > 0 {
+			info.DeltaY = r2.Y - (nextY + r.H)
+			info.Normal[1] = -1
+		} else if velY < 0 {
+			info.DeltaY = (r2.Y + r2.H) - nextY
+			info.Normal[1] = 1
 		}
 	}
 
