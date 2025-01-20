@@ -12,16 +12,22 @@ import (
 type Enemy struct {
 	maxFallVelocity float64
 	gravity         float64
-	speedX          float64
-	jumpH           float64
+	// speedX          float64
+	// jumpH           float64
 }
 
 func (en *Enemy) Init() {
 	en.maxFallVelocity = 2.5
 	en.gravity = 0.5
-	en.speedX = 3.5
-	en.jumpH = 9
+	// en.speedX = 3.5
+	// en.jumpH = 9
+	enemyQuery := arc.FilterEnemy.Query(&kar.WorldECS)
+	for enemyQuery.Next() {
+		_, vel, _ := enemyQuery.Get()
+		vel.VelX = 1
+	}
 }
+
 func (en *Enemy) Update() {
 	// enemy system
 	enemyQuery := arc.FilterEnemy.Query(&kar.WorldECS)
@@ -38,21 +44,19 @@ func (en *Enemy) Update() {
 			rect.H,
 			vel.VelX,
 			vel.VelY,
-			func(collisionInfos []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+			func(infos []tilecollider.CollisionInfo[uint16], dx, dy float64) {
 
 				// Apply tilemap collision response
 				rect.X += dx
 				rect.Y += dy
 
-				// change direction when wall collision
-				for _, collisionInfo := range collisionInfos {
-					if collisionInfo.Normal[0] == -1 || collisionInfo.Normal[0] == 1 {
+				for _, info := range infos {
+					if info.Normal[0] != 0 {
 						vel.VelX *= -1
 					}
 				}
 			},
 		)
-
 	}
 }
 func (en *Enemy) Draw() {

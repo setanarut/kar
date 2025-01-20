@@ -55,7 +55,7 @@ func (s *Spawn) Init() {
 
 	player = arc.SpawnPlayer(SpawnX, SpawnY)
 
-	arc.SpawnEnemy(SpawnX, SpawnY-40, -1, 0)
+	arc.SpawnEnemy(SpawnX, SpawnY-40, 1, 0)
 
 }
 

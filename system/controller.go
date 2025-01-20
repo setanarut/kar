@@ -133,6 +133,7 @@ func (c *Controller) UpdatePhysics() {
 	c.VelY += c.Gravity
 	c.VelY = min(c.MaxFallSpeed, c.VelY)
 
+	// Enemy collisions
 	enemyQuery := arc.FilterEnemy.Query(&kar.WorldECS)
 	for enemyQuery.Next() {
 		rect, _, _ := enemyQuery.Get()
@@ -146,11 +147,11 @@ func (c *Controller) UpdatePhysics() {
 			case 1:
 				fmt.Println("left collide")
 				c.VelX += 3
-				c.Health.Health -= 1
+				c.Health.Health -= 8
 			case -1:
 				fmt.Println("right collide")
 				c.VelX -= 3
-				c.Health.Health -= 1
+				c.Health.Health -= 8
 			}
 			switch collInfo.Normal[1] {
 			case 1:
