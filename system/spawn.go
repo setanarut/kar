@@ -35,7 +35,10 @@ func AppendToSpawnList(x, y float64, id uint16, dur int) {
 
 func (s *Spawn) Init() {
 	tileMap = tilemap.MakeTileMap(512, 512, 20, 20)
-	tilemap.Generate(tileMap)
+	g := tilemap.NewGenerator()
+	g.Opts.LowestSurfaceLevel = 100
+	g.SetSeed(4)
+	g.Generate(tileMap)
 	collider = tilecollider.NewCollider(
 		tileMap.Grid,
 		tileMap.TileW,

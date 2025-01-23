@@ -3,19 +3,43 @@ package tilemap
 import (
 	"kar/items"
 	"math/rand"
-	"time"
 
 	"github.com/setanarut/fastnoise"
 )
 
-var ns = fastnoise.New[float64]()
-var random *rand.Rand
+type WorldOpts struct {
+	Seed                int
+	SurfaceFlatness     float64
+	HighestSurfaceLevel float64
+	LowestSurfaceLevel  float64
+}
 
-var high float64 = 50
-var low float64 = 70
+type Generator struct {
+	NoiseState *fastnoise.State[float64]
+	Rand       *rand.Rand
+	Opts       WorldOpts
+}
 
-func BlockState(x, y, w, h int) uint16 {
-	val := mapRange(ns.Noise2D(x, 0), -1, 1, low, high)
+func DefaultWorldOpts() WorldOpts {
+	return WorldOpts{
+		SurfaceFlatness:     0,
+		HighestSurfaceLevel: 0,
+		LowestSurfaceLevel:  50,
+	}
+}
+
+func NewGenerator() *Generator {
+	g := &Generator{
+		NoiseState: fastnoise.New[float64](),
+		Rand:       rand.New(rand.NewSource(int64(0))),
+		Opts:       DefaultWorldOpts(),
+	}
+	g.NoiseState.Seed = 0
+	return g
+}
+
+func (g *Generator) BlockState(x, y int) uint16 {
+	val := mapRange(g.NoiseState.Noise2D(x, 0), -1, 1, g.Opts.LowestSurfaceLevel, g.Opts.HighestSurfaceLevel)
 	if y > int(val) {
 		return items.Stone
 	} else {
@@ -23,28 +47,22 @@ func BlockState(x, y, w, h int) uint16 {
 	}
 }
 
-func Generate(tm *TileMap) {
-	// seeds
-	ns.Seed = int(time.Now().UnixNano())
-	random = rand.New(rand.NewSource(int64(ns.Seed)))
-
-	ns.Frequency = 0.01
-	// ns.Octaves = 3
-	// ns.Lacunarity = 5
-	ns.NoiseType(fastnoise.OpenSimplex2)
-	// ns.Gain = 1
-
-	for y := 0; y < tm.H; y++ {
-		for x := 0; x < tm.W; x++ {
-			tm.Grid[y][x] = BlockState(x, y, tm.W, tm.H)
-		}
-	}
-
-	// MakeGrass(tm)
-	// MakeTrees(tm)
+func (g *Generator) SetSeed(seed int) {
+	g.Rand.Seed(int64(seed))
+	g.NoiseState.Seed = seed
 }
 
-func MakeGrass(tm *TileMap) {
+func (g *Generator) Generate(tm *TileMap) {
+	for y := 0; y < tm.H; y++ {
+		for x := 0; x < tm.W; x++ {
+			tm.Grid[y][x] = g.BlockState(x, y)
+		}
+	}
+	g.MakeGrass(tm)
+	g.MakeTrees(tm)
+}
+
+func (g *Generator) MakeGrass(tm *TileMap) {
 	for y := 1; y < tm.H/4; y++ {
 		for x := 0; x < tm.W; x++ {
 			if tm.Grid[y][x] == items.Dirt {
@@ -58,12 +76,12 @@ func MakeGrass(tm *TileMap) {
 }
 
 // Make trees
-func MakeTrees(tm *TileMap) {
+func (g *Generator) MakeTrees(tm *TileMap) {
 	min := 10
 	max := tm.W - 10
 	treeCount := 40 // max try count
 	for i := 0; i < treeCount; i++ {
-		x := min + random.Intn(max-min+1)
+		x := min + g.Rand.Intn(max-min+1)
 		for y := 0; y < tm.H; y++ {
 			up := tm.Get(x, y)
 			down := tm.Get(x, y+1)
