@@ -19,6 +19,7 @@ type Generator struct {
 	NoiseState *fastnoise.State[float64]
 	Rand       *rand.Rand
 	Opts       WorldOpts
+	Tilemap    *TileMap
 }
 
 func DefaultWorldOpts() WorldOpts {
@@ -29,11 +30,12 @@ func DefaultWorldOpts() WorldOpts {
 	}
 }
 
-func NewGenerator() *Generator {
+func NewGenerator(t *TileMap) *Generator {
 	g := &Generator{
 		NoiseState: fastnoise.New[float64](),
 		Rand:       rand.New(rand.NewSource(int64(0))),
 		Opts:       DefaultWorldOpts(),
+		Tilemap:    t,
 	}
 	g.NoiseState.Seed = 0
 	return g
@@ -59,63 +61,86 @@ func (g *Generator) Generate(tm *TileMap) {
 			tm.Grid[y][x] = g.BlockState(x, y)
 		}
 	}
-	g.MakeDirt(tm)
-	// g.MakeTrees(tm)
+	g.MakeSurface(tm)
 }
 
-func (g *Generator) MakeDirt(tm *TileMap) {
-	rect := image.Rect(0, int(g.Opts.HighestSurfaceLevel), tm.W, int(g.Opts.LowestSurfaceLevel)+1)
+func (g *Generator) MakeSurface(tm *TileMap) {
+	rect := g.GetSurfaceBounds()
 	for y := rect.Min.Y; y < rect.Max.Y; y++ {
 		for x := rect.Min.X; x < rect.Max.X; x++ {
 			upperBlockID := tm.Get(x, y-1)
 			currentBlockID := tm.Get(x, y)
 			if upperBlockID == items.Air && currentBlockID == items.Stone {
-				tm.Set(x, y, items.Dirt)
+				tm.Set(x, y, items.GrassBlock)
+
+				if g.Rand.Float64() < 0.15 {
+					if tm.Get(x-1, y-1) != items.OakLog && tm.Get(x+1, y-1) != items.OakLog {
+						g.MakeTree(x, y-1)
+					}
+				}
+
 				tm.Set(x, y+1, items.Dirt)
 				tm.Set(x, y+2, items.Dirt)
-				tm.Set(x, y+3, items.Dirt)
-			}
-		}
-	}
+				if g.Rand.Float64() < 0.9 {
+					tm.Set(x, y+3, items.Dirt)
+				}
+				if g.Rand.Float64() < 0.7 {
+					tm.Set(x, y+4, items.Dirt)
+				}
+				if g.Rand.Float64() < 0.5 {
+					tm.Set(x, y+5, items.Dirt)
+				}
 
-}
-
-// Make trees
-func (g *Generator) MakeTrees(tm *TileMap) {
-	min := 10
-	max := tm.W - 10
-	treeCount := 40 // max try count
-	for i := 0; i < treeCount; i++ {
-		x := min + g.Rand.Intn(max-min+1)
-		for y := 0; y < tm.H; y++ {
-			up := tm.Get(x, y)
-			down := tm.Get(x, y+1)
-			if up == items.Air {
-				if down == items.Dirt || down == items.GrassBlock {
-					MakeTree(x, y, tm)
-					break
+				if g.Rand.Float64() < 0.3 {
+					tm.Set(x, y+6, items.Dirt)
+				}
+				if g.Rand.Float64() < 0.1 {
+					tm.Set(x, y+7, items.Dirt)
 				}
 			}
 		}
 	}
+
 }
 
-func MakeTree(x, y int, tm *TileMap) {
-	tm.Set(x, y, items.OakLog)
-	tm.Set(x, y-1, items.OakLog)
-	tm.Set(x, y-2, items.OakLog)
-	tm.Set(x, y-3, items.OakLog)
-	tm.Set(x-1, y-4, items.OakLeaves)
-	tm.Set(x, y-4, items.OakLeaves)
-	tm.Set(x+1, y-4, items.OakLeaves)
-	tm.Set(x-1, y-5, items.OakLeaves)
-	tm.Set(x, y-5, items.OakLeaves)
-	tm.Set(x+1, y-5, items.OakLeaves)
-	tm.Set(x-1, y-6, items.OakLeaves)
-	tm.Set(x, y-6, items.OakLeaves)
-	tm.Set(x+1, y-6, items.OakLeaves)
+func (g *Generator) MakeTree(x, y int) {
+
+	if g.Rand.Float64() < 0.8 {
+		g.Tilemap.Set(x, y, items.OakLog)
+		g.Tilemap.Set(x, y-1, items.OakLog)
+		g.Tilemap.Set(x, y-2, items.OakLog)
+		g.Tilemap.Set(x, y-3, items.OakLog)
+		g.Tilemap.Set(x-1, y-4, items.OakLeaves)
+		g.Tilemap.Set(x, y-4, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-4, items.OakLeaves)
+		g.Tilemap.Set(x-1, y-5, items.OakLeaves)
+		g.Tilemap.Set(x, y-5, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-5, items.OakLeaves)
+		g.Tilemap.Set(x-1, y-6, items.OakLeaves)
+		g.Tilemap.Set(x, y-6, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-6, items.OakLeaves)
+		g.Tilemap.Set(x, y-7, items.OakLeaves)
+	} else {
+		g.Tilemap.Set(x, y-3, items.OakLeaves)
+		g.Tilemap.Set(x-1, y-2, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-2, items.OakLeaves)
+		g.Tilemap.Set(x, y-2, items.OakLeaves)
+		g.Tilemap.Set(x, y-1, items.OakLog)
+		g.Tilemap.Set(x, y, items.OakLog)
+
+	}
+
 }
 
 func mapRange(v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
+}
+
+func (g *Generator) GetSurfaceBounds() image.Rectangle {
+	return image.Rect(
+		0,
+		int(g.Opts.HighestSurfaceLevel),
+		g.Tilemap.W,
+		int(g.Opts.LowestSurfaceLevel)+1,
+	)
 }
