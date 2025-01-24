@@ -56,8 +56,8 @@ func (g *Generator) SetSeed(seed int) {
 }
 
 func (g *Generator) Generate(tm *TileMap) {
-	for y := 0; y < tm.H; y++ {
-		for x := 0; x < tm.W; x++ {
+	for y := range tm.H {
+		for x := range tm.W {
 			tm.Grid[y][x] = g.BlockState(x, y)
 		}
 	}
