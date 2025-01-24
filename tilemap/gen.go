@@ -1,6 +1,7 @@
 package tilemap
 
 import (
+	"image"
 	"kar/items"
 	"math/rand"
 
@@ -58,21 +59,25 @@ func (g *Generator) Generate(tm *TileMap) {
 			tm.Grid[y][x] = g.BlockState(x, y)
 		}
 	}
-	g.MakeGrass(tm)
-	g.MakeTrees(tm)
+	g.MakeDirt(tm)
+	// g.MakeTrees(tm)
 }
 
-func (g *Generator) MakeGrass(tm *TileMap) {
-	for y := 1; y < tm.H/4; y++ {
-		for x := 0; x < tm.W; x++ {
-			if tm.Grid[y][x] == items.Dirt {
-				upperBlock := tm.Grid[y-1][x]
-				if upperBlock == items.Air {
-					tm.Grid[y][x] = items.GrassBlock
-				}
+func (g *Generator) MakeDirt(tm *TileMap) {
+	rect := image.Rect(0, int(g.Opts.HighestSurfaceLevel), tm.W, int(g.Opts.LowestSurfaceLevel)+1)
+	for y := rect.Min.Y; y < rect.Max.Y; y++ {
+		for x := rect.Min.X; x < rect.Max.X; x++ {
+			upperBlockID := tm.Get(x, y-1)
+			currentBlockID := tm.Get(x, y)
+			if upperBlockID == items.Air && currentBlockID == items.Stone {
+				tm.Set(x, y, items.Dirt)
+				tm.Set(x, y+1, items.Dirt)
+				tm.Set(x, y+2, items.Dirt)
+				tm.Set(x, y+3, items.Dirt)
 			}
 		}
 	}
+
 }
 
 // Make trees
