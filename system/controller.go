@@ -8,6 +8,7 @@ import (
 	"kar/engine/mathutil"
 	"kar/items"
 	"math"
+	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -343,7 +344,15 @@ func (c *Controller) Breaking() {
 
 			// spawn drop item
 			x, y := tileMap.TileToWorldCenter(targetTile.X, targetTile.Y)
-			AppendToSpawnList(x, y, items.Property[blockID].DropID, 0)
+
+			dropid := items.Property[blockID].DropID
+			if blockID == items.OakLeaves {
+				if rand.Float64() < 0.5 {
+					dropid = items.OakLeaves
+				}
+			}
+
+			AppendToSpawnList(x, y, dropid, 0)
 		}
 	}
 

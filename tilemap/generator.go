@@ -3,7 +3,7 @@ package tilemap
 import (
 	"image"
 	"kar/items"
-	"math/rand"
+	"math/rand/v2"
 
 	"github.com/setanarut/fastnoise"
 )
@@ -17,6 +17,7 @@ type WorldOpts struct {
 
 type Generator struct {
 	NoiseState *fastnoise.State[float64]
+	PCG        *rand.PCG
 	Rand       *rand.Rand
 	Opts       WorldOpts
 	Tilemap    *TileMap
@@ -33,10 +34,11 @@ func DefaultWorldOpts() WorldOpts {
 func NewGenerator(t *TileMap) *Generator {
 	g := &Generator{
 		NoiseState: fastnoise.New[float64](),
-		Rand:       rand.New(rand.NewSource(int64(0))),
 		Opts:       DefaultWorldOpts(),
 		Tilemap:    t,
 	}
+	g.PCG = rand.NewPCG(0, 1024)
+	g.Rand = rand.New(g.PCG)
 	g.NoiseState.Seed = 0
 	return g
 }
@@ -51,7 +53,7 @@ func (g *Generator) BlockState(x, y int) uint16 {
 }
 
 func (g *Generator) SetSeed(seed int) {
-	g.Rand.Seed(int64(seed))
+	g.PCG.Seed(uint64(seed), 1024)
 	g.NoiseState.Seed = seed
 }
 
@@ -106,20 +108,20 @@ func (g *Generator) MakeSurface(tm *TileMap) {
 func (g *Generator) MakeTree(x, y int) {
 
 	if g.Rand.Float64() < 0.8 {
-		g.Tilemap.Set(x, y, items.OakLog)
-		g.Tilemap.Set(x, y-1, items.OakLog)
-		g.Tilemap.Set(x, y-2, items.OakLog)
-		g.Tilemap.Set(x, y-3, items.OakLog)
-		g.Tilemap.Set(x-1, y-4, items.OakLeaves)
-		g.Tilemap.Set(x, y-4, items.OakLeaves)
-		g.Tilemap.Set(x+1, y-4, items.OakLeaves)
-		g.Tilemap.Set(x-1, y-5, items.OakLeaves)
-		g.Tilemap.Set(x, y-5, items.OakLeaves)
-		g.Tilemap.Set(x+1, y-5, items.OakLeaves)
-		g.Tilemap.Set(x-1, y-6, items.OakLeaves)
-		g.Tilemap.Set(x, y-6, items.OakLeaves)
-		g.Tilemap.Set(x+1, y-6, items.OakLeaves)
 		g.Tilemap.Set(x, y-7, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-6, items.OakLeaves)
+		g.Tilemap.Set(x, y-6, items.OakLeaves)
+		g.Tilemap.Set(x-1, y-6, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-5, items.OakLeaves)
+		g.Tilemap.Set(x, y-5, items.OakLeaves)
+		g.Tilemap.Set(x-1, y-5, items.OakLeaves)
+		g.Tilemap.Set(x+1, y-4, items.OakLeaves)
+		g.Tilemap.Set(x, y-4, items.OakLeaves)
+		g.Tilemap.Set(x-1, y-4, items.OakLeaves)
+		g.Tilemap.Set(x, y-3, items.OakLog)
+		g.Tilemap.Set(x, y-2, items.OakLog)
+		g.Tilemap.Set(x, y-1, items.OakLog)
+		g.Tilemap.Set(x, y, items.OakLog)
 	} else {
 		g.Tilemap.Set(x, y-3, items.OakLeaves)
 		g.Tilemap.Set(x-1, y-2, items.OakLeaves)

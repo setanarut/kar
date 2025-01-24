@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/mlange-42/arche/ecs"
+	"github.com/setanarut/fastnoise"
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/tilecollider"
 )
@@ -36,9 +37,11 @@ func AppendToSpawnList(x, y float64, id uint16, dur int) {
 func (s *Spawn) Init() {
 	tileMap = tilemap.MakeTileMap(512, 512, 20, 20)
 	g := tilemap.NewGenerator(tileMap)
-	g.Opts.HighestSurfaceLevel = 12
-	g.Opts.LowestSurfaceLevel = 100
+	g.Opts.HighestSurfaceLevel = 10
+	g.Opts.LowestSurfaceLevel = 30
 	g.SetSeed(4)
+	g.NoiseState.FractalType(fastnoise.FractalFBm)
+	g.NoiseState.Frequency = 0.01
 	g.Generate(tileMap)
 	collider = tilecollider.NewCollider(
 		tileMap.Grid,
