@@ -25,7 +25,7 @@ type Controller struct {
 	fallingDamageTempPosY float64
 
 	CurrentState string
-	Collider     *tilecollider.Collider[uint16]
+	Collider     *tilecollider.Collider[uint8]
 
 	VelX                                float64
 	VelY                                float64
@@ -71,7 +71,7 @@ type Controller struct {
 	previousState string
 }
 
-func NewController(velX, velY float64, tc *tilecollider.Collider[uint16]) *Controller {
+func NewController(velX, velY float64, tc *tilecollider.Collider[uint8]) *Controller {
 	return &Controller{
 		CurrentState:                        "falling",
 		Collider:                            tc,
@@ -209,7 +209,7 @@ func (c *Controller) UpdatePhysics() {
 	c.Collider.Collide(math.Round(c.Rect.X), c.Rect.Y, c.Rect.W, c.Rect.H, c.VelX, c.VelY, c.HandleCollision)
 }
 
-func (c *Controller) HandleCollision(collisionInfos []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+func (c *Controller) HandleCollision(collisionInfos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
 	c.IsOnFloor = false
 
 	// Apply tilemap collision response
@@ -234,7 +234,7 @@ func (c *Controller) HandleCollision(collisionInfos []tilecollider.CollisionInfo
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-		ids := make([]uint16, 0)
+		ids := make([]uint8, 0)
 		for _, collisionInfo := range collisionInfos {
 			if collisionInfo.Normal[1] == -1 {
 				ids = append(ids, collisionInfo.TileID)

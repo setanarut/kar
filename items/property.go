@@ -30,13 +30,13 @@ const All = tag(^uint(0))
 
 type ItemProperty struct {
 	DisplayName  string
-	DropID       uint16
+	DropID       uint8
 	MaxStackSize uint8
 	Tags         tag
 	BestToolTag  tag
 }
 
-var Property = map[uint16]ItemProperty{
+var Property = map[uint8]ItemProperty{
 	Air: {
 		DisplayName:  "Air",
 		DropID:       Air,

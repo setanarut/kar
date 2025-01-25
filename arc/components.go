@@ -3,7 +3,7 @@ package arc
 import "math"
 
 type ItemID struct {
-	ID uint16
+	ID uint8
 }
 
 type Velocity struct {

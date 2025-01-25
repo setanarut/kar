@@ -17,7 +17,7 @@ func NewCraftTable() *CraftTable {
 }
 
 // tarif yoksa sıfır döndürür (air) tarif sonucu ve miktarını döndürür.
-func (ct *CraftTable) CheckRecipe() (uint16, uint8) {
+func (ct *CraftTable) CheckRecipe() (uint8, uint8) {
 	cropped := ct.cropRecipe(ct.Slots)
 	for itemIDKey, recipe := range Recipes {
 		if ct.Equal(cropped, ct.cropRecipe(recipe)) {

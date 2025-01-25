@@ -2,10 +2,10 @@ package items
 
 type Recipe [][]Slot
 
-var Recipes map[uint16]Recipe
+var Recipes map[uint8]Recipe
 
 func init() {
-	Recipes = make(map[uint16]Recipe)
+	Recipes = make(map[uint8]Recipe)
 
 	Recipes[OakPlanks] = [][]Slot{{Slot{ID: OakLog}}}
 	Recipes[Stick] = [][]Slot{

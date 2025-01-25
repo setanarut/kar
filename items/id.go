@@ -2,7 +2,7 @@ package items
 
 // Item ID
 const (
-	Air uint16 = iota
+	Air uint8 = iota
 	Bedrock
 	Bread
 	Bucket

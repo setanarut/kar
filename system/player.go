@@ -140,7 +140,7 @@ func (c *Player) Update() {
 					rect.H,
 					v.X,
 					v.Y,
-					func(ci []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+					func(ci []tilecollider.CollisionInfo[uint8], dx, dy float64) {
 						rect.X += dx
 						rect.Y += dy
 						isHorizontalCollision := false

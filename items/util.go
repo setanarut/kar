@@ -5,7 +5,7 @@ import (
 	"math/rand/v2"
 )
 
-var BlockIDs []uint16
+var BlockIDs []uint8
 
 func init() {
 	for id := range Property {
@@ -15,17 +15,17 @@ func init() {
 	}
 }
 
-func HasTag(id uint16, tag tag) bool {
+func HasTag(id uint8, tag tag) bool {
 	return Property[id].Tags&tag != 0
 }
 
-func IsBestTool(blockID, toolID uint16) bool {
+func IsBestTool(blockID, toolID uint8) bool {
 	return Property[blockID].BestToolTag&Property[toolID].Tags != 0
 }
-func IsStackable(id uint16) bool {
+func IsStackable(id uint8) bool {
 	return Property[id].MaxStackSize > 1
 }
-func GetDefaultDurability(id uint16) int {
+func GetDefaultDurability(id uint8) int {
 	if HasTag(id, Tool) {
 		if HasTag(id, MaterialWooden) {
 			return 25
@@ -46,18 +46,18 @@ func GetDefaultDurability(id uint16) int {
 	return 0
 }
 
-func RandomBlock() uint16 {
+func RandomBlock() uint8 {
 	return BlockIDs[rand.IntN(len(BlockIDs))]
 }
-func DisplayName(id uint16) string {
+func DisplayName(id uint8) string {
 	return Property[id].DisplayName
 }
-func RandomItem() uint16 {
+func RandomItem() uint8 {
 	max := len(Property) - 1
-	return uint16(1 + rand.IntN(max-1+1))
+	return uint8(1 + rand.IntN(max-1+1))
 }
 
-var ColorMap = map[uint16]color.RGBA{
+var ColorMap = map[uint8]color.RGBA{
 	Air:           rgb(0, 62, 161),
 	CraftingTable: rgb(194, 137, 62),
 	GrassBlock:    rgb(133, 75, 54),

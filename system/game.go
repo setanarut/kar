@@ -21,10 +21,6 @@ func (d *Game) Init() {
 
 func (d *Game) Update() {
 
-	// Save TileMap image to desktop
-	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
-		tileMap.WriteToDesktopAsImage(playerTile.X, playerTile.Y)
-	}
 	// Toggle camera follow
 	if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 		switch kar.Camera.SmoothType {
@@ -68,7 +64,7 @@ func (d *Game) Update() {
 
 func (d *Game) Draw() {
 
-	// DRAW TILEMAP
+	// DRAW TILEMAPs
 
 	// clamp tilemap bounds
 	camMin := tileMap.WorldToTile(kar.Camera.TopLeft())

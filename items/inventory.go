@@ -1,7 +1,7 @@
 package items
 
 type Slot struct {
-	ID         uint16
+	ID         uint8
 	Quantity   uint8
 	Durability int
 }
@@ -22,7 +22,7 @@ func NewInventory() *Inventory {
 }
 
 // AddItemIfEmpty adds item to inventory if empty
-func (i *Inventory) AddItemIfEmpty(id uint16, dura int) bool {
+func (i *Inventory) AddItemIfEmpty(id uint8, dura int) bool {
 	idx, ok1 := i.HasItemStackSpace(id)
 	if ok1 {
 		i.Slots[idx].Quantity++
@@ -39,7 +39,7 @@ func (i *Inventory) AddItemIfEmpty(id uint16, dura int) bool {
 	return false
 }
 
-func (i *Inventory) SetSlot(slotIndex int, id uint16, quantity uint8, dur int) {
+func (i *Inventory) SetSlot(slotIndex int, id uint8, quantity uint8, dur int) {
 	if quantity > 0 {
 		i.Slots[slotIndex] = Slot{
 			ID:         id,
@@ -55,7 +55,7 @@ func (i *Inventory) SelectNextSlot() {
 func (i *Inventory) SelectPrevSlot() {
 	i.CurrentSlotIndex = (i.CurrentSlotIndex - 1 + 9) % 9
 }
-func (i *Inventory) RemoveHandItem(id uint16) bool {
+func (i *Inventory) RemoveHandItem(id uint8) bool {
 	ok := i.HasHandItem(id)
 	if ok {
 		i.HandSlot.Quantity--
@@ -66,7 +66,7 @@ func (i *Inventory) RemoveHandItem(id uint16) bool {
 	return false
 }
 
-func (i *Inventory) RemoveItem(id uint16) bool {
+func (i *Inventory) RemoveItem(id uint8) bool {
 	idx, ok := i.HasItem(id)
 	if ok {
 		i.Slots[idx].Quantity--
@@ -74,7 +74,7 @@ func (i *Inventory) RemoveItem(id uint16) bool {
 	}
 	return false
 }
-func (i *Inventory) RemoveItemFromSelectedSlot() (uint16, int) {
+func (i *Inventory) RemoveItemFromSelectedSlot() (uint8, int) {
 	quantity := i.CurrentSlotQuantity()
 	id := i.CurrentSlotID()
 	dura := i.CurrentSlot().Durability
@@ -94,7 +94,7 @@ func (i *Inventory) CurrentSlot() *Slot {
 	return &i.Slots[i.CurrentSlotIndex]
 }
 
-func (i *Inventory) CurrentSlotID() uint16 {
+func (i *Inventory) CurrentSlotID() uint8 {
 	return i.Slots[i.CurrentSlotIndex].ID
 }
 
@@ -140,7 +140,7 @@ func (i *Inventory) HasEmptySlot() (index int, ok bool) {
 	return -1, false
 }
 
-func (i *Inventory) HasItemStackSpace(id uint16) (index int, ok bool) {
+func (i *Inventory) HasItemStackSpace(id uint8) (index int, ok bool) {
 	for idx, v := range i.Slots {
 		s := Property[v.ID].MaxStackSize
 		if v.ID == id && v.Quantity < 64 && v.Quantity > 0 && s != 1 {
@@ -150,7 +150,7 @@ func (i *Inventory) HasItemStackSpace(id uint16) (index int, ok bool) {
 	return -1, false
 }
 
-func (i *Inventory) HasItem(id uint16) (index int, ok bool) {
+func (i *Inventory) HasItem(id uint8) (index int, ok bool) {
 	for idx, v := range i.Slots {
 		if v.ID == id && v.Quantity > 0 {
 			return idx, true
@@ -158,7 +158,7 @@ func (i *Inventory) HasItem(id uint16) (index int, ok bool) {
 	}
 	return -1, false
 }
-func (i *Inventory) HasHandItem(id uint16) bool {
+func (i *Inventory) HasHandItem(id uint8) bool {
 	if i.HandSlot.ID == id && i.HandSlot.Quantity > 0 {
 		return true
 	}

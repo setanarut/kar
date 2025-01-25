@@ -19,15 +19,16 @@ var (
 	player         ecs.Entity
 	ctrl           *Controller
 	tileMap        *tilemap.TileMap
+	generator      *tilemap.Generator
 	craftingTable  = items.NewCraftTable()
-	collider       *tilecollider.Collider[uint16]
+	collider       *tilecollider.Collider[uint8]
 	toSpawn        = []arc.SpawnData{}
 	toRemove       []ecs.Entity
 	craftingState  bool
 	craftingState4 bool
 )
 
-func AppendToSpawnList(x, y float64, id uint16, dur int) {
+func AppendToSpawnList(x, y float64, id uint8, dur int) {
 	toSpawn = append(
 		toSpawn,
 		arc.SpawnData{X: x - 4, Y: y - 4, Id: id, Durability: dur},
@@ -36,13 +37,13 @@ func AppendToSpawnList(x, y float64, id uint16, dur int) {
 
 func (s *Spawn) Init() {
 	tileMap = tilemap.MakeTileMap(512, 512, 20, 20)
-	g := tilemap.NewGenerator(tileMap)
-	g.Opts.HighestSurfaceLevel = 10
-	g.Opts.LowestSurfaceLevel = 30
-	g.SetSeed(4)
-	g.NoiseState.FractalType(fastnoise.FractalFBm)
-	g.NoiseState.Frequency = 0.01
-	g.Generate()
+	generator = tilemap.NewGenerator(tileMap)
+	generator.Opts.HighestSurfaceLevel = 10
+	generator.Opts.LowestSurfaceLevel = 30
+	generator.SetSeed(12)
+	generator.NoiseState.FractalType(fastnoise.FractalFBm)
+	generator.NoiseState.Frequency = 0.01
+	generator.Generate()
 	collider = tilecollider.NewCollider(
 		tileMap.Grid,
 		tileMap.TileW,
@@ -68,6 +69,20 @@ func (s *Spawn) Init() {
 
 func (s *Spawn) Update() {
 
+	// Save TileMap image to desktop
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		tileMap.WriteToDesktopAsImage(playerTile.X, playerTile.Y)
+	}
+	// Save TileMap data to desktop
+	if inpututil.IsKeyJustPressed(ebiten.KeyO) {
+		tileMap.WriteToDisk(kar.DesktopPath + "map")
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyU) {
+		copy(tileMap.Grid, tileMap.ReadFromDisk(kar.DesktopPath+"map"))
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		generator.Generate()
+	}
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := kar.Camera.ScreenToWorld(ebiten.CursorPosition())
 		arc.SpawnEnemy(x, y, 0, 1)

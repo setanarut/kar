@@ -95,6 +95,6 @@ func SpawnSnowBall(x, y, vx, vy float64) ecs.Entity {
 // SpawnData is a helper for delaying spawn events
 type SpawnData struct {
 	X, Y       float64
-	Id         uint16
+	Id         uint8
 	Durability int
 }

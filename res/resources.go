@@ -15,9 +15,9 @@ import (
 var fs embed.FS
 
 var (
-	Icon8            = make(map[uint16]*ebiten.Image, 0)
-	Items20          = make(map[uint16]*ebiten.Image, 0)
-	BlockCrackFrames = make(map[uint16][]*ebiten.Image, 0)
+	Icon8            = make(map[uint8]*ebiten.Image, 0)
+	Items20          = make(map[uint8]*ebiten.Image, 0)
+	BlockCrackFrames = make(map[uint8][]*ebiten.Image, 0)
 	Hotbar           = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
 	CraftingTable    = util.ReadEbImgFS(fs, "assets/img/gui/table.png")
 	CraftingTable4   = util.ReadEbImgFS(fs, "assets/img/gui/table4.png")

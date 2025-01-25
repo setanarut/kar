@@ -37,7 +37,7 @@ func (en *Enemy) Update() {
 			rect.H,
 			vel.X,
 			vel.Y,
-			func(infos []tilecollider.CollisionInfo[uint16], dx, dy float64) {
+			func(infos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
 
 				// Apply tilemap collision response
 				rect.X += dx

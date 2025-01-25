@@ -1,24 +1,28 @@
 package tilemap
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 	"image"
 	"image/color"
 	"kar"
 	"kar/engine/util"
 	"kar/items"
+	"log"
 	"math"
+	"os"
 )
 
 type TileMap struct {
-	Grid         [][]uint16
+	Grid         [][]uint8
 	W, H         int
 	TileW, TileH int
 }
 
 func MakeTileMap(w, h, tileW, tileH int) *TileMap {
 	return &TileMap{
-		Grid:  makeGrid(w, h),
+		Grid:  MakeGrid(w, h),
 		W:     w,
 		H:     h,
 		TileW: tileW,
@@ -26,7 +30,7 @@ func MakeTileMap(w, h, tileW, tileH int) *TileMap {
 	}
 }
 
-func NewTileMap(tm [][]uint16, tileW, tileH int) *TileMap {
+func NewTileMap(tm [][]uint8, tileW, tileH int) *TileMap {
 	return &TileMap{
 		Grid:  tm,
 		W:     len(tm[0]),
@@ -44,6 +48,10 @@ func (tm *TileMap) WriteToDesktopAsImage(playerX, playerY int) {
 func (tm *TileMap) WriteImage(file string) {
 	im := tm.GetImage()
 	util.WritePNG(im, file)
+}
+
+func (tm *TileMap) CloneEmpty() *TileMap {
+	return MakeTileMap(tm.W, tm.H, tm.TileW, tm.TileH)
 }
 
 func (tm *TileMap) GetImage() *image.RGBA {
@@ -73,10 +81,10 @@ func (t *TileMap) String() string {
 	return s
 }
 
-func makeGrid(width, height int) [][]uint16 {
-	var tm [][]uint16
+func MakeGrid(width, height int) [][]uint8 {
+	var tm [][]uint8
 	for i := 0; i < height; i++ {
-		tm = append(tm, make([]uint16, width))
+		tm = append(tm, make([]uint8, width))
 	}
 	return tm
 }
@@ -115,7 +123,7 @@ func (t *TileMap) TileToWorldCenter(x, y int) (float64, float64) {
 	return a, b
 }
 
-func (t *TileMap) Get(x, y int) uint16 {
+func (t *TileMap) Get(x, y int) uint8 {
 	if x < 0 || x >= t.W || y < 0 || y >= t.H {
 		return 0
 	}
@@ -125,7 +133,7 @@ func (t *TileMap) TileIDProperty(x, y int) items.ItemProperty {
 	return items.Property[t.Get(x, y)]
 }
 
-func (t *TileMap) Set(x, y int, id uint16) {
+func (t *TileMap) Set(x, y int, id uint8) {
 	if x < 0 || x >= t.W || y < 0 || y >= t.H {
 		return
 	}
@@ -148,4 +156,64 @@ func (t *TileMap) FindSpawnPosition() (px, py int) {
 		}
 	}
 	return px, py
+}
+
+// Veriyi diske yazan fonksiyon (hata durumunda log kullanılıyor)
+func (t *TileMap) WriteToDisk(filename string) {
+	// Veriyi byte array'e dönüştürmek için gob kullanıyoruz
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+	if err := encoder.Encode(t.Grid); err != nil {
+		log.Fatalf("Veriyi encode ederken hata: %v", err)
+		return
+	}
+
+	// Dosya oluştur ve yaz
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Fatalf("Dosya oluşturulamadı: %v", err)
+		return
+	}
+	defer file.Close()
+
+	_, err = file.Write(buf.Bytes())
+	if err != nil {
+		log.Fatalf("Dosyaya yazarken hata: %v", err)
+		return
+	}
+}
+
+// Diske yazılmış veriyi okuyan fonksiyon (hata durumunda log kullanılıyor)
+func (t *TileMap) ReadFromDisk(filename string) [][]uint8 {
+	// Dosyayı aç
+	file, err := os.Open(filename)
+	if err != nil {
+		log.Fatalf("Dosya açılamadı: %v", err)
+		return nil
+	}
+	defer file.Close()
+
+	// Dosya içeriğini oku
+	fileInfo, err := file.Stat()
+	if err != nil {
+		log.Fatalf("Dosya bilgisi alınamadı: %v", err)
+		return nil
+	}
+	data := make([]byte, fileInfo.Size())
+	_, err = file.Read(data)
+	if err != nil {
+		log.Fatalf("Dosyadan okuma hatası: %v", err)
+		return nil
+	}
+
+	// Byte array'i geri çözerek [][]uint8'ya dönüştür
+	var result [][]uint8
+	buf := bytes.NewBuffer(data)
+	decoder := gob.NewDecoder(buf)
+	if err := decoder.Decode(&result); err != nil {
+		log.Fatalf("Veriyi decode ederken hata: %v", err)
+		return nil
+	}
+
+	return result
 }
