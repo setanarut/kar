@@ -42,7 +42,7 @@ func (s *Spawn) Init() {
 	g.SetSeed(4)
 	g.NoiseState.FractalType(fastnoise.FractalFBm)
 	g.NoiseState.Frequency = 0.01
-	g.Generate(tileMap)
+	g.Generate()
 	collider = tilecollider.NewCollider(
 		tileMap.Grid,
 		tileMap.TileW,
