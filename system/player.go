@@ -115,11 +115,12 @@ func (c *Player) Update() {
 					}
 					// if slot item snowball, spawn snowball
 				} else if ctrl.Inventory.CurrentSlot().ID == items.Snowball {
-					ctrl.Inventory.RemoveItemFromSelectedSlot()
 					switch ctrl.AxisLast {
 					case image.Point{1, 0}:
+						ctrl.Inventory.RemoveItemFromSelectedSlot()
 						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, ballSpeedX, ballMaxFallVelocity)
 					case image.Point{-1, 0}:
+						ctrl.Inventory.RemoveItemFromSelectedSlot()
 						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, -ballSpeedX, ballMaxFallVelocity)
 					}
 				}

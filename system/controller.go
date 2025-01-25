@@ -347,7 +347,7 @@ func (c *Controller) Breaking() {
 
 			dropid := items.Property[blockID].DropID
 			if blockID == items.OakLeaves {
-				if rand.Float64() < 0.5 {
+				if rand.N(2) == 0 {
 					dropid = items.OakLeaves
 				}
 			}
