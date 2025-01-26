@@ -86,3 +86,30 @@ func init() {
 
 	GopherInventory = items.NewInventory()
 }
+
+func GetAnimPlayerData() AnimPlayerData {
+	return AnimPlayerData{
+		CurrentState: GopherAnimPlayer.CurrentState,
+		CurrentAtlas: GopherAnimPlayer.CurrentAtlas,
+		Paused:       GopherAnimPlayer.Paused,
+		Tick:         GopherAnimPlayer.Tick,
+		CurrentIndex: GopherAnimPlayer.CurrentIndex,
+	}
+
+}
+
+func SetAnimPlayerData(a AnimPlayerData) {
+	GopherAnimPlayer.CurrentState = a.CurrentState
+	GopherAnimPlayer.CurrentAtlas = a.CurrentAtlas
+	GopherAnimPlayer.Paused = a.Paused
+	GopherAnimPlayer.Tick = a.Tick
+	GopherAnimPlayer.CurrentIndex = a.CurrentIndex
+}
+
+type AnimPlayerData struct {
+	CurrentState string
+	CurrentAtlas string
+	Paused       bool
+	Tick         float64
+	CurrentIndex int
+}

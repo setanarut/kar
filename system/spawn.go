@@ -97,12 +97,23 @@ func (s *Spawn) Update() {
 		os.WriteFile(kar.DesktopPath+"data.json", b, 0644)
 
 	}
-	// Save ECSWorld to desktop
-	if inpututil.IsKeyJustPressed(ebiten.Key4) {
-		kar.WorldECS.Reset()
-		b, _ := os.ReadFile(kar.DesktopPath + "data.json")
-		archeserde.Deserialize(b, &kar.WorldECS)
 
+	// // Read ECSWorld to desktop
+	// if inpututil.IsKeyJustPressed(ebiten.Key4) {
+	// 	kar.WorldECS.Reset()
+	// 	b, _ := os.ReadFile(kar.DesktopPath + "data.json")
+	// 	archeserde.Deserialize(b, &kar.WorldECS)
+
+	// }
+
+	// Remove Player
+	if inpututil.IsKeyJustPressed(ebiten.Key5) {
+		kar.WorldECS.RemoveEntity(player)
+	}
+	// Spawn Player
+	if inpututil.IsKeyJustPressed(ebiten.Key6) {
+		e := arc.SpawnPlayer(playerCenterX, playerCenterY)
+		player = e
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {

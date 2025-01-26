@@ -28,19 +28,10 @@ var (
 	FilterItem        = gn.NewFilter4[ItemID, Rect, ItemTimers, Durability]()
 )
 
-type AnimPlayerData struct {
-	CurrentState string
-	CurrentAtlas string
-	Paused       bool
-	Tick         float64
-	CurrentIndex int
-}
-
-func SpawnPlayer(x, y float64) ecs.Entity {
-
+func SpawnPlayer(centerX, centerY float64) ecs.Entity {
 	return MapPlayer.NewWith(
 		&Health{20, 20},
-		&Rect{x - 16*0.5, y - 16*0.5, 16, 16},
+		&Rect{centerX - 16*0.5, centerY - 16*0.5, 16, 16},
 	)
 
 }
