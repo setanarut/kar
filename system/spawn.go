@@ -6,9 +6,11 @@ import (
 	"kar/items"
 	"kar/tilemap"
 	"math/rand/v2"
+	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	archeserde "github.com/mlange-42/arche-serde"
 	"github.com/mlange-42/arche/ecs"
 	"github.com/setanarut/fastnoise"
 	"github.com/setanarut/kamera/v2"
@@ -57,7 +59,6 @@ func (s *Spawn) Init() {
 	// tileMap.Set(x, y+2, items.CraftingTable)
 	SpawnX, SpawnY := tileMap.TileToWorldCenter(x, y)
 	kar.Camera = kamera.NewCamera(SpawnX, SpawnY, kar.ScreenW, kar.ScreenH)
-
 	kar.Camera.SmoothType = kamera.SmoothDamp
 	kar.Camera.SmoothOptions.LerpSpeedX = 0.5
 	kar.Camera.SmoothOptions.LerpSpeedY = 0.05
@@ -77,12 +78,33 @@ func (s *Spawn) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyO) {
 		tileMap.WriteToDisk(kar.DesktopPath + "map")
 	}
+	// read TileMap from desktop
 	if inpututil.IsKeyJustPressed(ebiten.KeyU) {
 		copy(tileMap.Grid, tileMap.ReadFromDisk(kar.DesktopPath+"map"))
 	}
+
+	// Generate tilemap
 	if inpututil.IsKeyJustPressed(ebiten.Key2) {
 		generator.Generate()
 	}
+
+	// Save ECSWorld to desktop
+	if inpututil.IsKeyJustPressed(ebiten.Key3) {
+		b, _ := archeserde.Serialize(
+			&kar.WorldECS,
+			// archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]()),
+		)
+		os.WriteFile(kar.DesktopPath+"data.json", b, 0644)
+
+	}
+	// Save ECSWorld to desktop
+	if inpututil.IsKeyJustPressed(ebiten.Key4) {
+		kar.WorldECS.Reset()
+		b, _ := os.ReadFile(kar.DesktopPath + "data.json")
+		archeserde.Deserialize(b, &kar.WorldECS)
+
+	}
+
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := kar.Camera.ScreenToWorld(ebiten.CursorPosition())
 		arc.SpawnEnemy(x, y, 0, 1)

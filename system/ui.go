@@ -40,12 +40,12 @@ func (ui *UI) Update() {
 
 	// Hotbar slot navigation
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		ctrl.Inventory.SelectPrevSlot()
+		kar.GopherInventory.SelectPrevSlot()
 		onInventorySlotChanged()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-		ctrl.Inventory.SelectNextSlot()
+		kar.GopherInventory.SelectNextSlot()
 		onInventorySlotChanged()
 	}
 
@@ -68,7 +68,7 @@ func (ui *UI) Update() {
 					if itemID != 0 {
 						quantity := craftingTable.Slots[y][x].Quantity
 						for range quantity {
-							if ctrl.Inventory.AddItemIfEmpty(
+							if kar.GopherInventory.AddItemIfEmpty(
 								craftingTable.Slots[y][x].ID,
 								craftingTable.Slots[y][x].Durability,
 							) {
@@ -119,14 +119,14 @@ func (ui *UI) Update() {
 		// move items from hotbar to crafting table
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
 			cs := craftingTable.CurrentSlot()
-			if ctrl.Inventory.CurrentSlotID() != 0 {
+			if kar.GopherInventory.CurrentSlotID() != 0 {
 				if craftingTable.CurrentSlot().ID == 0 {
-					id, dur := ctrl.Inventory.RemoveItemFromSelectedSlot()
+					id, dur := kar.GopherInventory.RemoveItemFromSelectedSlot()
 					cs.ID = id
 					cs.Durability = dur
 					cs.Quantity = 1
-				} else if cs.ID == ctrl.Inventory.CurrentSlotID() {
-					ctrl.Inventory.RemoveItemFromSelectedSlot()
+				} else if cs.ID == kar.GopherInventory.CurrentSlotID() {
+					kar.GopherInventory.RemoveItemFromSelectedSlot()
 					cs.Quantity++
 				}
 			}
@@ -138,11 +138,11 @@ func (ui *UI) Update() {
 			cs := craftingTable.CurrentSlot()
 			if cs.ID != 0 {
 				if cs.Quantity == 1 {
-					if ctrl.Inventory.AddItemIfEmpty(cs.ID, cs.Durability) {
+					if kar.GopherInventory.AddItemIfEmpty(cs.ID, cs.Durability) {
 						craftingTable.ClearCurrenSlot()
 					}
 				} else if cs.Quantity > 1 {
-					if ctrl.Inventory.AddItemIfEmpty(cs.ID, cs.Durability) {
+					if kar.GopherInventory.AddItemIfEmpty(cs.ID, cs.Durability) {
 						cs.Quantity--
 
 					}
@@ -159,7 +159,7 @@ func (ui *UI) Update() {
 			dur := items.GetDefaultDurability(resultID)
 			if resultID != 0 {
 				for range minimum {
-					if ctrl.Inventory.AddItemIfEmpty(resultID, dur) {
+					if kar.GopherInventory.AddItemIfEmpty(resultID, dur) {
 						for y := range 3 {
 							for x := range 3 {
 								if craftingTable.Slots[y][x].Quantity > 0 {
@@ -189,10 +189,10 @@ func (ui *UI) Update() {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		ctrl.Inventory.ClearCurrentSlot()
+		kar.GopherInventory.ClearCurrentSlot()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		ctrl.Inventory.RandomFillAllSlots()
+		kar.GopherInventory.RandomFillAllSlots()
 	}
 }
 func (ui *UI) Draw() {
@@ -204,31 +204,31 @@ func (ui *UI) Draw() {
 
 		// Draw slots
 		for x := range 9 {
-			slotID := ctrl.Inventory.Slots[x].ID
-			quantity := ctrl.Inventory.Slots[x].Quantity
+			slotID := kar.GopherInventory.Slots[x].ID
+			quantity := kar.GopherInventory.Slots[x].Quantity
 			SlotOffsetX := float64(x) * 17
 			SlotOffsetX += hotbarPositionX
 
 			// draw hotbar item icons
 			kar.ColorMDIO.GeoM.Reset()
 			kar.ColorMDIO.GeoM.Translate(SlotOffsetX+(5), hotbarPositionY+(5))
-			if slotID != items.Air && ctrl.Inventory.Slots[x].Quantity > 0 {
+			if slotID != items.Air && kar.GopherInventory.Slots[x].Quantity > 0 {
 				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.ColorM, kar.ColorMDIO)
 			}
-			if x == ctrl.Inventory.CurrentSlotIndex {
+			if x == kar.GopherInventory.CurrentSlotIndex {
 				// Draw hotbar selected slot border
 				kar.ColorMDIO.GeoM.Translate(-5, -5)
 				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.ColorM, kar.ColorMDIO)
 
 				// Draw hotbar slot item display name
-				if !ctrl.Inventory.IsCurrentSlotEmpty() {
+				if !kar.GopherInventory.IsCurrentSlotEmpty() {
 					TextDO.GeoM.Reset()
 					TextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
 					if items.HasTag(slotID, items.Tool) {
 						text.Draw(kar.Screen, fmt.Sprintf(
 							"%v\nDurability %v",
 							items.Property[slotID].DisplayName,
-							ctrl.Inventory.Slots[x].Durability,
+							kar.GopherInventory.Slots[x].Durability,
 						), res.Font, TextDO)
 					} else {
 						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, TextDO)
@@ -353,34 +353,32 @@ func (ui *UI) Draw() {
 }
 
 func onInventorySlotChanged() {
-
-	switch ctrl.Inventory.CurrentSlotID() {
+	switch kar.GopherInventory.CurrentSlotID() {
 	case items.WoodenAxe:
-		ctrl.AnimPlayer.CurrentAtlas = "WoodenAxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "WoodenAxe"
 	case items.WoodenPickaxe:
-		ctrl.AnimPlayer.CurrentAtlas = "WoodenPickaxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "WoodenPickaxe"
 	case items.WoodenShovel:
-		ctrl.AnimPlayer.CurrentAtlas = "WoodenShovel"
+		kar.GopherAnimPlayer.CurrentAtlas = "WoodenShovel"
 	case items.StoneAxe:
-		ctrl.AnimPlayer.CurrentAtlas = "StoneAxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "StoneAxe"
 	case items.StonePickaxe:
-		ctrl.AnimPlayer.CurrentAtlas = "StonePickaxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "StonePickaxe"
 	case items.StoneShovel:
-		ctrl.AnimPlayer.CurrentAtlas = "StoneShovel"
+		kar.GopherAnimPlayer.CurrentAtlas = "StoneShovel"
 	case items.IronAxe:
-		ctrl.AnimPlayer.CurrentAtlas = "IronAxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "IronAxe"
 	case items.IronPickaxe:
-		ctrl.AnimPlayer.CurrentAtlas = "IronPickaxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "IronPickaxe"
 	case items.IronShovel:
-		ctrl.AnimPlayer.CurrentAtlas = "IronShovel"
+		kar.GopherAnimPlayer.CurrentAtlas = "IronShovel"
 	case items.DiamondAxe:
-		ctrl.AnimPlayer.CurrentAtlas = "DiamondAxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "DiamondAxe"
 	case items.DiamondPickaxe:
-		ctrl.AnimPlayer.CurrentAtlas = "DiamondPickaxe"
+		kar.GopherAnimPlayer.CurrentAtlas = "DiamondPickaxe"
 	case items.DiamondShovel:
-		ctrl.AnimPlayer.CurrentAtlas = "DiamondShovel"
+		kar.GopherAnimPlayer.CurrentAtlas = "DiamondShovel"
 	default:
-		ctrl.AnimPlayer.CurrentAtlas = "Default"
+		kar.GopherAnimPlayer.CurrentAtlas = "Default"
 	}
-
 }

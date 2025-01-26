@@ -29,7 +29,7 @@ func (itm *Item) Update() {
 				} else {
 					if ctrl.Rect.Overlaps(rect) {
 						// Çarpan öğeyi envantere ekle
-						if ctrl.Inventory.AddItemIfEmpty(itemID.ID, durability.Durability) {
+						if kar.GopherInventory.AddItemIfEmpty(itemID.ID, durability.Durability) {
 							toRemove = append(toRemove, itemQuery.Entity())
 							onInventorySlotChanged()
 						}

@@ -53,12 +53,7 @@ func (d *Game) Update() {
 
 	// update animation players
 	if !craftingState {
-		q := arc.FilterAnimPlayer.Query(&kar.WorldECS)
-		for q.Next() {
-			a := q.Get()
-			a.Update()
-		}
-
+		kar.GopherAnimPlayer.Update()
 	}
 }
 

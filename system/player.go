@@ -9,7 +9,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/setanarut/anim"
 	"github.com/setanarut/kamera/v2"
 	"github.com/setanarut/tilecollider"
 )
@@ -30,21 +29,11 @@ var (
 	// floorTile                    image.Point
 	playerCenterX, playerCenterY float64
 	isRayHit                     bool
-
-	AnimationPlayerHand *anim.AnimationPlayer
 )
 
 func (c *Player) Init() {
-	ap, hlt, rect := arc.MapPlayer.Get(player)
-	ctrl.AnimPlayer = ap
-	AnimationPlayerHand = ap
-	ctrl.Rect = rect
-	ctrl.Health = hlt
-	ctrl.Inventory = items.NewInventory()
-	ctrl.Inventory.SetSlot(0, items.Snowball, 64, 0)
-	// ctrl.Inventory.SetSlot(1, items.IronPickaxe, 1, items.GetDefaultDurability(items.DiamondPickaxe))
-	// ctrl.Inventory.SetSlot(2, items.IronAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
-	// ctrl.Inventory.SetSlot(3, items.IronShovel, 1, items.GetDefaultDurability(items.DiamondShovel))
+	ctrl.Health, ctrl.Rect = arc.MapPlayer.Get(player)
+	kar.GopherInventory.SetSlot(0, items.Snowball, 64, 0)
 	ctrl.EnterFalling()
 }
 
@@ -74,7 +63,7 @@ func (c *Player) Update() {
 
 			// Drop Item
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-				currentSlot := ctrl.Inventory.CurrentSlot()
+				currentSlot := kar.GopherInventory.CurrentSlot()
 				if currentSlot.ID != items.Air {
 					AppendToSpawnList(
 						playerCenterX,
@@ -82,7 +71,7 @@ func (c *Player) Update() {
 						currentSlot.ID,
 						currentSlot.Durability,
 					)
-					ctrl.Inventory.RemoveItemFromSelectedSlot()
+					kar.GopherInventory.RemoveItemFromSelectedSlot()
 				}
 				onInventorySlotChanged()
 			}
@@ -91,7 +80,7 @@ func (c *Player) Update() {
 			if ctrl.IsAttackKeyJustPressed {
 				anyItemOverlapsWithPlaceCoords := false
 				// if slot item is block
-				if isRayHit && items.HasTag(ctrl.Inventory.CurrentSlot().ID, items.Block) {
+				if isRayHit && items.HasTag(kar.GopherInventory.CurrentSlot().ID, items.Block) {
 					placeTile = targetTile.Sub(ctrl.AxisLast)
 					queryItem := arc.FilterItem.Query(&kar.WorldECS)
 					// check overlaps
@@ -108,19 +97,19 @@ func (c *Player) Update() {
 					if !anyItemOverlapsWithPlaceCoords {
 						if !ctrl.Rect.Overlaps2(tileMap.GetTileRect(placeTile.X, placeTile.Y)) {
 							// place block
-							tileMap.Set(placeTile.X, placeTile.Y, ctrl.Inventory.CurrentSlotID())
+							tileMap.Set(placeTile.X, placeTile.Y, kar.GopherInventory.CurrentSlotID())
 							// remove item
-							ctrl.Inventory.RemoveItemFromSelectedSlot()
+							kar.GopherInventory.RemoveItemFromSelectedSlot()
 						}
 					}
 					// if slot item snowball, spawn snowball
-				} else if ctrl.Inventory.CurrentSlot().ID == items.Snowball {
+				} else if kar.GopherInventory.CurrentSlot().ID == items.Snowball {
 					switch ctrl.AxisLast {
 					case image.Point{1, 0}:
-						ctrl.Inventory.RemoveItemFromSelectedSlot()
+						kar.GopherInventory.RemoveItemFromSelectedSlot()
 						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, ballSpeedX, ballMaxFallVelocity)
 					case image.Point{-1, 0}:
-						ctrl.Inventory.RemoveItemFromSelectedSlot()
+						kar.GopherInventory.RemoveItemFromSelectedSlot()
 						arc.SpawnSnowBall(playerCenterX, playerCenterY-4, -ballSpeedX, ballMaxFallVelocity)
 					}
 				}
@@ -186,6 +175,6 @@ func (c *Player) Draw() {
 			kar.ColorMDIO.GeoM.Translate(ctrl.Rect.X, ctrl.Rect.Y)
 		}
 
-		kar.Camera.DrawWithColorM(ctrl.AnimPlayer.CurrentFrame, kar.ColorM, kar.ColorMDIO, kar.Screen)
+		kar.Camera.DrawWithColorM(kar.GopherAnimPlayer.CurrentFrame, kar.ColorM, kar.ColorMDIO, kar.Screen)
 	}
 }

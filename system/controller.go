@@ -12,15 +12,12 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/setanarut/anim"
 	"github.com/setanarut/tilecollider"
 )
 
 type Controller struct {
-	AnimPlayer *anim.AnimationPlayer
-	Health     *arc.Health
-	Inventory  *items.Inventory
-	Rect       *arc.Rect
+	Health *arc.Health
+	Rect   *arc.Rect
 
 	fallingDamageTempPosY float64
 
@@ -286,7 +283,7 @@ func (c *Controller) Skidding() {
 
 func (c *Controller) Falling() {
 	if c.VelY > 0.1 {
-		c.AnimPlayer.SetState("jump")
+		kar.GopherAnimPlayer.SetState("jump")
 	}
 	if c.IsOnFloor {
 		if c.HorizontalVelocity <= 0 {
@@ -304,27 +301,27 @@ func (c *Controller) Breaking() {
 	// set animation states
 	if c.AxisLast.X == 1 {
 		if c.HorizontalVelocity > 0.01 {
-			c.AnimPlayer.SetState("attackWalk")
+			kar.GopherAnimPlayer.SetState("attackWalk")
 		} else {
-			c.AnimPlayer.SetState("attackRight")
+			kar.GopherAnimPlayer.SetState("attackRight")
 		}
 	} else if c.AxisLast.X == -1 {
 		if c.HorizontalVelocity > 0.01 {
-			c.AnimPlayer.SetState("attackWalk")
+			kar.GopherAnimPlayer.SetState("attackWalk")
 		} else {
-			c.AnimPlayer.SetState("attackRight")
+			kar.GopherAnimPlayer.SetState("attackRight")
 		}
 		c.FlipXFactor = -1
 	} else if c.AxisLast.Y == 1 {
-		c.AnimPlayer.SetState("attackDown")
+		kar.GopherAnimPlayer.SetState("attackDown")
 	} else if c.AxisLast.Y == -1 {
-		c.AnimPlayer.SetState("attackUp")
+		kar.GopherAnimPlayer.SetState("attackUp")
 	}
 
 	if isRayHit {
 		blockID := tileMap.Get(targetTile.X, targetTile.Y)
 		if !items.HasTag(blockID, items.Unbreakable) {
-			if items.IsBestTool(blockID, c.Inventory.CurrentSlotID()) {
+			if items.IsBestTool(blockID, kar.GopherInventory.CurrentSlotID()) {
 				blockHealth += kar.PlayerBestToolDamage
 			} else {
 				blockHealth += kar.PlayerDefaultDamage
@@ -335,10 +332,10 @@ func (c *Controller) Breaking() {
 			blockHealth = 0
 			tileMap.Set(targetTile.X, targetTile.Y, items.Air)
 
-			if items.HasTag(c.Inventory.CurrentSlotID(), items.Tool) {
-				c.Inventory.CurrentSlot().Durability--
-				if c.Inventory.CurrentSlot().Durability <= 0 {
-					c.Inventory.ClearCurrentSlot()
+			if items.HasTag(kar.GopherInventory.CurrentSlotID(), items.Tool) {
+				kar.GopherInventory.CurrentSlot().Durability--
+				if kar.GopherInventory.CurrentSlot().Durability <= 0 {
+					kar.GopherInventory.ClearCurrentSlot()
 				}
 			}
 
@@ -373,7 +370,7 @@ func (c *Controller) Breaking() {
 
 func (c *Controller) Jumping() {
 	if c.VelY != 0 && c.VelY > c.JumpPower+0.1 {
-		c.AnimPlayer.SetState("jump")
+		kar.GopherAnimPlayer.SetState("jump")
 	}
 	// Skidding'den geldiyse özel durum
 	if c.previousState == "skidding" {
@@ -409,8 +406,8 @@ func (c *Controller) Jumping() {
 }
 
 func (c *Controller) Running() {
-	c.AnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(c.HorizontalVelocity, 0, c.MaxRunSpeed, 4, 23))
-	// c.AnimPlayer.Animations["walkRight"].FPS = mathutil.MapRange(c.HorizontalVelocity, 0, c.MaxRunSpeed, 4, 23)
+	kar.GopherAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(c.HorizontalVelocity, 0, c.MaxRunSpeed, 4, 23))
+	// kar.GopherAnimPlayer.Animations["walkRight"].FPS = mathutil.MapRange(c.HorizontalVelocity, 0, c.MaxRunSpeed, 4, 23)
 
 	// Kayma durumu kontrolü
 	if c.IsSkidding {
@@ -438,7 +435,7 @@ func (c *Controller) Running() {
 }
 
 func (c *Controller) Walking() {
-	c.AnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(c.HorizontalVelocity, 0, c.MaxRunSpeed, 4, 23))
+	kar.GopherAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(c.HorizontalVelocity, 0, c.MaxRunSpeed, 4, 23))
 	// Kayma durumu kontrolü
 	if c.IsSkidding {
 		c.ChangeState("skidding")
@@ -467,13 +464,13 @@ func (c *Controller) Walking() {
 func (c *Controller) Idle() {
 
 	if c.AxisLast.Y == -1 {
-		c.AnimPlayer.SetState("idleUp")
+		kar.GopherAnimPlayer.SetState("idleUp")
 	} else if c.AxisLast.Y == 1 {
-		c.AnimPlayer.SetState("idleDown")
+		kar.GopherAnimPlayer.SetState("idleDown")
 	} else if c.AxisLast.X == 1 {
-		c.AnimPlayer.SetState("idleRight")
+		kar.GopherAnimPlayer.SetState("idleRight")
 	} else if c.AxisLast.X == -1 {
-		c.AnimPlayer.SetState("idleRight")
+		kar.GopherAnimPlayer.SetState("idleRight")
 	}
 
 	if c.IsJumpKeyJustPressed {
@@ -527,18 +524,18 @@ func (c *Controller) UpdateState() {
 // func (c *Controller) exitFalling()  {}
 
 func (c *Controller) EnterWalking() {
-	c.AnimPlayer.SetState("walkRight")
+	kar.GopherAnimPlayer.SetState("walkRight")
 }
 func (c *Controller) EnterRunning() {
-	c.AnimPlayer.SetState("walkRight")
+	kar.GopherAnimPlayer.SetState("walkRight")
 }
 
 func (c *Controller) EnterIdle() {
 	if c.AxisLast.Y == 0 {
-		c.AnimPlayer.SetState("idleRight")
+		kar.GopherAnimPlayer.SetState("idleRight")
 	}
 	if c.AxisLast.X == 0 {
-		c.AnimPlayer.SetState("idleUp")
+		kar.GopherAnimPlayer.SetState("idleUp")
 	}
 }
 
@@ -565,7 +562,7 @@ func (c *Controller) ExitFalling() {
 }
 
 func (c *Controller) EnterSkidding() {
-	c.AnimPlayer.SetState("skidding")
+	kar.GopherAnimPlayer.SetState("skidding")
 }
 
 func (c *Controller) ChangeState(newState string) {
