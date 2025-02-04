@@ -8,7 +8,15 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 
 ## Controls
 
-### Free Mode
+### Menu
+
+| Key              | Function                          |
+| ---------------- | --------------------------------- |
+| <kbd>Enter</kbd> | Open/Close menu                   |
+| <kbd>W/S</kbd>   | Menu navigation (up/down)         |
+| <kbd>→</kbd>     | Confirm the selected menu option. |
+
+### Gameplay
 
 | Key                     | Function                                                          |
 | ----------------------- | ----------------------------------------------------------------- |

@@ -8,7 +8,15 @@ Kar 2D zanaat/madencilik/platform oyunu (Çalışma sürüyor).
 
 ## Kontroller
 
-### Özgür Mod
+### Menü
+
+| Tuş              | İşlev                          |
+| ---------------- | ------------------------------ |
+| <kbd>Enter</kbd> | Menü aç/kapa                   |
+| <kbd>W/S</kbd>   | Menü navigasyon (yukarı/aşağı) |
+| <kbd>→</kbd>     | Seçili menu seçeneğini uygula  |
+
+### Oynanış
 
 | Tuş                     | İşlev                                                            |
 | ----------------------- | ---------------------------------------------------------------- |
