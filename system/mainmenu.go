@@ -110,10 +110,11 @@ func (m *MainMenu) Draw() {
 func (*MainMenu) newGame() {
 	kar.ECWorld.Reset()
 	kar.InventoryRes.Reset()
-	ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
-	ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
 	ecs.AddResource(&kar.ECWorld, kar.GameDataRes)
+	ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
 	ecs.AddResource(&kar.ECWorld, kar.CraftingTableRes)
+	ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
+	ecs.AddResource(&kar.ECWorld, kar.CameraRes)
 	ecs.AddResource(&kar.ECWorld, kar.TileMapRes)
 
 	kar.GameTileMapGenerator.Opts.HighestSurfaceLevel = 10
@@ -148,10 +149,11 @@ func (m *MainMenu) saveGame() {
 func (m *MainMenu) loadGame() {
 	if m.dataManager.ItemExists("01save") {
 		kar.ECWorld.Reset()
-		ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
-		ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
 		ecs.AddResource(&kar.ECWorld, kar.GameDataRes)
+		ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
 		ecs.AddResource(&kar.ECWorld, kar.CraftingTableRes)
+		ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
+		ecs.AddResource(&kar.ECWorld, kar.CameraRes)
 		ecs.AddResource(&kar.ECWorld, kar.TileMapRes)
 
 		jsonData, err := m.dataManager.LoadItem("01save")
@@ -165,6 +167,5 @@ func (m *MainMenu) loadGame() {
 		}
 		animData := ecs.GetResource[kar.AnimPlayerData](&kar.ECWorld)
 		kar.SetAnimPlayerData(kar.PlayerAnimPlayer, animData)
-
 	}
 }

@@ -39,37 +39,37 @@ func (c *Player) Update() {
 	}
 
 	if kar.ECWorld.Alive(kar.CurrentPlayer) {
-		playerPos, playerSize, playerVelocity, playerHealth, playerController, pFacing := arc.MapPlayer.Get(kar.CurrentPlayer)
+		playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := arc.MapPlayer.Get(kar.CurrentPlayer)
 
 		playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
 
 		if !kar.GameDataRes.CraftingState {
 
 			// Update input
-			playerController.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
-			playerController.IsRunKeyPressed = ebiten.IsKeyPressed(ebiten.KeyShift)
-			playerController.IsJumpKeyPressed = ebiten.IsKeyPressed(ebiten.KeySpace)
-			playerController.IsAttackKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeyLeft)
-			playerController.IsJumpKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeySpace)
-			playerController.InputAxis = image.Point{}
+			ctrl.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
+			ctrl.IsRunKeyPressed = ebiten.IsKeyPressed(ebiten.KeyShift)
+			ctrl.IsJumpKeyPressed = ebiten.IsKeyPressed(ebiten.KeySpace)
+			ctrl.IsAttackKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeyLeft)
+			ctrl.IsJumpKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeySpace)
+			ctrl.InputAxis = image.Point{}
 
 			if ebiten.IsKeyPressed(ebiten.KeyW) {
-				playerController.InputAxis.Y -= 1
+				ctrl.InputAxis.Y -= 1
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyS) {
-				playerController.InputAxis.Y += 1
+				ctrl.InputAxis.Y += 1
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyA) {
-				playerController.InputAxis.X -= 1
+				ctrl.InputAxis.X -= 1
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyD) {
-				playerController.InputAxis.X += 1
+				ctrl.InputAxis.X += 1
 			}
-			if !playerController.InputAxis.Eq(image.Point{}) {
+			if !ctrl.InputAxis.Eq(image.Point{}) {
 				// restrict facing direction to 4 directions (no diagonal)
-				switch playerController.InputAxis {
+				switch ctrl.InputAxis {
 				case image.Point{0, -1}, image.Point{0, 1}, image.Point{-1, 0}, image.Point{1, 0}:
-					pFacing.Dir = playerController.InputAxis
+					pFacing.Dir = ctrl.InputAxis
 				default:
 					pFacing.Dir = image.Point{0, 0}
 				}
@@ -81,10 +81,10 @@ func (c *Player) Update() {
 			}
 
 			// Update states
-			switch playerController.CurrentState {
+			switch ctrl.CurrentState {
 			case "idle":
 				// enter idle
-				if playerController.PreviousState != "idle" {
+				if ctrl.PreviousState != "idle" {
 					if pFacing.Dir.Y == 0 {
 						kar.PlayerAnimPlayer.SetState("idleRight")
 					}
@@ -105,175 +105,175 @@ func (c *Player) Update() {
 				}
 
 				// All transitions with common exit code
-				if playerController.IsJumpKeyJustPressed ||
-					(playerController.IsOnFloor && playerController.HorizontalVelocity > 0.01) ||
-					(!playerController.IsOnFloor && playerVelocity.Y > 0.01) ||
-					(playerController.IsBreakKeyPressed && isRayHit) ||
+				if ctrl.IsJumpKeyJustPressed ||
+					(ctrl.IsOnFloor && ctrl.HorizontalVelocity > 0.01) ||
+					(!ctrl.IsOnFloor && playerVelocity.Y > 0.01) ||
+					(ctrl.IsBreakKeyPressed && isRayHit) ||
 					(playerVelocity.Y != 0 && playerVelocity.Y < -0.1) {
-					playerController.PreviousState = playerController.CurrentState
+					ctrl.PreviousState = ctrl.CurrentState
 
 					// ------- Common exit code  here -----------
 
 					// Handle specific transitions
-					if playerController.IsJumpKeyJustPressed {
-						playerController.CurrentState = "jumping"
-						if playerController.HorizontalVelocity > playerController.MinSpeedThresForJumpBoostMultiplier {
-							playerVelocity.Y = playerController.JumpPower * playerController.JumpBoostMultiplier
+					if ctrl.IsJumpKeyJustPressed {
+						ctrl.CurrentState = "jumping"
+						if ctrl.HorizontalVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
+							playerVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 						} else {
-							playerVelocity.Y = playerController.JumpPower
+							playerVelocity.Y = ctrl.JumpPower
 						}
-						playerController.JumpTimer = 0
-					} else if playerController.IsOnFloor && playerController.HorizontalVelocity > 0.01 {
-						if playerController.HorizontalVelocity > playerController.MaxWalkSpeed {
-							playerController.CurrentState = "running"
+						ctrl.JumpTimer = 0
+					} else if ctrl.IsOnFloor && ctrl.HorizontalVelocity > 0.01 {
+						if ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
+							ctrl.CurrentState = "running"
 						} else {
-							playerController.CurrentState = "walking"
+							ctrl.CurrentState = "walking"
 						}
-					} else if !playerController.IsOnFloor && playerVelocity.Y > 0.01 {
-						playerController.CurrentState = "falling"
-					} else if playerController.IsBreakKeyPressed && isRayHit {
-						playerController.CurrentState = "breaking"
+					} else if !ctrl.IsOnFloor && playerVelocity.Y > 0.01 {
+						ctrl.CurrentState = "falling"
+					} else if ctrl.IsBreakKeyPressed && isRayHit {
+						ctrl.CurrentState = "breaking"
 					} else if playerVelocity.Y != 0 && playerVelocity.Y < -0.1 {
-						playerController.CurrentState = "jumping"
+						ctrl.CurrentState = "jumping"
 					}
 					break
 				}
 
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 			case "walking":
 				// enter walking
-				if playerController.PreviousState != "walking" {
+				if ctrl.PreviousState != "walking" {
 					kar.PlayerAnimPlayer.SetState("walkRight")
 				}
 
-				kar.PlayerAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(playerController.HorizontalVelocity, 0, playerController.MaxRunSpeed, 4, 23))
+				kar.PlayerAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// All transitions with common exit code
-				if playerController.IsSkidding || (playerVelocity.Y > 0 && !playerController.IsOnFloor) ||
-					playerController.IsJumpKeyJustPressed || playerController.HorizontalVelocity <= 0 ||
-					playerController.HorizontalVelocity > playerController.MaxWalkSpeed {
+				if ctrl.IsSkidding || (playerVelocity.Y > 0 && !ctrl.IsOnFloor) ||
+					ctrl.IsJumpKeyJustPressed || ctrl.HorizontalVelocity <= 0 ||
+					ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
 
 					// Common exit code
 
 					// Handle specific transitions
-					if playerController.IsSkidding {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "skidding"
-					} else if playerVelocity.Y > 0 && !playerController.IsOnFloor {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "falling"
-						playerController.FallingDamageTempPosY = playerPos.Y
-					} else if playerController.IsJumpKeyJustPressed {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "jumping"
-						if playerController.HorizontalVelocity > playerController.MinSpeedThresForJumpBoostMultiplier {
-							playerVelocity.Y = playerController.JumpPower * playerController.JumpBoostMultiplier
+					if ctrl.IsSkidding {
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "skidding"
+					} else if playerVelocity.Y > 0 && !ctrl.IsOnFloor {
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "falling"
+						ctrl.FallingDamageTempPosY = playerPos.Y
+					} else if ctrl.IsJumpKeyJustPressed {
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "jumping"
+						if ctrl.HorizontalVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
+							playerVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 						} else {
-							playerVelocity.Y = playerController.JumpPower
+							playerVelocity.Y = ctrl.JumpPower
 						}
-						playerController.JumpTimer = 0
-					} else if playerController.HorizontalVelocity <= 0 {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "idle"
-					} else if playerController.HorizontalVelocity > playerController.MaxWalkSpeed {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "running"
+						ctrl.JumpTimer = 0
+					} else if ctrl.HorizontalVelocity <= 0 {
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "idle"
+					} else if ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "running"
 					}
 					break
 				}
 
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 
 			case "running":
 				// enter running
-				if playerController.PreviousState != "running" {
+				if ctrl.PreviousState != "running" {
 					kar.PlayerAnimPlayer.SetState("walkRight")
 				}
 
 				// while running
-				kar.PlayerAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(playerController.HorizontalVelocity, 0, playerController.MaxRunSpeed, 4, 23))
+				kar.PlayerAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// All transitions with common exit code
-				if playerController.IsSkidding || (playerVelocity.Y > 0 && !playerController.IsOnFloor) ||
-					playerController.IsJumpKeyJustPressed || playerController.HorizontalVelocity < 0.01 ||
-					playerController.HorizontalVelocity <= playerController.MaxWalkSpeed {
+				if ctrl.IsSkidding || (playerVelocity.Y > 0 && !ctrl.IsOnFloor) ||
+					ctrl.IsJumpKeyJustPressed || ctrl.HorizontalVelocity < 0.01 ||
+					ctrl.HorizontalVelocity <= ctrl.MaxWalkSpeed {
 
-					playerController.PreviousState = playerController.CurrentState
+					ctrl.PreviousState = ctrl.CurrentState
 
 					// Common exit code
 
 					// Handle specific transitions
-					if playerController.IsSkidding {
-						playerController.CurrentState = "skidding"
-					} else if playerVelocity.Y > 0 && !playerController.IsOnFloor {
-						playerController.CurrentState = "falling"
-					} else if playerController.IsJumpKeyJustPressed {
-						if playerController.HorizontalVelocity > playerController.MinSpeedThresForJumpBoostMultiplier {
-							playerVelocity.Y = playerController.JumpPower * playerController.JumpBoostMultiplier
+					if ctrl.IsSkidding {
+						ctrl.CurrentState = "skidding"
+					} else if playerVelocity.Y > 0 && !ctrl.IsOnFloor {
+						ctrl.CurrentState = "falling"
+					} else if ctrl.IsJumpKeyJustPressed {
+						if ctrl.HorizontalVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
+							playerVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 						} else {
-							playerVelocity.Y = playerController.JumpPower
+							playerVelocity.Y = ctrl.JumpPower
 						}
-						playerController.JumpTimer = 0
-						playerController.CurrentState = "skidding"
-					} else if playerController.HorizontalVelocity < 0.01 {
-						playerController.CurrentState = "idle"
-					} else if playerController.HorizontalVelocity <= playerController.MaxWalkSpeed {
-						playerController.CurrentState = "walking"
+						ctrl.JumpTimer = 0
+						ctrl.CurrentState = "jumping"
+					} else if ctrl.HorizontalVelocity < 0.01 {
+						ctrl.CurrentState = "idle"
+					} else if ctrl.HorizontalVelocity <= ctrl.MaxWalkSpeed {
+						ctrl.CurrentState = "walking"
 					}
 					break
 				}
 
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 
 			case "jumping":
-				if playerVelocity.Y != 0 && playerVelocity.Y > playerController.JumpPower+0.1 {
+				if playerVelocity.Y != 0 && playerVelocity.Y > ctrl.JumpPower+0.1 {
 					kar.PlayerAnimPlayer.SetState("jump")
 				}
 				// skidding jumpg physics
-				if playerController.PreviousState == "skidding" {
-					if !playerController.IsJumpKeyPressed && playerController.JumpTimer < playerController.JumpReleaseTimer {
-						playerVelocity.Y = playerController.ShortJumpVelocity * 0.7 // Kısa zıplama gücünü azalt
-						playerController.JumpTimer = playerController.JumpHoldTime
-					} else if playerController.IsJumpKeyPressed && playerController.JumpTimer < playerController.JumpHoldTime {
-						playerVelocity.Y += playerController.JumpBoost * 0.7 // Boost gücünü azalt
-						playerController.JumpTimer++
+				if ctrl.PreviousState == "skidding" {
+					if !ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpReleaseTimer {
+						playerVelocity.Y = ctrl.ShortJumpVelocity * 0.7 // Kısa zıplama gücünü azalt
+						ctrl.JumpTimer = ctrl.JumpHoldTime
+					} else if ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
+						playerVelocity.Y += ctrl.JumpBoost * 0.7 // Boost gücünü azalt
+						ctrl.JumpTimer++
 					} else if playerVelocity.Y >= 0.01 {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "falling"
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "falling"
 						break
 					}
 				} else {
 					// normal skidding
-					if !playerController.IsJumpKeyPressed && playerController.JumpTimer < playerController.JumpReleaseTimer {
-						playerVelocity.Y = playerController.ShortJumpVelocity
-						playerController.JumpTimer = playerController.JumpHoldTime
-					} else if playerController.IsJumpKeyPressed && playerController.JumpTimer < playerController.JumpHoldTime {
-						speedFactor := (playerController.HorizontalVelocity / playerController.MaxRunSpeed) * playerController.SpeedJumpFactor
-						playerVelocity.Y += playerController.JumpBoost * (1 + speedFactor)
-						playerController.JumpTimer++
+					if !ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpReleaseTimer {
+						playerVelocity.Y = ctrl.ShortJumpVelocity
+						ctrl.JumpTimer = ctrl.JumpHoldTime
+					} else if ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
+						speedFactor := (ctrl.HorizontalVelocity / ctrl.MaxRunSpeed) * ctrl.SpeedJumpFactor
+						playerVelocity.Y += ctrl.JumpBoost * (1 + speedFactor)
+						ctrl.JumpTimer++
 					} else if playerVelocity.Y >= 0 {
-						playerController.PreviousState = playerController.CurrentState
-						playerController.CurrentState = "falling"
+						ctrl.PreviousState = ctrl.CurrentState
+						ctrl.CurrentState = "falling"
 						break
 					}
 				}
 
 				// horizontal movement
-				if playerController.InputAxis.X < 0 && playerVelocity.X > 0 {
-					playerVelocity.X -= playerController.Deceleration
-				} else if playerController.InputAxis.X > 0 && playerVelocity.X < 0 {
-					playerVelocity.X += playerController.Deceleration
+				if ctrl.InputAxis.X < 0 && playerVelocity.X > 0 {
+					playerVelocity.X -= ctrl.Deceleration
+				} else if ctrl.InputAxis.X > 0 && playerVelocity.X < 0 {
+					playerVelocity.X += ctrl.Deceleration
 				}
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 
 			case "falling":
 				// enter falling
-				if playerController.PreviousState != "falling" {
-					playerController.FallingDamageTempPosY = playerPos.Y
+				if ctrl.PreviousState != "falling" {
+					ctrl.FallingDamageTempPosY = playerPos.Y
 				}
 
 				// while falling
@@ -282,36 +282,36 @@ func (c *Player) Update() {
 				}
 
 				// transitions
-				if playerController.IsOnFloor {
+				if ctrl.IsOnFloor {
 
-					d := int((playerPos.Y - playerController.FallingDamageTempPosY) / 30)
+					d := int((playerPos.Y - ctrl.FallingDamageTempPosY) / 30)
 					if d > 3 {
 						playerHealth.Current -= d - 3
 					}
 
-					playerController.PreviousState = playerController.CurrentState
-					if playerController.HorizontalVelocity <= 0 {
-						playerController.CurrentState = "idle"
-					} else if playerController.IsRunKeyPressed {
-						playerController.CurrentState = "running"
+					ctrl.PreviousState = ctrl.CurrentState
+					if ctrl.HorizontalVelocity <= 0 {
+						ctrl.CurrentState = "idle"
+					} else if ctrl.IsRunKeyPressed {
+						ctrl.CurrentState = "running"
 					} else {
-						playerController.CurrentState = "walking"
+						ctrl.CurrentState = "walking"
 					}
 
 					break
 				}
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 			case "breaking":
 				// set animation states
 				if pFacing.Dir.X == 1 {
-					if playerController.HorizontalVelocity > 0.01 {
+					if ctrl.HorizontalVelocity > 0.01 {
 						kar.PlayerAnimPlayer.SetState("attackWalk")
 					} else {
 						kar.PlayerAnimPlayer.SetState("attackRight")
 					}
 				} else if pFacing.Dir.X == -1 {
-					if playerController.HorizontalVelocity > 0.01 {
+					if ctrl.HorizontalVelocity > 0.01 {
 						kar.PlayerAnimPlayer.SetState("attackWalk")
 					} else {
 						kar.PlayerAnimPlayer.SetState("attackRight")
@@ -353,88 +353,88 @@ func (c *Player) Update() {
 					}
 				}
 				if !isRayHit {
-					playerController.PreviousState = playerController.CurrentState
-					playerController.CurrentState = "idle"
+					ctrl.PreviousState = ctrl.CurrentState
+					ctrl.CurrentState = "idle"
 					// break
 				}
-				if !playerController.IsOnFloor && playerVelocity.Y > 0.01 {
-					playerController.PreviousState = playerController.CurrentState
-					playerController.CurrentState = "falling"
+				if !ctrl.IsOnFloor && playerVelocity.Y > 0.01 {
+					ctrl.PreviousState = ctrl.CurrentState
+					ctrl.CurrentState = "falling"
 					// break
-				} else if !playerController.IsBreakKeyPressed && playerController.IsOnFloor {
-					playerController.PreviousState = playerController.CurrentState
-					playerController.CurrentState = "idle"
+				} else if !ctrl.IsBreakKeyPressed && ctrl.IsOnFloor {
+					ctrl.PreviousState = ctrl.CurrentState
+					ctrl.CurrentState = "idle"
 					// break
-				} else if !playerController.IsBreakKeyPressed && playerController.IsJumpKeyJustPressed {
-					playerVelocity.Y = playerController.JumpPower
-					playerController.JumpTimer = 0
-					playerController.PreviousState = playerController.CurrentState
-					playerController.CurrentState = "jumping"
+				} else if !ctrl.IsBreakKeyPressed && ctrl.IsJumpKeyJustPressed {
+					playerVelocity.Y = ctrl.JumpPower
+					ctrl.JumpTimer = 0
+					ctrl.PreviousState = ctrl.CurrentState
+					ctrl.CurrentState = "jumping"
 					// break
 				}
 				// exit breaking
-				if playerController.CurrentState != "breaking" {
+				if ctrl.CurrentState != "breaking" {
 					blockHealth = 0
 				}
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 
 			case "skidding":
 				// enter skidding
-				if playerController.PreviousState != "skidding" {
+				if ctrl.PreviousState != "skidding" {
 					kar.PlayerAnimPlayer.SetState("skidding")
 				}
 
 				// <- while skidding scope ->
 
 				// All transitions with common exit code
-				if playerController.SkiddingJumpEnabled && playerController.IsJumpKeyJustPressed ||
-					playerController.HorizontalVelocity < 0.01 || !playerController.IsSkidding {
-					playerController.PreviousState = playerController.CurrentState
+				if ctrl.SkiddingJumpEnabled && ctrl.IsJumpKeyJustPressed ||
+					ctrl.HorizontalVelocity < 0.01 || !ctrl.IsSkidding {
+					ctrl.PreviousState = ctrl.CurrentState
 
 					// Common exit code
 
 					// Handle specific transitions
-					if playerController.SkiddingJumpEnabled && playerController.IsJumpKeyJustPressed {
+					if ctrl.SkiddingJumpEnabled && ctrl.IsJumpKeyJustPressed {
 						playerVelocity.X = 0
-						playerController.HorizontalVelocity = 0
+						ctrl.HorizontalVelocity = 0
 
 						// Yeni yöne doğru çok küçük sabit değerle başla
-						if playerController.InputAxis.X > 0 {
+						if ctrl.InputAxis.X > 0 {
 							playerVelocity.X = 0.3
-						} else if playerController.InputAxis.X < 0 {
+						} else if ctrl.InputAxis.X < 0 {
 							playerVelocity.X = -0.3
 						}
 
-						playerVelocity.Y = playerController.JumpPower * 0.7 // Zıplama gücünü azalt
-						playerController.JumpTimer = 0
-						playerController.CurrentState = "jumping"
-					} else if playerController.HorizontalVelocity < 0.01 {
-						playerController.CurrentState = "idle"
-					} else if !playerController.IsSkidding {
-						if playerController.HorizontalVelocity > playerController.MaxWalkSpeed {
-							playerController.CurrentState = "running"
+						playerVelocity.Y = ctrl.JumpPower * 0.7 // Zıplama gücünü azalt
+						ctrl.JumpTimer = 0
+						ctrl.CurrentState = "jumping"
+					} else if ctrl.HorizontalVelocity < 0.01 {
+						ctrl.CurrentState = "idle"
+					} else if !ctrl.IsSkidding {
+						if ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
+							ctrl.CurrentState = "running"
 						} else {
-							playerController.CurrentState = "walking"
+							ctrl.CurrentState = "walking"
 						}
 					}
 					break // exit from skidding state
 				}
 
 				// Update previous state if no transition occurred
-				playerController.PreviousState = playerController.CurrentState
+				ctrl.PreviousState = ctrl.CurrentState
 
 			}
 
 			// ########### UPDATE PHYSICS ################
 
-			maxSpeed := playerController.MaxWalkSpeed
-			currentAccel := playerController.WalkAcceleration
-			currentDecel := playerController.WalkDeceleration
-			playerController.HorizontalVelocity = math.Abs(playerVelocity.X)
+			maxSpeed := ctrl.MaxWalkSpeed
+			currentAccel := ctrl.WalkAcceleration
+			currentDecel := ctrl.WalkDeceleration
+			ctrl.HorizontalVelocity = math.Abs(playerVelocity.X)
 
-			playerVelocity.Y += playerController.Gravity
-			playerVelocity.Y = min(playerController.MaxFallSpeed, playerVelocity.Y)
+			playerVelocity.Y += ctrl.Gravity
+			playerVelocity.Y = min(ctrl.MaxFallSpeed, playerVelocity.Y)
 
 			// Enemy collisions
 			enemyQuery := arc.FilterEnemy.Query(&kar.ECWorld)
@@ -463,23 +463,23 @@ func (c *Player) Update() {
 				}
 			}
 
-			if !playerController.IsSkidding {
-				if playerController.IsRunKeyPressed {
-					maxSpeed = playerController.MaxRunSpeed
-					currentAccel = playerController.RunAcceleration
-					currentDecel = playerController.RunDeceleration
-				} else if playerController.HorizontalVelocity > playerController.MaxWalkSpeed {
-					currentDecel = playerController.RunDeceleration
+			if !ctrl.IsSkidding {
+				if ctrl.IsRunKeyPressed {
+					maxSpeed = ctrl.MaxRunSpeed
+					currentAccel = ctrl.RunAcceleration
+					currentDecel = ctrl.RunDeceleration
+				} else if ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
+					currentDecel = ctrl.RunDeceleration
 				}
 			}
 
-			if playerController.InputAxis.X > 0 {
+			if ctrl.InputAxis.X > 0 {
 				if playerVelocity.X > maxSpeed {
 					playerVelocity.X = max(maxSpeed, playerVelocity.X-currentDecel)
 				} else {
 					playerVelocity.X = min(maxSpeed, playerVelocity.X+currentAccel)
 				}
-			} else if playerController.InputAxis.X < 0 {
+			} else if ctrl.InputAxis.X < 0 {
 				if playerVelocity.X < -maxSpeed {
 					playerVelocity.X = min(-maxSpeed, playerVelocity.X+currentDecel)
 				} else {
@@ -493,7 +493,7 @@ func (c *Player) Update() {
 				}
 			}
 
-			playerController.IsSkidding = (playerVelocity.X > 0 && playerController.InputAxis.X == -1) || (playerVelocity.X < 0 && playerController.InputAxis.X == 1)
+			ctrl.IsSkidding = (playerVelocity.X > 0 && ctrl.InputAxis.X == -1) || (playerVelocity.X < 0 && ctrl.InputAxis.X == 1)
 
 			// Player and tilemap collision
 			kar.Collider.Collide(
@@ -504,7 +504,7 @@ func (c *Player) Update() {
 				playerVelocity.X,
 				playerVelocity.Y,
 				func(collisionInfos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
-					playerController.IsOnFloor = false
+					ctrl.IsOnFloor = false
 
 					playerPos.X += dx
 					playerPos.Y += dy
@@ -514,7 +514,7 @@ func (c *Player) Update() {
 						if collisionInfo.Normal[1] == -1 {
 							// Ground collision
 							playerVelocity.Y = 0
-							playerController.IsOnFloor = true // on floor collision
+							ctrl.IsOnFloor = true // on floor collision
 						}
 						if collisionInfo.Normal[1] == 1 {
 							// Ceil collision
@@ -523,12 +523,12 @@ func (c *Player) Update() {
 						if collisionInfo.Normal[0] == -1 {
 							// Right wall collision
 							playerVelocity.X = 0
-							playerController.HorizontalVelocity = 0
+							ctrl.HorizontalVelocity = 0
 						}
 						if collisionInfo.Normal[0] == 1 {
 							// Left wall collision
 							playerVelocity.X = 0
-							playerController.HorizontalVelocity = 0
+							ctrl.HorizontalVelocity = 0
 						}
 					}
 
@@ -563,7 +563,7 @@ func (c *Player) Update() {
 			}
 
 			// place block if IsAttackKeyJustPressed
-			if playerController.IsAttackKeyJustPressed {
+			if ctrl.IsAttackKeyJustPressed {
 				anyItemOverlapsWithPlaceRect := false
 				itemSize := &arc.Size{kar.GameDataRes.DropItemW, kar.GameDataRes.DropItemH}
 				// if slot item is block
@@ -594,7 +594,7 @@ func (c *Player) Update() {
 					}
 					// if slot item snowball, throw snowball
 				} else if kar.InventoryRes.CurrentSlot().ID == items.Snowball {
-					if playerController.CurrentState != "skidding" {
+					if ctrl.CurrentState != "skidding" {
 						switch pFacing.Dir {
 						case image.Point{1, 0}:
 							arc.SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, kar.SnowballSpeedX, kar.SnowballMaxFallVelocity)

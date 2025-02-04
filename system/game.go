@@ -30,10 +30,10 @@ func (d *Game) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 			switch kar.CameraRes.SmoothType {
 			case kamera.None:
-				kar.CameraRes.SetCenter(playerCenterX, playerCenterY-40)
+				kar.CameraRes.SetCenter(playerCenterX, playerCenterY)
 				kar.CameraRes.SmoothType = kamera.SmoothDamp
-			case kamera.SmoothDamp:
-				kar.CameraRes.SetCenter(playerCenterX, playerCenterY-40)
+			case kamera.SmoothDamp, kamera.Lerp:
+				kar.CameraRes.SetCenter(playerCenterX, playerCenterY)
 				kar.CameraRes.SmoothType = kamera.None
 			}
 		}
@@ -53,7 +53,7 @@ func (d *Game) Update() {
 				kar.CameraRes.TopLeftY += kar.CameraRes.Height()
 			}
 		} else {
-			kar.CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY-40))
+			kar.CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
 		}
 	}
 

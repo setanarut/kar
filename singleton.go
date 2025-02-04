@@ -140,6 +140,7 @@ func init() {
 	ecs.AddResource(&ECWorld, AnimPlayerDataRes)
 	ecs.AddResource(&ECWorld, GameDataRes)
 	ecs.AddResource(&ECWorld, TileMapRes)
+	ecs.AddResource(&ECWorld, CameraRes)
 
 	InventoryRes.SetSlot(0, items.Snowball, 64, 0)
 }
