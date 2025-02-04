@@ -132,7 +132,7 @@ func (*MainMenu) newGame() {
 	kar.CameraRes.SetCenter(SpawnX, SpawnY)
 	kar.CameraRes.SmoothOptions.LerpSpeedX = 0.5
 	kar.CameraRes.SmoothOptions.LerpSpeedY = 0.05
-	kar.CameraRes.SetTopLeft(kar.TileMapRes.FloorToBlockCenter(kar.CameraRes.TopLeft()))
+	kar.CameraRes.SetTopLeft(kar.TileMapRes.FloorToBlockCenter(kar.CameraRes.X, kar.CameraRes.Y))
 	kar.CurrentPlayer = arc.SpawnPlayer(SpawnX, SpawnY)
 	kar.CameraRes.SmoothType = kamera.Lerp
 }

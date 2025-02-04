@@ -40,17 +40,17 @@ func (d *Game) Update() {
 
 		// Static camera logic
 		if kar.CameraRes.SmoothType == kamera.None {
-			if playerCenterX < kar.CameraRes.TopLeftX {
-				kar.CameraRes.TopLeftX -= kar.CameraRes.Width()
+			if playerCenterX < kar.CameraRes.X {
+				kar.CameraRes.X -= kar.CameraRes.Width
 			}
 			if playerCenterX > kar.CameraRes.Right() {
-				kar.CameraRes.TopLeftX += kar.CameraRes.Width()
+				kar.CameraRes.X += kar.CameraRes.Width
 			}
-			if playerCenterY < kar.CameraRes.TopLeftY {
-				kar.CameraRes.TopLeftY -= kar.CameraRes.Height()
+			if playerCenterY < kar.CameraRes.Y {
+				kar.CameraRes.Y -= kar.CameraRes.Height
 			}
 			if playerCenterY > kar.CameraRes.Bottom() {
-				kar.CameraRes.TopLeftY += kar.CameraRes.Height()
+				kar.CameraRes.Y += kar.CameraRes.Height
 			}
 		} else {
 			kar.CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
@@ -64,7 +64,7 @@ func (d *Game) Draw() {
 	// DRAW TILEMAPs
 
 	// clamp tilemap bounds
-	camMin := kar.TileMapRes.WorldToTile(kar.CameraRes.TopLeft())
+	camMin := kar.TileMapRes.WorldToTile(kar.CameraRes.X, kar.CameraRes.Y)
 	camMin.X = min(max(camMin.X, 0), kar.TileMapRes.W)
 	camMin.Y = min(max(camMin.Y, 0), kar.TileMapRes.H)
 	camMaxX := min(max(camMin.X+kar.RenderArea.X, 0), kar.TileMapRes.W)

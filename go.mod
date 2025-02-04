@@ -8,7 +8,7 @@ require (
 	github.com/mlange-42/arche v0.15.2
 	github.com/setanarut/anim v1.1.2
 	github.com/setanarut/fastnoise v1.1.1
-	github.com/setanarut/kamera/v2 v2.95.2
+	github.com/setanarut/kamera/v2 v2.96.0
 	github.com/setanarut/tilecollider v1.4.8
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 	golang.org/x/text v0.21.0
