@@ -110,7 +110,7 @@ func (i *Inventory) IsCurrentSlotEmpty() bool {
 	return i.Slots[i.CurrentSlotIndex].Quantity <= 0 || i.Slots[i.CurrentSlotIndex].ID == Air
 }
 
-func (i *Inventory) ClearAllSlots() {
+func (i *Inventory) Reset() {
 	for idx := range i.Slots {
 		i.Slots[idx] = Slot{}
 	}

@@ -53,32 +53,30 @@ func (g *Game) Init() {
 	for _, sys := range g.systems {
 		sys.Init()
 	}
+
+	kar.ColorM.ChangeHSV(1, 0, 0.5) // BW
 }
 
 func (g *Game) Update() error {
 	if ebiten.IsFocused() {
 		switch kar.CurrentGameState {
 		case "menu":
-			// enter menu
-			if kar.PreviousGameState != "menu" {
-				kar.ColorM.ChangeHSV(1, 0, 1) // BW
-			}
-			g.systems[6].Update() // MainMenu
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 				kar.PreviousGameState = "menu"
 				kar.CurrentGameState = "playing"
-			}
-		case "playing":
-			// enter playing
-			if kar.PreviousGameState != "playing" {
 				kar.ColorM.Reset()
 			}
-			for i := 0; i < 6; i++ { // Update all systems except MainMenu
-				g.systems[i].Update()
-			}
+			// enter playing
+			g.systems[6].Update() // MainMenu
+
+		case "playing":
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 				kar.PreviousGameState = "playing"
 				kar.CurrentGameState = "menu"
+				kar.ColorM.ChangeHSV(1, 0, 0.5) // BW
+			}
+			for i := 0; i < 6; i++ { // Update all systems except MainMenu
+				g.systems[i].Update()
 			}
 		}
 	}
@@ -91,8 +89,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	switch kar.CurrentGameState {
 	case "menu":
-		g.systems[1].Draw() // MainMenu
-		g.systems[5].Draw() // MainMenu
+		g.systems[1].Draw()
+		g.systems[5].Draw()
 		g.systems[6].Draw() // MainMenu
 	case "playing":
 		for i := 0; i < 6; i++ { // Draw all systems except MainMenu

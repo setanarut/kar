@@ -66,6 +66,7 @@ func (m *MainMenu) Update() {
 		}
 		kar.PreviousGameState = "menu"
 		kar.CurrentGameState = "playing"
+		kar.ColorM.Reset()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
@@ -81,27 +82,26 @@ func (m *MainMenu) Update() {
 }
 func (m *MainMenu) Draw() {
 
-	vector.DrawFilledRect(
-		kar.Screen,
-		float32(m.x-12),
-		float32(m.y),
-		60,
-		50,
-		color.Black,
-		false,
-	)
+	// vector.DrawFilledRect(
+	// 	kar.Screen,
+	// 	float32(m.x-12),
+	// 	float32(m.y),
+	// 	60,
+	// 	50,
+	// 	color.Black,
+	// 	false,
+	// )
 
 	m.do.GeoM.Reset()
 	m.do.GeoM.Translate(float64(m.x), float64(m.y))
 	text.Draw(kar.Screen, m.text, res.Font, m.do)
 
-	vector.StrokeRect(
+	vector.DrawFilledRect(
 		kar.Screen,
-		float32(m.x-12),
-		float32(m.y+float64(m.line*18)+1),
-		50,
-		16,
-		1,
+		float32(m.x)-8,
+		float32(m.y+float64(m.line*18))+5,
+		3,
+		7,
 		color.White,
 		false,
 	)
@@ -109,6 +109,7 @@ func (m *MainMenu) Draw() {
 }
 func (*MainMenu) newGame() {
 	kar.ECWorld.Reset()
+	kar.InventoryRes.Reset()
 	ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
 	ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
 	ecs.AddResource(&kar.ECWorld, kar.GameDataRes)
