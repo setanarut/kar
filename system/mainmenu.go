@@ -67,6 +67,7 @@ func (m *MainMenu) Update() {
 		kar.PreviousGameState = "menu"
 		kar.CurrentGameState = "playing"
 		kar.ColorM.Reset()
+		kar.TextDO.ColorScale.Reset()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) {

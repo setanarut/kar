@@ -7,18 +7,13 @@ type Slot struct {
 }
 
 type Inventory struct {
-	CurrentSlotIndex int
-	Slots            [9]Slot
-	HandSlot         Slot
+	CurrentSlotIndex       int
+	Slots                  [9]Slot
+	QuickSlot1, QuickSlot2 int
 }
 
 func NewInventory() *Inventory {
-	inv := &Inventory{}
-	inv.HandSlot = Slot{}
-	for i := range inv.Slots {
-		inv.Slots[i] = Slot{}
-	}
-	return inv
+	return &Inventory{QuickSlot1: 0, QuickSlot2: 1}
 }
 
 // AddItemIfEmpty adds item to inventory if empty
@@ -54,17 +49,6 @@ func (i *Inventory) SelectNextSlot() {
 }
 func (i *Inventory) SelectPrevSlot() {
 	i.CurrentSlotIndex = (i.CurrentSlotIndex - 1 + 9) % 9
-}
-
-func (i *Inventory) RemoveHandItem(id uint8) bool {
-	ok := i.HasHandItem(id)
-	if ok {
-		i.HandSlot.Quantity--
-		return true
-	} else {
-		i.HandSlot.ID = Air
-	}
-	return false
 }
 
 func (i *Inventory) RemoveItem(id uint8) bool {
@@ -158,10 +142,4 @@ func (i *Inventory) HasItem(id uint8) (index int, ok bool) {
 		}
 	}
 	return -1, false
-}
-func (i *Inventory) HasHandItem(id uint8) bool {
-	if i.HandSlot.ID == id && i.HandSlot.Quantity > 0 {
-		return true
-	}
-	return false
 }

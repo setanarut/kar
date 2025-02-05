@@ -55,6 +55,7 @@ func (g *Game) Init() {
 	}
 
 	kar.ColorM.ChangeHSV(1, 0, 0.5) // BW
+	kar.TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 }
 
 func (g *Game) Update() error {
@@ -65,6 +66,7 @@ func (g *Game) Update() error {
 				kar.PreviousGameState = "menu"
 				kar.CurrentGameState = "playing"
 				kar.ColorM.Reset()
+				kar.TextDO.ColorScale.Reset()
 			}
 			// enter playing
 			g.systems[6].Update() // MainMenu
@@ -74,6 +76,7 @@ func (g *Game) Update() error {
 				kar.PreviousGameState = "playing"
 				kar.CurrentGameState = "menu"
 				kar.ColorM.ChangeHSV(1, 0, 0.5) // BW
+				kar.TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
 			for i := 0; i < 6; i++ { // Update all systems except MainMenu
 				g.systems[i].Update()

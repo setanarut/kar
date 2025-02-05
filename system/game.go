@@ -124,7 +124,7 @@ func (d *Game) Draw() {
 			float64(kar.GameDataRes.TargetBlockCoord.X*kar.TileMapRes.TileW)-1,
 			float64(kar.GameDataRes.TargetBlockCoord.Y*kar.TileMapRes.TileH)-1,
 		)
-		kar.CameraRes.DrawWithColorM(res.SelectionBlock, kar.ColorM, kar.ColorMDIO, kar.Screen)
+		kar.CameraRes.DrawWithColorM(res.BlockBorder, kar.ColorM, kar.ColorMDIO, kar.Screen)
 	}
 
 	// Draw all rects for debug

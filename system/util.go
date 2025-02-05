@@ -8,7 +8,6 @@ import (
 // Overlaps checks if the rectangle overlaps with another rectangle
 func Overlaps(p1 *arc.Position, s1 *arc.Size, p2 *arc.Position, s2 *arc.Size) bool {
 	return p1.X+s1.W > p2.X && p2.X+s2.W > p1.X && p1.Y+s1.H > p2.Y && p2.Y+s2.H > p1.Y
-
 }
 
 func CheckCollision(p1 *arc.Position, s1 *arc.Size, v1 *arc.Velocity, p2 *arc.Position, s2 *arc.Size) CollisionInfo {

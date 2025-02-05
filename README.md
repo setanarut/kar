@@ -29,8 +29,11 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>→</kbd>            | Break block (hold)                                                |
 | <kbd>←</kbd>            | Place block (adds block if selected item in inventory is block)   |
 | <kbd>←</kbd>            | Throw throwable item (if selected item in inventory is throwable) |
-| <kbd>E</kbd>            | Select next inventory  slot                                       |
-| <kbd>Q</kbd>            | Select previous inventory  slot                                   |
+| <kbd>E</kbd>            | Select next inventory slot                                        |
+| <kbd>Q</kbd>            | Select previous inventory slot                                    |
+| <kbd>R</kbd>            | Set Quick-Slot 1                                                  |
+| <kbd>F</kbd>            | Set Quick-Slot 2                                                  |
+| <kbd>Tab</kbd>          | Switch between Quick-Slot 1 and Qucik-Slot 2                      |
 | <kbd>↑</kbd>            | Switch to 2x2 Crafting mode                                       |
 | <kbd>↑</kbd>            | Switch to 3x3 Crafting mode (if facing Crafting Table block)      |
 | <kbd>L</kbd>            | Switch between Tracking and Static camera modes                   |

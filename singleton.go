@@ -14,6 +14,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/colorm"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/mlange-42/arche/ecs"
 	"github.com/setanarut/anim"
 	"github.com/setanarut/kamera/v2"
@@ -78,6 +79,12 @@ var (
 	Screen    *ebiten.Image
 	ColorMDIO = &colorm.DrawImageOptions{}
 	ColorM    = colorm.ColorM{}
+	TextDO    = &text.DrawOptions{
+		DrawImageOptions: ebiten.DrawImageOptions{},
+		LayoutOptions: text.LayoutOptions{
+			LineSpacing: 10,
+		},
+	}
 	// Debug
 )
 

@@ -17,17 +17,11 @@ import (
 
 var (
 	hotbarPositionX        = kar.ScreenW/2 - float64(res.Hotbar.Bounds().Dx())/2
-	hotbarPositionY        = 8.
+	hotbarPositionY        = 9.
 	hotbarRightEdgePosX    = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
 	craftingTablePositionX = hotbarPositionX + 49
 	craftingTablePositionY = hotbarPositionY + 39
-	TextDO                 = &text.DrawOptions{
-		DrawImageOptions: ebiten.DrawImageOptions{},
-		LayoutOptions: text.LayoutOptions{
-			LineSpacing: 10,
-		},
-	}
-	debugInfo = `state %v
+	debugInfo              = `state %v
 Facing %v
 `
 )
@@ -47,6 +41,28 @@ func (ui *UI) Update() {
 
 		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
 			kar.InventoryRes.SelectNextSlot()
+			onInventorySlotChanged()
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			if kar.InventoryRes.CurrentSlotIndex != kar.InventoryRes.QuickSlot2 {
+				kar.InventoryRes.QuickSlot1 = kar.InventoryRes.CurrentSlotIndex
+			}
+
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyF) {
+			if kar.InventoryRes.CurrentSlotIndex != kar.InventoryRes.QuickSlot1 {
+				kar.InventoryRes.QuickSlot2 = kar.InventoryRes.CurrentSlotIndex
+			}
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyTab) {
+			switch kar.InventoryRes.CurrentSlotIndex {
+			case kar.InventoryRes.QuickSlot1:
+				kar.InventoryRes.CurrentSlotIndex = kar.InventoryRes.QuickSlot2
+			case kar.InventoryRes.QuickSlot2:
+				kar.InventoryRes.CurrentSlotIndex = kar.InventoryRes.QuickSlot1
+			default:
+				kar.InventoryRes.CurrentSlotIndex = kar.InventoryRes.QuickSlot1
+			}
 			onInventorySlotChanged()
 		}
 
@@ -196,7 +212,7 @@ func (ui *UI) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
 			kar.InventoryRes.ClearCurrentSlot()
 		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyK) {
 			kar.InventoryRes.RandomFillAllSlots()
 		}
 
@@ -205,10 +221,21 @@ func (ui *UI) Update() {
 
 func (ui *UI) Draw() {
 	if kar.ECWorld.Alive(kar.CurrentPlayer) {
+
 		// Draw hotbar background
 		kar.ColorMDIO.GeoM.Reset()
 		kar.ColorMDIO.GeoM.Translate(hotbarPositionX, hotbarPositionY)
 		colorm.DrawImage(kar.Screen, res.Hotbar, kar.ColorM, kar.ColorMDIO)
+
+		// Draw Quick-slot numbers
+		dotX := float64(kar.InventoryRes.QuickSlot1)*17 + float64(hotbarPositionX) + 7
+		kar.TextDO.GeoM.Reset()
+		kar.TextDO.GeoM.Translate(dotX, -4)
+		text.Draw(kar.Screen, strconv.Itoa(kar.InventoryRes.QuickSlot1+1), res.Font, kar.TextDO)
+		dotX = float64(kar.InventoryRes.QuickSlot2)*17 + float64(hotbarPositionX) + 7
+		kar.TextDO.GeoM.Reset()
+		kar.TextDO.GeoM.Translate(dotX, -4)
+		text.Draw(kar.Screen, strconv.Itoa(kar.InventoryRes.QuickSlot2+1), res.Font, kar.TextDO)
 
 		// Draw slots
 		for x := range 9 {
@@ -223,44 +250,44 @@ func (ui *UI) Draw() {
 			if slotID != items.Air && kar.InventoryRes.Slots[x].Quantity > 0 {
 				colorm.DrawImage(kar.Screen, res.Icon8[slotID], kar.ColorM, kar.ColorMDIO)
 			}
+			// Draw hotbar selected slot border
 			if x == kar.InventoryRes.CurrentSlotIndex {
-				// Draw hotbar selected slot border
+				// border
 				kar.ColorMDIO.GeoM.Translate(-5, -5)
-				colorm.DrawImage(kar.Screen, res.SelectionBar, kar.ColorM, kar.ColorMDIO)
-
+				colorm.DrawImage(kar.Screen, res.SlotBorder, kar.ColorM, kar.ColorMDIO)
 				// Draw hotbar slot item display name
 				if !kar.InventoryRes.IsCurrentSlotEmpty() {
-					TextDO.GeoM.Reset()
-					TextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
+					kar.TextDO.GeoM.Reset()
+					kar.TextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
 					if items.HasTag(slotID, items.Tool) {
 						text.Draw(kar.Screen, fmt.Sprintf(
 							"%v\nDurability %v",
 							items.Property[slotID].DisplayName,
 							kar.InventoryRes.Slots[x].Durability,
-						), res.Font, TextDO)
+						), res.Font, kar.TextDO)
 					} else {
-						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, TextDO)
+						text.Draw(kar.Screen, items.Property[slotID].DisplayName, res.Font, kar.TextDO)
 					}
 				}
 			}
 
 			// Draw item quantity number
 			if quantity > 1 && items.IsStackable(slotID) {
-				TextDO.GeoM.Reset()
-				TextDO.GeoM.Translate(SlotOffsetX+6, hotbarPositionY+4)
+				kar.TextDO.GeoM.Reset()
+				kar.TextDO.GeoM.Translate(SlotOffsetX+6, hotbarPositionY+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
 				if quantity < 10 {
 					num = " " + num
 				}
-				text.Draw(kar.Screen, num, res.Font, TextDO)
+				text.Draw(kar.Screen, num, res.Font, kar.TextDO)
 			}
 		}
 
 		// Draw player health text
-		TextDO.GeoM.Reset()
-		TextDO.GeoM.Translate(hotbarRightEdgePosX+8, hotbarPositionY)
+		kar.TextDO.GeoM.Reset()
+		kar.TextDO.GeoM.Translate(hotbarRightEdgePosX+8, hotbarPositionY)
 		playerHealth := arc.MapHealth.GetUnchecked(kar.CurrentPlayer)
-		text.Draw(kar.Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, TextDO)
+		text.Draw(kar.Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, kar.TextDO)
 
 		// Draw crafting table
 		if kar.GameDataRes.CraftingState {
@@ -293,13 +320,13 @@ func (ui *UI) Draw() {
 						// Draw item quantity number
 						quantity := kar.CraftingTableRes.Slots[y][x].Quantity
 						if quantity > 1 {
-							TextDO.GeoM.Reset()
-							TextDO.GeoM.Translate(sx+7, sy+5)
+							kar.TextDO.GeoM.Reset()
+							kar.TextDO.GeoM.Translate(sx+7, sy+5)
 							num := strconv.FormatUint(uint64(quantity), 10)
 							if quantity < 10 {
 								num = " " + num
 							}
-							text.Draw(kar.Screen, num, res.Font, TextDO)
+							text.Draw(kar.Screen, num, res.Font, kar.TextDO)
 						}
 					}
 
@@ -309,7 +336,7 @@ func (ui *UI) Draw() {
 						sy := craftingTablePositionY + float64(y*17)
 						kar.ColorMDIO.GeoM.Reset()
 						kar.ColorMDIO.GeoM.Translate(sx+1, sy+1)
-						colorm.DrawImage(kar.Screen, res.SelectionBar, kar.ColorM, kar.ColorMDIO)
+						colorm.DrawImage(kar.Screen, res.SlotBorder, kar.ColorM, kar.ColorMDIO)
 					}
 
 				}
@@ -330,17 +357,17 @@ func (ui *UI) Draw() {
 				// Draw result item quantity number
 				quantity := kar.CraftingTableRes.ResultSlot.Quantity
 				if quantity > 1 {
-					TextDO.GeoM.Reset()
+					kar.TextDO.GeoM.Reset()
 					if kar.GameDataRes.CraftingState4 {
-						TextDO.GeoM.Translate(craftingTablePositionX+42, craftingTablePositionY+13)
+						kar.TextDO.GeoM.Translate(craftingTablePositionX+42, craftingTablePositionY+13)
 					} else {
-						TextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
+						kar.TextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
 					}
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
 						num = " " + num
 					}
-					text.Draw(kar.Screen, num, res.Font, TextDO)
+					text.Draw(kar.Screen, num, res.Font, kar.TextDO)
 				}
 			}
 
