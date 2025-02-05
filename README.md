@@ -6,7 +6,7 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 
 ## Controls
 
-### Menu
+### Main Menu
 
 | Key              | Function                          |
 | ---------------- | --------------------------------- |
@@ -31,18 +31,18 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>Q</kbd>            | Select previous inventory slot                                    |
 | <kbd>R</kbd>            | Set Quick-Slot 1                                                  |
 | <kbd>F</kbd>            | Set Quick-Slot 2                                                  |
-| <kbd>Tab</kbd>          | Switch between Quick-Slot 1 and Qucik-Slot 2                      |
-| <kbd>↑</kbd>            | Switch to 2x2 Crafting mode                                       |
-| <kbd>↑</kbd>            | Switch to 3x3 Crafting mode (if facing Crafting Table block)      |
+| <kbd>Tab</kbd>          | Switch between Quick-Slot 1 and Quick-Slot 2                      |
+| <kbd>↑</kbd>            | Open/Close 2x2 Crafting mode                                      |
+| <kbd>↑</kbd>            | Open/Close 3x3 Crafting mode (if looking to Crafting Table)       |
 | <kbd>L</kbd>            | Switch between Tracking and Static camera modes                   |
 
 ### Crafting Mode
 
 | Key          | Function                                                                            |
 | ------------ | ----------------------------------------------------------------------------------- |
-| <kbd>↑</kbd> | Exits crafting mode and adds slots to inventory, drops items into world if no space |
-| <kbd>E</kbd> | Select next inventory  slot                                                         |
-| <kbd>Q</kbd> | Select previous inventory  slot                                                     |
 | <kbd>→</kbd> | Move 1 item from inventory to table                                                 |
 | <kbd>←</kbd> | Move 1 item from table to inventory                                                 |
 | <kbd>↓</kbd> | Apply recipe and add to inventory (if space available)                              |
+| <kbd>↑</kbd> | Exits crafting mode and adds slots to inventory, drops items into world if no space |
+| <kbd>E</kbd> | Select next inventory slot                                                          |
+| <kbd>Q</kbd> | Select previous inventory slot                                                      |
