@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"image"
 	"kar/items"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,20 +28,6 @@ func (s *Spawn) Init() {
 
 func (s *Spawn) Update() {
 
-	// Save TileMap image to desktop
-	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
-		playerTile := image.Point{}
-		if ECWorld.Alive(CurrentPlayer) {
-			playerPos := MapPosition.Get(CurrentPlayer)
-			playerTile = TileMapRes.WorldToTile(playerPos.X+8, playerPos.Y+8)
-		}
-		TileMapRes.WriteAsImage(DesktopPath+"map.png", playerTile.X, playerTile.Y)
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
-		SpawnEnemy(x, y, 0, 1)
-	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
 		p := TileMapRes.WorldToTile(x, y)

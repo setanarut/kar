@@ -29,7 +29,7 @@ type MainMenu struct {
 }
 
 func (m *MainMenu) Init() {
-	m.newGame()
+	// m.newGame()
 	m.do = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
@@ -145,6 +145,9 @@ func (m *MainMenu) saveGame() {
 
 func (m *MainMenu) loadGame() {
 	if m.dataManager.ItemExists("01save") {
+		if !ECWorld.Alive(CurrentPlayer) {
+			CurrentPlayer = SpawnPlayer(0, 0)
+		}
 		ECWorld.Reset()
 		ecs.AddResource(&ECWorld, GameDataRes)
 		ecs.AddResource(&ECWorld, InventoryRes)
@@ -152,7 +155,6 @@ func (m *MainMenu) loadGame() {
 		ecs.AddResource(&ECWorld, AnimPlayerDataRes)
 		ecs.AddResource(&ECWorld, CameraRes)
 		ecs.AddResource(&ECWorld, TileMapRes)
-
 		jsonData, err := m.dataManager.LoadItem("01save")
 		if err != nil {
 			log.Fatal("Error loading saved data:", err)

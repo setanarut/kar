@@ -23,6 +23,13 @@ func (d *Camera) Update() {
 		playerPos, playerSize := MapRect.Get(CurrentPlayer)
 		playerCenterX, playerCenterY := playerPos.X+playerSize.W, playerPos.Y+playerSize.H
 
+		// Save TileMap image to desktop
+		if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+			playerPos := MapPosition.Get(CurrentPlayer)
+			playerTile := TileMapRes.WorldToTile(playerPos.X+8, playerPos.Y+8)
+			TileMapRes.WriteAsImage(DesktopPath+"map.png", playerTile.X, playerTile.Y)
+		}
+
 		// Toggle camera follow
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 			switch CameraRes.SmoothType {

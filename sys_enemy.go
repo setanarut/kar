@@ -4,63 +4,62 @@ import (
 	"kar/items"
 	"kar/res"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/setanarut/tilecollider"
 )
 
 type Enemy struct {
-	normal   [2]int
-	wormSize Size
+	normal [2]int
 }
 
 func (e *Enemy) Init() {
-	e.wormSize = Size{8, 8}
 }
 
 func (e *Enemy) Update() {
-	enemyQuery := FilterEnemy.Query(&ECWorld)
-	for enemyQuery.Next() {
-		pos, vel, ai := enemyQuery.Get()
-		switch ai.Name {
-		case "worm":
-			e.normal = [2]int{0, 0}
-			Collider.Collide(
-				pos.X,
-				pos.Y,
-				e.wormSize.W,
-				e.wormSize.H,
-				vel.X,
-				vel.Y,
-				func(infos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
+		SpawnEnemy(x, y, 0.5, 0)
+	}
 
-					// Apply tilemap collision response
-					pos.X += dx
-					pos.Y += dy
-
-					for _, info := range infos {
-						if e.normal[0] != info.Normal[0] {
-							e.normal[0] += info.Normal[0]
+	if ECWorld.Alive(CurrentPlayer) {
+		playerPos, playerSize, playerVelocity, _, _, _ := MapPlayer.Get(CurrentPlayer)
+		enemyQuery := FilterEnemy.Query(&ECWorld)
+		for enemyQuery.Next() {
+			pos, vel, ai := enemyQuery.Get()
+			switch ai.Name {
+			case "worm":
+				pos.X += vel.X
+				pos.Y += vel.Y
+				e.normal = [2]int{0, 0}
+				Collider.Collide(
+					pos.X,
+					pos.Y,
+					EnemyWormSize.W,
+					EnemyWormSize.H,
+					vel.X,
+					vel.Y,
+					func(infos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
+						// Apply tilemap collision response
+						// pos.X += dx
+						// pos.Y += dy
+						for _, info := range infos {
+							TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)
 						}
-						if e.normal[1] != info.Normal[1] {
-							e.normal[1] += info.Normal[1]
-						}
-					}
+					},
+				)
+				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, pos, &EnemyWormSize)
+				// playerVelocity.X += collInfo.DeltaX
+				playerVelocity.Y += collInfo.DeltaY
 
-					switch e.normal {
-					case [2]int{0, -1}: // bottom
-						vel.X = 1
-					case [2]int{1, -1}: // bottomleft
-						vel.X = 1
-					case [2]int{-1, -1}: // bottomright
-						vel.Y = -1
-					case [2]int{-1, 1}: // topright
-						vel.X = -1
-					case [2]int{1, 1}: // topleft
-						vel.Y = 1
+				if collInfo.Collided {
+					if collInfo.Normal[1] == -1 {
+						playerVelocity.Y = -5
 					}
-				},
-			)
-		case "other":
-			// other
+				}
+			case "other":
+				// other
+			}
 		}
 	}
 }

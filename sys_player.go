@@ -375,39 +375,6 @@ func (c *Player) Update() {
 		playerVelocity.Y += ctrl.Gravity
 		playerVelocity.Y = min(ctrl.MaxFallSpeed, playerVelocity.Y)
 
-		// Enemy collisions
-		enemyQuery := FilterEnemy.Query(&ECWorld)
-		for enemyQuery.Next() {
-			enemyPos, _, ai := enemyQuery.Get()
-
-			enemySize := Size{8, 8}
-			if ai.Name == "worm" {
-				enemySize = EnemyWormSize
-			}
-
-			collInfo := CheckCollision(playerPos, playerSize, playerVelocity, enemyPos, &enemySize)
-
-			playerVelocity.X += collInfo.DeltaX
-			playerVelocity.Y += collInfo.DeltaY
-
-			if collInfo.Collided {
-				switch collInfo.Normal[0] {
-				case 1:
-					playerVelocity.X += 3
-					// c.Health.Health -= 8
-				case -1:
-					playerVelocity.X -= 3
-					// c.Health.Health -= 8
-				}
-				switch collInfo.Normal[1] {
-				case 1:
-					playerVelocity.Y = 0
-				case -1:
-					playerVelocity.Y = -5
-				}
-			}
-		}
-
 		if !ctrl.IsSkidding {
 			if ctrl.IsRunKeyPressed {
 				maxSpeed = ctrl.MaxRunSpeed
