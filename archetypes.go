@@ -1,8 +1,7 @@
-package arc
+package kar
 
 import (
 	"image"
-	"kar"
 	"kar/items"
 	"math/rand/v2"
 
@@ -12,23 +11,23 @@ import (
 )
 
 var (
-	MapPlayer           = gn.NewMap6[Position, Size, Velocity, Health, Controller, Facing](&kar.ECWorld)
-	MapEnemy            = gn.NewMap4[Position, Size, Velocity, Health](&kar.ECWorld)
-	MapRect             = gn.NewMap2[Position, Size](&kar.ECWorld)
-	MapHealth           = gn.NewMap[Health](&kar.ECWorld)
-	MapDurability       = gn.NewMap[Durability](&kar.ECWorld)
-	MapPosition         = gn.NewMap[Position](&kar.ECWorld)
-	MapSize             = gn.NewMap[Size](&kar.ECWorld)
-	MapDroppedItem      = gn.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&kar.ECWorld)
-	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&kar.ECWorld)
-	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&kar.ECWorld)
-	MapCollisionDelayer = gn.NewMap1[CollisionDelayer](&kar.ECWorld)
+	MapPlayer           = gn.NewMap6[Position, Size, Velocity, Health, Controller, Facing](&ECWorld)
+	MapEnemy            = gn.NewMap3[Position, Velocity, AI](&ECWorld)
+	MapRect             = gn.NewMap2[Position, Size](&ECWorld)
+	MapHealth           = gn.NewMap[Health](&ECWorld)
+	MapDurability       = gn.NewMap[Durability](&ECWorld)
+	MapPosition         = gn.NewMap[Position](&ECWorld)
+	MapSize             = gn.NewMap[Size](&ECWorld)
+	MapDroppedItem      = gn.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&ECWorld)
+	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&ECWorld)
+	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&ECWorld)
+	MapCollisionDelayer = gn.NewMap1[CollisionDelayer](&ECWorld)
 )
 
 // Query Filters
 var (
 	FilterPlayer           = gn.NewFilter6[Position, Size, Velocity, Health, Controller, Facing]()
-	FilterEnemy            = gn.NewFilter4[Position, Size, Velocity, Health]().Exclusive()
+	FilterEnemy            = gn.NewFilter3[Position, Velocity, AI]()
 	FilterProjectile       = gn.NewFilter3[ItemID, Position, Velocity]().Exclusive()
 	FilterRect             = gn.NewFilter2[Position, Size]()
 	FilterPosition         = gn.NewFilter1[Position]()
@@ -51,16 +50,16 @@ func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
 		return MapDroppedToolItem.NewWith(
 			&ItemID{id},
 			&Position{x, y},
-			&AnimationIndex{rand.IntN(len(kar.Sinspace) - 1)},
-			&CollisionDelayer{kar.ItemCollisionDelay},
+			&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
+			&CollisionDelayer{ItemCollisionDelay},
 			&Durability{durability},
 		)
 	} else {
 		return MapDroppedItem.NewWith(
 			&ItemID{id},
 			&Position{x, y},
-			&AnimationIndex{rand.IntN(len(kar.Sinspace) - 1)},
-			&CollisionDelayer{kar.ItemCollisionDelay},
+			&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
+			&CollisionDelayer{ItemCollisionDelay},
 		)
 	}
 }
@@ -68,12 +67,8 @@ func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
 func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
 	return MapEnemy.NewWith(
 		&Position{x, y},
-		&Size{8, 8},
 		&Velocity{vx, vy},
-		&Health{
-			Current: 0,
-			Max:     20,
-		},
+		&AI{"worm"},
 	)
 }
 

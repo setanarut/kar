@@ -1,4 +1,4 @@
-package arc
+package kar
 
 import (
 	"image"
@@ -22,6 +22,10 @@ type Position struct {
 type Size struct {
 	W float64
 	H float64
+}
+
+type AI struct {
+	Name string
 }
 
 // AnimationIndex holds timing-related data for item animations.

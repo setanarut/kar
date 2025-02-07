@@ -1,27 +1,14 @@
-package mathutil
+package kar
 
 import (
+	"image"
+	"log"
 	"math"
-
-	"golang.org/x/exp/constraints"
+	"os"
 )
 
-type Number interface {
-	constraints.Integer | constraints.Float
-}
-
-func MapRange[T Number](v, a, b, c, d T) T {
+func MapRange[T float64](v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
-}
-
-// degrees to radians
-func Radians(degrees float64) float64 {
-	return degrees * math.Pi / 180.0
-}
-
-// radians to degrees
-func Degrees(radians float64) float64 {
-	return radians * 180.0 / math.Pi
 }
 
 // Linspace returns evenly spaced numbers over a specified closed interval.
@@ -60,4 +47,25 @@ func SinSpace(start, end, amplitude float64, n int) []float64 {
 	}
 
 	return points
+}
+
+// index kontrol fonksiyonu, sadece bool değeri döndürüyor
+func CheckIndex[T any](slice []T, index int) bool {
+	if index < 0 || index >= len(slice) {
+		return false
+	}
+	return true
+}
+
+func ReadPNG(filePath string) image.Image {
+	f, err := os.Open(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return image
 }

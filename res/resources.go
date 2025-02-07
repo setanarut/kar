@@ -2,13 +2,16 @@
 package res
 
 import (
+	"bytes"
 	"embed"
 	"image"
-	"kar/engine/util"
 	"kar/items"
+	"log"
 
 	"github.com/anthonynsimon/bild/blend"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"golang.org/x/text/language"
 )
 
 //go:embed assets/*
@@ -18,29 +21,29 @@ var (
 	Icon8            = make(map[uint8]*ebiten.Image, 0)
 	Items20          = make(map[uint8]*ebiten.Image, 0)
 	BlockCrackFrames = make(map[uint8][]*ebiten.Image, 0)
-	Hotbar           = util.ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
-	CraftingTable    = util.ReadEbImgFS(fs, "assets/img/gui/table.png")
-	CraftingTable4   = util.ReadEbImgFS(fs, "assets/img/gui/table4.png")
-	BlockBorder      = util.ReadEbImgFS(fs, "assets/img/gui/block_border.png")
-	SlotBorder       = util.ReadEbImgFS(fs, "assets/img/gui/slot_border.png")
-	cracks           = util.ImgFromFS(fs, "assets/img/cracks.png")
-	Font             = util.LoadFontFromFS("assets/font/arkpixel10.ttf", 10, fs)
+	Hotbar           = ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
+	CraftingTable    = ReadEbImgFS(fs, "assets/img/gui/table.png")
+	CraftingTable4   = ReadEbImgFS(fs, "assets/img/gui/table4.png")
+	BlockBorder      = ReadEbImgFS(fs, "assets/img/gui/block_border.png")
+	SlotBorder       = ReadEbImgFS(fs, "assets/img/gui/slot_border.png")
+	cracks           = ImgFromFS(fs, "assets/img/cracks.png")
+	Font             = LoadFontFromFS("assets/font/arkpixel10.ttf", 10, fs)
 )
 
 var (
-	Player                    = util.ReadEbImgFS(fs, "assets/img/player/player.png")
-	PlayerWoodenAxeAtlas      = util.ReadEbImgFS(fs, "assets/img/player/player_wood_axe.png")
-	PlayerStoneAxeAtlas       = util.ReadEbImgFS(fs, "assets/img/player/player_stone_axe.png")
-	PlayerIronAxeAtlas        = util.ReadEbImgFS(fs, "assets/img/player/player_iron_axe.png")
-	PlayerDiamondAxeAtlas     = util.ReadEbImgFS(fs, "assets/img/player/player_diamond_axe.png")
-	PlayerWoodenPickaxeAtlas  = util.ReadEbImgFS(fs, "assets/img/player/player_wood_pickaxe.png")
-	PlayerStonePickaxeAtlas   = util.ReadEbImgFS(fs, "assets/img/player/player_stone_pickaxe.png")
-	PlayerIronPickaxeAtlas    = util.ReadEbImgFS(fs, "assets/img/player/player_iron_pickaxe.png")
-	PlayerDiamondPickaxeAtlas = util.ReadEbImgFS(fs, "assets/img/player/player_diamond_pickaxe.png")
-	PlayerWoodenShovelAtlas   = util.ReadEbImgFS(fs, "assets/img/player/player_wood_shovel.png")
-	PlayerStoneShovelAtlas    = util.ReadEbImgFS(fs, "assets/img/player/player_stone_shovel.png")
-	PlayerIronShovelAtlas     = util.ReadEbImgFS(fs, "assets/img/player/player_iron_shovel.png")
-	PlayerDiamondShovelAtlas  = util.ReadEbImgFS(fs, "assets/img/player/player_diamond_shovel.png")
+	Player                    = ReadEbImgFS(fs, "assets/img/player/player.png")
+	PlayerWoodenAxeAtlas      = ReadEbImgFS(fs, "assets/img/player/player_wood_axe.png")
+	PlayerStoneAxeAtlas       = ReadEbImgFS(fs, "assets/img/player/player_stone_axe.png")
+	PlayerIronAxeAtlas        = ReadEbImgFS(fs, "assets/img/player/player_iron_axe.png")
+	PlayerDiamondAxeAtlas     = ReadEbImgFS(fs, "assets/img/player/player_diamond_axe.png")
+	PlayerWoodenPickaxeAtlas  = ReadEbImgFS(fs, "assets/img/player/player_wood_pickaxe.png")
+	PlayerStonePickaxeAtlas   = ReadEbImgFS(fs, "assets/img/player/player_stone_pickaxe.png")
+	PlayerIronPickaxeAtlas    = ReadEbImgFS(fs, "assets/img/player/player_iron_pickaxe.png")
+	PlayerDiamondPickaxeAtlas = ReadEbImgFS(fs, "assets/img/player/player_diamond_pickaxe.png")
+	PlayerWoodenShovelAtlas   = ReadEbImgFS(fs, "assets/img/player/player_wood_shovel.png")
+	PlayerStoneShovelAtlas    = ReadEbImgFS(fs, "assets/img/player/player_stone_shovel.png")
+	PlayerIronShovelAtlas     = ReadEbImgFS(fs, "assets/img/player/player_iron_shovel.png")
+	PlayerDiamondShovelAtlas  = ReadEbImgFS(fs, "assets/img/player/player_diamond_shovel.png")
 )
 
 func init() {
@@ -138,12 +141,46 @@ func makeStages(block, stages image.Image) []image.Image {
 	return frames
 }
 func blockImgs(f string) []*ebiten.Image {
-	frames := makeStages(util.ImgFromFS(fs, "assets/img/blocks/"+f), cracks)
+	frames := makeStages(ImgFromFS(fs, "assets/img/blocks/"+f), cracks)
 	return toEbiten(frames)
 }
 func itemIconImg(f string) *ebiten.Image {
-	return util.ReadEbImgFS(fs, "assets/img/items_icon/"+f)
+	return ReadEbImgFS(fs, "assets/img/items_icon/"+f)
 }
 func blockIconImg(f string) *ebiten.Image {
-	return util.ReadEbImgFS(fs, "assets/img/blocks_icon/"+f)
+	return ReadEbImgFS(fs, "assets/img/blocks_icon/"+f)
+}
+
+func ReadEbImgFS(fs embed.FS, filePath string) *ebiten.Image {
+	return ebiten.NewImageFromImage(ImgFromFS(fs, filePath))
+}
+
+func ImgFromFS(fs embed.FS, filePath string) image.Image {
+	f, err := fs.Open(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	image, _, err := image.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	return image
+}
+
+func LoadFontFromFS(file string, size float64, fs embed.FS) *text.GoTextFace {
+	f, err := fs.ReadFile(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	src, err := text.NewGoTextFaceSource(bytes.NewReader(f))
+	if err != nil {
+		log.Fatal(err)
+	}
+	gtf := &text.GoTextFace{
+		Source:   src,
+		Size:     size,
+		Language: language.English,
+	}
+	return gtf
 }

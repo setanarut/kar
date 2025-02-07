@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"kar/engine/util"
+	"image/png"
 	"kar/items"
 	"log"
 	"math"
@@ -42,7 +42,7 @@ func NewTileMap(tm [][]uint8, tileW, tileH int) *TileMap {
 func (tm *TileMap) WriteAsImage(path string, playerX, playerY int) {
 	im := tm.GetImage()
 	im.Set(playerX, playerY, color.RGBA{255, 0, 255, 255})
-	util.WritePNG(im, path)
+	WritePNG(im, path)
 }
 
 func (tm *TileMap) CloneEmpty() *TileMap {
@@ -139,7 +139,7 @@ func (t *TileMap) GetTileRect(x, y int) (rectX, rectY, rectW, rectH float64) {
 	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)
 }
 
-// func (t *TileMap) GetTileRect2(x, y int) (arc.Position, arc.Size) {
+// func (t *TileMap) GetTileRect2(x, y int) (Position, Size) {
 // 	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)
 // }
 
@@ -215,4 +215,20 @@ func (t *TileMap) ReadFromDisk(filename string) [][]uint8 {
 	}
 
 	return result
+}
+
+func WritePNG(im image.Image, name string) {
+	f, err := os.Create(name)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := png.Encode(f, im); err != nil {
+		f.Close()
+		log.Fatal(err)
+	}
+
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
 }

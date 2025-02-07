@@ -1,16 +1,15 @@
-package system
+package kar
 
 import (
-	"kar/arc"
 	"math"
 )
 
 // Overlaps checks if the rectangle overlaps with another rectangle
-func Overlaps(p1 *arc.Position, s1 *arc.Size, p2 *arc.Position, s2 *arc.Size) bool {
+func Overlaps(p1 *Position, s1 *Size, p2 *Position, s2 *Size) bool {
 	return p1.X+s1.W > p2.X && p2.X+s2.W > p1.X && p1.Y+s1.H > p2.Y && p2.Y+s2.H > p1.Y
 }
 
-func CheckCollision(p1 *arc.Position, s1 *arc.Size, v1 *arc.Velocity, p2 *arc.Position, s2 *arc.Size) CollisionInfo {
+func CheckCollision(p1 *Position, s1 *Size, v1 *Velocity, p2 *Position, s2 *Size) CollisionInfo {
 	info := CollisionInfo{
 		Normal: [2]int{0, 0},
 	}
@@ -55,7 +54,7 @@ func CheckCollision(p1 *arc.Position, s1 *arc.Size, v1 *arc.Velocity, p2 *arc.Po
 
 	// Hareket varsa dinamik çarpışma kontrolü
 	if math.Abs(v1.X) > 0 || math.Abs(v1.Y) > 0 {
-		nextPos := &arc.Position{p1.X + v1.X, p1.Y + v1.Y}
+		nextPos := &Position{p1.X + v1.X, p1.Y + v1.Y}
 		// Önce X ekseninde hareket et ve kontrol et
 		if Overlaps(p2, s2, nextPos, s1) {
 			info.Collided = true

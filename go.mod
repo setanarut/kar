@@ -1,6 +1,6 @@
 module kar
 
-go 1.23.4
+go 1.23.6
 
 require (
 	github.com/anthonynsimon/bild v0.14.0
@@ -10,9 +10,10 @@ require (
 	github.com/setanarut/fastnoise v1.1.1
 	github.com/setanarut/kamera/v2 v2.96.0
 	github.com/setanarut/tilecollider v1.4.8
-	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 	golang.org/x/text v0.21.0
 )
+
+require golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
 
 require (
 	github.com/ebitengine/gomobile v0.0.0-20241016134836-cc2e38a7c0ee // indirect

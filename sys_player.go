@@ -1,11 +1,8 @@
-package system
+package kar
 
 import (
 	"image"
 	"image/color"
-	"kar"
-	"kar/arc"
-	"kar/engine/mathutil"
 	"kar/items"
 	"math"
 	"math/rand/v2"
@@ -17,12 +14,10 @@ import (
 )
 
 var (
-	bounceVelocity = -math.Sqrt(2 * kar.SnowballGravity * kar.SnowballBounceHeight)
+	bounceVelocity = -math.Sqrt(2 * SnowballGravity * SnowballBounceHeight)
 	blockHealth    float64
-	// targetTile     image.Point
-	placeTile image.Point
-
-	isRayHit bool
+	placeTile      image.Point
+	IsRayHit       bool
 )
 
 type Player struct {
@@ -34,16 +29,16 @@ func (c *Player) Init() {
 
 func (c *Player) Update() {
 	// update animation player
-	if !kar.GameDataRes.CraftingState {
-		kar.PlayerAnimPlayer.Update()
+	if !GameDataRes.CraftingState {
+		PlayerAnimPlayer.Update()
 	}
 
-	if kar.ECWorld.Alive(kar.CurrentPlayer) {
-		playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := arc.MapPlayer.Get(kar.CurrentPlayer)
+	if ECWorld.Alive(CurrentPlayer) {
+		playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
 
 		playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
 
-		if !kar.GameDataRes.CraftingState {
+		if !GameDataRes.CraftingState {
 
 			// Update input
 			ctrl.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
@@ -86,29 +81,29 @@ func (c *Player) Update() {
 				// enter idle
 				if ctrl.PreviousState != "idle" {
 					if pFacing.Dir.Y == 0 {
-						kar.PlayerAnimPlayer.SetState("idleRight")
+						PlayerAnimPlayer.SetState("idleRight")
 					}
 					if pFacing.Dir.X == 0 {
-						kar.PlayerAnimPlayer.SetState("idleUp")
+						PlayerAnimPlayer.SetState("idleUp")
 					}
 				}
 
 				// while idle
 				if pFacing.Dir.Y == -1 {
-					kar.PlayerAnimPlayer.SetState("idleUp")
+					PlayerAnimPlayer.SetState("idleUp")
 				} else if pFacing.Dir.Y == 1 {
-					kar.PlayerAnimPlayer.SetState("idleDown")
+					PlayerAnimPlayer.SetState("idleDown")
 				} else if pFacing.Dir.X == 1 {
-					kar.PlayerAnimPlayer.SetState("idleRight")
+					PlayerAnimPlayer.SetState("idleRight")
 				} else if pFacing.Dir.X == -1 {
-					kar.PlayerAnimPlayer.SetState("idleRight")
+					PlayerAnimPlayer.SetState("idleRight")
 				}
 
 				// All transitions with common exit code
 				if ctrl.IsJumpKeyJustPressed ||
 					(ctrl.IsOnFloor && ctrl.HorizontalVelocity > 0.01) ||
 					(!ctrl.IsOnFloor && playerVelocity.Y > 0.01) ||
-					(ctrl.IsBreakKeyPressed && isRayHit) ||
+					(ctrl.IsBreakKeyPressed && IsRayHit) ||
 					(playerVelocity.Y != 0 && playerVelocity.Y < -0.1) {
 					ctrl.PreviousState = ctrl.CurrentState
 
@@ -131,7 +126,7 @@ func (c *Player) Update() {
 						}
 					} else if !ctrl.IsOnFloor && playerVelocity.Y > 0.01 {
 						ctrl.CurrentState = "falling"
-					} else if ctrl.IsBreakKeyPressed && isRayHit {
+					} else if ctrl.IsBreakKeyPressed && IsRayHit {
 						ctrl.CurrentState = "breaking"
 					} else if playerVelocity.Y != 0 && playerVelocity.Y < -0.1 {
 						ctrl.CurrentState = "jumping"
@@ -144,10 +139,10 @@ func (c *Player) Update() {
 			case "walking":
 				// enter walking
 				if ctrl.PreviousState != "walking" {
-					kar.PlayerAnimPlayer.SetState("walkRight")
+					PlayerAnimPlayer.SetState("walkRight")
 				}
 
-				kar.PlayerAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetStateFPS("walkRight", MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// All transitions with common exit code
 				if ctrl.IsSkidding || (playerVelocity.Y > 0 && !ctrl.IsOnFloor) ||
@@ -189,11 +184,11 @@ func (c *Player) Update() {
 			case "running":
 				// enter running
 				if ctrl.PreviousState != "running" {
-					kar.PlayerAnimPlayer.SetState("walkRight")
+					PlayerAnimPlayer.SetState("walkRight")
 				}
 
 				// while running
-				kar.PlayerAnimPlayer.SetStateFPS("walkRight", mathutil.MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetStateFPS("walkRight", MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// All transitions with common exit code
 				if ctrl.IsSkidding || (playerVelocity.Y > 0 && !ctrl.IsOnFloor) ||
@@ -230,7 +225,7 @@ func (c *Player) Update() {
 
 			case "jumping":
 				if playerVelocity.Y != 0 && playerVelocity.Y > ctrl.JumpPower+0.1 {
-					kar.PlayerAnimPlayer.SetState("jump")
+					PlayerAnimPlayer.SetState("jump")
 				}
 				// skidding jumpg physics
 				if ctrl.PreviousState == "skidding" {
@@ -278,7 +273,7 @@ func (c *Player) Update() {
 
 				// while falling
 				if playerVelocity.Y > 0.1 {
-					kar.PlayerAnimPlayer.SetState("jump")
+					PlayerAnimPlayer.SetState("jump")
 				}
 
 				// transitions
@@ -306,43 +301,43 @@ func (c *Player) Update() {
 				// set animation states
 				if pFacing.Dir.X == 1 {
 					if ctrl.HorizontalVelocity > 0.01 {
-						kar.PlayerAnimPlayer.SetState("attackWalk")
+						PlayerAnimPlayer.SetState("attackWalk")
 					} else {
-						kar.PlayerAnimPlayer.SetState("attackRight")
+						PlayerAnimPlayer.SetState("attackRight")
 					}
 				} else if pFacing.Dir.X == -1 {
 					if ctrl.HorizontalVelocity > 0.01 {
-						kar.PlayerAnimPlayer.SetState("attackWalk")
+						PlayerAnimPlayer.SetState("attackWalk")
 					} else {
-						kar.PlayerAnimPlayer.SetState("attackRight")
+						PlayerAnimPlayer.SetState("attackRight")
 					}
 				} else if pFacing.Dir.Y == 1 {
-					kar.PlayerAnimPlayer.SetState("attackDown")
+					PlayerAnimPlayer.SetState("attackDown")
 				} else if pFacing.Dir.Y == -1 {
-					kar.PlayerAnimPlayer.SetState("attackUp")
+					PlayerAnimPlayer.SetState("attackUp")
 				}
 
-				if isRayHit {
-					blockID := kar.TileMapRes.Get(kar.GameDataRes.TargetBlockCoord.X, kar.GameDataRes.TargetBlockCoord.Y)
+				if IsRayHit {
+					blockID := TileMapRes.Get(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y)
 					if !items.HasTag(blockID, items.Unbreakable) {
-						if items.IsBestTool(blockID, kar.InventoryRes.CurrentSlotID()) {
-							blockHealth += kar.PlayerBestToolDamage
+						if items.IsBestTool(blockID, InventoryRes.CurrentSlotID()) {
+							blockHealth += PlayerBestToolDamage
 						} else {
-							blockHealth += kar.PlayerDefaultDamage
+							blockHealth += PlayerDefaultDamage
 						}
 					}
 					// Destroy block
 					if blockHealth >= 180 {
 						blockHealth = 0
-						kar.TileMapRes.Set(kar.GameDataRes.TargetBlockCoord.X, kar.GameDataRes.TargetBlockCoord.Y, items.Air)
-						if items.HasTag(kar.InventoryRes.CurrentSlotID(), items.Tool) {
-							kar.InventoryRes.CurrentSlot().Durability--
-							if kar.InventoryRes.CurrentSlot().Durability <= 0 {
-								kar.InventoryRes.ClearCurrentSlot()
+						TileMapRes.Set(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y, items.Air)
+						if items.HasTag(InventoryRes.CurrentSlotID(), items.Tool) {
+							InventoryRes.CurrentSlot().Durability--
+							if InventoryRes.CurrentSlot().Durability <= 0 {
+								InventoryRes.ClearCurrentSlot()
 							}
 						}
 						// spawn drop item
-						x, y := kar.TileMapRes.TileToWorldCenter(kar.GameDataRes.TargetBlockCoord.X, kar.GameDataRes.TargetBlockCoord.Y)
+						x, y := TileMapRes.TileToWorldCenter(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y)
 						dropid := items.Property[blockID].DropID
 						if blockID == items.OakLeaves {
 							if rand.N(2) == 0 {
@@ -352,7 +347,7 @@ func (c *Player) Update() {
 						AppendToSpawnList(x, y, dropid, 0)
 					}
 				}
-				if !isRayHit {
+				if !IsRayHit {
 					ctrl.PreviousState = ctrl.CurrentState
 					ctrl.CurrentState = "idle"
 					// break
@@ -382,7 +377,7 @@ func (c *Player) Update() {
 			case "skidding":
 				// enter skidding
 				if ctrl.PreviousState != "skidding" {
-					kar.PlayerAnimPlayer.SetState("skidding")
+					PlayerAnimPlayer.SetState("skidding")
 				}
 
 				// <- while skidding scope ->
@@ -437,10 +432,16 @@ func (c *Player) Update() {
 			playerVelocity.Y = min(ctrl.MaxFallSpeed, playerVelocity.Y)
 
 			// Enemy collisions
-			enemyQuery := arc.FilterEnemy.Query(&kar.ECWorld)
+			enemyQuery := FilterEnemy.Query(&ECWorld)
 			for enemyQuery.Next() {
-				enemyPos, enemySize, _, _ := enemyQuery.Get()
-				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, enemyPos, enemySize)
+				enemyPos, _, ai := enemyQuery.Get()
+
+				enemySize := Size{8, 8}
+				if ai.Name == "worm" {
+					enemySize = EnemyWormSize
+				}
+
+				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, enemyPos, &enemySize)
 
 				playerVelocity.X += collInfo.DeltaX
 				playerVelocity.Y += collInfo.DeltaY
@@ -496,7 +497,7 @@ func (c *Player) Update() {
 			ctrl.IsSkidding = (playerVelocity.X > 0 && ctrl.InputAxis.X == -1) || (playerVelocity.X < 0 && ctrl.InputAxis.X == 1)
 
 			// Player and tilemap collision
-			kar.Collider.Collide(
+			Collider.Collide(
 				math.Round(playerPos.X),
 				playerPos.Y,
 				playerSize.W,
@@ -549,34 +550,33 @@ func (c *Player) Update() {
 			)
 
 			// player facing raycast for target block
-			c.playerTile = kar.TileMapRes.WorldToTile(playerCenterX, playerCenterY)
-			targetBlockTemp := kar.GameDataRes.TargetBlockCoord
-			kar.GameDataRes.TargetBlockCoord, isRayHit = kar.TileMapRes.Raycast(
+			c.playerTile = TileMapRes.WorldToTile(playerCenterX, playerCenterY)
+			targetBlockTemp := GameDataRes.TargetBlockCoord
+			GameDataRes.TargetBlockCoord, IsRayHit = TileMapRes.Raycast(
 				c.playerTile,
 				pFacing.Dir,
-				kar.RaycastDist,
+				RaycastDist,
 			)
 
 			// reset attack if block focus changed
-			if !kar.GameDataRes.TargetBlockCoord.Eq(targetBlockTemp) || !isRayHit {
+			if !GameDataRes.TargetBlockCoord.Eq(targetBlockTemp) || !IsRayHit {
 				blockHealth = 0
 			}
 
 			// place block if IsAttackKeyJustPressed
 			if ctrl.IsAttackKeyJustPressed {
 				anyItemOverlapsWithPlaceRect := false
-				itemSize := &arc.Size{kar.GameDataRes.DropItemW, kar.GameDataRes.DropItemH}
 				// if slot item is block
-				if isRayHit && items.HasTag(kar.InventoryRes.CurrentSlot().ID, items.Block) {
+				if IsRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
 					// Get tile rect
-					placeTile = kar.GameDataRes.TargetBlockCoord.Sub(pFacing.Dir)
-					placeTilePos := &arc.Position{float64(placeTile.X * 20), float64(placeTile.Y * 20)}
-					placeTileSize := &arc.Size{20, 20}
+					placeTile = GameDataRes.TargetBlockCoord.Sub(pFacing.Dir)
+					placeTilePos := &Position{float64(placeTile.X * 20), float64(placeTile.Y * 20)}
+					placeTileSize := &Size{20, 20}
 					// check overlaps
-					queryItem := arc.FilterDroppedItem.Query(&kar.ECWorld)
+					queryItem := FilterDroppedItem.Query(&ECWorld)
 					for queryItem.Next() {
 						_, itemPos, _, _, _ := queryItem.Get()
-						anyItemOverlapsWithPlaceRect = Overlaps(itemPos, itemSize, placeTilePos, placeTileSize)
+						anyItemOverlapsWithPlaceRect = Overlaps(itemPos, &DropItemSize, placeTilePos, placeTileSize)
 						if anyItemOverlapsWithPlaceRect {
 							queryItem.Close()
 							break
@@ -587,21 +587,21 @@ func (c *Player) Update() {
 						// oyuncu place tile ile çarpışıyormu
 						if !Overlaps(playerPos, playerSize, placeTilePos, placeTileSize) {
 							// place block
-							kar.TileMapRes.Set(placeTile.X, placeTile.Y, kar.InventoryRes.CurrentSlotID())
+							TileMapRes.Set(placeTile.X, placeTile.Y, InventoryRes.CurrentSlotID())
 							// remove item
-							kar.InventoryRes.RemoveItemFromSelectedSlot()
+							InventoryRes.RemoveItemFromSelectedSlot()
 						}
 					}
 					// if slot item snowball, throw snowball
-				} else if kar.InventoryRes.CurrentSlot().ID == items.Snowball {
+				} else if InventoryRes.CurrentSlot().ID == items.Snowball {
 					if ctrl.CurrentState != "skidding" {
 						switch pFacing.Dir {
 						case image.Point{1, 0}:
-							arc.SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, kar.SnowballSpeedX, kar.SnowballMaxFallVelocity)
+							SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, SnowballSpeedX, SnowballMaxFallVelocity)
 						case image.Point{-1, 0}:
-							arc.SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, -kar.SnowballSpeedX, kar.SnowballMaxFallVelocity)
+							SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, -SnowballSpeedX, SnowballMaxFallVelocity)
 						}
-						kar.InventoryRes.RemoveItemFromSelectedSlot()
+						InventoryRes.RemoveItemFromSelectedSlot()
 					}
 				}
 
@@ -609,7 +609,7 @@ func (c *Player) Update() {
 
 			// Drop Item
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-				currentSlot := kar.InventoryRes.CurrentSlot()
+				currentSlot := InventoryRes.CurrentSlot()
 				if currentSlot.ID != items.Air {
 					AppendToSpawnList(
 						playerCenterX,
@@ -617,23 +617,23 @@ func (c *Player) Update() {
 						currentSlot.ID,
 						currentSlot.Durability,
 					)
-					kar.InventoryRes.RemoveItemFromSelectedSlot()
+					InventoryRes.RemoveItemFromSelectedSlot()
 					onInventorySlotChanged()
 				}
 			}
 			// projectile physics
-			q := arc.FilterProjectile.Query(&kar.ECWorld)
+			q := FilterProjectile.Query(&ECWorld)
 			for q.Next() {
 				itemID, projectilePos, projectileVel := q.Get()
 				// snowball physics
 				if itemID.ID == items.Snowball {
-					projectileVel.Y += kar.SnowballGravity
-					projectileVel.Y = min(projectileVel.Y, kar.SnowballMaxFallVelocity)
-					kar.Collider.Collide(
+					projectileVel.Y += SnowballGravity
+					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
+					Collider.Collide(
 						projectilePos.X,
 						projectilePos.Y,
-						kar.GameDataRes.DropItemW,
-						kar.GameDataRes.DropItemH,
+						DropItemSize.W,
+						DropItemSize.H,
 						projectileVel.X,
 						projectileVel.Y,
 						func(ci []tilecollider.CollisionInfo[uint8], dx, dy float64) {
@@ -652,7 +652,7 @@ func (c *Player) Update() {
 								}
 							}
 							if isHorizontalCollision {
-								if kar.ECWorld.Alive(q.Entity()) {
+								if ECWorld.Alive(q.Entity()) {
 									toRemove = append(toRemove, q.Entity())
 								}
 							}
@@ -667,12 +667,12 @@ func (c *Player) Update() {
 
 func (c *Player) Draw() {
 
-	if kar.DrawDebugHitboxesEnabled {
+	if DrawDebugHitboxesEnabled {
 		// Draw player tile for debug
-		x, y, w, h := kar.TileMapRes.GetTileRect(c.playerTile.X, c.playerTile.Y)
-		x, y = kar.CameraRes.ApplyCameraTransformToPoint(x, y)
+		x, y, w, h := TileMapRes.GetTileRect(c.playerTile.X, c.playerTile.Y)
+		x, y = CameraRes.ApplyCameraTransformToPoint(x, y)
 		vector.DrawFilledRect(
-			kar.Screen,
+			Screen,
 			float32(x),
 			float32(y),
 			float32(w),

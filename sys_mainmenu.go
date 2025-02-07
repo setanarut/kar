@@ -1,9 +1,7 @@
-package system
+package kar
 
 import (
 	"image/color"
-	"kar"
-	"kar/arc"
 	"kar/res"
 	"log"
 	"math/rand/v2"
@@ -31,9 +29,7 @@ type MainMenu struct {
 }
 
 func (m *MainMenu) Init() {
-
 	m.newGame()
-
 	m.do = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
@@ -43,8 +39,8 @@ func (m *MainMenu) Init() {
 
 	m.serdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
 	m.text = "SAVE\nLOAD\nNEW GAME"
-	m.x = float64((int(kar.ScreenW) / 2) - 10)
-	m.y = float64((int(kar.ScreenH) / 2) - 20)
+	m.x = float64((int(ScreenW) / 2) - 10)
+	m.y = float64((int(ScreenH) / 2) - 20)
 	m.do.ColorScale.ScaleWithColor(color.Gray{200})
 	var err error
 	m.dataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
@@ -64,10 +60,10 @@ func (m *MainMenu) Update() {
 		case 2:
 			m.newGame()
 		}
-		kar.PreviousGameState = "menu"
-		kar.CurrentGameState = "playing"
-		kar.ColorM.Reset()
-		kar.TextDO.ColorScale.Reset()
+		PreviousGameState = "menu"
+		CurrentGameState = "playing"
+		ColorM.Reset()
+		TextDO.ColorScale.Reset()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
@@ -84,7 +80,7 @@ func (m *MainMenu) Update() {
 func (m *MainMenu) Draw() {
 
 	// vector.DrawFilledRect(
-	// 	kar.Screen,
+	// 	Screen,
 	// 	float32(m.x-12),
 	// 	float32(m.y),
 	// 	60,
@@ -95,10 +91,10 @@ func (m *MainMenu) Draw() {
 
 	m.do.GeoM.Reset()
 	m.do.GeoM.Translate(float64(m.x), float64(m.y))
-	text.Draw(kar.Screen, m.text, res.Font, m.do)
+	text.Draw(Screen, m.text, res.Font, m.do)
 
 	vector.DrawFilledRect(
-		kar.Screen,
+		Screen,
 		float32(m.x)-8,
 		float32(m.y+float64(m.line*18))+5,
 		3,
@@ -109,38 +105,38 @@ func (m *MainMenu) Draw() {
 
 }
 func (*MainMenu) newGame() {
-	kar.ECWorld.Reset()
-	kar.InventoryRes.Reset()
-	ecs.AddResource(&kar.ECWorld, kar.GameDataRes)
-	ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
-	ecs.AddResource(&kar.ECWorld, kar.CraftingTableRes)
-	ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
-	ecs.AddResource(&kar.ECWorld, kar.CameraRes)
-	ecs.AddResource(&kar.ECWorld, kar.TileMapRes)
+	ECWorld.Reset()
+	InventoryRes.Reset()
+	ecs.AddResource(&ECWorld, GameDataRes)
+	ecs.AddResource(&ECWorld, InventoryRes)
+	ecs.AddResource(&ECWorld, CraftingTableRes)
+	ecs.AddResource(&ECWorld, AnimPlayerDataRes)
+	ecs.AddResource(&ECWorld, CameraRes)
+	ecs.AddResource(&ECWorld, TileMapRes)
 
-	kar.GameTileMapGenerator.Opts.HighestSurfaceLevel = 10
-	kar.GameTileMapGenerator.Opts.LowestSurfaceLevel = 30
-	kar.GameTileMapGenerator.SetSeed(rand.Int())
-	kar.GameTileMapGenerator.NoiseState.FractalType(fastnoise.FractalFBm)
-	kar.GameTileMapGenerator.NoiseState.Frequency = 0.01
-	kar.GameTileMapGenerator.Generate()
+	GameTileMapGenerator.Opts.HighestSurfaceLevel = 10
+	GameTileMapGenerator.Opts.LowestSurfaceLevel = 30
+	GameTileMapGenerator.SetSeed(rand.Int())
+	GameTileMapGenerator.NoiseState.FractalType(fastnoise.FractalFBm)
+	GameTileMapGenerator.NoiseState.Frequency = 0.01
+	GameTileMapGenerator.Generate()
 
 	// ctrl.Collider.StaticCheck = true
-	x, y := kar.TileMapRes.FindSpawnPosition()
+	x, y := TileMapRes.FindSpawnPosition()
 	// tileMap.Set(x, y+2, items.CraftingTable)
-	SpawnX, SpawnY := kar.TileMapRes.TileToWorldCenter(x, y)
-	kar.CameraRes.SmoothType = kamera.None
-	kar.CameraRes.SetCenter(SpawnX, SpawnY)
-	kar.CameraRes.SmoothOptions.LerpSpeedX = 0.5
-	kar.CameraRes.SmoothOptions.LerpSpeedY = 0.05
-	kar.CameraRes.SetTopLeft(kar.TileMapRes.FloorToBlockCenter(kar.CameraRes.X, kar.CameraRes.Y))
-	kar.CurrentPlayer = arc.SpawnPlayer(SpawnX, SpawnY)
-	kar.CameraRes.SmoothType = kamera.Lerp
+	SpawnX, SpawnY := TileMapRes.TileToWorldCenter(x, y)
+	CameraRes.SmoothType = kamera.None
+	CameraRes.SetCenter(SpawnX, SpawnY)
+	CameraRes.SmoothOptions.LerpSpeedX = 0.5
+	CameraRes.SmoothOptions.LerpSpeedY = 0.05
+	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
+	CurrentPlayer = SpawnPlayer(SpawnX, SpawnY)
+	CameraRes.SmoothType = kamera.Lerp
 }
 
 func (m *MainMenu) saveGame() {
-	kar.FetchAnimPlayerData(kar.PlayerAnimPlayer, kar.AnimPlayerDataRes)
-	jsonData, err := archeserde.Serialize(&kar.ECWorld, m.serdeOpt)
+	FetchAnimPlayerData(PlayerAnimPlayer, AnimPlayerDataRes)
+	jsonData, err := archeserde.Serialize(&ECWorld, m.serdeOpt)
 	if err != nil {
 		log.Fatal("Error serializing world:", err)
 	}
@@ -149,24 +145,24 @@ func (m *MainMenu) saveGame() {
 
 func (m *MainMenu) loadGame() {
 	if m.dataManager.ItemExists("01save") {
-		kar.ECWorld.Reset()
-		ecs.AddResource(&kar.ECWorld, kar.GameDataRes)
-		ecs.AddResource(&kar.ECWorld, kar.InventoryRes)
-		ecs.AddResource(&kar.ECWorld, kar.CraftingTableRes)
-		ecs.AddResource(&kar.ECWorld, kar.AnimPlayerDataRes)
-		ecs.AddResource(&kar.ECWorld, kar.CameraRes)
-		ecs.AddResource(&kar.ECWorld, kar.TileMapRes)
+		ECWorld.Reset()
+		ecs.AddResource(&ECWorld, GameDataRes)
+		ecs.AddResource(&ECWorld, InventoryRes)
+		ecs.AddResource(&ECWorld, CraftingTableRes)
+		ecs.AddResource(&ECWorld, AnimPlayerDataRes)
+		ecs.AddResource(&ECWorld, CameraRes)
+		ecs.AddResource(&ECWorld, TileMapRes)
 
 		jsonData, err := m.dataManager.LoadItem("01save")
 		if err != nil {
 			log.Fatal("Error loading saved data:", err)
 		}
 
-		err = archeserde.Deserialize(jsonData, &kar.ECWorld)
+		err = archeserde.Deserialize(jsonData, &ECWorld)
 		if err != nil {
 			log.Fatal("Error deserializing world:", err)
 		}
-		animData := ecs.GetResource[kar.AnimPlayerData](&kar.ECWorld)
-		kar.SetAnimPlayerData(kar.PlayerAnimPlayer, animData)
+		animData := ecs.GetResource[AnimPlayerData](&ECWorld)
+		SetAnimPlayerData(PlayerAnimPlayer, animData)
 	}
 }
