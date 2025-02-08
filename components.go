@@ -8,22 +8,15 @@ import (
 type ItemID struct {
 	ID uint8
 }
-
 type Velocity struct {
-	X float64
-	Y float64
+	X, Y float64
 }
-
 type Position struct {
-	X float64
-	Y float64
+	X, Y float64
 }
-
 type Size struct {
-	W float64
-	H float64
+	W, H float64
 }
-
 type AI struct {
 	Name string
 }
@@ -33,11 +26,9 @@ type AI struct {
 type AnimationIndex struct {
 	AnimationIndex int
 }
-
 type CollisionDelayer struct {
 	Duration time.Duration
 }
-
 type Durability struct {
 	Durability int
 }

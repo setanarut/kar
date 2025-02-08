@@ -263,6 +263,7 @@ func (c *Player) Update() {
 			case "breaking":
 				// enter running
 				if ctrl.PreviousState != "breaking" {
+					fmt.Println("enter breaking")
 					ctrl.PreviousState = ctrl.CurrentState
 				}
 				// update animation states
@@ -326,8 +327,8 @@ func (c *Player) Update() {
 					ctrl.CurrentState = "jumping"
 				}
 				// exit breaking
-				if ctrl.CurrentState != ctrl.CurrentState {
-					fmt.Println("exit")
+				if ctrl.PreviousState != ctrl.CurrentState {
+					fmt.Println("exit breaking")
 					blockHealth = 0
 				}
 			case "skidding":
