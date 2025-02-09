@@ -10,6 +10,7 @@ import (
 func main() {
 	game := &kar.Game{}
 	game.Init()
+	// ebiten.SetTPS(8)
 	opts := &ebiten.RunGameOptions{
 		DisableHiDPI:    true,
 		GraphicsLibrary: ebiten.GraphicsLibraryAuto,

@@ -297,15 +297,20 @@ func (c *Player) Update() {
 					}
 					// Destroy block
 					if blockHealth >= 180 {
-						blockHealth = 0
+
+						// set air
 						TileMapRes.Set(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y, items.Air)
+						blockHealth = 0
+
 						if items.HasTag(InventoryRes.CurrentSlotID(), items.Tool) {
+							// damage the tool
 							InventoryRes.CurrentSlot().Durability--
+							// If durability is 0, destroy the tool.
 							if InventoryRes.CurrentSlot().Durability <= 0 {
 								InventoryRes.ClearCurrentSlot()
 							}
 						}
-						// spawn drop item
+						// Spawn drop item
 						x, y := TileMapRes.TileToWorldCenter(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y)
 						dropid := items.Property[blockID].DropID
 						if blockID == items.OakLeaves {
@@ -433,13 +438,17 @@ func (c *Player) Update() {
 						// Ceil collision
 						playerVelocity.Y = 0
 					}
-					if collisionInfo.Normal[0] == -1 {
-						// Right wall collision
-						playerVelocity.X = 0
-						ctrl.HorizontalVelocity = 0
-					}
-					if collisionInfo.Normal[0] == 1 {
-						// Left wall collision
+					if collisionInfo.Normal[0] == -1 || collisionInfo.Normal[0] == 1 {
+
+						if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
+							// Right of Left wall collision
+							x := collisionInfo.TileCoords[0]
+							y := collisionInfo.TileCoords[1]
+							TileMapRes.Set(x, y, items.Air)
+							wx, wy := TileMapRes.TileToWorldCenter(x, y)
+							SpawnEffect(collisionInfo.TileID, wx, wy)
+						}
+
 						playerVelocity.X = 0
 						ctrl.HorizontalVelocity = 0
 					}

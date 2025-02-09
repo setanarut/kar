@@ -8,11 +8,15 @@ import (
 type ItemID struct {
 	ID uint8
 }
+
 type Velocity struct {
 	X, Y float64
 }
 type Position struct {
 	X, Y float64
+}
+type Rotation struct {
+	Angle float64
 }
 type Size struct {
 	W, H float64
@@ -24,7 +28,7 @@ type AI struct {
 // AnimationIndex holds timing-related data for item animations.
 // It tracks the current frame index for dropped item animations.
 type AnimationIndex struct {
-	AnimationIndex int
+	Index int
 }
 type CollisionDelayer struct {
 	Duration time.Duration

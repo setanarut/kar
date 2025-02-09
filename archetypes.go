@@ -22,6 +22,7 @@ var (
 	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&ECWorld)
 	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&ECWorld)
 	MapCollisionDelayer = gn.NewMap1[CollisionDelayer](&ECWorld)
+	MapEffect           = gn.NewMap4[ItemID, Position, Velocity, Rotation](&ECWorld)
 )
 
 // Query Filters
@@ -42,10 +43,10 @@ var (
 	]().
 		Optional(gn.T[CollisionDelayer]()).
 		Optional(gn.T[Durability]())
+	FilterEffect = gn.NewFilter4[ItemID, Position, Velocity, Rotation]().Exclusive()
 )
 
 func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
-
 	if items.HasTag(id, items.Tool) {
 		return MapDroppedToolItem.NewWith(
 			&ItemID{id},
@@ -70,6 +71,13 @@ func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
 		&Velocity{vx, vy},
 		&AI{"worm"},
 	)
+}
+
+func SpawnEffect(id uint8, x, y float64) {
+	MapEffect.NewWith(&ItemID{id}, &Position{x - 10, y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
+	MapEffect.NewWith(&ItemID{id}, &Position{x + 2, y - 10}, &Velocity{1, 0}, &Rotation{0.1})
+	MapEffect.NewWith(&ItemID{id}, &Position{x - 10, y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
+	MapEffect.NewWith(&ItemID{id}, &Position{x + 2, y + 2}, &Velocity{0.5, 0}, &Rotation{0.1})
 }
 
 func SpawnProjectile(id uint8, x, y, vx, vy float64) ecs.Entity {

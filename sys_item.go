@@ -59,7 +59,7 @@ func (i *Item) Update() {
 				// vertical item sine animation
 				dy := Collider.CollideY(itemPos.X, itemPos.Y+6, itemSize.W, itemSize.H, ItemGravity)
 				itemPos.Y += dy
-				timers.AnimationIndex = (timers.AnimationIndex + 1) % i.sinspaceLenght
+				timers.Index = (timers.Index + 1) % i.sinspaceLenght
 
 			}
 		}

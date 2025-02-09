@@ -13,10 +13,10 @@ import (
 
 type Camera struct{}
 
-func (d *Camera) Init() {
+func (c *Camera) Init() {
 }
 
-func (d *Camera) Update() {
+func (c *Camera) Update() {
 
 	if ECWorld.Alive(CurrentPlayer) {
 
@@ -63,7 +63,7 @@ func (d *Camera) Update() {
 
 }
 
-func (d *Camera) Draw() {
+func (c *Camera) Draw() {
 
 	// DRAW TILEMAPs
 
@@ -106,9 +106,9 @@ func (d *Camera) Draw() {
 	// Draw drop Items
 	itemQuery := FilterDroppedItem.Query(&ECWorld)
 	for itemQuery.Next() {
-		id, pos, timers, _, _ := itemQuery.Get()
+		id, pos, animIndex, _, _ := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(pos.X, pos.Y+Sinspace[timers.AnimationIndex])
+		ColorMDIO.GeoM.Translate(pos.X, pos.Y+Sinspace[animIndex.Index])
 		CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
 	}
 

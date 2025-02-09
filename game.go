@@ -17,7 +17,8 @@ func (g *Game) Init() {
 		&Enemy{},    // 3
 		&Item{},     // 4
 		&UI{},       // 5
-		&MainMenu{}, // 6
+		&Effects{},  // 6
+		&MainMenu{}, // 7
 	}
 	for _, sys := range g.systems {
 		sys.Init()
@@ -37,7 +38,7 @@ func (g *Game) Update() error {
 				TextDO.ColorScale.Reset()
 			}
 			// enter playing
-			g.systems[6].Update() // MainMenu
+			g.systems[7].Update() // MainMenu
 
 		case "playing":
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -46,9 +47,14 @@ func (g *Game) Update() error {
 				ColorM.ChangeHSV(1, 0, 0.5) // BW
 				TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
-			for i := 0; i < 6; i++ { // Update all systems except MainMenu
-				g.systems[i].Update()
-			}
+			g.systems[1].Update()
+			g.systems[2].Update()
+			g.systems[3].Update()
+			g.systems[4].Update()
+			g.systems[5].Update()
+			g.systems[6].Update()
+			g.systems[0].Update()
+			// g.systems[7].Draw()
 		}
 	}
 	return nil
@@ -62,11 +68,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case "menu":
 		g.systems[1].Draw()
 		g.systems[5].Draw()
-		g.systems[6].Draw() // MainMenu
+		g.systems[7].Draw()
 	case "playing":
-		for i := 0; i < 6; i++ { // Draw all systems except MainMenu
-			g.systems[i].Draw()
-		}
+		g.systems[0].Draw()
+		g.systems[1].Draw()
+		g.systems[2].Draw()
+		g.systems[3].Draw()
+		g.systems[4].Draw()
+		g.systems[5].Draw()
+		g.systems[6].Draw()
+		// g.systems[7].Draw()
 	}
 }
 

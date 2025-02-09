@@ -36,6 +36,14 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>↑</kbd>            | Open/Close 3x3 Crafting mode (if looking to Crafting Table)       |
 | <kbd>L</kbd>            | Switch between Tracking and Static camera modes                   |
 
+#### Special
+
+
+| Key                       | Function                                                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| <kbd>⇧</kbd>+<kbd>→</kbd> | While running at maximum speed, hold down the right arrow key and hit the block to destroy it. |
+
+
 ### Crafting Mode
 
 | Key          | Function                                                                            |
