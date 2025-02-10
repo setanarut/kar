@@ -29,17 +29,17 @@ func (c *Player) Init() {
 }
 
 func (c *Player) Update() {
-	// update animation player
+
 	if !GameDataRes.CraftingState {
-		PlayerAnimPlayer.Update()
-	}
-
-	if ECWorld.Alive(CurrentPlayer) {
-		playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
-
-		playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
-
+		// update animation player
 		if !GameDataRes.CraftingState {
+			PlayerAnimPlayer.Update()
+		}
+
+		if ECWorld.Alive(CurrentPlayer) {
+			playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
+
+			playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
 
 			// Update input
 			ctrl.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
@@ -369,218 +369,218 @@ func (c *Player) Update() {
 					fmt.Println("exit skidding")
 				}
 			}
-		}
 
-		// ########### UPDATE PHYSICS ################
+			// ########### UPDATE PHYSICS ################
 
-		maxSpeed := ctrl.MaxWalkSpeed
-		currentAccel := ctrl.WalkAcceleration
-		currentDecel := ctrl.WalkDeceleration
-		ctrl.HorizontalVelocity = math.Abs(playerVelocity.X)
+			maxSpeed := ctrl.MaxWalkSpeed
+			currentAccel := ctrl.WalkAcceleration
+			currentDecel := ctrl.WalkDeceleration
+			ctrl.HorizontalVelocity = math.Abs(playerVelocity.X)
 
-		playerVelocity.Y += ctrl.Gravity
-		playerVelocity.Y = min(ctrl.MaxFallSpeed, playerVelocity.Y)
+			playerVelocity.Y += ctrl.Gravity
+			playerVelocity.Y = min(ctrl.MaxFallSpeed, playerVelocity.Y)
 
-		if !ctrl.IsSkidding {
-			if ctrl.IsRunKeyPressed {
-				maxSpeed = ctrl.MaxRunSpeed
-				currentAccel = ctrl.RunAcceleration
-				currentDecel = ctrl.RunDeceleration
-			} else if ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
-				currentDecel = ctrl.RunDeceleration
-			}
-		}
-
-		if ctrl.InputAxis.X > 0 {
-			if playerVelocity.X > maxSpeed {
-				playerVelocity.X = max(maxSpeed, playerVelocity.X-currentDecel)
-			} else {
-				playerVelocity.X = min(maxSpeed, playerVelocity.X+currentAccel)
-			}
-		} else if ctrl.InputAxis.X < 0 {
-			if playerVelocity.X < -maxSpeed {
-				playerVelocity.X = min(-maxSpeed, playerVelocity.X+currentDecel)
-			} else {
-				playerVelocity.X = max(-maxSpeed, playerVelocity.X-currentAccel)
-			}
-		} else {
-			if playerVelocity.X > 0 {
-				playerVelocity.X = max(0, playerVelocity.X-currentDecel)
-			} else if playerVelocity.X < 0 {
-				playerVelocity.X = min(0, playerVelocity.X+currentDecel)
-			}
-		}
-
-		ctrl.IsSkidding = (playerVelocity.X > 0 && ctrl.InputAxis.X == -1) || (playerVelocity.X < 0 && ctrl.InputAxis.X == 1)
-
-		// Player and tilemap collision
-		Collider.Collide(
-			math.Round(playerPos.X),
-			playerPos.Y,
-			playerSize.W,
-			playerSize.H,
-			playerVelocity.X,
-			playerVelocity.Y,
-			func(collisionInfos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
-				ctrl.IsOnFloor = false
-
-				playerPos.X += dx
-				playerPos.Y += dy
-
-				// Reset velocity when collide
-				for _, collisionInfo := range collisionInfos {
-					if collisionInfo.Normal[1] == -1 {
-						// Ground collision
-						playerVelocity.Y = 0
-						ctrl.IsOnFloor = true // on floor collision
-					}
-					if collisionInfo.Normal[1] == 1 {
-						// Ceil collision
-						playerVelocity.Y = 0
-					}
-					if collisionInfo.Normal[0] == -1 || collisionInfo.Normal[0] == 1 {
-
-						if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
-							// Right of Left wall collision
-							x := collisionInfo.TileCoords[0]
-							y := collisionInfo.TileCoords[1]
-							TileMapRes.Set(x, y, items.Air)
-							wx, wy := TileMapRes.TileToWorldCenter(x, y)
-							SpawnEffect(collisionInfo.TileID, wx, wy)
-						}
-
-						playerVelocity.X = 0
-						ctrl.HorizontalVelocity = 0
-					}
+			if !ctrl.IsSkidding {
+				if ctrl.IsRunKeyPressed {
+					maxSpeed = ctrl.MaxRunSpeed
+					currentAccel = ctrl.RunAcceleration
+					currentDecel = ctrl.RunDeceleration
+				} else if ctrl.HorizontalVelocity > ctrl.MaxWalkSpeed {
+					currentDecel = ctrl.RunDeceleration
 				}
+			}
 
-				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-					ids := make([]uint8, 0)
+			if ctrl.InputAxis.X > 0 {
+				if playerVelocity.X > maxSpeed {
+					playerVelocity.X = max(maxSpeed, playerVelocity.X-currentDecel)
+				} else {
+					playerVelocity.X = min(maxSpeed, playerVelocity.X+currentAccel)
+				}
+			} else if ctrl.InputAxis.X < 0 {
+				if playerVelocity.X < -maxSpeed {
+					playerVelocity.X = min(-maxSpeed, playerVelocity.X+currentDecel)
+				} else {
+					playerVelocity.X = max(-maxSpeed, playerVelocity.X-currentAccel)
+				}
+			} else {
+				if playerVelocity.X > 0 {
+					playerVelocity.X = max(0, playerVelocity.X-currentDecel)
+				} else if playerVelocity.X < 0 {
+					playerVelocity.X = min(0, playerVelocity.X+currentDecel)
+				}
+			}
+
+			ctrl.IsSkidding = (playerVelocity.X > 0 && ctrl.InputAxis.X == -1) || (playerVelocity.X < 0 && ctrl.InputAxis.X == 1)
+
+			// Player and tilemap collision
+			Collider.Collide(
+				math.Round(playerPos.X),
+				playerPos.Y,
+				playerSize.W,
+				playerSize.H,
+				playerVelocity.X,
+				playerVelocity.Y,
+				func(collisionInfos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
+					ctrl.IsOnFloor = false
+
+					playerPos.X += dx
+					playerPos.Y += dy
+
+					// Reset velocity when collide
 					for _, collisionInfo := range collisionInfos {
 						if collisionInfo.Normal[1] == -1 {
-							ids = append(ids, collisionInfo.TileID)
+							// Ground collision
+							playerVelocity.Y = 0
+							ctrl.IsOnFloor = true // on floor collision
+						}
+						if collisionInfo.Normal[1] == 1 {
+							// Ceil collision
+							playerVelocity.Y = 0
+						}
+						if collisionInfo.Normal[0] == -1 || collisionInfo.Normal[0] == 1 {
+
+							if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
+								// Right of Left wall collision
+								x := collisionInfo.TileCoords[0]
+								y := collisionInfo.TileCoords[1]
+								TileMapRes.Set(x, y, items.Air)
+								wx, wy := TileMapRes.TileToWorldCenter(x, y)
+								SpawnEffect(collisionInfo.TileID, wx, wy)
+							}
+
+							playerVelocity.X = 0
+							ctrl.HorizontalVelocity = 0
 						}
 					}
-					if len(ids) == 2 {
-						if ids[0] == items.Sand && ids[1] == items.GrassBlock {
-							// Pipe logic is here
+
+					if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+						ids := make([]uint8, 0)
+						for _, collisionInfo := range collisionInfos {
+							if collisionInfo.Normal[1] == -1 {
+								ids = append(ids, collisionInfo.TileID)
+							}
+						}
+						if len(ids) == 2 {
+							if ids[0] == items.Sand && ids[1] == items.GrassBlock {
+								// Pipe logic is here
+							}
 						}
 					}
-				}
-			},
-		)
+				},
+			)
 
-		// player facing raycast for target block
-		c.playerTile = TileMapRes.WorldToTile(playerCenterX, playerCenterY)
-		targetBlockTemp := GameDataRes.TargetBlockCoord
-		GameDataRes.TargetBlockCoord, IsRayHit = TileMapRes.Raycast(
-			c.playerTile,
-			pFacing.Dir,
-			RaycastDist,
-		)
+			// player facing raycast for target block
+			c.playerTile = TileMapRes.WorldToTile(playerCenterX, playerCenterY)
+			targetBlockTemp := GameDataRes.TargetBlockCoord
+			GameDataRes.TargetBlockCoord, IsRayHit = TileMapRes.Raycast(
+				c.playerTile,
+				pFacing.Dir,
+				RaycastDist,
+			)
 
-		// reset attack if block focus changed
-		if !GameDataRes.TargetBlockCoord.Eq(targetBlockTemp) || !IsRayHit {
-			blockHealth = 0
-		}
+			// reset attack if block focus changed
+			if !GameDataRes.TargetBlockCoord.Eq(targetBlockTemp) || !IsRayHit {
+				blockHealth = 0
+			}
 
-		// place block if IsAttackKeyJustPressed
-		if ctrl.IsAttackKeyJustPressed {
-			anyItemOverlapsWithPlaceRect := false
-			// if slot item is block
-			if IsRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
-				// Get tile rect
-				placeTile = GameDataRes.TargetBlockCoord.Sub(pFacing.Dir)
-				placeTilePos := &Position{float64(placeTile.X * 20), float64(placeTile.Y * 20)}
-				placeTileSize := &Size{20, 20}
-				// check overlaps
-				queryItem := FilterDroppedItem.Query(&ECWorld)
-				for queryItem.Next() {
-					_, itemPos, _, _, _ := queryItem.Get()
-					anyItemOverlapsWithPlaceRect = Overlaps(itemPos, &DropItemSize, placeTilePos, placeTileSize)
-					if anyItemOverlapsWithPlaceRect {
-						queryItem.Close()
-						break
+			// place block if IsAttackKeyJustPressed
+			if ctrl.IsAttackKeyJustPressed {
+				anyItemOverlapsWithPlaceRect := false
+				// if slot item is block
+				if IsRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
+					// Get tile rect
+					placeTile = GameDataRes.TargetBlockCoord.Sub(pFacing.Dir)
+					placeTilePos := &Position{float64(placeTile.X * 20), float64(placeTile.Y * 20)}
+					placeTileSize := &Size{20, 20}
+					// check overlaps
+					queryItem := FilterDroppedItem.Query(&ECWorld)
+					for queryItem.Next() {
+						_, itemPos, _, _, _ := queryItem.Get()
+						anyItemOverlapsWithPlaceRect = Overlaps(itemPos, &DropItemSize, placeTilePos, placeTileSize)
+						if anyItemOverlapsWithPlaceRect {
+							queryItem.Close()
+							break
 
+						}
 					}
-				}
-				if !anyItemOverlapsWithPlaceRect {
-					// oyuncu place tile ile çarpışıyormu
-					if !Overlaps(playerPos, playerSize, placeTilePos, placeTileSize) {
-						// place block
-						TileMapRes.Set(placeTile.X, placeTile.Y, InventoryRes.CurrentSlotID())
-						// remove item
+					if !anyItemOverlapsWithPlaceRect {
+						// oyuncu place tile ile çarpışıyormu
+						if !Overlaps(playerPos, playerSize, placeTilePos, placeTileSize) {
+							// place block
+							TileMapRes.Set(placeTile.X, placeTile.Y, InventoryRes.CurrentSlotID())
+							// remove item
+							InventoryRes.RemoveItemFromSelectedSlot()
+						}
+					}
+					// if slot item snowball, throw snowball
+				} else if InventoryRes.CurrentSlot().ID == items.Snowball {
+					if ctrl.CurrentState != "skidding" {
+						switch pFacing.Dir {
+						case image.Point{1, 0}:
+							SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, SnowballSpeedX, SnowballMaxFallVelocity)
+						case image.Point{-1, 0}:
+							SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, -SnowballSpeedX, SnowballMaxFallVelocity)
+						}
 						InventoryRes.RemoveItemFromSelectedSlot()
 					}
 				}
-				// if slot item snowball, throw snowball
-			} else if InventoryRes.CurrentSlot().ID == items.Snowball {
-				if ctrl.CurrentState != "skidding" {
-					switch pFacing.Dir {
-					case image.Point{1, 0}:
-						SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, SnowballSpeedX, SnowballMaxFallVelocity)
-					case image.Point{-1, 0}:
-						SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, -SnowballSpeedX, SnowballMaxFallVelocity)
-					}
+
+			}
+
+			// Drop Item
+			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+				currentSlot := InventoryRes.CurrentSlot()
+				if currentSlot.ID != items.Air {
+					AppendToSpawnList(
+						playerCenterX,
+						playerCenterY,
+						currentSlot.ID,
+						currentSlot.Durability,
+					)
 					InventoryRes.RemoveItemFromSelectedSlot()
+					onInventorySlotChanged()
 				}
 			}
+			// projectile physics
+			q := FilterProjectile.Query(&ECWorld)
+			for q.Next() {
+				itemID, projectilePos, projectileVel := q.Get()
+				// snowball physics
+				if itemID.ID == items.Snowball {
+					projectileVel.Y += SnowballGravity
+					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
+					Collider.Collide(
+						projectilePos.X,
+						projectilePos.Y,
+						DropItemSize.W,
+						DropItemSize.H,
+						projectileVel.X,
+						projectileVel.Y,
+						func(ci []tilecollider.CollisionInfo[uint8], dx, dy float64) {
+							projectilePos.X += dx
+							projectilePos.Y += dy
+							isHorizontalCollision := false
+							for _, c := range ci {
+								if c.Normal[1] == -1 {
+									projectileVel.Y = bounceVelocity
+								}
+								if c.Normal[0] == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
+									isHorizontalCollision = true
+								}
+								if c.Normal[0] == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
+									isHorizontalCollision = true
+								}
+							}
+							if isHorizontalCollision {
+								if ECWorld.Alive(q.Entity()) {
+									toRemove = append(toRemove, q.Entity())
+								}
+							}
+						},
+					)
+				}
 
-		}
-
-		// Drop Item
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-			currentSlot := InventoryRes.CurrentSlot()
-			if currentSlot.ID != items.Air {
-				AppendToSpawnList(
-					playerCenterX,
-					playerCenterY,
-					currentSlot.ID,
-					currentSlot.Durability,
-				)
-				InventoryRes.RemoveItemFromSelectedSlot()
-				onInventorySlotChanged()
 			}
-		}
-		// projectile physics
-		q := FilterProjectile.Query(&ECWorld)
-		for q.Next() {
-			itemID, projectilePos, projectileVel := q.Get()
-			// snowball physics
-			if itemID.ID == items.Snowball {
-				projectileVel.Y += SnowballGravity
-				projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
-				Collider.Collide(
-					projectilePos.X,
-					projectilePos.Y,
-					DropItemSize.W,
-					DropItemSize.H,
-					projectileVel.X,
-					projectileVel.Y,
-					func(ci []tilecollider.CollisionInfo[uint8], dx, dy float64) {
-						projectilePos.X += dx
-						projectilePos.Y += dy
-						isHorizontalCollision := false
-						for _, c := range ci {
-							if c.Normal[1] == -1 {
-								projectileVel.Y = bounceVelocity
-							}
-							if c.Normal[0] == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
-								isHorizontalCollision = true
-							}
-							if c.Normal[0] == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
-								isHorizontalCollision = true
-							}
-						}
-						if isHorizontalCollision {
-							if ECWorld.Alive(q.Entity()) {
-								toRemove = append(toRemove, q.Entity())
-							}
-						}
-					},
-				)
-			}
-
 		}
 	}
 }
