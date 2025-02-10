@@ -30,7 +30,7 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>E</kbd>            | Select next inventory slot                                        |
 | <kbd>Q</kbd>            | Select previous inventory slot                                    |
 | <kbd>R</kbd>            | Set Quick-Slot 1                                                  |
-| <kbd>F</kbd>            | Set Quick-Slot 2                                                  |
+| <kbd>T</kbd>            | Set Quick-Slot 2                                                  |
 | <kbd>Tab</kbd>          | Switch between Quick-Slot 1 and Quick-Slot 2                      |
 | <kbd>↑</kbd>            | Open/Close 2x2 Crafting mode                                      |
 | <kbd>↑</kbd>            | Open/Close 3x3 Crafting mode (if looking to Crafting Table)       |

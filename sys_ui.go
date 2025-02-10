@@ -47,7 +47,7 @@ func (ui *UI) Update() {
 			}
 
 		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyF) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyT) {
 			if InventoryRes.CurrentSlotIndex != InventoryRes.QuickSlot1 {
 				InventoryRes.QuickSlot2 = InventoryRes.CurrentSlotIndex
 			}
