@@ -19,6 +19,7 @@ var (
 	blockHealth    float64
 	placeTile      image.Point
 	IsRayHit       bool
+	DyingCountdown float64
 )
 
 type Player struct {
@@ -28,16 +29,35 @@ type Player struct {
 func (c *Player) Init() {
 }
 
-func (c *Player) Update() {
+func (c *Player) Update() error {
 
 	if !GameDataRes.CraftingState {
-		// update animation player
-		if !GameDataRes.CraftingState {
-			PlayerAnimPlayer.Update()
-		}
-
 		if ECWorld.Alive(CurrentPlayer) {
+			PlayerAnimPlayer.Update()
+
+			// update animation player
 			playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
+
+			if inpututil.IsKeyJustPressed(ebiten.Key9) {
+				playerHealth.Current = 0
+			}
+			if playerHealth.Current <= 0 {
+				DyingCountdown += 0.1
+				PlayerAnimPlayer.Paused = true
+				playerPos.Y += DyingCountdown
+
+				if playerPos.Y > CameraRes.Y+CameraRes.Height {
+					PlayerAnimPlayer.Paused = false
+					PreviousGameState = "playing"
+					CurrentGameState = "menu"
+					ColorM.ChangeHSV(1, 0, 0.5) // BW
+					TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
+					toRemove = append(toRemove, CurrentPlayer)
+					DyingCountdown = 0
+				}
+				return nil
+
+			}
 
 			playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
 
@@ -586,6 +606,7 @@ func (c *Player) Update() {
 			}
 		}
 	}
+	return nil
 }
 func (c *Player) Draw() {
 	if DrawDebugHitboxesEnabled {

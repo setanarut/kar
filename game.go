@@ -31,6 +31,7 @@ func (g *Game) Update() error {
 	if ebiten.IsFocused() {
 		switch CurrentGameState {
 		case "menu":
+
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 				PreviousGameState = "menu"
 				CurrentGameState = "playing"

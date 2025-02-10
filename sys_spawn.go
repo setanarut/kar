@@ -26,7 +26,7 @@ func (s *Spawn) Init() {
 
 }
 
-func (s *Spawn) Update() {
+func (s *Spawn) Update() error {
 
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
@@ -50,7 +50,7 @@ func (s *Spawn) Update() {
 		ECWorld.RemoveEntity(e)
 	}
 	toRemove = toRemove[:0]
-
+	return nil
 }
 func (s *Spawn) Draw() {
 }

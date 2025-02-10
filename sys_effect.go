@@ -13,7 +13,7 @@ func (e *Effects) Init() {
 	e.g = 0.2
 
 }
-func (e *Effects) Update() {
+func (e *Effects) Update() error {
 
 	q := FilterEffect.Query(&ECWorld)
 
@@ -25,6 +25,7 @@ func (e *Effects) Update() {
 			toRemove = append(toRemove, q.Entity())
 		}
 	}
+	return nil
 }
 func (e *Effects) Draw() {
 	q := FilterEffect.Query(&ECWorld)

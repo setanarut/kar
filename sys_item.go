@@ -13,7 +13,7 @@ func (i *Item) Init() {
 	i.sinspaceLenght = len(Sinspace) - 1
 
 }
-func (i *Item) Update() {
+func (i *Item) Update() error {
 
 	q := FilterCollisionDelayer.Query(&ECWorld)
 
@@ -70,7 +70,7 @@ func (i *Item) Update() {
 		MapCollisionDelayer.Remove(entity)
 	}
 	i.toRemoveComponent = i.toRemoveComponent[:0]
-
+	return nil
 }
 func (i *Item) Draw() {
 

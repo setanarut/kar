@@ -27,7 +27,7 @@ Facing %v
 type UI struct{}
 
 func (ui *UI) Init() {}
-func (ui *UI) Update() {
+func (ui *UI) Update() error {
 
 	if ECWorld.Alive(CurrentPlayer) {
 
@@ -215,6 +215,7 @@ func (ui *UI) Update() {
 		}
 
 	}
+	return nil
 }
 
 func (ui *UI) Draw() {

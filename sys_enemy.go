@@ -16,7 +16,7 @@ type Enemy struct {
 func (e *Enemy) Init() {
 }
 
-func (e *Enemy) Update() {
+func (e *Enemy) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
 		SpawnEnemy(x, y, 0.5, 0)
@@ -32,6 +32,7 @@ func (e *Enemy) Update() {
 				pos.X += vel.X
 				pos.Y += vel.Y
 				e.normal = [2]int{0, 0}
+
 				Collider.Collide(
 					pos.X,
 					pos.Y,
@@ -48,6 +49,7 @@ func (e *Enemy) Update() {
 						}
 					},
 				)
+				// player-enemy collision
 				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, pos, &EnemyWormSize)
 				// playerVelocity.X += collInfo.DeltaX
 				playerVelocity.Y += collInfo.DeltaY
@@ -62,6 +64,7 @@ func (e *Enemy) Update() {
 			}
 		}
 	}
+	return nil
 }
 func (e *Enemy) Draw() {
 	q := FilterEnemy.Query(&ECWorld)

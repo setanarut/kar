@@ -16,10 +16,9 @@ type Camera struct{}
 func (c *Camera) Init() {
 }
 
-func (c *Camera) Update() {
+func (c *Camera) Update() error {
 
 	if ECWorld.Alive(CurrentPlayer) {
-
 		playerPos, playerSize := MapRect.Get(CurrentPlayer)
 		playerCenterX, playerCenterY := playerPos.X+playerSize.W, playerPos.Y+playerSize.H
 
@@ -42,25 +41,27 @@ func (c *Camera) Update() {
 			}
 		}
 
-		// Static camera logic
-		if CameraRes.SmoothType == kamera.None {
-			if playerCenterX < CameraRes.X {
-				CameraRes.X -= CameraRes.Width
+		// Camera follow
+		if MapHealth.Get(CurrentPlayer).Current > 0 {
+			if CameraRes.SmoothType == kamera.None {
+				if playerCenterX < CameraRes.X {
+					CameraRes.X -= CameraRes.Width
+				}
+				if playerCenterX > CameraRes.Right() {
+					CameraRes.X += CameraRes.Width
+				}
+				if playerCenterY < CameraRes.Y {
+					CameraRes.Y -= CameraRes.Height
+				}
+				if playerCenterY > CameraRes.Bottom() {
+					CameraRes.Y += CameraRes.Height
+				}
+			} else {
+				CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
 			}
-			if playerCenterX > CameraRes.Right() {
-				CameraRes.X += CameraRes.Width
-			}
-			if playerCenterY < CameraRes.Y {
-				CameraRes.Y -= CameraRes.Height
-			}
-			if playerCenterY > CameraRes.Bottom() {
-				CameraRes.Y += CameraRes.Height
-			}
-		} else {
-			CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
 		}
 	}
-
+	return nil
 }
 
 func (c *Camera) Draw() {
