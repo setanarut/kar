@@ -427,25 +427,28 @@ func (c *Player) Update() {
 					playerPos.Y += dy
 
 					// Reset velocity when collide
-					for _, collisionInfo := range collisionInfos {
-						if collisionInfo.Normal[1] == -1 {
+					for _, ci := range collisionInfos {
+						if ci.Normal[1] == -1 {
 							// Ground collision
 							playerVelocity.Y = 0
-							ctrl.IsOnFloor = true // on floor collision
+							ctrl.IsOnFloor = true
 						}
-						if collisionInfo.Normal[1] == 1 {
+						if ci.Normal[1] == 1 {
 							// Ceil collision
+							if ci.TileID == items.StoneBricks {
+								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
+								wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
+								SpawnEffect(ci.TileID, wx, wy)
+							}
 							playerVelocity.Y = 0
 						}
-						if collisionInfo.Normal[0] == -1 || collisionInfo.Normal[0] == 1 {
-
+						// Right of Left wall collision
+						if ci.Normal[0] == -1 || ci.Normal[0] == 1 {
+							// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
 							if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
-								// Right of Left wall collision
-								x := collisionInfo.TileCoords[0]
-								y := collisionInfo.TileCoords[1]
-								TileMapRes.Set(x, y, items.Air)
-								wx, wy := TileMapRes.TileToWorldCenter(x, y)
-								SpawnEffect(collisionInfo.TileID, wx, wy)
+								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
+								wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
+								SpawnEffect(ci.TileID, wx, wy)
 							}
 
 							playerVelocity.X = 0

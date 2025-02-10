@@ -294,6 +294,7 @@ var Property = map[uint8]ItemProperty{
 	},
 	Torch: {
 		DisplayName:  "Torch",
+		DropID:       Torch,
 		MaxStackSize: 64,
 		Tags:         Item | Block,
 		BestToolTag:  All,
