@@ -384,7 +384,6 @@ func (ui *UI) Draw() {
 		}
 
 	} else if CurrentGameState != "menu" {
-		// Draw debug info
 		ebitenutil.DebugPrintAt(Screen, "YOU ARE DEAD!", int(ScreenW/2)-30, int(ScreenH/2))
 	}
 }

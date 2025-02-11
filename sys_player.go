@@ -41,6 +41,8 @@ func (c *Player) Update() error {
 			if inpututil.IsKeyJustPressed(ebiten.Key9) {
 				playerHealth.Current = 0
 			}
+
+			// Death animation
 			if playerHealth.Current <= 0 {
 				DyingCountdown += 0.1
 				PlayerAnimPlayer.Paused = true
@@ -53,11 +55,9 @@ func (c *Player) Update() error {
 					ColorM.ChangeHSV(1, 0, 0.5) // BW
 					TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 					ECWorld.RemoveEntity(CurrentPlayer)
-					// toRemove = append(toRemove, CurrentPlayer)
 					DyingCountdown = 0
 				}
 				return nil
-
 			}
 
 			playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
@@ -455,7 +455,7 @@ func (c *Player) Update() error {
 							ctrl.IsOnFloor = true
 						}
 						// Ceil collision
-						if ci.Normal[1] == 1 {
+						if ci.Normal[1] == 1 { // TODO aynı anda olan çarpışmaları teke indir
 							CeilBlockCoord = ci.TileCoords
 							CeilBlockTick = 3
 							if ci.TileID == items.StoneBricks {

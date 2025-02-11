@@ -132,8 +132,9 @@ func NewGame() {
 	SpawnX, SpawnY := TileMapRes.TileToWorldCenter(x, y)
 	CameraRes.SmoothType = kamera.None
 	CameraRes.SetCenter(SpawnX, SpawnY)
-	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
 	CurrentPlayer = SpawnPlayer(SpawnX, SpawnY)
+	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
+
 	CameraRes.SmoothOptions.LerpSpeedX = 0.5
 	CameraRes.SmoothOptions.LerpSpeedY = 0
 	// CameraRes.SmoothType = kamera.SmoothDamp
@@ -152,10 +153,9 @@ func SaveGame() {
 
 func LoadGame() {
 	if DataManager.ItemExists("01save") {
-		// if !ECWorld.Alive(CurrentPlayer) {
-		// 	fmt.Println("spa")
-		// 	CurrentPlayer = SpawnPlayer(0, 0)
-		// }
+		if !ECWorld.Alive(CurrentPlayer) {
+			CurrentPlayer = SpawnPlayer(0, 0)
+		}
 		ECWorld.Reset()
 		ecs.AddResource(&ECWorld, GameDataRes)
 		ecs.AddResource(&ECWorld, InventoryRes)

@@ -18,7 +18,6 @@ type MainMenu struct {
 }
 
 func (m *MainMenu) Init() {
-	// m.newGame()
 	m.do = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
@@ -26,9 +25,9 @@ func (m *MainMenu) Init() {
 		},
 	}
 
-	m.text = "SAVE\nLOAD\nNEW GAME"
-	m.x = float64((int(ScreenW) / 2) - 10)
-	m.y = float64((int(ScreenH) / 2) - 20)
+	m.text = "NEW GAME\nSAVE\nLOAD"
+	m.x = float64((int(ScreenW) / 2) - 20)
+	m.y = float64((int(ScreenH) / 2) - 30)
 	m.do.ColorScale.ScaleWithColor(color.Gray{200})
 }
 
@@ -36,11 +35,11 @@ func (m *MainMenu) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
 		switch m.line {
 		case 0:
-			SaveGame()
-		case 1:
-			LoadGame()
-		case 2:
 			NewGame()
+		case 1:
+			SaveGame()
+		case 2:
+			LoadGame()
 		}
 		PreviousGameState = "menu"
 		CurrentGameState = "playing"

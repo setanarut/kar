@@ -2,6 +2,7 @@ package kar
 
 import (
 	"image/color"
+	"kar/items"
 	"kar/res"
 	"math"
 
@@ -66,7 +67,6 @@ func (c *Camera) Update() error {
 	}
 	return nil
 }
-
 func (c *Camera) Draw() {
 
 	// DRAW TILEMAPs
@@ -86,10 +86,12 @@ func (c *Camera) Draw() {
 				ColorMDIO.GeoM.Reset()
 
 				if x == CeilBlockCoord[0] && y == CeilBlockCoord[1] {
-					if CeilBlockTick > 0 {
-						CeilBlockTick -= 0.1
+					if tileID == items.Sand {
+						if CeilBlockTick > 0 {
+							CeilBlockTick -= 0.1
+						}
+						py -= CeilBlockTick
 					}
-					py -= CeilBlockTick
 				}
 
 				ColorMDIO.GeoM.Translate(px, py)

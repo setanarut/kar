@@ -4,15 +4,13 @@ import (
 	"github.com/mlange-42/arche/ecs"
 )
 
+var SinspaceLen int = len(Sinspace) - 1
+
 type Item struct {
-	sinspaceLenght    int
 	toRemoveComponent []ecs.Entity
 }
 
-func (i *Item) Init() {
-	i.sinspaceLenght = len(Sinspace) - 1
-
-}
+func (i *Item) Init() {}
 func (i *Item) Update() error {
 
 	q := FilterCollisionDelayer.Query(&ECWorld)
@@ -59,7 +57,7 @@ func (i *Item) Update() error {
 				// vertical item sine animation
 				dy := Collider.CollideY(itemPos.X, itemPos.Y+6, itemSize.W, itemSize.H, ItemGravity)
 				itemPos.Y += dy
-				timers.Index = (timers.Index + 1) % i.sinspaceLenght
+				timers.Index = (timers.Index + 1) % SinspaceLen
 
 			}
 		}
