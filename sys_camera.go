@@ -11,9 +11,13 @@ import (
 	"github.com/setanarut/kamera/v2"
 )
 
+var CeilBlockCoord [2]int
+var CeilBlockTick float64
+
 type Camera struct{}
 
 func (c *Camera) Init() {
+
 }
 
 func (c *Camera) Update() error {
@@ -34,7 +38,7 @@ func (c *Camera) Update() error {
 			switch CameraRes.SmoothType {
 			case kamera.None:
 				CameraRes.SetCenter(playerCenterX, playerCenterY)
-				CameraRes.SmoothType = kamera.SmoothDamp
+				CameraRes.SmoothType = kamera.Lerp
 			case kamera.SmoothDamp, kamera.Lerp:
 				CameraRes.SetCenter(playerCenterX, playerCenterY)
 				CameraRes.SmoothType = kamera.None
@@ -43,20 +47,19 @@ func (c *Camera) Update() error {
 
 		// Camera follow
 		if MapHealth.Get(CurrentPlayer).Current > 0 {
-			if CameraRes.SmoothType == kamera.None {
-				if playerCenterX < CameraRes.X {
-					CameraRes.X -= CameraRes.Width
-				}
-				if playerCenterX > CameraRes.Right() {
-					CameraRes.X += CameraRes.Width
-				}
+			if CameraRes.SmoothType == kamera.Lerp {
+				// if playerCenterX < CameraRes.X {
+				// 	CameraRes.X -= CameraRes.Width
+				// }
+				// if playerCenterX > CameraRes.Right() {
+				// 	CameraRes.X += CameraRes.Width
+				// }
 				if playerCenterY < CameraRes.Y {
-					CameraRes.Y -= CameraRes.Height
+					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y-CameraRes.Height)
 				}
 				if playerCenterY > CameraRes.Bottom() {
-					CameraRes.Y += CameraRes.Height
+					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y+CameraRes.Height)
 				}
-			} else {
 				CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
 			}
 		}
@@ -81,6 +84,14 @@ func (c *Camera) Draw() {
 			if tileID != 0 {
 				px, py := float64(x*TileMapRes.TileW), float64(y*TileMapRes.TileH)
 				ColorMDIO.GeoM.Reset()
+
+				if x == CeilBlockCoord[0] && y == CeilBlockCoord[1] {
+					if CeilBlockTick > 0 {
+						CeilBlockTick -= 0.1
+					}
+					py -= CeilBlockTick
+				}
+
 				ColorMDIO.GeoM.Translate(px, py)
 				if x == GameDataRes.TargetBlockCoord.X && y == GameDataRes.TargetBlockCoord.Y {
 					i := MapRange(blockHealth, 0, 180, 0, 5)

@@ -132,10 +132,12 @@ func NewGame() {
 	SpawnX, SpawnY := TileMapRes.TileToWorldCenter(x, y)
 	CameraRes.SmoothType = kamera.None
 	CameraRes.SetCenter(SpawnX, SpawnY)
-	CameraRes.SmoothOptions.LerpSpeedX = 0.5
-	CameraRes.SmoothOptions.LerpSpeedY = 0.05
 	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
 	CurrentPlayer = SpawnPlayer(SpawnX, SpawnY)
+	CameraRes.SmoothOptions.LerpSpeedX = 0.5
+	CameraRes.SmoothOptions.LerpSpeedY = 0
+	// CameraRes.SmoothType = kamera.SmoothDamp
+	// CameraRes.SmoothOptions.SmoothDampTimeY = 0.1
 	CameraRes.SmoothType = kamera.Lerp
 }
 

@@ -14,7 +14,8 @@ import (
 )
 
 var (
-	hotbarPositionX        = ScreenW/2 - float64(res.Hotbar.Bounds().Dx())/2
+	// hotbarPositionX        = ScreenW/2 - float64(res.Hotbar.Bounds().Dx())/2
+	hotbarPositionX        = 4.
 	hotbarPositionY        = 9.
 	hotbarRightEdgePosX    = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
 	craftingTablePositionX = hotbarPositionX + 49

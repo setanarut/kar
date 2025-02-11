@@ -52,7 +52,8 @@ func (c *Player) Update() error {
 					CurrentGameState = "menu"
 					ColorM.ChangeHSV(1, 0, 0.5) // BW
 					TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
-					toRemove = append(toRemove, CurrentPlayer)
+					ECWorld.RemoveEntity(CurrentPlayer)
+					// toRemove = append(toRemove, CurrentPlayer)
 					DyingCountdown = 0
 				}
 				return nil
@@ -453,8 +454,10 @@ func (c *Player) Update() error {
 							playerVelocity.Y = 0
 							ctrl.IsOnFloor = true
 						}
+						// Ceil collision
 						if ci.Normal[1] == 1 {
-							// Ceil collision
+							CeilBlockCoord = ci.TileCoords
+							CeilBlockTick = 3
 							if ci.TileID == items.StoneBricks {
 								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
 								wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
