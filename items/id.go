@@ -49,4 +49,5 @@ const (
 	WoodenAxe
 	WoodenPickaxe
 	WoodenShovel
+	Random
 )

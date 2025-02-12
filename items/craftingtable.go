@@ -1,9 +1,5 @@
 package items
 
-import (
-	"fmt"
-)
-
 type CraftTable struct {
 	SlotPosX, SlotPosY int
 	Slots              [][]Slot
@@ -122,10 +118,4 @@ func (ct *CraftTable) cropRecipe(reci Recipe) Recipe {
 		}
 	}
 	return Recipe(normalizedGrid)
-}
-
-func (ct *CraftTable) PrintGrid() {
-	for _, row := range ct.Slots {
-		fmt.Println(row)
-	}
 }

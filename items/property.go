@@ -7,7 +7,7 @@ const (
 	None  tag = 0
 	Block tag = 1 << iota
 	OreBlock
-	Unbreakable
+	UnbreakableBlock
 	Harvestable
 	DropItem
 	Item
@@ -41,23 +41,26 @@ var Property = map[uint8]ItemProperty{
 		DisplayName:  "Air",
 		DropID:       Air,
 		MaxStackSize: 1,
-		Tags:         None | Unbreakable,
+		Tags:         None | UnbreakableBlock,
 	},
 	Bedrock: {
 		DisplayName:  "Bedrock",
-		DropID:       0,
+		DropID:       Bedrock,
 		MaxStackSize: 1,
-		Tags:         Block | Unbreakable,
+		Tags:         Block | UnbreakableBlock,
+	},
+	Random: {
+		DisplayName:  "Random",
+		MaxStackSize: 64,
+		Tags:         Block | UnbreakableBlock,
 	},
 	Bread: {
 		DisplayName:  "Bread",
-		DropID:       0,
 		MaxStackSize: 64,
 		Tags:         Item | Food,
 	},
 	Bucket: {
 		DisplayName:  "Bucket",
-		DropID:       0,
 		MaxStackSize: 1,
 		Tags:         Item | Tool,
 	},

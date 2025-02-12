@@ -1,8 +1,6 @@
 package kar
 
 import (
-	"kar/items"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/mlange-42/arche/ecs"
@@ -20,7 +18,9 @@ func AppendToSpawnList(x, y float64, id uint8, dur int) {
 	)
 }
 
-type Spawn struct{}
+type Spawn struct {
+	tile uint8
+}
 
 func (s *Spawn) Init() {
 
@@ -28,15 +28,15 @@ func (s *Spawn) Init() {
 
 func (s *Spawn) Update() error {
 
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
 		p := TileMapRes.WorldToTile(x, y)
-		TileMapRes.Set(p.X, p.Y, items.Stone)
+		TileMapRes.Set(p.X, p.Y, s.tile)
 	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
 		p := TileMapRes.WorldToTile(x, y)
-		TileMapRes.Set(p.X, p.Y, items.Air)
+		s.tile = TileMapRes.Get(p.X, p.Y)
 	}
 
 	// Spawn item

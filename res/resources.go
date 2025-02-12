@@ -19,8 +19,8 @@ var fs embed.FS
 
 var (
 	Icon8            = make(map[uint8]*ebiten.Image, 0)
-	Items20          = make(map[uint8]*ebiten.Image, 0)
 	BlockCrackFrames = make(map[uint8][]*ebiten.Image, 0)
+	BlockUnbreakable = make(map[uint8]*ebiten.Image, 0)
 	Hotbar           = ReadEbImgFS(fs, "assets/img/gui/hotbar.png")
 	CraftingTable    = ReadEbImgFS(fs, "assets/img/gui/table.png")
 	CraftingTable4   = ReadEbImgFS(fs, "assets/img/gui/table4.png")
@@ -47,7 +47,12 @@ var (
 )
 
 func init() {
-	BlockCrackFrames[items.Bedrock] = blockImgs("bedrock.png")
+
+	// Unbreakable blocks
+	BlockUnbreakable[items.Bedrock] = ReadEbImgFS(fs, "assets/img/blocks/bedrock.png")
+	BlockUnbreakable[items.Random] = ReadEbImgFS(fs, "assets/img/blocks/random.png")
+
+	// Breakable blocks
 	BlockCrackFrames[items.CoalOre] = blockImgs("coal_ore.png")
 	BlockCrackFrames[items.CraftingTable] = blockImgs("crafting_table.png")
 	BlockCrackFrames[items.DiamondOre] = blockImgs("diamond_ore.png")
@@ -71,8 +76,9 @@ func init() {
 	BlockCrackFrames[items.Tnt] = blockImgs("tnt.png")
 	BlockCrackFrames[items.Torch] = blockImgs("torch.png")
 
-	// blocks
+	// Block icons
 	Icon8[items.Bedrock] = blockIconImg("bedrock.png")
+	Icon8[items.Random] = blockIconImg("random.png")
 	Icon8[items.CoalOre] = blockIconImg("coal_ore.png")
 	Icon8[items.CraftingTable] = blockIconImg("crafting_table.png")
 	Icon8[items.DiamondOre] = blockIconImg("diamond_ore.png")
@@ -95,7 +101,8 @@ func init() {
 	Icon8[items.StoneBricks] = blockIconImg("stone_bricks.png")
 	Icon8[items.Tnt] = blockIconImg("tnt.png")
 	Icon8[items.Torch] = blockIconImg("torch.png")
-	// items
+
+	// Item icons
 	Icon8[items.Bread] = itemIconImg("bread.png")
 	Icon8[items.Bucket] = itemIconImg("bucket.png")
 	Icon8[items.Coal] = itemIconImg("coal.png")

@@ -1,6 +1,6 @@
 module kar
 
-go 1.23.6
+go 1.24.0
 
 require (
 	github.com/anthonynsimon/bild v0.14.0

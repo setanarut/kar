@@ -86,7 +86,7 @@ func (c *Camera) Draw() {
 				ColorMDIO.GeoM.Reset()
 
 				if x == CeilBlockCoord[0] && y == CeilBlockCoord[1] {
-					if tileID == items.Sand {
+					if tileID == items.Bedrock {
 						if CeilBlockTick > 0 {
 							CeilBlockTick -= 0.1
 						}
@@ -95,11 +95,15 @@ func (c *Camera) Draw() {
 				}
 
 				ColorMDIO.GeoM.Translate(px, py)
-				if x == GameDataRes.TargetBlockCoord.X && y == GameDataRes.TargetBlockCoord.Y {
-					i := MapRange(blockHealth, 0, 180, 0, 5)
-					CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], ColorM, ColorMDIO, Screen)
+				if items.HasTag(tileID, items.UnbreakableBlock) {
+					CameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], ColorM, ColorMDIO, Screen)
 				} else {
-					CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], ColorM, ColorMDIO, Screen)
+					if x == GameDataRes.TargetBlockCoord.X && y == GameDataRes.TargetBlockCoord.Y {
+						i := MapRange(blockHealth, 0, 180, 0, 5)
+						CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], ColorM, ColorMDIO, Screen)
+					} else {
+						CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], ColorM, ColorMDIO, Screen)
+					}
 				}
 			}
 		}
@@ -123,7 +127,9 @@ func (c *Camera) Draw() {
 		id, pos, animIndex, _, _ := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
 		ColorMDIO.GeoM.Translate(pos.X, pos.Y+Sinspace[animIndex.Index])
-		CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+		if id.ID != items.Air {
+			CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+		}
 	}
 
 	// Draw snowball

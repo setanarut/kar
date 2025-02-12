@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"kar/items"
@@ -146,7 +145,7 @@ func (c *Player) Update() error {
 				}
 				// exit idle
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit idle")
+					// fmt.Println("exit idle")
 				}
 			case "walking":
 				// enter walking
@@ -177,7 +176,7 @@ func (c *Player) Update() error {
 
 				// exit walking
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit walking")
+					// fmt.Println("exit walking")
 				}
 			case "running":
 				// enter running
@@ -209,7 +208,7 @@ func (c *Player) Update() error {
 				}
 				// exit running
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit running")
+					// fmt.Println("exit running")
 				}
 			case "jumping":
 				// enter running
@@ -252,7 +251,7 @@ func (c *Player) Update() error {
 
 				// exit jumping
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit jumping")
+					// fmt.Println("exit jumping")
 				}
 			case "falling":
 				// enter falling
@@ -275,16 +274,16 @@ func (c *Player) Update() error {
 				}
 				// exit falling
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit falling")
+					// fmt.Println("exit falling")
 					d := int((playerPos.Y - ctrl.FallingDamageTempPosY) / 30)
 					if d > 3 {
 						playerHealth.Current -= d - 3
 					}
 				}
 			case "breaking":
-				// enter running
+				// enter breaking
 				if ctrl.PreviousState != "breaking" {
-					fmt.Println("enter breaking")
+					// fmt.Println("enter breaking")
 					ctrl.PreviousState = ctrl.CurrentState
 				}
 				// update animation states
@@ -309,7 +308,7 @@ func (c *Player) Update() error {
 				// break block
 				if IsRayHit {
 					blockID := TileMapRes.Get(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y)
-					if !items.HasTag(blockID, items.Unbreakable) {
+					if !items.HasTag(blockID, items.UnbreakableBlock) {
 						if items.IsBestTool(blockID, InventoryRes.CurrentSlotID()) {
 							blockHealth += PlayerBestToolDamage
 						} else {
@@ -354,13 +353,13 @@ func (c *Player) Update() error {
 				}
 				// exit breaking
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit breaking")
+					// fmt.Println("exit breaking")
 					blockHealth = 0
 				}
 			case "skidding":
 				// enter skidding
 				if ctrl.PreviousState != "skidding" {
-					fmt.Println("enter skidding")
+					// fmt.Println("enter skidding")
 					ctrl.PreviousState = ctrl.CurrentState
 					PlayerAnimPlayer.SetState("skidding")
 				}
@@ -387,7 +386,7 @@ func (c *Player) Update() error {
 					}
 				}
 				if ctrl.PreviousState != ctrl.CurrentState {
-					fmt.Println("exit skidding")
+					// fmt.Println("exit skidding")
 				}
 			}
 
@@ -456,14 +455,23 @@ func (c *Player) Update() error {
 						}
 						// Ceil collision
 						if ci.Normal[1] == 1 { // TODO aynı anda olan çarpışmaları teke indir
-							CeilBlockCoord = ci.TileCoords
-							CeilBlockTick = 3
-							if ci.TileID == items.StoneBricks {
+
+							playerVelocity.Y = 0
+
+							switch ci.TileID {
+							case items.StoneBricks:
+								// Destroy block when ceil hit
 								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
 								wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
 								SpawnEffect(ci.TileID, wx, wy)
+							case items.Random:
+								if TileMapRes.Get(ci.TileCoords[0], ci.TileCoords[1]-1) == items.Air {
+									TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Bedrock)
+									CeilBlockCoord = ci.TileCoords
+									CeilBlockTick = 3
+								}
 							}
-							playerVelocity.Y = 0
+
 						}
 						// Right of Left wall collision
 						if ci.Normal[0] == -1 || ci.Normal[0] == 1 {
@@ -526,11 +534,9 @@ func (c *Player) Update() error {
 						if anyItemOverlapsWithPlaceRect {
 							queryItem.Close()
 							break
-
 						}
 					}
 					if !anyItemOverlapsWithPlaceRect {
-						// oyuncu place tile ile çarpışıyormu
 						if !Overlaps(playerPos, playerSize, placeTilePos, placeTileSize) {
 							// place block
 							TileMapRes.Set(placeTile.X, placeTile.Y, InventoryRes.CurrentSlotID())
