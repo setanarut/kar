@@ -34,7 +34,7 @@ Kar is a 2D crafting/mining/platformer game (Work in progress).
 | <kbd>Tab</kbd>          | Switch between Quick-Slot 1 and Quick-Slot 2                      |
 | <kbd>↑</kbd>            | Open/Close 2x2 Crafting mode                                      |
 | <kbd>↑</kbd>            | Open/Close 3x3 Crafting mode (if looking to Crafting Table)       |
-| <kbd>L</kbd>            | Switch between Tracking and Static camera modes                   |
+| <kbd>L</kbd>            | Switch between camera modes                                       |
 
 #### Special
 
