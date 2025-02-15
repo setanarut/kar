@@ -37,12 +37,12 @@ func (c *Camera) Update() error {
 		// Toggle camera follow
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 			switch CameraRes.SmoothType {
-			case kamera.None:
+			case kamera.Lerp:
+				CameraRes.SetCenter(playerCenterX, playerCenterY)
+				CameraRes.SmoothType = kamera.SmoothDamp
+			case kamera.SmoothDamp:
 				CameraRes.SetCenter(playerCenterX, playerCenterY)
 				CameraRes.SmoothType = kamera.Lerp
-			case kamera.SmoothDamp, kamera.Lerp:
-				CameraRes.SetCenter(playerCenterX, playerCenterY)
-				CameraRes.SmoothType = kamera.None
 			}
 		}
 
@@ -61,6 +61,8 @@ func (c *Camera) Update() error {
 				if playerCenterY > CameraRes.Bottom() {
 					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y+CameraRes.Height)
 				}
+				CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
+			} else if CameraRes.SmoothType == kamera.SmoothDamp {
 				CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
 			}
 		}

@@ -1,16 +1,16 @@
 package kar
 
 import (
-	"kar/items"
-	"kar/res"
+	"fmt"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/setanarut/tilecollider"
 )
 
 type Enemy struct {
-	normal [2]int
 }
 
 func (e *Enemy) Init() {
@@ -25,40 +25,69 @@ func (e *Enemy) Update() error {
 	if ECWorld.Alive(CurrentPlayer) {
 		playerPos, playerSize, playerVelocity, _, _, _ := MapPlayer.Get(CurrentPlayer)
 		enemyQuery := FilterEnemy.Query(&ECWorld)
+
 		for enemyQuery.Next() {
-			pos, vel, ai := enemyQuery.Get()
-			switch ai.Name {
+
+			enemyPos, enemyVel, enemyAI := enemyQuery.Get()
+
+			switch enemyAI.Name {
 			case "worm":
-				pos.X += vel.X
-				pos.Y += vel.Y
-				e.normal = [2]int{0, 0}
+				// enemyPos.X += enemyVel.X
+				// enemyPos.Y += enemyVel.Y
 
 				Collider.Collide(
-					pos.X,
-					pos.Y,
+					enemyPos.X,
+					enemyPos.Y,
 					EnemyWormSize.W,
 					EnemyWormSize.H,
-					vel.X,
-					vel.Y,
+					enemyVel.X,
+					enemyVel.Y,
 					func(infos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
-						// Apply tilemap collision response
-						// pos.X += dx
-						// pos.Y += dy
+						enemyPos.X += dx
+						enemyPos.Y += dy
 						for _, info := range infos {
-							TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)
+							if info.Normal == [2]int{-1, 0} {
+								enemyVel.X *= -1
+							}
+							if info.Normal == [2]int{1, 0} {
+								enemyVel.X *= -1
+							}
+							// TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)
+
 						}
 					},
 				)
+
 				// player-enemy collision
-				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, pos, &EnemyWormSize)
-				// playerVelocity.X += collInfo.DeltaX
-				playerVelocity.Y += collInfo.DeltaY
+				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, enemyPos, &EnemyWormSize)
 
 				if collInfo.Collided {
+					playerPos.X += collInfo.DeltaX
+					playerPos.Y += collInfo.DeltaY
 					if collInfo.Normal[1] == -1 {
-						playerVelocity.Y = -5
+						toRemove = append(toRemove, enemyQuery.Entity())
+						playerVelocity.Y = -1
+						// playerVelocity.X += enemyVel.X
+						fmt.Println("TOP")
+					}
+					if collInfo.Normal[1] == 1 {
+						toRemove = append(toRemove, enemyQuery.Entity())
+						// playerVelocity.Y = -5
+						playerVelocity.Y = 1
+						fmt.Println("TOP")
+					}
+					if collInfo.Normal[0] == -1 {
+						// playerVelocity.X = -20
+						// playerHealth.Current -= 6
+						fmt.Println("SAĞ")
+					}
+					if collInfo.Normal[0] == 1 {
+						// playerVelocity.X = 20
+						fmt.Println("SOL")
+						// playerHealth.Current -= 6
 					}
 				}
+
 			case "other":
 				// other
 			}
@@ -70,8 +99,15 @@ func (e *Enemy) Draw() {
 	q := FilterEnemy.Query(&ECWorld)
 	for q.Next() {
 		pos, _, _ := q.Get()
-		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(pos.X, pos.Y)
-		CameraRes.DrawWithColorM(res.Icon8[items.Sand], ColorM, ColorMDIO, Screen)
+		x, y := CameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)
+		vector.DrawFilledRect(
+			Screen,
+			float32(x),
+			float32(y),
+			float32(EnemyWormSize.W),
+			float32(EnemyWormSize.H),
+			color.RGBA{128, 0, 0, 10},
+			false,
+		)
 	}
 }

@@ -43,7 +43,7 @@ var (
 )
 var (
 	DropItemSize  Size = Size{8, 8}
-	EnemyWormSize Size = Size{8, 8}
+	EnemyWormSize Size = Size{18, 18}
 )
 var (
 	ECWorld                  ecs.World = ecs.NewWorld()

@@ -12,6 +12,7 @@ type ItemID struct {
 type Velocity struct {
 	X, Y float64
 }
+
 type Position struct {
 	X, Y float64
 }

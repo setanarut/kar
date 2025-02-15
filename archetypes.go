@@ -27,7 +27,13 @@ var (
 
 // Query Filters
 var (
-	FilterPlayer           = gn.NewFilter6[Position, Size, Velocity, Health, Controller, Facing]()
+	FilterPlayer = gn.NewFilter6[
+		Position,
+		Size,
+		Velocity,
+		Health,
+		Controller,
+		Facing]()
 	FilterEnemy            = gn.NewFilter3[Position, Velocity, AI]()
 	FilterProjectile       = gn.NewFilter3[ItemID, Position, Velocity]().Exclusive()
 	FilterRect             = gn.NewFilter2[Position, Size]()
