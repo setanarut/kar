@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func MapRange[T float64](v, a, b, c, d float64) float64 {
+func MapRange(v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
 }
 
@@ -47,14 +47,6 @@ func SinSpace(start, end, amplitude float64, n int) []float64 {
 	}
 
 	return points
-}
-
-// index kontrol fonksiyonu, sadece bool değeri döndürüyor
-func CheckIndex[T any](slice []T, index int) bool {
-	if index < 0 || index >= len(slice) {
-		return false
-	}
-	return true
 }
 
 func ReadPNG(filePath string) image.Image {

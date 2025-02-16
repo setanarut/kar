@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"image"
 	"math"
 )
 
@@ -133,4 +134,211 @@ func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *Hit) bool {
 		)
 	}
 	return result
+}
+
+// HitTileInfo stores information about a collision with a tile
+type HitTileInfo struct {
+	TileID     uint8  // ID of the collided tile
+	TileCoords [2]int // X,Y coordinates of the tile in the tilemap
+	Normal     [2]int // Normal vector of the collision (-1/0/1)
+}
+
+// Collider handles collision detection between rectangles and a 2D tilemap
+type Collider struct {
+	Collisions     []HitTileInfo // List of collisions from last check
+	TileSize       image.Point   // Width and height of tiles
+	TileMap        [][]uint8     // 2D grid of tile IDs
+	NonSolidTileID uint8         // Sets the ID of non-solid tiles. Defaults to 0.
+	StaticCheck    bool          // If true, always checks for static collisions. (no movement)
+}
+
+// NewCollider creates a new tile collider with the given tilemap and tile dimensions
+func NewCollider(tileMap [][]uint8, tileWidth, tileHeight int) *Collider {
+	return &Collider{
+		TileMap:  tileMap,
+		TileSize: image.Point{tileWidth, tileHeight},
+	}
+}
+
+// CollisionCallback is called when collisions occur, receiving collision info and final movement
+type CollisionCallback func([]HitTileInfo, float64, float64)
+
+// Collide checks for collisions when moving a rectangle and returns the allowed movement
+func (c *Collider) Collide(rect AABB, delta Vec, onCollide CollisionCallback) Vec {
+	c.Collisions = c.Collisions[:0]
+
+	if delta.X == 0 && delta.Y == 0 {
+		return delta
+	}
+
+	if math.Abs(delta.X) > math.Abs(delta.Y) {
+		if delta.X != 0 {
+			delta.X = c.CollideX(rect, delta.X)
+		}
+		if delta.Y != 0 {
+			rect.Pos.X += delta.X
+			delta.Y = c.CollideY(rect, delta.Y)
+		}
+	} else {
+		if delta.Y != 0 {
+			delta.Y = c.CollideY(rect, delta.Y)
+		}
+		if delta.X != 0 {
+
+			rect.Pos.Y += delta.Y
+			delta.X = c.CollideX(rect, delta.X)
+		}
+	}
+
+	if onCollide != nil {
+		onCollide(c.Collisions, delta.X, delta.Y)
+	}
+
+	return delta
+}
+
+// CollideX checks for collisions along the X axis and returns the allowed X movement
+func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
+	checkLimit := max(1, int(math.Ceil(math.Abs(deltaX)/float64(c.TileSize.Y)))+1)
+
+	rectTop := rect.Pos.Y - rect.Half.Y
+	rectBottom := rect.Pos.Y + rect.Half.Y
+
+	rectTileTopCoord := int(math.Floor(rectTop / float64(c.TileSize.Y)))
+	rectTileBottomCoord := int(math.Ceil((rectBottom)/float64(c.TileSize.Y))) - 1
+
+	if deltaX > 0 {
+		startRightX := int(math.Floor((rect.Pos.X + rect.Half.X) / float64(c.TileSize.X)))
+		endX := startRightX + checkLimit
+		endX = min(endX, len(c.TileMap[0]))
+
+		for y := rectTileTopCoord; y <= rectTileBottomCoord; y++ {
+			if y < 0 || y >= len(c.TileMap) {
+				continue
+			}
+			for x := startRightX; x < endX; x++ {
+				if x < 0 || x >= len(c.TileMap[0]) {
+					continue
+				}
+				if c.TileMap[y][x] != c.NonSolidTileID {
+					tileLeft := float64(x * c.TileSize.X)
+					collision := tileLeft - (rect.Pos.X + rect.Half.X)
+					if collision <= deltaX {
+						deltaX = collision
+						c.Collisions = append(c.Collisions, HitTileInfo{
+							TileID:     c.TileMap[y][x],
+							TileCoords: [2]int{x, y},
+							Normal:     [2]int{-1, 0},
+						})
+					}
+				}
+			}
+		}
+	}
+
+	if deltaX < 0 {
+		rectLeft := rect.Pos.X - rect.Half.X
+
+		endX := int(math.Floor(rectLeft / float64(c.TileSize.X)))
+		startX := endX - checkLimit
+		startX = max(startX, 0)
+
+		for y := rectTileTopCoord; y <= rectTileBottomCoord; y++ {
+			if y < 0 || y >= len(c.TileMap) {
+				continue
+			}
+			for x := startX; x <= endX; x++ {
+				if x < 0 || x >= len(c.TileMap[0]) {
+					continue
+				}
+				if c.TileMap[y][x] != c.NonSolidTileID {
+					tileRight := float64((x + 1) * c.TileSize.X)
+					collision := tileRight - rectLeft
+					if collision >= deltaX {
+						deltaX = collision
+						c.Collisions = append(c.Collisions, HitTileInfo{
+							TileID:     c.TileMap[y][x],
+							TileCoords: [2]int{x, y},
+							Normal:     [2]int{1, 0},
+						})
+					}
+				}
+			}
+		}
+	}
+
+	return deltaX
+}
+
+// CollideY checks for collisions along the Y axis and returns the allowed Y movement
+func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
+
+	checkLimit := max(1, int(math.Ceil(math.Abs(deltaY)/float64(c.TileSize.Y)))+1)
+
+	rectLeft := rect.Pos.X - rect.Half.X
+	rectRight := rect.Pos.X + rect.Half.X
+
+	rectTileLeftCoord := int(math.Floor(rectLeft / float64(c.TileSize.X)))
+	rectTileRightCoord := int(math.Ceil(rectRight/float64(c.TileSize.X))) - 1
+
+	if deltaY > 0 {
+		rectBottom := rect.Pos.Y + rect.Half.Y
+		startBottomY := int(math.Floor(rectBottom / float64(c.TileSize.Y)))
+		endY := startBottomY + checkLimit
+		endY = min(endY, len(c.TileMap))
+
+		for x := rectTileLeftCoord; x <= rectTileRightCoord; x++ {
+			if x < 0 || x >= len(c.TileMap[0]) {
+				continue
+			}
+			for y := startBottomY; y < endY; y++ {
+				if y < 0 || y >= len(c.TileMap) {
+					continue
+				}
+				if c.TileMap[y][x] != c.NonSolidTileID {
+					tileTop := float64(y * c.TileSize.Y)
+					collision := tileTop - rectBottom
+					if collision <= deltaY {
+						deltaY = collision
+						c.Collisions = append(c.Collisions, HitTileInfo{
+							TileID:     c.TileMap[y][x],
+							TileCoords: [2]int{x, y},
+							Normal:     [2]int{0, -1},
+						})
+					}
+				}
+			}
+		}
+	}
+
+	if deltaY < 0 {
+		rectTop := rect.Pos.Y - rect.Half.Y
+		endY := int(math.Floor(rectTop / float64(c.TileSize.Y)))
+		startY := endY - checkLimit
+		startY = max(startY, 0)
+
+		for x := rectTileLeftCoord; x <= rectTileRightCoord; x++ {
+			if x < 0 || x >= len(c.TileMap[0]) {
+				continue
+			}
+			for y := startY; y <= endY; y++ {
+				if y < 0 || y >= len(c.TileMap) {
+					continue
+				}
+				if c.TileMap[y][x] != c.NonSolidTileID {
+					tileBottom := float64((y + 1) * c.TileSize.Y)
+					collision := tileBottom - rectTop
+					if collision >= deltaY {
+						deltaY = collision
+						c.Collisions = append(c.Collisions, HitTileInfo{
+							TileID:     c.TileMap[y][x],
+							TileCoords: [2]int{x, y},
+							Normal:     [2]int{0, 1},
+						})
+					}
+				}
+			}
+		}
+	}
+	return deltaY
 }

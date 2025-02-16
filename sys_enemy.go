@@ -7,13 +7,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/setanarut/tilecollider"
 )
 
 type Enemy struct {
+	enemyRect AABB
 }
 
 func (e *Enemy) Init() {
+	e.enemyRect = AABB{Half: EnemyWormHalfSize}
 }
 
 func (e *Enemy) Update() error {
@@ -35,14 +36,10 @@ func (e *Enemy) Update() error {
 				// enemyPos.X += enemyVel.X
 				// enemyPos.Y += enemyVel.Y
 
-				Collider.Collide(
-					enemyPos.X-EnemyWormHalfSize.X,
-					enemyPos.Y-EnemyWormHalfSize.Y,
-					EnemyWormHalfSize.X*2,
-					EnemyWormHalfSize.Y*2,
-					enemyVel.X,
-					enemyVel.Y,
-					func(infos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
+				TileCollider.Collide(
+					e.enemyRect,
+					Vec(*enemyVel),
+					func(infos []HitTileInfo, dx, dy float64) {
 						enemyPos.X += dx
 						enemyPos.Y += dy
 						for _, info := range infos {
@@ -105,16 +102,19 @@ func (e *Enemy) Update() error {
 func (e *Enemy) Draw() {
 	q := FilterEnemy.Query(&ECWorld)
 	for q.Next() {
-		pos, _, _ := q.Get()
+		pos, _, AI := q.Get()
 		x, y := CameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)
-		vector.DrawFilledRect(
-			Screen,
-			float32(x-EnemyWormHalfSize.X),
-			float32(y-EnemyWormHalfSize.Y),
-			float32(EnemyWormHalfSize.X*2),
-			float32(EnemyWormHalfSize.Y*2),
-			color.RGBA{128, 0, 0, 10},
-			false,
-		)
+		switch AI.Name {
+		case "worm":
+			vector.DrawFilledRect(
+				Screen,
+				float32(x-EnemyWormHalfSize.X),
+				float32(y-EnemyWormHalfSize.Y),
+				float32(EnemyWormHalfSize.X*2),
+				float32(EnemyWormHalfSize.Y*2),
+				color.RGBA{128, 0, 0, 10},
+				false,
+			)
+		}
 	}
 }

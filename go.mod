@@ -9,11 +9,8 @@ require (
 	github.com/setanarut/anim v1.1.2
 	github.com/setanarut/fastnoise v1.1.1
 	github.com/setanarut/kamera/v2 v2.96.0
-	github.com/setanarut/tilecollider v1.4.8
 	golang.org/x/text v0.22.0
 )
-
-require golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac // indirect
 
 require (
 	github.com/ebitengine/gomobile v0.0.0-20250209143333-6071a2a2351c // indirect

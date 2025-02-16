@@ -21,7 +21,6 @@ import (
 	"github.com/setanarut/anim"
 	"github.com/setanarut/fastnoise"
 	"github.com/setanarut/kamera/v2"
-	"github.com/setanarut/tilecollider"
 )
 
 const (
@@ -58,7 +57,7 @@ var (
 	DrawDebugHitboxesEnabled bool        = false
 	DrawDebugTextEnabled     bool        = false
 	BackgroundColor          color.RGBA  = color.RGBA{36, 36, 39, 255}
-	Collider                 *tilecollider.Collider[uint8]
+	TileCollider             *Collider
 	GameTileMapGenerator     *tilemap.Generator
 	PlayerAnimPlayer         *anim.AnimationPlayer
 	Screen                   *ebiten.Image
@@ -87,7 +86,7 @@ func init() {
 	}
 	SerdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
 	GameTileMapGenerator = tilemap.NewGenerator(TileMapRes)
-	Collider = tilecollider.NewCollider(
+	TileCollider = NewCollider(
 		TileMapRes.Grid,
 		TileMapRes.TileW,
 		TileMapRes.TileH,

@@ -61,7 +61,8 @@ func (i *Item) Update() error {
 				}
 
 				// vertical item sine animation
-				dy := Collider.CollideY(itemPos.X-4, itemPos.Y+10, DropItemHalfSize.X*2, DropItemHalfSize.Y*2, ItemGravity)
+				i.itemBox.Pos.Y += 10
+				dy := TileCollider.CollideY(i.itemBox, ItemGravity)
 				itemPos.Y += dy
 				timers.Index = (timers.Index + 1) % SinspaceLen
 

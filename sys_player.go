@@ -10,7 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/setanarut/tilecollider"
 )
 
 var (
@@ -22,14 +21,16 @@ var (
 )
 
 type Player struct {
-	itemHit *Hit
-	itemBox AABB
+	itemHit     *Hit
+	itemBox     AABB
+	snowBallBox AABB
 
 	playerTile image.Point
 }
 
 func (c *Player) Init() {
 	c.itemBox = AABB{Half: DropItemHalfSize}
+	c.snowBallBox = AABB{Half: Vec{4, 4}}
 	c.itemHit = &Hit{}
 }
 
@@ -437,74 +438,65 @@ func (c *Player) Update() error {
 			ctrl.IsSkidding = (playerVelocity.X > 0 && ctrl.InputAxis.X == -1) || (playerVelocity.X < 0 && ctrl.InputAxis.X == 1)
 
 			// Player and tilemap collision
-			Collider.Collide(
-				math.Round(playerBox.Pos.X-playerBox.Half.X),
-				playerBox.Pos.Y-playerBox.Half.Y,
-				playerBox.Half.X*2,
-				playerBox.Half.Y*2,
-				playerVelocity.X,
-				playerVelocity.Y,
-				func(collisionInfos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
-					ctrl.IsOnFloor = false
+			TileCollider.Collide(*playerBox, Vec(*playerVelocity), func(collisionInfos []HitTileInfo, dx, dy float64) {
+				ctrl.IsOnFloor = false
+				playerBox.Pos.X += dx
+				playerBox.Pos.Y += dy
+				// Reset velocity when collide
+				for _, ci := range collisionInfos {
+					if ci.Normal[1] == -1 {
+						// Ground collision
+						playerVelocity.Y = 0
+						ctrl.IsOnFloor = true
+					}
+					// Ceil collision
+					if ci.Normal[1] == 1 { // TODO aynı anda olan çarpışmaları teke indir
 
-					playerBox.Pos.X += dx
-					playerBox.Pos.Y += dy
+						playerVelocity.Y = 0
 
-					// Reset velocity when collide
-					for _, ci := range collisionInfos {
-						if ci.Normal[1] == -1 {
-							// Ground collision
-							playerVelocity.Y = 0
-							ctrl.IsOnFloor = true
-						}
-						// Ceil collision
-						if ci.Normal[1] == 1 { // TODO aynı anda olan çarpışmaları teke indir
-
-							playerVelocity.Y = 0
-
-							switch ci.TileID {
-							case items.StoneBricks:
-								// Destroy block when ceil hit
-								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
-								wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
-								SpawnEffect(ci.TileID, wx, wy)
-							case items.Random:
-								if TileMapRes.Get(ci.TileCoords[0], ci.TileCoords[1]-1) == items.Air {
-									TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Bedrock)
-									CeilBlockCoord = ci.TileCoords
-									CeilBlockTick = 3
-								}
+						switch ci.TileID {
+						case items.StoneBricks:
+							// Destroy block when ceil hit
+							TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
+							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
+							SpawnEffect(ci.TileID, wx, wy)
+						case items.Random:
+							if TileMapRes.Get(ci.TileCoords[0], ci.TileCoords[1]-1) == items.Air {
+								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Bedrock)
+								CeilBlockCoord = ci.TileCoords
+								CeilBlockTick = 3
 							}
-
 						}
-						// Right of Left wall collision
-						if ci.Normal[0] == -1 || ci.Normal[0] == 1 {
-							// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
-							if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
-								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
-								wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
-								SpawnEffect(ci.TileID, wx, wy)
-							}
 
-							playerVelocity.X = 0
-							ctrl.HorizontalVelocity = 0
+					}
+					// Right of Left wall collision
+					if ci.Normal[0] == -1 || ci.Normal[0] == 1 {
+						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
+						if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
+							TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
+							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
+							SpawnEffect(ci.TileID, wx, wy)
+						}
+
+						playerVelocity.X = 0
+						ctrl.HorizontalVelocity = 0
+					}
+				}
+
+				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+					ids := make([]uint8, 0)
+					for _, collisionInfo := range collisionInfos {
+						if collisionInfo.Normal[1] == -1 {
+							ids = append(ids, collisionInfo.TileID)
 						}
 					}
-
-					if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-						ids := make([]uint8, 0)
-						for _, collisionInfo := range collisionInfos {
-							if collisionInfo.Normal[1] == -1 {
-								ids = append(ids, collisionInfo.TileID)
-							}
-						}
-						if len(ids) == 2 {
-							if ids[0] == items.Sand && ids[1] == items.GrassBlock {
-								// Pipe logic is here
-							}
+					if len(ids) == 2 {
+						if ids[0] == items.Sand && ids[1] == items.GrassBlock {
+							// Pipe logic is here
 						}
 					}
-				},
+				}
+			},
 			)
 
 			// player facing raycast for target block
@@ -588,37 +580,30 @@ func (c *Player) Update() error {
 				if itemID.ID == items.Snowball {
 					projectileVel.Y += SnowballGravity
 					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
-					Collider.Collide(
-						projectilePos.X-4,
-						projectilePos.Y-4,
-						DropItemHalfSize.X*2,
-						DropItemHalfSize.Y*2,
-						projectileVel.X,
-						projectileVel.Y,
-						func(ci []tilecollider.CollisionInfo[uint8], dx, dy float64) {
-							projectilePos.X += dx
-							projectilePos.Y += dy
-							isHorizontalCollision := false
-							for _, c := range ci {
-								if c.Normal[1] == -1 {
-									projectileVel.Y = bounceVelocity
-								}
-								if c.Normal[0] == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
-									isHorizontalCollision = true
-								}
-								if c.Normal[0] == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
-									isHorizontalCollision = true
-								}
+					c.snowBallBox.Pos = Vec(*projectilePos)
+					TileCollider.Collide(c.snowBallBox, Vec(*projectileVel), func(ci []HitTileInfo, dx, dy float64) {
+						projectilePos.X += dx
+						projectilePos.Y += dy
+						isHorizontalCollision := false
+						for _, c := range ci {
+							if c.Normal[1] == -1 {
+								projectileVel.Y = bounceVelocity
 							}
-							if isHorizontalCollision {
-								if ECWorld.Alive(q.Entity()) {
-									toRemove = append(toRemove, q.Entity())
-								}
+							if c.Normal[0] == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
+								isHorizontalCollision = true
 							}
-						},
+							if c.Normal[0] == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
+								isHorizontalCollision = true
+							}
+						}
+						if isHorizontalCollision {
+							if ECWorld.Alive(q.Entity()) {
+								toRemove = append(toRemove, q.Entity())
+							}
+						}
+					},
 					)
 				}
-
 			}
 		}
 	}

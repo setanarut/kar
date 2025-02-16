@@ -9,10 +9,11 @@ type ItemID struct {
 	ID uint8
 }
 
-type Velocity struct {
-	X, Y float64
-}
+// type Velocity struct {
+// 	X, Y float64
+// }
 
+type Velocity Vec
 type Position Vec
 
 type Rotation struct {
