@@ -444,25 +444,25 @@ func (c *Player) Update() error {
 				playerBox.Pos.Y += dy
 				// Reset velocity when collide
 				for _, ci := range collisionInfos {
-					if ci.Normal[1] == -1 {
+					if ci.Normal.Y == -1 {
 						// Ground collision
 						playerVelocity.Y = 0
 						ctrl.IsOnFloor = true
 					}
 					// Ceil collision
-					if ci.Normal[1] == 1 { // TODO aynı anda olan çarpışmaları teke indir
+					if ci.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
 
 						playerVelocity.Y = 0
 
 						switch ci.TileID {
 						case items.StoneBricks:
 							// Destroy block when ceil hit
-							TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
-							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
+							TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
+							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
 							SpawnEffect(ci.TileID, wx, wy)
 						case items.Random:
-							if TileMapRes.Get(ci.TileCoords[0], ci.TileCoords[1]-1) == items.Air {
-								TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Bedrock)
+							if TileMapRes.Get(ci.TileCoords.X, ci.TileCoords.Y-1) == items.Air {
+								TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Bedrock)
 								CeilBlockCoord = ci.TileCoords
 								CeilBlockTick = 3
 							}
@@ -470,11 +470,11 @@ func (c *Player) Update() error {
 
 					}
 					// Right of Left wall collision
-					if ci.Normal[0] == -1 || ci.Normal[0] == 1 {
+					if ci.Normal.X == -1 || ci.Normal.X == 1 {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
 						if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
-							TileMapRes.Set(ci.TileCoords[0], ci.TileCoords[1], items.Air)
-							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords[0], ci.TileCoords[1])
+							TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
+							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
 							SpawnEffect(ci.TileID, wx, wy)
 						}
 
@@ -486,7 +486,7 @@ func (c *Player) Update() error {
 				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
 					ids := make([]uint8, 0)
 					for _, collisionInfo := range collisionInfos {
-						if collisionInfo.Normal[1] == -1 {
+						if collisionInfo.Normal.Y == -1 {
 							ids = append(ids, collisionInfo.TileID)
 						}
 					}
@@ -586,13 +586,13 @@ func (c *Player) Update() error {
 						projectilePos.Y += dy
 						isHorizontalCollision := false
 						for _, c := range ci {
-							if c.Normal[1] == -1 {
+							if c.Normal.Y == -1 {
 								projectileVel.Y = bounceVelocity
 							}
-							if c.Normal[0] == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
+							if c.Normal.X == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
 								isHorizontalCollision = true
 							}
-							if c.Normal[0] == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
+							if c.Normal.X == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
 								isHorizontalCollision = true
 							}
 						}

@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"image"
 	"image/color"
 	"kar/items"
 	"kar/res"
@@ -12,7 +13,7 @@ import (
 	"github.com/setanarut/kamera/v2"
 )
 
-var CeilBlockCoord [2]int
+var CeilBlockCoord image.Point
 var CeilBlockTick float64
 
 type Camera struct{}
@@ -86,7 +87,7 @@ func (c *Camera) Draw() {
 				px, py := float64(x*TileMapRes.TileW), float64(y*TileMapRes.TileH)
 				ColorMDIO.GeoM.Reset()
 
-				if x == CeilBlockCoord[0] && y == CeilBlockCoord[1] {
+				if x == CeilBlockCoord.X && y == CeilBlockCoord.Y {
 					if tileID == items.Bedrock {
 						if CeilBlockTick > 0 {
 							CeilBlockTick -= 0.1

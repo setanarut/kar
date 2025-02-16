@@ -6,15 +6,15 @@ import (
 )
 
 var (
-	// One vector, a vector with all components set to 1.
+	// One Vec{1, 1} vector is a vector with all components set to 1.
 	One = Vec{1, 1}
-	// Left unit vector. Represents the direction of left.
+	// Left unit vector. Vec{-1, 0} Represents the direction of left.
 	Left = Vec{-1, 0}
-	// Right unit vector. Represents the direction of right.
+	// Right unit vector. Vec{1, 0} Represents the direction of right.
 	Right = Vec{1, 0}
-	// Up unit vector. Y is down in 2D, so this vector points -Y.
+	// Up unit vector. Vec{0, -1} Y is down in 2D, so this vector points -Y.
 	Up = Vec{0, -1}
-	// Down unit vector. Y is down in 2D, so this vector points +Y.
+	// Down unit vector. Vec{0, 1} Y is down in 2D, so this vector points +Y.
 	Down = Vec{0, 1}
 )
 

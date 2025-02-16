@@ -43,10 +43,10 @@ func (e *Enemy) Update() error {
 						enemyPos.X += dx
 						enemyPos.Y += dy
 						for _, info := range infos {
-							if info.Normal == [2]int{-1, 0} {
+							if info.Normal == Left {
 								enemyVel.X *= -1
 							}
-							if info.Normal == [2]int{1, 0} {
+							if info.Normal == Right {
 								enemyVel.X *= -1
 							}
 							// TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)

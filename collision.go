@@ -138,9 +138,9 @@ func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *Hit) bool {
 
 // HitTileInfo stores information about a collision with a tile
 type HitTileInfo struct {
-	TileID     uint8  // ID of the collided tile
-	TileCoords [2]int // X,Y coordinates of the tile in the tilemap
-	Normal     [2]int // Normal vector of the collision (-1/0/1)
+	TileID     uint8       // ID of the collided tile
+	TileCoords image.Point // X,Y coordinates of the tile in the tilemap
+	Normal     Vec         // Normal vector of the collision (-1/0/1)
 }
 
 // Collider handles collision detection between rectangles and a 2D tilemap
@@ -227,8 +227,8 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 						deltaX = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileID:     c.TileMap[y][x],
-							TileCoords: [2]int{x, y},
-							Normal:     [2]int{-1, 0},
+							TileCoords: image.Point{x, y},
+							Normal:     Left,
 						})
 					}
 				}
@@ -258,8 +258,8 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 						deltaX = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileID:     c.TileMap[y][x],
-							TileCoords: [2]int{x, y},
-							Normal:     [2]int{1, 0},
+							TileCoords: image.Point{x, y},
+							Normal:     Right,
 						})
 					}
 				}
@@ -302,8 +302,8 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 						deltaY = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileID:     c.TileMap[y][x],
-							TileCoords: [2]int{x, y},
-							Normal:     [2]int{0, -1},
+							TileCoords: image.Point{x, y},
+							Normal:     Up,
 						})
 					}
 				}
@@ -332,8 +332,8 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 						deltaY = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileID:     c.TileMap[y][x],
-							TileCoords: [2]int{x, y},
-							Normal:     [2]int{0, 1},
+							TileCoords: image.Point{x, y},
+							Normal:     Down,
 						})
 					}
 				}
