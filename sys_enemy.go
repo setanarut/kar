@@ -23,7 +23,7 @@ func (e *Enemy) Update() error {
 	}
 
 	if ECWorld.Alive(CurrentPlayer) {
-		playerPos, playerSize, playerVelocity, _, _, _ := MapPlayer.Get(CurrentPlayer)
+		playerBox, playerVelocity, _, _, _ := MapPlayer.Get(CurrentPlayer)
 		enemyQuery := FilterEnemy.Query(&ECWorld)
 
 		for enemyQuery.Next() {
@@ -36,10 +36,10 @@ func (e *Enemy) Update() error {
 				// enemyPos.Y += enemyVel.Y
 
 				Collider.Collide(
-					enemyPos.X,
-					enemyPos.Y,
-					EnemyWormSize.W,
-					EnemyWormSize.H,
+					enemyPos.X-EnemyWormHalfSize.X,
+					enemyPos.Y-EnemyWormHalfSize.Y,
+					EnemyWormHalfSize.X*2,
+					EnemyWormHalfSize.Y*2,
 					enemyVel.X,
 					enemyVel.Y,
 					func(infos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
@@ -59,30 +59,37 @@ func (e *Enemy) Update() error {
 				)
 
 				// player-enemy collision
-				collInfo := CheckCollision(playerPos, playerSize, playerVelocity, enemyPos, &EnemyWormSize)
+				hit := &Hit{}
+				wormBox := AABB{
+					Pos:  Vec(*enemyPos),
+					Half: EnemyWormHalfSize,
+				}
 
-				if collInfo.Collided {
-					playerPos.X += collInfo.DeltaX
-					playerPos.Y += collInfo.DeltaY
-					if collInfo.Normal[1] == -1 {
+				collided := wormBox.OverlapSweep(*playerBox, Vec(*playerVelocity), hit)
+
+				if collided {
+					playerVelocity.X += hit.Delta.X
+					playerVelocity.Y += hit.Delta.Y
+					playerBox.Pos.X += playerVelocity.X
+					playerBox.Pos.Y += playerVelocity.Y
+
+					if hit.Normal.Y < 0 {
 						toRemove = append(toRemove, enemyQuery.Entity())
-						playerVelocity.Y = -1
+						playerVelocity.Y = -2
 						// playerVelocity.X += enemyVel.X
 						fmt.Println("TOP")
 					}
-					if collInfo.Normal[1] == 1 {
-						toRemove = append(toRemove, enemyQuery.Entity())
-						// playerVelocity.Y = -5
-						playerVelocity.Y = 1
-						fmt.Println("TOP")
+					if hit.Normal.Y > 0 {
+						playerVelocity.Y = 2
+						fmt.Println("ALT")
 					}
-					if collInfo.Normal[0] == -1 {
-						// playerVelocity.X = -20
+					if hit.Normal.X < 0 {
+						playerVelocity.X = -2
 						// playerHealth.Current -= 6
 						fmt.Println("SAĞ")
 					}
-					if collInfo.Normal[0] == 1 {
-						// playerVelocity.X = 20
+					if hit.Normal.X > 0 {
+						playerVelocity.X = 2
 						fmt.Println("SOL")
 						// playerHealth.Current -= 6
 					}
@@ -102,10 +109,10 @@ func (e *Enemy) Draw() {
 		x, y := CameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)
 		vector.DrawFilledRect(
 			Screen,
-			float32(x),
-			float32(y),
-			float32(EnemyWormSize.W),
-			float32(EnemyWormSize.H),
+			float32(x-EnemyWormHalfSize.X),
+			float32(y-EnemyWormHalfSize.Y),
+			float32(EnemyWormHalfSize.X*2),
+			float32(EnemyWormHalfSize.Y*2),
 			color.RGBA{128, 0, 0, 10},
 			false,
 		)

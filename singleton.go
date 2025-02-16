@@ -42,8 +42,8 @@ var (
 	PreviousGameState = "menu"
 )
 var (
-	DropItemSize  Size = Size{8, 8}
-	EnemyWormSize Size = Size{18, 18}
+	DropItemHalfSize  = Vec{4, 4}
+	EnemyWormHalfSize = Vec{6, 6}
 )
 var (
 	ECWorld                  ecs.World = ecs.NewWorld()

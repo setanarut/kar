@@ -13,15 +13,16 @@ type Velocity struct {
 	X, Y float64
 }
 
-type Position struct {
-	X, Y float64
-}
+type Position Vec
+
 type Rotation struct {
 	Angle float64
 }
+
 type Size struct {
 	W, H float64
 }
+
 type AI struct {
 	Name string
 }

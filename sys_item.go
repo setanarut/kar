@@ -8,9 +8,14 @@ var SinspaceLen int = len(Sinspace) - 1
 
 type Item struct {
 	toRemoveComponent []ecs.Entity
+	itemBox           AABB
+	itemHit           *Hit
 }
 
-func (i *Item) Init() {}
+func (i *Item) Init() {
+	i.itemBox = AABB{Half: DropItemHalfSize}
+	i.itemHit = &Hit{}
+}
 func (i *Item) Update() error {
 
 	q := FilterCollisionDelayer.Query(&ECWorld)
@@ -22,18 +27,19 @@ func (i *Item) Update() error {
 
 	// dropped items collisions and animations
 	if ECWorld.Alive(CurrentPlayer) {
-		itemSize := &Size{DropItemSize.W, DropItemSize.H}
 		if !GameDataRes.CraftingState {
-			playerPos, playerSize := MapRect.GetUnchecked(CurrentPlayer)
+			// playerPos, playerSize := MapAABB.GetUnchecked(CurrentPlayer)
+			playerBox := MapAABB.GetUnchecked(CurrentPlayer)
 
 			itemQuery := FilterDroppedItem.Query(&ECWorld)
 			for itemQuery.Next() {
 
 				itemID, itemPos, timers, delayer, durability := itemQuery.Get()
+				i.itemBox.Pos = Vec(*itemPos)
 				itemEntity := itemQuery.Entity()
 				// Check player-item collision
 				if delayer == nil {
-					if Overlaps(playerPos, playerSize, itemPos, itemSize) {
+					if playerBox.Overlap(i.itemBox, i.itemHit) {
 						// if Durability component exists, pass durability
 						if durability != nil {
 							if InventoryRes.AddItemIfEmpty(itemID.ID, durability.Durability) {
@@ -55,7 +61,7 @@ func (i *Item) Update() error {
 				}
 
 				// vertical item sine animation
-				dy := Collider.CollideY(itemPos.X, itemPos.Y+6, itemSize.W, itemSize.H, ItemGravity)
+				dy := Collider.CollideY(itemPos.X-4, itemPos.Y+10, DropItemHalfSize.X*2, DropItemHalfSize.Y*2, ItemGravity)
 				itemPos.Y += dy
 				timers.Index = (timers.Index + 1) % SinspaceLen
 

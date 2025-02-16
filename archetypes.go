@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	MapPlayer           = gn.NewMap6[Position, Size, Velocity, Health, Controller, Facing](&ECWorld)
+	MapPlayer           = gn.NewMap5[AABB, Velocity, Health, Controller, Facing](&ECWorld)
 	MapEnemy            = gn.NewMap3[Position, Velocity, AI](&ECWorld)
-	MapRect             = gn.NewMap2[Position, Size](&ECWorld)
+	MapAABB             = gn.NewMap[AABB](&ECWorld)
 	MapHealth           = gn.NewMap[Health](&ECWorld)
 	MapDurability       = gn.NewMap[Durability](&ECWorld)
 	MapPosition         = gn.NewMap[Position](&ECWorld)
@@ -27,9 +27,8 @@ var (
 
 // Query Filters
 var (
-	FilterPlayer = gn.NewFilter6[
-		Position,
-		Size,
+	FilterPlayer = gn.NewFilter5[
+		AABB,
 		Velocity,
 		Health,
 		Controller,
@@ -53,6 +52,7 @@ var (
 )
 
 func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
+
 	if items.HasTag(id, items.Tool) {
 		return MapDroppedToolItem.NewWith(
 			&ItemID{id},
@@ -103,8 +103,10 @@ type SpawnData struct {
 
 func SpawnPlayer(centerX, centerY float64) ecs.Entity {
 	return MapPlayer.NewWith(
-		&Position{centerX - 16*0.5, centerY - 16*0.5},
-		&Size{16, 16},
+		&AABB{
+			Pos:  Vec{centerX, centerY},
+			Half: Vec{8, 8},
+		},
 		&Velocity{0, 0},
 		&Health{20, 20},
 		DefaultController(),

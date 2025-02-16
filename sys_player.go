@@ -22,10 +22,15 @@ var (
 )
 
 type Player struct {
+	itemHit *Hit
+	itemBox AABB
+
 	playerTile image.Point
 }
 
 func (c *Player) Init() {
+	c.itemBox = AABB{Half: DropItemHalfSize}
+	c.itemHit = &Hit{}
 }
 
 func (c *Player) Update() error {
@@ -35,7 +40,8 @@ func (c *Player) Update() error {
 			PlayerAnimPlayer.Update()
 
 			// update animation player
-			playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
+			// playerPos, playerSize, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
+			playerBox, playerVelocity, playerHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
 
 			if inpututil.IsKeyJustPressed(ebiten.Key9) {
 				playerHealth.Current = 0
@@ -45,9 +51,9 @@ func (c *Player) Update() error {
 			if playerHealth.Current <= 0 {
 				DyingCountdown += 0.1
 				PlayerAnimPlayer.Paused = true
-				playerPos.Y += DyingCountdown
+				playerBox.Pos.Y += DyingCountdown
 
-				if playerPos.Y > CameraRes.Y+CameraRes.Height {
+				if playerBox.Pos.Y > CameraRes.Y+CameraRes.Height {
 					PlayerAnimPlayer.Paused = false
 					PreviousGameState = "playing"
 					CurrentGameState = "menu"
@@ -58,8 +64,6 @@ func (c *Player) Update() error {
 				}
 				return nil
 			}
-
-			playerCenterX, playerCenterY := playerPos.X+playerSize.W/2, playerPos.Y+playerSize.H/2
 
 			// Update input
 			ctrl.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
@@ -257,7 +261,7 @@ func (c *Player) Update() error {
 				// enter falling
 				if ctrl.PreviousState != "falling" {
 					ctrl.PreviousState = ctrl.CurrentState
-					ctrl.FallingDamageTempPosY = playerPos.Y
+					ctrl.FallingDamageTempPosY = playerBox.Pos.Y + playerBox.Half.Y
 					PlayerAnimPlayer.SetState("jump")
 				}
 
@@ -275,7 +279,7 @@ func (c *Player) Update() error {
 				// exit falling
 				if ctrl.PreviousState != ctrl.CurrentState {
 					// fmt.Println("exit falling")
-					d := int((playerPos.Y - ctrl.FallingDamageTempPosY) / 30)
+					d := int(((playerBox.Pos.Y + playerBox.Half.Y) - ctrl.FallingDamageTempPosY) / 30)
 					if d > 3 {
 						playerHealth.Current -= d - 3
 					}
@@ -434,17 +438,17 @@ func (c *Player) Update() error {
 
 			// Player and tilemap collision
 			Collider.Collide(
-				math.Round(playerPos.X),
-				playerPos.Y,
-				playerSize.W,
-				playerSize.H,
+				math.Round(playerBox.Pos.X-playerBox.Half.X),
+				playerBox.Pos.Y-playerBox.Half.Y,
+				playerBox.Half.X*2,
+				playerBox.Half.Y*2,
 				playerVelocity.X,
 				playerVelocity.Y,
 				func(collisionInfos []tilecollider.CollisionInfo[uint8], dx, dy float64) {
 					ctrl.IsOnFloor = false
 
-					playerPos.X += dx
-					playerPos.Y += dy
+					playerBox.Pos.X += dx
+					playerBox.Pos.Y += dy
 
 					// Reset velocity when collide
 					for _, ci := range collisionInfos {
@@ -504,7 +508,7 @@ func (c *Player) Update() error {
 			)
 
 			// player facing raycast for target block
-			c.playerTile = TileMapRes.WorldToTile(playerCenterX, playerCenterY)
+			c.playerTile = TileMapRes.WorldToTile(playerBox.Pos.X, playerBox.Pos.Y)
 			targetBlockTemp := GameDataRes.TargetBlockCoord
 			GameDataRes.TargetBlockCoord, IsRayHit = TileMapRes.Raycast(
 				c.playerTile,
@@ -524,20 +528,23 @@ func (c *Player) Update() error {
 				if IsRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
 					// Get tile rect
 					placeTile = GameDataRes.TargetBlockCoord.Sub(pFacing.Dir)
-					placeTilePos := &Position{float64(placeTile.X * 20), float64(placeTile.Y * 20)}
-					placeTileSize := &Size{20, 20}
+					placeTileBox := AABB{
+						Pos:  Vec{float64(placeTile.X*20) + 10, float64(placeTile.Y*20) + 10},
+						Half: Vec{10, 10},
+					}
 					// check overlaps
 					queryItem := FilterDroppedItem.Query(&ECWorld)
 					for queryItem.Next() {
 						_, itemPos, _, _, _ := queryItem.Get()
-						anyItemOverlapsWithPlaceRect = Overlaps(itemPos, &DropItemSize, placeTilePos, placeTileSize)
+						c.itemBox.Pos = Vec(*itemPos)
+						anyItemOverlapsWithPlaceRect = placeTileBox.Overlap(c.itemBox, nil)
 						if anyItemOverlapsWithPlaceRect {
 							queryItem.Close()
 							break
 						}
 					}
 					if !anyItemOverlapsWithPlaceRect {
-						if !Overlaps(playerPos, playerSize, placeTilePos, placeTileSize) {
+						if !playerBox.Overlap(placeTileBox, nil) {
 							// place block
 							TileMapRes.Set(placeTile.X, placeTile.Y, InventoryRes.CurrentSlotID())
 							// remove item
@@ -549,9 +556,9 @@ func (c *Player) Update() error {
 					if ctrl.CurrentState != "skidding" {
 						switch pFacing.Dir {
 						case image.Point{1, 0}:
-							SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, SnowballSpeedX, SnowballMaxFallVelocity)
+							SpawnProjectile(items.Snowball, playerBox.Pos.X, playerBox.Pos.Y-4, SnowballSpeedX, SnowballMaxFallVelocity)
 						case image.Point{-1, 0}:
-							SpawnProjectile(items.Snowball, playerCenterX, playerCenterY-4, -SnowballSpeedX, SnowballMaxFallVelocity)
+							SpawnProjectile(items.Snowball, playerBox.Pos.X, playerBox.Pos.Y-4, -SnowballSpeedX, SnowballMaxFallVelocity)
 						}
 						InventoryRes.RemoveItemFromSelectedSlot()
 					}
@@ -564,8 +571,8 @@ func (c *Player) Update() error {
 				currentSlot := InventoryRes.CurrentSlot()
 				if currentSlot.ID != items.Air {
 					AppendToSpawnList(
-						playerCenterX,
-						playerCenterY,
+						playerBox.Pos.X,
+						playerBox.Pos.Y,
 						currentSlot.ID,
 						currentSlot.Durability,
 					)
@@ -582,10 +589,10 @@ func (c *Player) Update() error {
 					projectileVel.Y += SnowballGravity
 					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
 					Collider.Collide(
-						projectilePos.X,
-						projectilePos.Y,
-						DropItemSize.W,
-						DropItemSize.H,
+						projectilePos.X-4,
+						projectilePos.Y-4,
+						DropItemHalfSize.X*2,
+						DropItemHalfSize.Y*2,
 						projectileVel.X,
 						projectileVel.Y,
 						func(ci []tilecollider.CollisionInfo[uint8], dx, dy float64) {

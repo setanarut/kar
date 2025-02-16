@@ -375,7 +375,7 @@ func (ui *UI) Draw() {
 
 		// Draw debug info
 		if DrawDebugTextEnabled {
-			_, _, _, _, playerController, pFacing := MapPlayer.Get(CurrentPlayer)
+			_, _, _, playerController, pFacing := MapPlayer.Get(CurrentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				debugInfo,
 				playerController.CurrentState,

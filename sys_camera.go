@@ -24,8 +24,7 @@ func (c *Camera) Init() {
 func (c *Camera) Update() error {
 
 	if ECWorld.Alive(CurrentPlayer) {
-		playerPos, playerSize := MapRect.Get(CurrentPlayer)
-		playerCenterX, playerCenterY := playerPos.X+playerSize.W, playerPos.Y+playerSize.H
+		playerAABB := MapAABB.Get(CurrentPlayer)
 
 		// Save TileMap image to desktop
 		if inpututil.IsKeyJustPressed(ebiten.KeyP) {
@@ -38,10 +37,10 @@ func (c *Camera) Update() error {
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 			switch CameraRes.SmoothType {
 			case kamera.Lerp:
-				CameraRes.SetCenter(playerCenterX, playerCenterY)
+				CameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
 				CameraRes.SmoothType = kamera.SmoothDamp
 			case kamera.SmoothDamp:
-				CameraRes.SetCenter(playerCenterX, playerCenterY)
+				CameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
 				CameraRes.SmoothType = kamera.Lerp
 			}
 		}
@@ -55,15 +54,15 @@ func (c *Camera) Update() error {
 				// if playerCenterX > CameraRes.Right() {
 				// 	CameraRes.X += CameraRes.Width
 				// }
-				if playerCenterY < CameraRes.Y {
+				if playerAABB.Pos.Y < CameraRes.Y {
 					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y-CameraRes.Height)
 				}
-				if playerCenterY > CameraRes.Bottom() {
+				if playerAABB.Pos.Y > CameraRes.Bottom() {
 					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y+CameraRes.Height)
 				}
-				CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
+				CameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
 			} else if CameraRes.SmoothType == kamera.SmoothDamp {
-				CameraRes.LookAt(math.Floor(playerCenterX), math.Floor(playerCenterY))
+				CameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
 			}
 		}
 	}
@@ -112,13 +111,17 @@ func (c *Camera) Draw() {
 	}
 	// Draw player
 	if ECWorld.Alive(CurrentPlayer) {
-		playerPos, playerSize, _, _, _, pFacing := MapPlayer.Get(CurrentPlayer)
+		// playerPos, playerSize, _, _, _, pFacing := MapPlayer.Get(CurrentPlayer)
+		playerBox, _, _, _, pFacing := MapPlayer.Get(CurrentPlayer)
 		ColorMDIO.GeoM.Reset()
+		tx := playerBox.Pos.X - playerBox.Half.X
+		ty := playerBox.Pos.Y - playerBox.Half.Y
+
 		if pFacing.Dir.X == -1 {
 			ColorMDIO.GeoM.Scale(-1, 1)
-			ColorMDIO.GeoM.Translate(playerPos.X+playerSize.W, playerPos.Y)
+			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, ty)
 		} else {
-			ColorMDIO.GeoM.Translate(playerPos.X, playerPos.Y)
+			ColorMDIO.GeoM.Translate(tx, ty)
 		}
 		CameraRes.DrawWithColorM(PlayerAnimPlayer.CurrentFrame, ColorM, ColorMDIO, Screen)
 	}
@@ -162,8 +165,8 @@ func (c *Camera) Draw() {
 				Screen,
 				float32(pos.X),
 				float32(pos.Y),
-				float32(DropItemSize.W),
-				float32(DropItemSize.H),
+				float32(DropItemHalfSize.X),
+				float32(DropItemHalfSize.Y),
 				color.RGBA{128, 0, 0, 10},
 				false,
 			)
