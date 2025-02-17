@@ -7,25 +7,17 @@ import (
 
 const EPSILON = 1e-8
 
-func clamp(value, min, max float64) float64 {
-	if value < min {
-		return min
-	} else if value > max {
-		return max
-	}
-	return value
-}
-
-func sign(value float64) float64 {
-	if value < 0 {
-		return -1
-	}
-	return 1
-}
-
 type AABB struct {
 	Pos  Vec
 	Half Vec
+}
+
+func (b AABB) Min() Vec {
+	return b.Pos.Sub(b.Half)
+}
+
+func (b AABB) Max() Vec {
+	return b.Pos.Add(b.Half)
 }
 
 type Hit struct {
@@ -341,4 +333,20 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 		}
 	}
 	return deltaY
+}
+
+func clamp(value, min, max float64) float64 {
+	if value < min {
+		return min
+	} else if value > max {
+		return max
+	}
+	return value
+}
+
+func sign(value float64) float64 {
+	if value < 0 {
+		return -1
+	}
+	return 1
 }

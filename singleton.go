@@ -111,6 +111,7 @@ func init() {
 func NewGame() {
 	ECWorld.Reset()
 	InventoryRes.Reset()
+	*AnimPlayerDataRes = AnimPlayerDataDefault
 	ecs.AddResource(&ECWorld, GameDataRes)
 	ecs.AddResource(&ECWorld, InventoryRes)
 	ecs.AddResource(&ECWorld, CraftingTableRes)
@@ -138,11 +139,12 @@ func NewGame() {
 	CameraRes.SmoothOptions.LerpSpeedY = 0
 	// CameraRes.SmoothType = kamera.SmoothDamp
 	// CameraRes.SmoothOptions.SmoothDampTimeY = 0.1
+	ApplyAnimPlayerData(PlayerAnimPlayer, &AnimPlayerDataDefault)
 	CameraRes.SmoothType = kamera.Lerp
 }
 
 func SaveGame() {
-	FetchAnimPlayerData(PlayerAnimPlayer, AnimPlayerDataRes)
+	FetchAnimPlayerData(AnimPlayerDataRes, PlayerAnimPlayer)
 	jsonData, err := archeserde.Serialize(&ECWorld, SerdeOpt)
 	if err != nil {
 		log.Fatal("Error serializing world:", err)
@@ -171,7 +173,7 @@ func LoadGame() {
 		if err != nil {
 			log.Fatal("Error deserializing world:", err)
 		}
-		animData := ecs.GetResource[AnimPlayerData](&ECWorld)
-		SetAnimPlayerData(PlayerAnimPlayer, animData)
+		animPlayerData := ecs.GetResource[AnimPlayerData](&ECWorld)
+		ApplyAnimPlayerData(PlayerAnimPlayer, animPlayerData)
 	}
 }

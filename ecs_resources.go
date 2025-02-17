@@ -19,6 +19,7 @@ var (
 	AnimPlayerDataRes *AnimPlayerData
 	CameraRes         *kamera.Camera
 )
+var AnimPlayerDataDefault AnimPlayerData
 
 func init() {
 	GameDataRes = &GameData{CraftingState: false, CraftingState4: false}
@@ -53,6 +54,7 @@ func init() {
 	PlayerAnimPlayer.NewState("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
 	PlayerAnimPlayer.CurrentState = "idleRight"
 	AnimPlayerDataRes = NewAnimPlayerData(PlayerAnimPlayer)
+	AnimPlayerDataDefault = *AnimPlayerDataRes
 }
 
 type GameData struct {
@@ -71,7 +73,7 @@ func NewAnimPlayerData(ap *anim.AnimationPlayer) *AnimPlayerData {
 	}
 }
 
-func FetchAnimPlayerData(ap *anim.AnimationPlayer, data *AnimPlayerData) {
+func FetchAnimPlayerData(data *AnimPlayerData, ap *anim.AnimationPlayer) {
 	data.CurrentState = ap.CurrentState
 	data.CurrentAtlas = ap.CurrentAtlas
 	data.Paused = ap.Paused
@@ -79,7 +81,7 @@ func FetchAnimPlayerData(ap *anim.AnimationPlayer, data *AnimPlayerData) {
 	data.CurrentIndex = ap.CurrentIndex
 }
 
-func SetAnimPlayerData(ap *anim.AnimationPlayer, data *AnimPlayerData) {
+func ApplyAnimPlayerData(ap *anim.AnimationPlayer, data *AnimPlayerData) {
 	ap.CurrentState = data.CurrentState
 	ap.CurrentAtlas = data.CurrentAtlas
 	ap.Paused = data.Paused

@@ -1,13 +1,11 @@
 package kar
 
 import (
-	"image"
 	"kar/items"
 	"math/rand/v2"
 
 	"github.com/mlange-42/arche/ecs"
 	gn "github.com/mlange-42/arche/generic"
-	"github.com/setanarut/anim"
 )
 
 var (
@@ -17,7 +15,6 @@ var (
 	MapHealth           = gn.NewMap[Health](&ECWorld)
 	MapDurability       = gn.NewMap[Durability](&ECWorld)
 	MapPosition         = gn.NewMap[Position](&ECWorld)
-	MapSize             = gn.NewMap[Size](&ECWorld)
 	MapDroppedItem      = gn.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&ECWorld)
 	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&ECWorld)
 	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&ECWorld)
@@ -35,10 +32,7 @@ var (
 		Facing]()
 	FilterEnemy            = gn.NewFilter3[Position, Velocity, AI]()
 	FilterProjectile       = gn.NewFilter3[ItemID, Position, Velocity]().Exclusive()
-	FilterRect             = gn.NewFilter2[Position, Size]()
-	FilterPosition         = gn.NewFilter1[Position]()
 	FilterCollisionDelayer = gn.NewFilter1[CollisionDelayer]()
-	FilterAnimPlayer       = gn.NewFilter1[anim.AnimationPlayer]()
 	FilterDroppedItem      = gn.NewFilter5[
 		ItemID,
 		Position,
@@ -110,7 +104,7 @@ func SpawnPlayer(centerX, centerY float64) ecs.Entity {
 		&Velocity{0, 0},
 		&Health{20, 20},
 		DefaultController(),
-		&Facing{image.Point{0, 1}},
+		&Facing{0, 1},
 	)
 }
 

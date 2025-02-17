@@ -118,7 +118,7 @@ func (c *Camera) Draw() {
 		tx := playerBox.Pos.X - playerBox.Half.X
 		ty := playerBox.Pos.Y - playerBox.Half.Y
 
-		if pFacing.Dir.X == -1 {
+		if pFacing.X == -1 {
 			ColorMDIO.GeoM.Scale(-1, 1)
 			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, ty)
 		} else {
@@ -172,22 +172,5 @@ func (c *Camera) Draw() {
 				false,
 			)
 		}
-
-		q := FilterRect.Query(&ECWorld)
-		for q.Next() {
-			pos, size := q.Get()
-			x, y := CameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)
-			vector.DrawFilledRect(
-				Screen,
-				float32(x),
-				float32(y),
-				float32(size.W),
-				float32(size.H),
-				color.RGBA{128, 0, 0, 10},
-				false,
-			)
-
-		}
-
 	}
 }

@@ -90,15 +90,15 @@ func (c *Player) Update() error {
 				// restrict facing direction to 4 directions (no diagonal)
 				switch ctrl.InputAxis {
 				case image.Point{0, -1}, image.Point{0, 1}, image.Point{-1, 0}, image.Point{1, 0}:
-					pFacing.Dir = ctrl.InputAxis
+					*pFacing = Facing(ctrl.InputAxis)
 				default:
-					pFacing.Dir = image.Point{0, 0}
+					*pFacing = Facing{0, 0}
 				}
 			}
 			if playerVelocity.X > 0.01 {
-				pFacing.Dir = image.Point{1, 0}
+				*pFacing = Facing{1, 0}
 			} else if playerVelocity.X < -0.01 {
-				pFacing.Dir = image.Point{-1, 0}
+				*pFacing = Facing{-1, 0}
 			}
 
 			// Update states
@@ -107,22 +107,22 @@ func (c *Player) Update() error {
 				// enter idle
 				if ctrl.PreviousState != "idle" {
 					ctrl.PreviousState = ctrl.CurrentState
-					if pFacing.Dir.Y == 0 {
+					if pFacing.Y == 0 {
 						PlayerAnimPlayer.SetState("idleRight")
 					}
-					if pFacing.Dir.X == 0 {
+					if pFacing.X == 0 {
 						PlayerAnimPlayer.SetState("idleUp")
 					}
 				}
 
 				// while idle
-				if pFacing.Dir.Y == -1 {
+				if pFacing.Y == -1 {
 					PlayerAnimPlayer.SetState("idleUp")
-				} else if pFacing.Dir.Y == 1 {
+				} else if pFacing.Y == 1 {
 					PlayerAnimPlayer.SetState("idleDown")
-				} else if pFacing.Dir.X == 1 {
+				} else if pFacing.X == 1 {
 					PlayerAnimPlayer.SetState("idleRight")
-				} else if pFacing.Dir.X == -1 {
+				} else if pFacing.X == -1 {
 					PlayerAnimPlayer.SetState("idleRight")
 				}
 
@@ -292,21 +292,21 @@ func (c *Player) Update() error {
 					ctrl.PreviousState = ctrl.CurrentState
 				}
 				// update animation states
-				if pFacing.Dir.X == 1 {
+				if pFacing.X == 1 {
 					if ctrl.HorizontalVelocity > 0.01 {
 						PlayerAnimPlayer.SetState("attackWalk")
 					} else {
 						PlayerAnimPlayer.SetState("attackRight")
 					}
-				} else if pFacing.Dir.X == -1 {
+				} else if pFacing.X == -1 {
 					if ctrl.HorizontalVelocity > 0.01 {
 						PlayerAnimPlayer.SetState("attackWalk")
 					} else {
 						PlayerAnimPlayer.SetState("attackRight")
 					}
-				} else if pFacing.Dir.Y == 1 {
+				} else if pFacing.Y == 1 {
 					PlayerAnimPlayer.SetState("attackDown")
-				} else if pFacing.Dir.Y == -1 {
+				} else if pFacing.Y == -1 {
 					PlayerAnimPlayer.SetState("attackUp")
 				}
 
@@ -504,7 +504,7 @@ func (c *Player) Update() error {
 			targetBlockTemp := GameDataRes.TargetBlockCoord
 			GameDataRes.TargetBlockCoord, IsRayHit = TileMapRes.Raycast(
 				c.playerTile,
-				pFacing.Dir,
+				image.Point(*pFacing),
 				RaycastDist,
 			)
 
@@ -519,7 +519,7 @@ func (c *Player) Update() error {
 				// if slot item is block
 				if IsRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
 					// Get tile rect
-					placeTile = GameDataRes.TargetBlockCoord.Sub(pFacing.Dir)
+					placeTile = GameDataRes.TargetBlockCoord.Sub(image.Point(*pFacing))
 					placeTileBox := AABB{
 						Pos:  Vec{float64(placeTile.X*20) + 10, float64(placeTile.Y*20) + 10},
 						Half: Vec{10, 10},
@@ -546,10 +546,10 @@ func (c *Player) Update() error {
 					// if slot item snowball, throw snowball
 				} else if InventoryRes.CurrentSlot().ID == items.Snowball {
 					if ctrl.CurrentState != "skidding" {
-						switch pFacing.Dir {
-						case image.Point{1, 0}:
+						switch *pFacing {
+						case Facing{1, 0}:
 							SpawnProjectile(items.Snowball, playerBox.Pos.X, playerBox.Pos.Y-4, SnowballSpeedX, SnowballMaxFallVelocity)
-						case image.Point{-1, 0}:
+						case Facing{-1, 0}:
 							SpawnProjectile(items.Snowball, playerBox.Pos.X, playerBox.Pos.Y-4, -SnowballSpeedX, SnowballMaxFallVelocity)
 						}
 						InventoryRes.RemoveItemFromSelectedSlot()

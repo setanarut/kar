@@ -9,19 +9,12 @@ type ItemID struct {
 	ID uint8
 }
 
-// type Velocity struct {
-// 	X, Y float64
-// }
-
 type Velocity Vec
 type Position Vec
+type Facing image.Point
 
 type Rotation struct {
 	Angle float64
-}
-
-type Size struct {
-	W, H float64
 }
 
 type AI struct {
@@ -38,10 +31,6 @@ type CollisionDelayer struct {
 }
 type Durability struct {
 	Durability int
-}
-
-type Facing struct {
-	Dir image.Point
 }
 
 type Health struct {
