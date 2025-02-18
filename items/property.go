@@ -8,6 +8,7 @@ const (
 	Block tag = 1 << iota
 	OreBlock
 	UnbreakableBlock
+	NonSolidBlock
 	Harvestable
 	DropItem
 	Item
@@ -41,7 +42,7 @@ var Property = map[uint8]ItemProperty{
 		DisplayName:  "Air",
 		DropID:       Air,
 		MaxStackSize: 1,
-		Tags:         None | UnbreakableBlock,
+		Tags:         None | NonSolidBlock | UnbreakableBlock,
 	},
 	Bedrock: {
 		DisplayName:  "Bedrock",
@@ -299,7 +300,7 @@ var Property = map[uint8]ItemProperty{
 		DisplayName:  "Torch",
 		DropID:       Torch,
 		MaxStackSize: 64,
-		Tags:         Item | Block,
+		Tags:         Item | Block | NonSolidBlock,
 		BestToolTag:  All,
 	},
 	WaterBucket: {

@@ -89,7 +89,7 @@ func (t *TileMap) Raycast(pos, dir image.Point, dist int) (image.Point, bool) {
 	if (dir.X != 0 && dir.Y == 0) || (dir.X == 0 && dir.Y != 0) {
 		for range dist {
 			pos = pos.Add(dir)
-			if t.Get(pos.X, pos.Y) != 0 {
+			if t.Get(pos.X, pos.Y) != items.Air {
 				return pos, true
 			}
 		}

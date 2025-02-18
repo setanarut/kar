@@ -2,6 +2,7 @@ package kar
 
 import (
 	"image"
+	"kar/items"
 	"math"
 )
 
@@ -136,11 +137,9 @@ func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *HitInfo) bool {
 
 // Collider handles collision detection between rectangles and a 2D tilemap
 type Collider struct {
-	Collisions     []HitTileInfo // List of collisions from last check
-	TileSize       image.Point   // Width and height of tiles
-	TileMap        [][]uint8     // 2D grid of tile IDs
-	NonSolidTileID uint8         // Sets the ID of non-solid tiles. Defaults to 0.
-	StaticCheck    bool          // If true, always checks for static collisions. (no movement)
+	Collisions []HitTileInfo // List of collisions from last check
+	TileSize   image.Point   // Width and height of tiles
+	TileMap    [][]uint8     // 2D grid of tile IDs
 }
 
 // NewCollider creates a new tile collider with the given tilemap and tile dimensions
@@ -211,7 +210,7 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 				if x < 0 || x >= len(c.TileMap[0]) {
 					continue
 				}
-				if c.TileMap[y][x] != c.NonSolidTileID {
+				if !items.HasTag(c.TileMap[y][x], items.NonSolidBlock) {
 					tileLeft := float64(x * c.TileSize.X)
 					collision := tileLeft - (rect.Pos.X + rect.Half.X)
 					if collision <= deltaX {
@@ -241,7 +240,7 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 				if x < 0 || x >= len(c.TileMap[0]) {
 					continue
 				}
-				if c.TileMap[y][x] != c.NonSolidTileID {
+				if !items.HasTag(c.TileMap[y][x], items.NonSolidBlock) {
 					tileRight := float64((x + 1) * c.TileSize.X)
 					collision := tileRight - rectLeft
 					if collision >= deltaX {
@@ -284,7 +283,7 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 				if y < 0 || y >= len(c.TileMap) {
 					continue
 				}
-				if c.TileMap[y][x] != c.NonSolidTileID {
+				if !items.HasTag(c.TileMap[y][x], items.NonSolidBlock) {
 					tileTop := float64(y * c.TileSize.Y)
 					collision := tileTop - rectBottom
 					if collision <= deltaY {
@@ -313,7 +312,7 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 				if y < 0 || y >= len(c.TileMap) {
 					continue
 				}
-				if c.TileMap[y][x] != c.NonSolidTileID {
+				if !items.HasTag(c.TileMap[y][x], items.NonSolidBlock) {
 					tileBottom := float64((y + 1) * c.TileSize.Y)
 					collision := tileBottom - rectTop
 					if collision >= deltaY {
