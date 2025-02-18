@@ -6,7 +6,7 @@ require (
 	github.com/anthonynsimon/bild v0.14.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.6
 	github.com/mlange-42/arche v0.15.3
-	github.com/setanarut/anim v1.1.2
+	github.com/setanarut/anim v1.3.0
 	github.com/setanarut/fastnoise v1.1.1
 	github.com/setanarut/kamera/v2 v2.96.0
 	golang.org/x/text v0.22.0

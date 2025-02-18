@@ -124,6 +124,11 @@ func (t *TileMap) Get(x, y int) uint8 {
 	}
 	return t.Grid[y][x]
 }
+
+func (t *TileMap) GetUnchecked(coords image.Point) uint8 {
+	return t.Grid[coords.Y][coords.X]
+}
+
 func (t *TileMap) TileIDProperty(x, y int) items.ItemProperty {
 	return items.Property[t.Get(x, y)]
 }

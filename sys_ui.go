@@ -391,30 +391,30 @@ func (ui *UI) Draw() {
 func onInventorySlotChanged() {
 	switch InventoryRes.CurrentSlotID() {
 	case items.WoodenAxe:
-		PlayerAnimPlayer.CurrentAtlas = "WoodenAxe"
+		PlayerAnimPlayer.SetAtlas("WoodenAxe")
 	case items.WoodenPickaxe:
-		PlayerAnimPlayer.CurrentAtlas = "WoodenPickaxe"
+		PlayerAnimPlayer.SetAtlas("WoodenPickaxe")
 	case items.WoodenShovel:
-		PlayerAnimPlayer.CurrentAtlas = "WoodenShovel"
+		PlayerAnimPlayer.SetAtlas("WoodenShovel")
 	case items.StoneAxe:
-		PlayerAnimPlayer.CurrentAtlas = "StoneAxe"
+		PlayerAnimPlayer.SetAtlas("StoneAxe")
 	case items.StonePickaxe:
-		PlayerAnimPlayer.CurrentAtlas = "StonePickaxe"
+		PlayerAnimPlayer.SetAtlas("StonePickaxe")
 	case items.StoneShovel:
-		PlayerAnimPlayer.CurrentAtlas = "StoneShovel"
+		PlayerAnimPlayer.SetAtlas("StoneShovel")
 	case items.IronAxe:
-		PlayerAnimPlayer.CurrentAtlas = "IronAxe"
+		PlayerAnimPlayer.SetAtlas("IronAxe")
 	case items.IronPickaxe:
-		PlayerAnimPlayer.CurrentAtlas = "IronPickaxe"
+		PlayerAnimPlayer.SetAtlas("IronPickaxe")
 	case items.IronShovel:
-		PlayerAnimPlayer.CurrentAtlas = "IronShovel"
+		PlayerAnimPlayer.SetAtlas("IronShovel")
 	case items.DiamondAxe:
-		PlayerAnimPlayer.CurrentAtlas = "DiamondAxe"
+		PlayerAnimPlayer.SetAtlas("DiamondAxe")
 	case items.DiamondPickaxe:
-		PlayerAnimPlayer.CurrentAtlas = "DiamondPickaxe"
+		PlayerAnimPlayer.SetAtlas("DiamondPickaxe")
 	case items.DiamondShovel:
-		PlayerAnimPlayer.CurrentAtlas = "DiamondShovel"
+		PlayerAnimPlayer.SetAtlas("DiamondShovel")
 	default:
-		PlayerAnimPlayer.CurrentAtlas = "Default"
+		PlayerAnimPlayer.SetAtlas("Default")
 	}
 }

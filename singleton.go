@@ -100,7 +100,7 @@ func init() {
 	// ECS Resources
 	ecs.AddResource(&ECWorld, InventoryRes)
 	ecs.AddResource(&ECWorld, CraftingTableRes)
-	ecs.AddResource(&ECWorld, AnimPlayerDataRes)
+	ecs.AddResource(&ECWorld, PlayerAnimPlayer.Data)
 	ecs.AddResource(&ECWorld, GameDataRes)
 	ecs.AddResource(&ECWorld, TileMapRes)
 	ecs.AddResource(&ECWorld, CameraRes)
@@ -111,11 +111,12 @@ func init() {
 func NewGame() {
 	ECWorld.Reset()
 	InventoryRes.Reset()
-	*AnimPlayerDataRes = AnimPlayerDataDefault
+	*PlayerAnimPlayer.Data = AnimDefaultPlaybackData
+	GameDataRes = &GameData{}
 	ecs.AddResource(&ECWorld, GameDataRes)
 	ecs.AddResource(&ECWorld, InventoryRes)
 	ecs.AddResource(&ECWorld, CraftingTableRes)
-	ecs.AddResource(&ECWorld, AnimPlayerDataRes)
+	ecs.AddResource(&ECWorld, PlayerAnimPlayer.Data)
 	ecs.AddResource(&ECWorld, CameraRes)
 	ecs.AddResource(&ECWorld, TileMapRes)
 
@@ -125,26 +126,18 @@ func NewGame() {
 	GameTileMapGenerator.NoiseState.FractalType(fastnoise.FractalFBm)
 	GameTileMapGenerator.NoiseState.Frequency = 0.01
 	GameTileMapGenerator.Generate()
-
-	// ctrl.Collider.StaticCheck = true
 	x, y := TileMapRes.FindSpawnPosition()
-	// tileMap.Set(x, y+2, items.CraftingTable)
 	SpawnX, SpawnY := TileMapRes.TileToWorldCenter(x, y)
 	CameraRes.SmoothType = kamera.None
 	CameraRes.SetCenter(SpawnX, SpawnY)
 	CurrentPlayer = SpawnPlayer(SpawnX, SpawnY)
 	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
-
 	CameraRes.SmoothOptions.LerpSpeedX = 0.5
 	CameraRes.SmoothOptions.LerpSpeedY = 0
-	// CameraRes.SmoothType = kamera.SmoothDamp
-	// CameraRes.SmoothOptions.SmoothDampTimeY = 0.1
-	ApplyAnimPlayerData(PlayerAnimPlayer, &AnimPlayerDataDefault)
 	CameraRes.SmoothType = kamera.Lerp
 }
 
 func SaveGame() {
-	FetchAnimPlayerData(AnimPlayerDataRes, PlayerAnimPlayer)
 	jsonData, err := archeserde.Serialize(&ECWorld, SerdeOpt)
 	if err != nil {
 		log.Fatal("Error serializing world:", err)
@@ -161,19 +154,17 @@ func LoadGame() {
 		ecs.AddResource(&ECWorld, GameDataRes)
 		ecs.AddResource(&ECWorld, InventoryRes)
 		ecs.AddResource(&ECWorld, CraftingTableRes)
-		ecs.AddResource(&ECWorld, AnimPlayerDataRes)
+		ecs.AddResource(&ECWorld, PlayerAnimPlayer.Data)
 		ecs.AddResource(&ECWorld, CameraRes)
 		ecs.AddResource(&ECWorld, TileMapRes)
 		jsonData, err := DataManager.LoadItem("01save")
 		if err != nil {
 			log.Fatal("Error loading saved data:", err)
 		}
-
 		err = archeserde.Deserialize(jsonData, &ECWorld)
 		if err != nil {
 			log.Fatal("Error deserializing world:", err)
 		}
-		animPlayerData := ecs.GetResource[AnimPlayerData](&ECWorld)
-		ApplyAnimPlayerData(PlayerAnimPlayer, animPlayerData)
+		PlayerAnimPlayer.Update()
 	}
 }

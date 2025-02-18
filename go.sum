@@ -28,8 +28,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/quasilyte/gdata v0.8.1 h1:cR9TFUHrRciVq1E4hqofan6jcQvmJd9lM1E7YLeUfi8=
 github.com/quasilyte/gdata v0.8.1/go.mod h1:VZbd2RCpKR2cbTGuLC1Esnyl1+KFv/jXBJrs/ijL8TA=
-github.com/setanarut/anim v1.1.2 h1:OMX4s2i3dF+NhmWarKIeawmorPeNq2BT/oJK676CjYE=
-github.com/setanarut/anim v1.1.2/go.mod h1:1iXJh8Ar8wMP1drJM5ebGGv3XETNNsARfLc26tgtWkU=
+github.com/setanarut/anim v1.3.0 h1:HNzcyAeS3FmzJL/SvgwnBdEt2HKswVylhl2+r4+k0jI=
+github.com/setanarut/anim v1.3.0/go.mod h1:A1RG+zfn+zzWUW3DV8Xy8FMzt+yU5DmMt0X1wn8CHUs=
 github.com/setanarut/fastnoise v1.1.1 h1:cD9gUjY9GMxVab+B7AY09j2GAHMdiKzchDE5z6dQ7eE=
 github.com/setanarut/fastnoise v1.1.1/go.mod h1:74vG3/RcPPcNi2M0riHJXQp9/+eTSh0rnQ/0WTEY6SU=
 github.com/setanarut/kamera/v2 v2.96.0 h1:0RrKQ4o4SF4IM5gjduZcVLitYyvPMphkXjUJ04HS6s0=

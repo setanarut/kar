@@ -20,14 +20,20 @@ func (b AABB) Max() Vec {
 	return b.Pos.Add(b.Half)
 }
 
-type Hit struct {
+type HitInfo struct {
 	Pos    Vec
 	Delta  Vec
 	Normal Vec
 	Time   float64
 }
 
-func (a AABB) Segment(pos, delta, padding Vec, hit *Hit) bool {
+// HitTileInfo stores information about a collision with a tile
+type HitTileInfo struct {
+	TileCoords image.Point // X,Y coordinates of the tile in the tilemap
+	Normal     Vec         // Normal vector of the collision (-1/0/1)
+}
+
+func (a AABB) Segment(pos, delta, padding Vec, hit *HitInfo) bool {
 	scaleX := 1.0 / delta.X
 	scaleY := 1.0 / delta.Y
 	signX := sign(scaleX)
@@ -68,7 +74,7 @@ func (a AABB) Segment(pos, delta, padding Vec, hit *Hit) bool {
 	return true
 }
 
-func (a AABB) Overlap(a2 AABB, hit *Hit) bool {
+func (a AABB) Overlap(a2 AABB, hit *HitInfo) bool {
 	dx := a2.Pos.X - a.Pos.X
 	px := a2.Half.X + a.Half.X - math.Abs(dx)
 	if px <= 0 {
@@ -105,7 +111,7 @@ func (a AABB) Overlap(a2 AABB, hit *Hit) bool {
 	return true
 }
 
-func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *Hit) bool {
+func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *HitInfo) bool {
 	if delta.IsZero() {
 		return a.Overlap(a2, hit)
 	}
@@ -126,13 +132,6 @@ func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *Hit) bool {
 		)
 	}
 	return result
-}
-
-// HitTileInfo stores information about a collision with a tile
-type HitTileInfo struct {
-	TileID     uint8       // ID of the collided tile
-	TileCoords image.Point // X,Y coordinates of the tile in the tilemap
-	Normal     Vec         // Normal vector of the collision (-1/0/1)
 }
 
 // Collider handles collision detection between rectangles and a 2D tilemap
@@ -218,7 +217,6 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 					if collision <= deltaX {
 						deltaX = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
-							TileID:     c.TileMap[y][x],
 							TileCoords: image.Point{x, y},
 							Normal:     Left,
 						})
@@ -249,7 +247,6 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 					if collision >= deltaX {
 						deltaX = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
-							TileID:     c.TileMap[y][x],
 							TileCoords: image.Point{x, y},
 							Normal:     Right,
 						})
@@ -293,7 +290,6 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 					if collision <= deltaY {
 						deltaY = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
-							TileID:     c.TileMap[y][x],
 							TileCoords: image.Point{x, y},
 							Normal:     Up,
 						})
@@ -323,7 +319,6 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 					if collision >= deltaY {
 						deltaY = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
-							TileID:     c.TileMap[y][x],
 							TileCoords: image.Point{x, y},
 							Normal:     Down,
 						})

@@ -12,14 +12,14 @@ import (
 
 // ECS Resources
 var (
-	GameDataRes       *GameData
-	TileMapRes        *tilemap.TileMap
-	CraftingTableRes  *items.CraftTable
-	InventoryRes      *items.Inventory
-	AnimPlayerDataRes *AnimPlayerData
-	CameraRes         *kamera.Camera
+	GameDataRes      *GameData
+	TileMapRes       *tilemap.TileMap
+	CraftingTableRes *items.CraftTable
+	InventoryRes     *items.Inventory
+	// AnimPlayerDataRes *anim.PlaybackData
+	CameraRes *kamera.Camera
 )
-var AnimPlayerDataDefault AnimPlayerData
+var AnimDefaultPlaybackData anim.PlaybackData
 
 func init() {
 	GameDataRes = &GameData{CraftingState: false, CraftingState4: false}
@@ -42,57 +42,24 @@ func init() {
 		&anim.Atlas{"IronShovel", res.PlayerIronShovelAtlas},
 		&anim.Atlas{"DiamondShovel", res.PlayerDiamondShovelAtlas},
 	)
-	PlayerAnimPlayer.NewState("idleRight", 0, 0, 16, 16, 1, false, false, 1)
-	PlayerAnimPlayer.NewState("idleUp", 208, 0, 16, 16, 1, false, false, 1)
-	PlayerAnimPlayer.NewState("idleDown", 224, 0, 16, 16, 1, false, false, 1)
-	PlayerAnimPlayer.NewState("walkRight", 16, 0, 16, 16, 4, false, false, 15)
-	PlayerAnimPlayer.NewState("jump", 16*5, 0, 16, 16, 1, false, false, 15)
-	PlayerAnimPlayer.NewState("skidding", 16*6, 0, 16, 16, 1, false, false, 15)
-	PlayerAnimPlayer.NewState("attackDown", 16*7, 0, 16, 16, 2, false, false, 8)
-	PlayerAnimPlayer.NewState("attackRight", 144, 0, 16, 16, 2, false, false, 8)
-	PlayerAnimPlayer.NewState("attackWalk", 0, 16, 16, 16, 4, false, false, 8)
-	PlayerAnimPlayer.NewState("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
-	PlayerAnimPlayer.CurrentState = "idleRight"
-	AnimPlayerDataRes = NewAnimPlayerData(PlayerAnimPlayer)
-	AnimPlayerDataDefault = *AnimPlayerDataRes
+	PlayerAnimPlayer.NewAnim("idleRight", 0, 0, 16, 16, 1, false, false, 1)
+	PlayerAnimPlayer.NewAnim("idleUp", 208, 0, 16, 16, 1, false, false, 1)
+	PlayerAnimPlayer.NewAnim("idleDown", 224, 0, 16, 16, 1, false, false, 1)
+	PlayerAnimPlayer.NewAnim("walkRight", 16, 0, 16, 16, 4, false, false, 15)
+	PlayerAnimPlayer.NewAnim("jump", 16*5, 0, 16, 16, 1, false, false, 15)
+	PlayerAnimPlayer.NewAnim("skidding", 16*6, 0, 16, 16, 1, false, false, 15)
+	PlayerAnimPlayer.NewAnim("attackDown", 16*7, 0, 16, 16, 2, false, false, 8)
+	PlayerAnimPlayer.NewAnim("attackRight", 144, 0, 16, 16, 2, false, false, 8)
+	PlayerAnimPlayer.NewAnim("attackWalk", 0, 16, 16, 16, 4, false, false, 8)
+	PlayerAnimPlayer.NewAnim("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
+	PlayerAnimPlayer.SetAnim("idleRight")
+	AnimDefaultPlaybackData = *PlayerAnimPlayer.Data
+	// AnimPlayerDataRes = &anim.PlaybackData{}
+	// *AnimPlayerDataRes = *PlayerAnimPlayer.Data
 }
 
 type GameData struct {
 	CraftingState    bool
 	CraftingState4   bool
 	TargetBlockCoord image.Point
-}
-
-func NewAnimPlayerData(ap *anim.AnimationPlayer) *AnimPlayerData {
-	return &AnimPlayerData{
-		CurrentState: ap.CurrentState,
-		CurrentAtlas: ap.CurrentAtlas,
-		Paused:       ap.Paused,
-		Tick:         ap.Tick,
-		CurrentIndex: ap.CurrentIndex,
-	}
-}
-
-func FetchAnimPlayerData(data *AnimPlayerData, ap *anim.AnimationPlayer) {
-	data.CurrentState = ap.CurrentState
-	data.CurrentAtlas = ap.CurrentAtlas
-	data.Paused = ap.Paused
-	data.Tick = ap.Tick
-	data.CurrentIndex = ap.CurrentIndex
-}
-
-func ApplyAnimPlayerData(ap *anim.AnimationPlayer, data *AnimPlayerData) {
-	ap.CurrentState = data.CurrentState
-	ap.CurrentAtlas = data.CurrentAtlas
-	ap.Paused = data.Paused
-	ap.Tick = data.Tick
-	ap.CurrentIndex = data.CurrentIndex
-}
-
-type AnimPlayerData struct {
-	CurrentState string
-	CurrentAtlas string
-	Paused       bool
-	Tick         float64
-	CurrentIndex int
 }

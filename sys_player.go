@@ -21,7 +21,7 @@ var (
 )
 
 type Player struct {
-	itemHit     *Hit
+	itemHit     *HitInfo
 	itemBox     AABB
 	snowBallBox AABB
 
@@ -31,7 +31,7 @@ type Player struct {
 func (c *Player) Init() {
 	c.itemBox = AABB{Half: DropItemHalfSize}
 	c.snowBallBox = AABB{Half: Vec{4, 4}}
-	c.itemHit = &Hit{}
+	c.itemHit = &HitInfo{}
 }
 
 func (c *Player) Update() error {
@@ -51,11 +51,11 @@ func (c *Player) Update() error {
 			// Death animation
 			if playerHealth.Current <= 0 {
 				DyingCountdown += 0.1
-				PlayerAnimPlayer.Paused = true
+				PlayerAnimPlayer.Data.Paused = true
 				playerBox.Pos.Y += DyingCountdown
 
 				if playerBox.Pos.Y > CameraRes.Y+CameraRes.Height {
-					PlayerAnimPlayer.Paused = false
+					PlayerAnimPlayer.Data.Paused = false
 					PreviousGameState = "playing"
 					CurrentGameState = "menu"
 					ColorM.ChangeHSV(1, 0, 0.5) // BW
@@ -108,22 +108,22 @@ func (c *Player) Update() error {
 				if ctrl.PreviousState != "idle" {
 					ctrl.PreviousState = ctrl.CurrentState
 					if pFacing.Y == 0 {
-						PlayerAnimPlayer.SetState("idleRight")
+						PlayerAnimPlayer.SetAnim("idleRight")
 					}
 					if pFacing.X == 0 {
-						PlayerAnimPlayer.SetState("idleUp")
+						PlayerAnimPlayer.SetAnim("idleUp")
 					}
 				}
 
 				// while idle
 				if pFacing.Y == -1 {
-					PlayerAnimPlayer.SetState("idleUp")
+					PlayerAnimPlayer.SetAnim("idleUp")
 				} else if pFacing.Y == 1 {
-					PlayerAnimPlayer.SetState("idleDown")
+					PlayerAnimPlayer.SetAnim("idleDown")
 				} else if pFacing.X == 1 {
-					PlayerAnimPlayer.SetState("idleRight")
+					PlayerAnimPlayer.SetAnim("idleRight")
 				} else if pFacing.X == -1 {
-					PlayerAnimPlayer.SetState("idleRight")
+					PlayerAnimPlayer.SetAnim("idleRight")
 				}
 
 				// Handle specific transitions
@@ -156,9 +156,9 @@ func (c *Player) Update() error {
 				// enter walking
 				if ctrl.PreviousState != "walking" {
 					ctrl.PreviousState = ctrl.CurrentState
-					PlayerAnimPlayer.SetState("walkRight")
+					PlayerAnimPlayer.SetAnim("walkRight")
 				}
-				PlayerAnimPlayer.SetStateFPS("walkRight", MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
 				if ctrl.IsSkidding {
@@ -187,11 +187,11 @@ func (c *Player) Update() error {
 				// enter running
 				if ctrl.PreviousState != "running" {
 					ctrl.PreviousState = ctrl.CurrentState
-					PlayerAnimPlayer.SetState("walkRight")
+					PlayerAnimPlayer.SetAnim("walkRight")
 				}
 
 				// while running
-				PlayerAnimPlayer.SetStateFPS("walkRight", MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.HorizontalVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
 				if ctrl.IsSkidding {
@@ -219,7 +219,7 @@ func (c *Player) Update() error {
 				// enter running
 				if ctrl.PreviousState != "jumping" {
 					ctrl.PreviousState = ctrl.CurrentState
-					PlayerAnimPlayer.SetState("jump")
+					PlayerAnimPlayer.SetAnim("jump")
 				}
 
 				// skidding jumpg physics
@@ -263,7 +263,7 @@ func (c *Player) Update() error {
 				if ctrl.PreviousState != "falling" {
 					ctrl.PreviousState = ctrl.CurrentState
 					ctrl.FallingDamageTempPosY = playerBox.Pos.Y + playerBox.Half.Y
-					PlayerAnimPlayer.SetState("jump")
+					PlayerAnimPlayer.SetAnim("jump")
 				}
 
 				// transitions
@@ -294,20 +294,20 @@ func (c *Player) Update() error {
 				// update animation states
 				if pFacing.X == 1 {
 					if ctrl.HorizontalVelocity > 0.01 {
-						PlayerAnimPlayer.SetState("attackWalk")
+						PlayerAnimPlayer.SetAnim("attackWalk")
 					} else {
-						PlayerAnimPlayer.SetState("attackRight")
+						PlayerAnimPlayer.SetAnim("attackRight")
 					}
 				} else if pFacing.X == -1 {
 					if ctrl.HorizontalVelocity > 0.01 {
-						PlayerAnimPlayer.SetState("attackWalk")
+						PlayerAnimPlayer.SetAnim("attackWalk")
 					} else {
-						PlayerAnimPlayer.SetState("attackRight")
+						PlayerAnimPlayer.SetAnim("attackRight")
 					}
 				} else if pFacing.Y == 1 {
-					PlayerAnimPlayer.SetState("attackDown")
+					PlayerAnimPlayer.SetAnim("attackDown")
 				} else if pFacing.Y == -1 {
-					PlayerAnimPlayer.SetState("attackUp")
+					PlayerAnimPlayer.SetAnim("attackUp")
 				}
 
 				// break block
@@ -366,7 +366,7 @@ func (c *Player) Update() error {
 				if ctrl.PreviousState != "skidding" {
 					// fmt.Println("enter skidding")
 					ctrl.PreviousState = ctrl.CurrentState
-					PlayerAnimPlayer.SetState("skidding")
+					PlayerAnimPlayer.SetAnim("skidding")
 				}
 				// Handle specific transitions
 				if ctrl.SkiddingJumpEnabled && ctrl.IsJumpKeyJustPressed {
@@ -444,6 +444,9 @@ func (c *Player) Update() error {
 				playerBox.Pos.Y += dy
 				// Reset velocity when collide
 				for _, ci := range collisionInfos {
+
+					tileID := TileMapRes.GetUnchecked(ci.TileCoords)
+
 					if ci.Normal.Y == -1 {
 						// Ground collision
 						playerVelocity.Y = 0
@@ -454,12 +457,12 @@ func (c *Player) Update() error {
 
 						playerVelocity.Y = 0
 
-						switch ci.TileID {
+						switch tileID {
 						case items.StoneBricks:
 							// Destroy block when ceil hit
 							TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
 							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
-							SpawnEffect(ci.TileID, wx, wy)
+							SpawnEffect(tileID, wx, wy)
 						case items.Random:
 							if TileMapRes.Get(ci.TileCoords.X, ci.TileCoords.Y-1) == items.Air {
 								TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Bedrock)
@@ -475,25 +478,10 @@ func (c *Player) Update() error {
 						if ctrl.HorizontalVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
 							TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
 							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
-							SpawnEffect(ci.TileID, wx, wy)
+							SpawnEffect(tileID, wx, wy)
 						}
-
 						playerVelocity.X = 0
 						ctrl.HorizontalVelocity = 0
-					}
-				}
-
-				if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-					ids := make([]uint8, 0)
-					for _, collisionInfo := range collisionInfos {
-						if collisionInfo.Normal.Y == -1 {
-							ids = append(ids, collisionInfo.TileID)
-						}
-					}
-					if len(ids) == 2 {
-						if ids[0] == items.Sand && ids[1] == items.GrassBlock {
-							// Pipe logic is here
-						}
 					}
 				}
 			},

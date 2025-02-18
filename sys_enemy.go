@@ -56,7 +56,7 @@ func (e *Enemy) Update() error {
 				)
 
 				// player-enemy collision
-				hit := &Hit{}
+				hit := &HitInfo{}
 				wormBox := AABB{
 					Pos:  Vec(*enemyPos),
 					Half: EnemyWormHalfSize,

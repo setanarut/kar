@@ -9,12 +9,12 @@ var SinspaceLen int = len(Sinspace) - 1
 type Item struct {
 	toRemoveComponent []ecs.Entity
 	itemBox           AABB
-	itemHit           *Hit
+	itemHit           *HitInfo
 }
 
 func (i *Item) Init() {
 	i.itemBox = AABB{Half: DropItemHalfSize}
-	i.itemHit = &Hit{}
+	i.itemHit = &HitInfo{}
 }
 func (i *Item) Update() error {
 
