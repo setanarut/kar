@@ -9,7 +9,6 @@ import (
 	"log"
 	"math"
 	"math/rand/v2"
-	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -27,16 +26,16 @@ import (
 type Vec = v.Vec
 
 const (
-	SnowballGravity                       = 0.5
-	SnowballSpeedX                        = 3.5
-	SnowballMaxFallVelocity               = 2.5
-	SnowballBounceHeight                  = 9
-	Tick                                  = time.Second / 60
-	ItemGravity             float64       = 3
-	PlayerBestToolDamage    float64       = 5.0
-	PlayerDefaultDamage     float64       = 1.0
-	ItemCollisionDelay      time.Duration = time.Second / 2
-	RaycastDist             int           = 4 // block unit
+	SnowballGravity             = 0.5
+	SnowballSpeedX              = 3.5
+	SnowballMaxFallVelocity     = 2.5
+	SnowballBounceHeight        = 9.0
+	ItemGravity                 = 3.0
+	PlayerBestToolDamage        = 5.0
+	PlayerDefaultDamage         = 1.0
+	Tick                        = time.Second / 60
+	ItemCollisionDelay          = time.Second / 2
+	RaycastDist             int = 4 // block unit
 )
 
 var (
@@ -50,23 +49,22 @@ var (
 var (
 	ECWorld                  ecs.World = ecs.NewWorld()
 	CurrentPlayer            ecs.Entity
+	RenderArea               = image.Point{(int(ScreenW) / 20) + 3, (int(ScreenH) / 20) + 3}
 	DataManager              *gdata.Manager
 	SerdeOpt                 archeserde.Option
-	DesktopPath              string
-	WindowScale              float64     = 2.0
-	ScreenW, ScreenH         float64     = 500.0, 340.0
-	Sinspace                 []float64   = SinSpace(0, 2*math.Pi, 3, 60)
-	RenderArea               image.Point = image.Point{(int(ScreenW) / 20) + 3, (int(ScreenH) / 20) + 3}
-	DrawDebugHitboxesEnabled bool        = false
-	DrawDebugTextEnabled     bool        = false
-	BackgroundColor          color.RGBA  = color.RGBA{36, 36, 39, 255}
+	WindowScale                         = 2.0
+	ScreenW, ScreenH                    = 500.0, 340.0
+	Sinspace                 []float64  = SinSpace(0, 2*math.Pi, 3, 60)
+	DrawDebugHitboxesEnabled bool       = false
+	DrawDebugTextEnabled     bool       = false
+	BackgroundColor          color.RGBA = color.RGBA{36, 36, 39, 255}
 	TileCollider             *Collider
 	GameTileMapGenerator     *tilemap.Generator
 	PlayerAnimPlayer         *anim.AnimationPlayer
 	Screen                   *ebiten.Image
-	ColorMDIO                = &colorm.DrawImageOptions{}
-	ColorM                   = colorm.ColorM{}
-	TextDO                   = &text.DrawOptions{
+	ColorMDIO                *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
+	ColorM                   colorm.ColorM            = colorm.ColorM{}
+	TextDO                   *text.DrawOptions        = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
@@ -81,7 +79,6 @@ type ISystem interface {
 }
 
 func init() {
-
 	var err error
 	DataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
 	if err != nil {
@@ -94,12 +91,6 @@ func init() {
 		TileMapRes.TileW,
 		TileMapRes.TileH,
 	)
-	homePath, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	DesktopPath = homePath + "/Desktop/"
-
 	// ECS Resources
 	ecs.AddResource(&ECWorld, InventoryRes)
 	ecs.AddResource(&ECWorld, CraftingTableRes)
@@ -107,7 +98,6 @@ func init() {
 	ecs.AddResource(&ECWorld, GameDataRes)
 	ecs.AddResource(&ECWorld, TileMapRes)
 	ecs.AddResource(&ECWorld, CameraRes)
-
 	InventoryRes.SetSlot(0, items.Snowball, 64, 0)
 }
 
