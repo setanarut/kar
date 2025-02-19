@@ -17,16 +17,18 @@ var (
 	bounceVelocity = -math.Sqrt(2 * SnowballGravity * SnowballBounceHeight)
 	blockHealth    float64
 	placeTile      image.Point
-	IsRayHit       bool
-	DyingCountdown float64
+	isRayHit       bool
+	dyingCountdown float64
 )
 
 type Player struct {
-	itemHit     *HitInfo
-	itemBox     AABB
-	snowBallBox AABB
-
-	playerTile image.Point
+	itemHit      *HitInfo
+	itemBox      AABB
+	snowBallBox  AABB
+	absXVelocity float64
+	isOnFloor    bool
+	isSkidding   bool
+	playerTile   image.Point
 }
 
 func (c *Player) Init() {
@@ -41,7 +43,7 @@ func (c *Player) Update() error {
 		if ECWorld.Alive(CurrentPlayer) {
 
 			pBox, pVelocity, pHealth, ctrl, pFacing := MapPlayer.Get(CurrentPlayer)
-
+			c.absXVelocity = math.Abs(pVelocity.X)
 			// update animation player
 			PlayerAnimPlayer.Update()
 
@@ -51,9 +53,9 @@ func (c *Player) Update() error {
 
 			// Death animation
 			if pHealth.Current <= 0 {
-				DyingCountdown += 0.1
+				dyingCountdown += 0.1
 				PlayerAnimPlayer.Data.Paused = true
-				pBox.Pos.Y += DyingCountdown
+				pBox.Pos.Y += dyingCountdown
 
 				if pBox.Pos.Y > CameraRes.Y+CameraRes.Height {
 					PlayerAnimPlayer.Data.Paused = false
@@ -62,36 +64,36 @@ func (c *Player) Update() error {
 					ColorM.ChangeHSV(1, 0, 0.5) // BW
 					TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 					ECWorld.RemoveEntity(CurrentPlayer)
-					DyingCountdown = 0
+					dyingCountdown = 0
 				}
 				return nil
 			}
 
 			// Update input
-			ctrl.IsBreakKeyPressed = ebiten.IsKeyPressed(ebiten.KeyRight)
-			ctrl.IsRunKeyPressed = ebiten.IsKeyPressed(ebiten.KeyShift)
-			ctrl.IsJumpKeyPressed = ebiten.IsKeyPressed(ebiten.KeySpace)
-			ctrl.IsAttackKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeyLeft)
-			ctrl.IsJumpKeyJustPressed = inpututil.IsKeyJustPressed(ebiten.KeySpace)
-			ctrl.InputAxis = Vec{}
+			isBreakKeyPressed := ebiten.IsKeyPressed(ebiten.KeyRight)
+			isRunKeyPressed := ebiten.IsKeyPressed(ebiten.KeyShift)
+			isJumpKeyPressed := ebiten.IsKeyPressed(ebiten.KeySpace)
+			isAttackKeyJustPressed := inpututil.IsKeyJustPressed(ebiten.KeyLeft)
+			isJumpKeyJustPressed := inpututil.IsKeyJustPressed(ebiten.KeySpace)
+			inputAxis := Vec{}
 
 			if ebiten.IsKeyPressed(ebiten.KeyW) {
-				ctrl.InputAxis.Y -= 1
+				inputAxis.Y -= 1
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyS) {
-				ctrl.InputAxis.Y += 1
+				inputAxis.Y += 1
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyA) {
-				ctrl.InputAxis.X -= 1
+				inputAxis.X -= 1
 			}
 			if ebiten.IsKeyPressed(ebiten.KeyD) {
-				ctrl.InputAxis.X += 1
+				inputAxis.X += 1
 			}
-			if !ctrl.InputAxis.IsZero() {
+			if !inputAxis.IsZero() {
 				// restrict facing direction to 4 directions (no diagonal)
-				switch ctrl.InputAxis {
+				switch inputAxis {
 				case v.Up, v.Down, v.Left, v.Right:
-					*pFacing = Facing(ctrl.InputAxis)
+					*pFacing = Facing(inputAxis)
 				default:
 					*pFacing = Facing{}
 				}
@@ -127,23 +129,23 @@ func (c *Player) Update() error {
 				}
 
 				// Handle specific transitions
-				if ctrl.IsJumpKeyJustPressed {
-					if ctrl.AbsXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
+				if isJumpKeyJustPressed {
+					if c.absXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
 						pVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 					} else {
 						pVelocity.Y = ctrl.JumpPower
 					}
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
-				} else if ctrl.IsOnFloor && ctrl.AbsXVelocity > 0.01 {
-					if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
+				} else if c.isOnFloor && c.absXVelocity > 0.01 {
+					if c.absXVelocity > ctrl.MaxWalkSpeed {
 						ctrl.CurrentState = "running"
 					} else {
 						ctrl.CurrentState = "walking"
 					}
-				} else if !ctrl.IsOnFloor && pVelocity.Y > 0.01 {
+				} else if !c.isOnFloor && pVelocity.Y > 0.01 {
 					ctrl.CurrentState = "falling"
-				} else if ctrl.IsBreakKeyPressed && IsRayHit {
+				} else if isBreakKeyPressed && isRayHit {
 					ctrl.CurrentState = "breaking"
 				} else if pVelocity.Y != 0 && pVelocity.Y < -0.1 {
 					ctrl.CurrentState = "jumping"
@@ -158,24 +160,24 @@ func (c *Player) Update() error {
 					ctrl.PreviousState = ctrl.CurrentState
 					PlayerAnimPlayer.SetAnim("walkRight")
 				}
-				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.AbsXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(c.absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
-				if ctrl.IsSkidding {
+				if c.isSkidding {
 					ctrl.CurrentState = "skidding"
-				} else if pVelocity.Y > 0 && !ctrl.IsOnFloor {
+				} else if pVelocity.Y > 0 && !c.isOnFloor {
 					ctrl.CurrentState = "falling"
-				} else if ctrl.IsJumpKeyJustPressed {
+				} else if isJumpKeyJustPressed {
 					ctrl.CurrentState = "jumping"
-					if ctrl.AbsXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
+					if c.absXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
 						pVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 					} else {
 						pVelocity.Y = ctrl.JumpPower
 					}
 					ctrl.JumpTimer = 0
-				} else if ctrl.AbsXVelocity == 0 {
+				} else if c.absXVelocity == 0 {
 					ctrl.CurrentState = "idle"
-				} else if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
+				} else if c.absXVelocity > ctrl.MaxWalkSpeed {
 					ctrl.CurrentState = "running"
 				}
 
@@ -191,24 +193,24 @@ func (c *Player) Update() error {
 				}
 
 				// while running
-				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.AbsXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(c.absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
-				if ctrl.IsSkidding {
+				if c.isSkidding {
 					ctrl.CurrentState = "skidding"
-				} else if pVelocity.Y > 0 && !ctrl.IsOnFloor {
+				} else if pVelocity.Y > 0 && !c.isOnFloor {
 					ctrl.CurrentState = "falling"
-				} else if ctrl.IsJumpKeyJustPressed {
-					if ctrl.AbsXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
+				} else if isJumpKeyJustPressed {
+					if c.absXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
 						pVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 					} else {
 						pVelocity.Y = ctrl.JumpPower
 					}
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
-				} else if ctrl.AbsXVelocity < 0.01 {
+				} else if c.absXVelocity < 0.01 {
 					ctrl.CurrentState = "idle"
-				} else if ctrl.AbsXVelocity <= ctrl.MaxWalkSpeed {
+				} else if c.absXVelocity <= ctrl.MaxWalkSpeed {
 					ctrl.CurrentState = "walking"
 				}
 				// exit running
@@ -224,10 +226,10 @@ func (c *Player) Update() error {
 
 				// skidding jumpg physics
 				if ctrl.PreviousState == "skidding" {
-					if !ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpReleaseTimer {
+					if !isJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpReleaseTimer {
 						pVelocity.Y = ctrl.ShortJumpVelocity * 0.7 // Kısa zıplama gücünü azalt
 						ctrl.JumpTimer = ctrl.JumpHoldTime
-					} else if ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
+					} else if isJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
 						pVelocity.Y += ctrl.JumpBoost * 0.7 // Boost gücünü azalt
 						ctrl.JumpTimer++
 					} else if pVelocity.Y >= 0.01 {
@@ -235,11 +237,11 @@ func (c *Player) Update() error {
 					}
 				} else {
 					// normal skidding
-					if !ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpReleaseTimer {
+					if !isJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpReleaseTimer {
 						pVelocity.Y = ctrl.ShortJumpVelocity
 						ctrl.JumpTimer = ctrl.JumpHoldTime
-					} else if ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
-						speedFactor := (ctrl.AbsXVelocity / ctrl.MaxRunSpeed) * ctrl.SpeedJumpFactor
+					} else if isJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
+						speedFactor := (c.absXVelocity / ctrl.MaxRunSpeed) * ctrl.SpeedJumpFactor
 						pVelocity.Y += ctrl.JumpBoost * (1 + speedFactor)
 						ctrl.JumpTimer++
 					} else if pVelocity.Y >= 0 {
@@ -248,7 +250,7 @@ func (c *Player) Update() error {
 				}
 
 				// apply air skidding Decel
-				if ctrl.InputAxis.X*pVelocity.X < 0 {
+				if inputAxis.X*pVelocity.X < 0 {
 					pVelocity.X += math.Copysign(ctrl.AirSkiddingDecel, -pVelocity.X)
 				}
 
@@ -265,10 +267,10 @@ func (c *Player) Update() error {
 				}
 
 				// transitions
-				if ctrl.IsOnFloor {
-					if ctrl.AbsXVelocity <= 0 {
+				if c.isOnFloor {
+					if c.absXVelocity <= 0 {
 						ctrl.CurrentState = "idle"
-					} else if ctrl.IsRunKeyPressed {
+					} else if isRunKeyPressed {
 						ctrl.CurrentState = "running"
 					} else {
 						ctrl.CurrentState = "walking"
@@ -291,13 +293,13 @@ func (c *Player) Update() error {
 				}
 				// update animation states
 				if pFacing.X == 1 {
-					if ctrl.AbsXVelocity > 0.01 {
+					if c.absXVelocity > 0.01 {
 						PlayerAnimPlayer.SetAnim("attackWalk")
 					} else {
 						PlayerAnimPlayer.SetAnim("attackRight")
 					}
 				} else if pFacing.X == -1 {
-					if ctrl.AbsXVelocity > 0.01 {
+					if c.absXVelocity > 0.01 {
 						PlayerAnimPlayer.SetAnim("attackWalk")
 					} else {
 						PlayerAnimPlayer.SetAnim("attackRight")
@@ -309,7 +311,7 @@ func (c *Player) Update() error {
 				}
 
 				// break block
-				if IsRayHit {
+				if isRayHit {
 					blockID := TileMapRes.Get(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y)
 					if !items.HasTag(blockID, items.UnbreakableBlock) {
 						if items.IsBestTool(blockID, InventoryRes.CurrentSlotID()) {
@@ -345,11 +347,11 @@ func (c *Player) Update() error {
 					}
 				}
 				// transitions
-				if !IsRayHit || (!ctrl.IsBreakKeyPressed && ctrl.IsOnFloor) {
+				if !isRayHit || (!isBreakKeyPressed && c.isOnFloor) {
 					ctrl.CurrentState = "idle"
-				} else if !ctrl.IsOnFloor && pVelocity.Y > 0.01 {
+				} else if !c.isOnFloor && pVelocity.Y > 0.01 {
 					ctrl.CurrentState = "falling"
-				} else if !ctrl.IsBreakKeyPressed && ctrl.IsJumpKeyJustPressed {
+				} else if !isBreakKeyPressed && isJumpKeyJustPressed {
 					pVelocity.Y = ctrl.JumpPower
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
@@ -366,24 +368,24 @@ func (c *Player) Update() error {
 					ctrl.PreviousState = ctrl.CurrentState
 				}
 				// Apply Skidding decel
-				if ctrl.AbsXVelocity > ctrl.SkiddingFriction {
+				if c.absXVelocity > ctrl.SkiddingFriction {
 					pVelocity.X += math.Copysign(ctrl.SkiddingFriction, -pVelocity.X)
 				}
-				if ctrl.AbsXVelocity > 0.5 {
+				if c.absXVelocity > 0.5 {
 					PlayerAnimPlayer.SetAnim("skidding")
 				}
 
 				// Handle specific transitions
-				if ctrl.SkiddingJumpEnabled && ctrl.IsJumpKeyJustPressed {
+				if ctrl.SkiddingJumpEnabled && isJumpKeyJustPressed {
 					// Yeni yöne doğru çok küçük sabit değerle başla
-					pVelocity.X = math.Copysign(0.3, float64(ctrl.InputAxis.X))
+					pVelocity.X = math.Copysign(0.3, float64(inputAxis.X))
 					pVelocity.Y = ctrl.JumpPower * 0.7 // Zıplama gücünü azalt
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
-				} else if ctrl.AbsXVelocity < 0.01 {
+				} else if c.absXVelocity < 0.01 {
 					ctrl.CurrentState = "idle"
-				} else if !ctrl.IsSkidding {
-					if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
+				} else if !c.isSkidding {
+					if c.absXVelocity > ctrl.MaxWalkSpeed {
 						ctrl.CurrentState = "running"
 					} else {
 						ctrl.CurrentState = "walking"
@@ -396,29 +398,28 @@ func (c *Player) Update() error {
 
 			// ########### UPDATE PHYSICS ################
 
-			ctrl.AbsXVelocity = math.Abs(pVelocity.X)
 			currentAccel, currentDecel, maxSpeed := ctrl.WalkAcceleration, ctrl.WalkDeceleration, ctrl.MaxWalkSpeed
 
 			pVelocity.Y += ctrl.Gravity
 			pVelocity.Y = min(ctrl.MaxFallSpeed, pVelocity.Y)
 
-			if !ctrl.IsSkidding {
-				if ctrl.IsRunKeyPressed {
+			if !c.isSkidding {
+				if isRunKeyPressed {
 					maxSpeed = ctrl.MaxRunSpeed
 					currentAccel = ctrl.RunAcceleration
 					currentDecel = ctrl.RunDeceleration
-				} else if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
+				} else if c.absXVelocity > ctrl.MaxWalkSpeed {
 					currentDecel = ctrl.RunDeceleration
 				}
 			}
 
-			if ctrl.InputAxis.X > 0 {
+			if inputAxis.X > 0 {
 				if pVelocity.X > maxSpeed {
 					pVelocity.X = max(maxSpeed, pVelocity.X-currentDecel)
 				} else {
 					pVelocity.X = min(maxSpeed, pVelocity.X+currentAccel)
 				}
-			} else if ctrl.InputAxis.X < 0 {
+			} else if inputAxis.X < 0 {
 				if pVelocity.X < -maxSpeed {
 					pVelocity.X = min(-maxSpeed, pVelocity.X+currentDecel)
 				} else {
@@ -432,11 +433,11 @@ func (c *Player) Update() error {
 				}
 			}
 
-			ctrl.IsSkidding = math.Signbit(pVelocity.X*ctrl.InputAxis.X) && ctrl.InputAxis.X != 0
+			c.isSkidding = math.Signbit(pVelocity.X*inputAxis.X) && inputAxis.X != 0
 
 			// Player and tilemap collision
 			TileCollider.Collide(*pBox, Vec(*pVelocity), func(collisionInfos []HitTileInfo, delta Vec) {
-				ctrl.IsOnFloor = false
+				c.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
 				// Reset velocity when collide
 				for _, ci := range collisionInfos {
@@ -446,7 +447,7 @@ func (c *Player) Update() error {
 					if ci.Normal.Y == -1 {
 						// Ground collision
 						pVelocity.Y = 0
-						ctrl.IsOnFloor = true
+						c.isOnFloor = true
 					}
 					// Ceil collision
 					if ci.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
@@ -468,16 +469,16 @@ func (c *Player) Update() error {
 						}
 
 					}
-					// Right of Left wall collision
+					// Right or Left wall collision
 					if ci.Normal.X == -1 || ci.Normal.X == 1 {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
-						if ctrl.AbsXVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
+						if c.absXVelocity == ctrl.MaxRunSpeed && isBreakKeyPressed {
 							TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
 							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
 							SpawnEffect(tileID, wx, wy)
 						}
 						pVelocity.X = 0
-						ctrl.AbsXVelocity = 0
+						c.absXVelocity = 0
 					}
 				}
 			},
@@ -486,22 +487,22 @@ func (c *Player) Update() error {
 			// player facing raycast for target block
 			c.playerTile = TileMapRes.WorldToTile(pBox.Pos.X, pBox.Pos.Y)
 			targetBlockTemp := GameDataRes.TargetBlockCoord
-			GameDataRes.TargetBlockCoord, IsRayHit = TileMapRes.Raycast(
+			GameDataRes.TargetBlockCoord, isRayHit = TileMapRes.Raycast(
 				c.playerTile,
 				int(pFacing.X), int(pFacing.Y),
 				RaycastDist,
 			)
 
 			// reset attack if block focus changed
-			if !GameDataRes.TargetBlockCoord.Eq(targetBlockTemp) || !IsRayHit {
+			if !GameDataRes.TargetBlockCoord.Eq(targetBlockTemp) || !isRayHit {
 				blockHealth = 0
 			}
 
 			// place block if IsAttackKeyJustPressed
-			if ctrl.IsAttackKeyJustPressed {
+			if isAttackKeyJustPressed {
 				anyItemOverlapsWithPlaceRect := false
 				// if slot item is block
-				if IsRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
+				if isRayHit && items.HasTag(InventoryRes.CurrentSlot().ID, items.Block) {
 					// Get tile rect
 					placeTile = GameDataRes.TargetBlockCoord.Sub(image.Point{int(pFacing.X), int(pFacing.Y)})
 					placeTileBox := AABB{

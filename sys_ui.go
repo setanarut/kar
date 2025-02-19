@@ -372,11 +372,11 @@ func (ui *UI) Draw() {
 
 		// Draw debug info
 		if DrawDebugTextEnabled {
-			_, _, _, playerController, _ := MapPlayer.Get(CurrentPlayer)
+			_, vel, _, playerController, _ := MapPlayer.Get(CurrentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				"state %v\nAbsVelocity: %v",
 				playerController.CurrentState,
-				playerController.AbsXVelocity,
+				vel,
 			), 10, 50)
 		}
 

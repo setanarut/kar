@@ -148,7 +148,7 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw target tile border
-	if IsRayHit {
+	if isRayHit {
 		ColorMDIO.GeoM.Reset()
 		ColorMDIO.GeoM.Translate(
 			float64(GameDataRes.TargetBlockCoord.X*TileMapRes.TileW)-1,

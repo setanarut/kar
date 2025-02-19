@@ -137,7 +137,7 @@ func NewGame() {
 	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
 	CameraRes.SmoothOptions.LerpSpeedX = 0.5
 	CameraRes.SmoothOptions.LerpSpeedY = 0
-	CameraRes.SmoothType = kamera.Lerp
+	CameraRes.SmoothType = kamera.SmoothDamp
 }
 
 func SaveGame() {

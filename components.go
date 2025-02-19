@@ -38,38 +38,31 @@ type Health struct {
 }
 
 type Controller struct {
-	AbsXVelocity                        float64
-	CurrentState                        string
-	PreviousState                       string
-	Gravity                             float64
+	Acceleration          float64
+	AirSkiddingDecel      float64
+	CurrentState          string
+	FallingDamageTempPosY float64
+	Gravity               float64
+	// IsFalling                           bool
+	// IsOnFloor                           bool
+	// IsSkidding                          bool
+	JumpBoost                           float64
+	JumpBoostMultiplier                 float64
+	JumpHoldTime                        float64
 	JumpPower                           float64
+	JumpReleaseTimer                    float64
+	JumpTimer                           float64
 	MaxFallSpeed                        float64
 	MaxRunSpeed                         float64
 	MaxWalkSpeed                        float64
-	Acceleration                        float64
-	SkiddingFriction                    float64
-	AirSkiddingDecel                    float64
-	JumpHoldTime                        float64
-	JumpBoost                           float64
-	JumpTimer                           float64
 	MinSpeedThresForJumpBoostMultiplier float64
-	JumpBoostMultiplier                 float64
-	SpeedJumpFactor                     float64
-	ShortJumpVelocity                   float64
-	JumpReleaseTimer                    float64
-	WalkAcceleration                    float64
-	WalkDeceleration                    float64
+	PreviousState                       string
 	RunAcceleration                     float64
 	RunDeceleration                     float64
-	FallingDamageTempPosY               float64
-	IsOnFloor                           bool
-	IsSkidding                          bool
-	IsFalling                           bool
+	ShortJumpVelocity                   float64
+	SkiddingFriction                    float64
 	SkiddingJumpEnabled                 bool
-	IsBreakKeyPressed                   bool
-	IsAttackKeyJustPressed              bool
-	IsJumpKeyPressed                    bool
-	IsJumpKeyJustPressed                bool
-	IsRunKeyPressed                     bool
-	InputAxis                           Vec
+	SpeedJumpFactor                     float64
+	WalkAcceleration                    float64
+	WalkDeceleration                    float64
 }
