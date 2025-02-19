@@ -101,7 +101,7 @@ func (c *Camera) Draw() {
 					CameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], ColorM, ColorMDIO, Screen)
 				} else {
 					if x == GameDataRes.TargetBlockCoord.X && y == GameDataRes.TargetBlockCoord.Y {
-						i := MapRange(blockHealth, 0, 180, 0, 5)
+						i := MapRange(GameDataRes.BlockHealth, 0, 180, 0, 5)
 						CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], ColorM, ColorMDIO, Screen)
 					} else {
 						CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], ColorM, ColorMDIO, Screen)
@@ -148,7 +148,7 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw target tile border
-	if isRayHit {
+	if GameDataRes.IsRayHit {
 		ColorMDIO.GeoM.Reset()
 		ColorMDIO.GeoM.Translate(
 			float64(GameDataRes.TargetBlockCoord.X*TileMapRes.TileW)-1,

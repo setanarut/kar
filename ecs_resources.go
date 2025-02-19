@@ -16,8 +16,7 @@ var (
 	TileMapRes       *tilemap.TileMap
 	CraftingTableRes *items.CraftTable
 	InventoryRes     *items.Inventory
-	// AnimPlayerDataRes *anim.PlaybackData
-	CameraRes *kamera.Camera
+	CameraRes        *kamera.Camera
 )
 var AnimDefaultPlaybackData anim.PlaybackData
 
@@ -54,12 +53,12 @@ func init() {
 	PlayerAnimPlayer.NewAnim("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
 	PlayerAnimPlayer.SetAnim("idleRight")
 	AnimDefaultPlaybackData = *PlayerAnimPlayer.Data
-	// AnimPlayerDataRes = &anim.PlaybackData{}
-	// *AnimPlayerDataRes = *PlayerAnimPlayer.Data
 }
 
 type GameData struct {
 	CraftingState    bool
 	CraftingState4   bool
 	TargetBlockCoord image.Point
+	IsRayHit         bool
+	BlockHealth      float64
 }
