@@ -22,7 +22,6 @@ type Player struct {
 	itemBox     AABB
 	snowBallBox AABB
 	isOnFloor   bool
-	isSkidding  bool
 	playerTile  image.Point
 }
 
@@ -70,11 +69,11 @@ func (p *Player) Update() error {
 				}
 			}
 
-			if math.Abs(pVelocity.X) > 0.01 {
+			if absXVelocity > 0.01 {
 				*pFacing = Facing{math.Copysign(1, pVelocity.X), 0}
 			}
 
-			p.isSkidding = inputAxis.X != 0 && (pVelocity.X*inputAxis.X < 0)
+			isSkidding := inputAxis.X != 0 && (pVelocity.X*inputAxis.X < 0)
 
 			// Death animation
 			if pHealth.Current <= 0 {
@@ -154,7 +153,7 @@ func (p *Player) Update() error {
 				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
-				if p.isSkidding {
+				if isSkidding {
 					ctrl.CurrentState = "skidding"
 				} else if pVelocity.Y > 0 && !p.isOnFloor {
 					ctrl.CurrentState = "falling"
@@ -187,7 +186,7 @@ func (p *Player) Update() error {
 				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
-				if p.isSkidding {
+				if isSkidding {
 					ctrl.CurrentState = "skidding"
 				} else if pVelocity.Y > 0 && !p.isOnFloor {
 					ctrl.CurrentState = "falling"
@@ -241,7 +240,7 @@ func (p *Player) Update() error {
 				}
 
 				// apply air skidding Decel
-				if inputAxis.X*pVelocity.X < 0 {
+				if isSkidding {
 					pVelocity.X += math.Copysign(ctrl.AirSkiddingDecel, -pVelocity.X)
 				}
 
@@ -375,7 +374,7 @@ func (p *Player) Update() error {
 					ctrl.CurrentState = "jumping"
 				} else if absXVelocity < 0.01 {
 					ctrl.CurrentState = "idle"
-				} else if !p.isSkidding {
+				} else if !isSkidding {
 					if absXVelocity > ctrl.MaxWalkSpeed {
 						ctrl.CurrentState = "running"
 					} else {
@@ -392,7 +391,7 @@ func (p *Player) Update() error {
 			pVelocity.Y += ctrl.Gravity
 			pVelocity.Y = min(ctrl.MaxFallSpeed, pVelocity.Y)
 
-			if !p.isSkidding {
+			if !isSkidding {
 				if isRunKeyPressed {
 					maxSpeed = ctrl.MaxRunSpeed
 					currentAccel = ctrl.RunAcceleration

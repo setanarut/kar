@@ -96,20 +96,7 @@ type SpawnData struct {
 }
 
 func SpawnPlayer(centerX, centerY float64) ecs.Entity {
-	return MapPlayer.NewWith(
-		&AABB{
-			Pos:  Vec{centerX, centerY},
-			Half: Vec{8, 8},
-		},
-		&Velocity{0, 0},
-		&Health{20, 20},
-		DefaultController(),
-		&Facing{0, 1},
-	)
-}
-
-func DefaultController() *Controller {
-	return &Controller{
+	ctrl := &Controller{
 		CurrentState:                        "falling",
 		Gravity:                             0.19,
 		JumpPower:                           -3.7,
@@ -132,4 +119,14 @@ func DefaultController() *Controller {
 		RunDeceleration:                     0.04,
 		SkiddingJumpEnabled:                 true,
 	}
+	return MapPlayer.NewWith(
+		&AABB{
+			Pos:  Vec{centerX, centerY},
+			Half: Vec{8, 8},
+		},
+		&Velocity{0, 0},
+		&Health{20, 20},
+		ctrl,
+		&Facing{0, 1},
+	)
 }

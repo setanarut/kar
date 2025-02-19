@@ -38,14 +38,11 @@ type Health struct {
 }
 
 type Controller struct {
-	Acceleration          float64
-	AirSkiddingDecel      float64
-	CurrentState          string
-	FallingDamageTempPosY float64
-	Gravity               float64
-	// IsFalling                           bool
-	// IsOnFloor                           bool
-	// IsSkidding                          bool
+	Acceleration                        float64
+	AirSkiddingDecel                    float64
+	CurrentState                        string
+	FallingDamageTempPosY               float64
+	Gravity                             float64
 	JumpBoost                           float64
 	JumpBoostMultiplier                 float64
 	JumpHoldTime                        float64
