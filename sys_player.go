@@ -128,15 +128,15 @@ func (c *Player) Update() error {
 
 				// Handle specific transitions
 				if ctrl.IsJumpKeyJustPressed {
-					if ctrl.pVelocityAbs > ctrl.MinSpeedThresForJumpBoostMultiplier {
+					if ctrl.AbsXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
 						pVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 					} else {
 						pVelocity.Y = ctrl.JumpPower
 					}
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
-				} else if ctrl.IsOnFloor && ctrl.pVelocityAbs > 0.01 {
-					if ctrl.pVelocityAbs > ctrl.MaxWalkSpeed {
+				} else if ctrl.IsOnFloor && ctrl.AbsXVelocity > 0.01 {
+					if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
 						ctrl.CurrentState = "running"
 					} else {
 						ctrl.CurrentState = "walking"
@@ -158,7 +158,7 @@ func (c *Player) Update() error {
 					ctrl.PreviousState = ctrl.CurrentState
 					PlayerAnimPlayer.SetAnim("walkRight")
 				}
-				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.pVelocityAbs, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.AbsXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
 				if ctrl.IsSkidding {
@@ -167,15 +167,15 @@ func (c *Player) Update() error {
 					ctrl.CurrentState = "falling"
 				} else if ctrl.IsJumpKeyJustPressed {
 					ctrl.CurrentState = "jumping"
-					if ctrl.pVelocityAbs > ctrl.MinSpeedThresForJumpBoostMultiplier {
+					if ctrl.AbsXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
 						pVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 					} else {
 						pVelocity.Y = ctrl.JumpPower
 					}
 					ctrl.JumpTimer = 0
-				} else if ctrl.pVelocityAbs <= 0 {
+				} else if ctrl.AbsXVelocity == 0 {
 					ctrl.CurrentState = "idle"
-				} else if ctrl.pVelocityAbs > ctrl.MaxWalkSpeed {
+				} else if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
 					ctrl.CurrentState = "running"
 				}
 
@@ -191,7 +191,7 @@ func (c *Player) Update() error {
 				}
 
 				// while running
-				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.pVelocityAbs, 0, ctrl.MaxRunSpeed, 4, 23))
+				PlayerAnimPlayer.SetAnimFPS("walkRight", MapRange(ctrl.AbsXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
 				if ctrl.IsSkidding {
@@ -199,16 +199,16 @@ func (c *Player) Update() error {
 				} else if pVelocity.Y > 0 && !ctrl.IsOnFloor {
 					ctrl.CurrentState = "falling"
 				} else if ctrl.IsJumpKeyJustPressed {
-					if ctrl.pVelocityAbs > ctrl.MinSpeedThresForJumpBoostMultiplier {
+					if ctrl.AbsXVelocity > ctrl.MinSpeedThresForJumpBoostMultiplier {
 						pVelocity.Y = ctrl.JumpPower * ctrl.JumpBoostMultiplier
 					} else {
 						pVelocity.Y = ctrl.JumpPower
 					}
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
-				} else if ctrl.pVelocityAbs < 0.01 {
+				} else if ctrl.AbsXVelocity < 0.01 {
 					ctrl.CurrentState = "idle"
-				} else if ctrl.pVelocityAbs <= ctrl.MaxWalkSpeed {
+				} else if ctrl.AbsXVelocity <= ctrl.MaxWalkSpeed {
 					ctrl.CurrentState = "walking"
 				}
 				// exit running
@@ -239,7 +239,7 @@ func (c *Player) Update() error {
 						pVelocity.Y = ctrl.ShortJumpVelocity
 						ctrl.JumpTimer = ctrl.JumpHoldTime
 					} else if ctrl.IsJumpKeyPressed && ctrl.JumpTimer < ctrl.JumpHoldTime {
-						speedFactor := (ctrl.pVelocityAbs / ctrl.MaxRunSpeed) * ctrl.SpeedJumpFactor
+						speedFactor := (ctrl.AbsXVelocity / ctrl.MaxRunSpeed) * ctrl.SpeedJumpFactor
 						pVelocity.Y += ctrl.JumpBoost * (1 + speedFactor)
 						ctrl.JumpTimer++
 					} else if pVelocity.Y >= 0 {
@@ -266,7 +266,7 @@ func (c *Player) Update() error {
 
 				// transitions
 				if ctrl.IsOnFloor {
-					if ctrl.pVelocityAbs <= 0 {
+					if ctrl.AbsXVelocity <= 0 {
 						ctrl.CurrentState = "idle"
 					} else if ctrl.IsRunKeyPressed {
 						ctrl.CurrentState = "running"
@@ -291,13 +291,13 @@ func (c *Player) Update() error {
 				}
 				// update animation states
 				if pFacing.X == 1 {
-					if ctrl.pVelocityAbs > 0.01 {
+					if ctrl.AbsXVelocity > 0.01 {
 						PlayerAnimPlayer.SetAnim("attackWalk")
 					} else {
 						PlayerAnimPlayer.SetAnim("attackRight")
 					}
 				} else if pFacing.X == -1 {
-					if ctrl.pVelocityAbs > 0.01 {
+					if ctrl.AbsXVelocity > 0.01 {
 						PlayerAnimPlayer.SetAnim("attackWalk")
 					} else {
 						PlayerAnimPlayer.SetAnim("attackRight")
@@ -364,11 +364,13 @@ func (c *Player) Update() error {
 				if ctrl.PreviousState != "skidding" {
 					// fmt.Println("enter skidding")
 					ctrl.PreviousState = ctrl.CurrentState
-					PlayerAnimPlayer.SetAnim("skidding")
 				}
 				// Apply Skidding decel
-				if ctrl.pVelocityAbs > ctrl.SkiddingFriction {
+				if ctrl.AbsXVelocity > ctrl.SkiddingFriction {
 					pVelocity.X += math.Copysign(ctrl.SkiddingFriction, -pVelocity.X)
+				}
+				if ctrl.AbsXVelocity > 0.5 {
+					PlayerAnimPlayer.SetAnim("skidding")
 				}
 
 				// Handle specific transitions
@@ -378,10 +380,10 @@ func (c *Player) Update() error {
 					pVelocity.Y = ctrl.JumpPower * 0.7 // Zıplama gücünü azalt
 					ctrl.JumpTimer = 0
 					ctrl.CurrentState = "jumping"
-				} else if ctrl.pVelocityAbs < 0.01 {
+				} else if ctrl.AbsXVelocity < 0.01 {
 					ctrl.CurrentState = "idle"
 				} else if !ctrl.IsSkidding {
-					if ctrl.pVelocityAbs > ctrl.MaxWalkSpeed {
+					if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
 						ctrl.CurrentState = "running"
 					} else {
 						ctrl.CurrentState = "walking"
@@ -394,7 +396,7 @@ func (c *Player) Update() error {
 
 			// ########### UPDATE PHYSICS ################
 
-			ctrl.pVelocityAbs = math.Abs(pVelocity.X)
+			ctrl.AbsXVelocity = math.Abs(pVelocity.X)
 			currentAccel, currentDecel, maxSpeed := ctrl.WalkAcceleration, ctrl.WalkDeceleration, ctrl.MaxWalkSpeed
 
 			pVelocity.Y += ctrl.Gravity
@@ -405,7 +407,7 @@ func (c *Player) Update() error {
 					maxSpeed = ctrl.MaxRunSpeed
 					currentAccel = ctrl.RunAcceleration
 					currentDecel = ctrl.RunDeceleration
-				} else if ctrl.pVelocityAbs > ctrl.MaxWalkSpeed {
+				} else if ctrl.AbsXVelocity > ctrl.MaxWalkSpeed {
 					currentDecel = ctrl.RunDeceleration
 				}
 			}
@@ -469,13 +471,13 @@ func (c *Player) Update() error {
 					// Right of Left wall collision
 					if ci.Normal.X == -1 || ci.Normal.X == 1 {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
-						if ctrl.pVelocityAbs == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
+						if ctrl.AbsXVelocity == ctrl.MaxRunSpeed && ctrl.IsBreakKeyPressed {
 							TileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
 							wx, wy := TileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
 							SpawnEffect(tileID, wx, wy)
 						}
 						pVelocity.X = 0
-						ctrl.pVelocityAbs = 0
+						ctrl.AbsXVelocity = 0
 					}
 				}
 			},

@@ -20,9 +20,6 @@ var (
 	hotbarRightEdgePosX    = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
 	craftingTablePositionX = hotbarPositionX + 49
 	craftingTablePositionY = hotbarPositionY + 39
-	debugInfo              = `state %v
-Facing %v
-`
 )
 
 type UI struct{}
@@ -375,11 +372,11 @@ func (ui *UI) Draw() {
 
 		// Draw debug info
 		if DrawDebugTextEnabled {
-			_, _, _, playerController, pFacing := MapPlayer.Get(CurrentPlayer)
+			_, _, _, playerController, _ := MapPlayer.Get(CurrentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
-				debugInfo,
+				"state %v\nAbsVelocity: %v",
 				playerController.CurrentState,
-				pFacing,
+				playerController.AbsXVelocity,
 			), 10, 50)
 		}
 

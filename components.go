@@ -38,6 +38,7 @@ type Health struct {
 }
 
 type Controller struct {
+	AbsXVelocity                        float64
 	CurrentState                        string
 	PreviousState                       string
 	Gravity                             float64
@@ -60,7 +61,6 @@ type Controller struct {
 	WalkDeceleration                    float64
 	RunAcceleration                     float64
 	RunDeceleration                     float64
-	pVelocityAbs                        float64
 	FallingDamageTempPosY               float64
 	IsOnFloor                           bool
 	IsSkidding                          bool
