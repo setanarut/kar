@@ -3,6 +3,7 @@ package kar
 import (
 	"image"
 	"kar/items"
+	"kar/v"
 	"math"
 )
 
@@ -151,13 +152,13 @@ func NewCollider(tileMap [][]uint8, tileWidth, tileHeight int) *Collider {
 }
 
 // CollisionCallback is called when collisions occur, receiving collision info and final movement
-type CollisionCallback func([]HitTileInfo, float64, float64)
+type CollisionCallback func([]HitTileInfo, Vec)
 
 // Collide checks for collisions when moving a rectangle and returns the allowed movement
 func (c *Collider) Collide(rect AABB, delta Vec, onCollide CollisionCallback) Vec {
 	c.Collisions = c.Collisions[:0]
 
-	if delta.X == 0 && delta.Y == 0 {
+	if delta.IsZero() {
 		return delta
 	}
 
@@ -181,9 +182,8 @@ func (c *Collider) Collide(rect AABB, delta Vec, onCollide CollisionCallback) Ve
 	}
 
 	if onCollide != nil {
-		onCollide(c.Collisions, delta.X, delta.Y)
+		onCollide(c.Collisions, delta)
 	}
-
 	return delta
 }
 
@@ -217,7 +217,7 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 						deltaX = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileCoords: image.Point{x, y},
-							Normal:     Left,
+							Normal:     v.Left,
 						})
 					}
 				}
@@ -247,7 +247,7 @@ func (c *Collider) CollideX(rect AABB, deltaX float64) float64 {
 						deltaX = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileCoords: image.Point{x, y},
-							Normal:     Right,
+							Normal:     v.Right,
 						})
 					}
 				}
@@ -290,7 +290,7 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 						deltaY = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileCoords: image.Point{x, y},
-							Normal:     Up,
+							Normal:     v.Up,
 						})
 					}
 				}
@@ -319,7 +319,7 @@ func (c *Collider) CollideY(rect AABB, deltaY float64) float64 {
 						deltaY = collision
 						c.Collisions = append(c.Collisions, HitTileInfo{
 							TileCoords: image.Point{x, y},
-							Normal:     Down,
+							Normal:     v.Down,
 						})
 					}
 				}

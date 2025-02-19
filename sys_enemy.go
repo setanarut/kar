@@ -3,6 +3,7 @@ package kar
 import (
 	"fmt"
 	"image/color"
+	"kar/v"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -39,14 +40,14 @@ func (e *Enemy) Update() error {
 				TileCollider.Collide(
 					e.enemyRect,
 					Vec(*enemyVel),
-					func(infos []HitTileInfo, dx, dy float64) {
-						enemyPos.X += dx
-						enemyPos.Y += dy
+					func(infos []HitTileInfo, delta Vec) {
+						enemyPos.X += delta.X
+						enemyPos.Y += delta.Y
 						for _, info := range infos {
-							if info.Normal == Left {
+							if info.Normal == v.Left {
 								enemyVel.X *= -1
 							}
-							if info.Normal == Right {
+							if info.Normal == v.Right {
 								enemyVel.X *= -1
 							}
 							// TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)

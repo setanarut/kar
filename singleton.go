@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"kar/items"
 	"kar/tilemap"
+	"kar/v"
 	"log"
 	"math"
 	"math/rand/v2"
@@ -22,6 +23,8 @@ import (
 	"github.com/setanarut/fastnoise"
 	"github.com/setanarut/kamera/v2"
 )
+
+type Vec = v.Vec
 
 const (
 	SnowballGravity                       = 0.5

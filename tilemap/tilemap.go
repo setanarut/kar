@@ -84,11 +84,12 @@ func MakeGrid(width, height int) [][]uint8 {
 	return tm
 }
 
-func (t *TileMap) Raycast(pos, dir image.Point, dist int) (image.Point, bool) {
+func (t *TileMap) Raycast(pos image.Point, dirX, dirY, dist int) (image.Point, bool) {
 	// True if exactly one of the components is non-zero
-	if (dir.X != 0 && dir.Y == 0) || (dir.X == 0 && dir.Y != 0) {
+	if (dirX != 0 && dirY == 0) || (dirX == 0 && dirY != 0) {
 		for range dist {
-			pos = pos.Add(dir)
+			pos.X += dirX
+			pos.Y += dirY
 			if t.Get(pos.X, pos.Y) != items.Air {
 				return pos, true
 			}

@@ -48,13 +48,13 @@ func (g *Game) Update() error {
 				ColorM.ChangeHSV(1, 0, 0.5) // BW
 				TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
+			g.systems[0].Update()
 			g.systems[1].Update()
 			g.systems[2].Update()
 			g.systems[3].Update()
 			g.systems[4].Update()
 			g.systems[5].Update()
 			g.systems[6].Update()
-			g.systems[0].Update()
 			// g.systems[7].Draw()
 		}
 	}

@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"image"
 	"time"
 )
 
@@ -11,7 +10,7 @@ type ItemID struct {
 
 type Velocity Vec
 type Position Vec
-type Facing image.Point
+type Facing Vec
 
 type Rotation struct {
 	Angle float64
@@ -47,7 +46,8 @@ type Controller struct {
 	MaxRunSpeed                         float64
 	MaxWalkSpeed                        float64
 	Acceleration                        float64
-	Deceleration                        float64
+	SkiddingFriction                    float64
+	AirSkiddingDecel                    float64
 	JumpHoldTime                        float64
 	JumpBoost                           float64
 	JumpTimer                           float64
@@ -60,7 +60,7 @@ type Controller struct {
 	WalkDeceleration                    float64
 	RunAcceleration                     float64
 	RunDeceleration                     float64
-	HorizontalVelocity                  float64
+	pVelocityAbs                        float64
 	FallingDamageTempPosY               float64
 	IsOnFloor                           bool
 	IsSkidding                          bool
@@ -71,5 +71,5 @@ type Controller struct {
 	IsJumpKeyPressed                    bool
 	IsJumpKeyJustPressed                bool
 	IsRunKeyPressed                     bool
-	InputAxis                           image.Point
+	InputAxis                           Vec
 }
