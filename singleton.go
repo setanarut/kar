@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"kar/items"
@@ -47,24 +48,25 @@ var (
 	EnemyWormHalfSize = Vec{6, 6}
 )
 var (
-	ECWorld                  ecs.World = ecs.NewWorld()
-	CurrentPlayer            ecs.Entity
-	RenderArea               = image.Point{(int(ScreenW) / 20) + 3, (int(ScreenH) / 20) + 3}
-	DataManager              *gdata.Manager
-	SerdeOpt                 archeserde.Option
-	WindowScale                         = 2.0
-	ScreenW, ScreenH                    = 500.0, 340.0
-	Sinspace                 []float64  = SinSpace(0, 2*math.Pi, 3, 60)
-	DrawDebugHitboxesEnabled bool       = false
-	DrawDebugTextEnabled     bool       = false
-	BackgroundColor          color.RGBA = color.RGBA{36, 36, 39, 255}
-	TileCollider             *Collider
-	GameTileMapGenerator     *tilemap.Generator
-	PlayerAnimPlayer         *anim.AnimationPlayer
-	Screen                   *ebiten.Image
-	ColorMDIO                *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
-	ColorM                   colorm.ColorM            = colorm.ColorM{}
-	TextDO                   *text.DrawOptions        = &text.DrawOptions{
+	ECWorld                     ecs.World = ecs.NewWorld()
+	CurrentPlayer               ecs.Entity
+	RenderArea                  = image.Point{(int(ScreenW) / 20) + 3, (int(ScreenH) / 20) + 3}
+	DataManager                 *gdata.Manager
+	SerdeOpt                    archeserde.Option
+	WindowScale                            = 2.0
+	ScreenW, ScreenH                       = 500.0, 340.0
+	Sinspace                    []float64  = SinSpace(0, 2*math.Pi, 3, 60)
+	DrawItemHitboxEnabled       bool       = false
+	DrawPlayerTileHitboxEnabled bool       = false
+	DrawDebugTextEnabled        bool       = false
+	BackgroundColor             color.RGBA = color.RGBA{36, 36, 39, 255}
+	TileCollider                *Collider
+	GameTileMapGenerator        *tilemap.Generator
+	PlayerAnimPlayer            *anim.AnimationPlayer
+	Screen                      *ebiten.Image
+	ColorMDIO                   *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
+	ColorM                      colorm.ColorM            = colorm.ColorM{}
+	TextDO                      *text.DrawOptions        = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
@@ -79,6 +81,8 @@ type ISystem interface {
 }
 
 func init() {
+
+	fmt.Println("SSSSSSSSSSSSSSSS")
 	var err error
 	DataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
 	if err != nil {

@@ -104,19 +104,29 @@ func (c *Camera) Draw() {
 	}
 	// Draw player
 	if ECWorld.Alive(CurrentPlayer) {
-		// playerPos, playerSize, _, _, _, pFacing := MapPlayer.Get(CurrentPlayer)
 		playerBox, _, _, _, pFacing := MapPlayer.Get(CurrentPlayer)
 		ColorMDIO.GeoM.Reset()
-		tx := playerBox.Pos.X - playerBox.Half.X
-		ty := playerBox.Pos.Y - playerBox.Half.Y
-
+		x := playerBox.Pos.X - playerBox.Half.X
+		y := playerBox.Pos.Y - playerBox.Half.Y
 		if pFacing.X == -1 {
 			ColorMDIO.GeoM.Scale(-1, 1)
-			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, ty)
+			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
 		} else {
-			ColorMDIO.GeoM.Translate(tx, ty)
+			ColorMDIO.GeoM.Translate(x, y)
 		}
 		CameraRes.DrawWithColorM(PlayerAnimPlayer.CurrentFrame, ColorM, ColorMDIO, Screen)
+		if DrawItemHitboxEnabled {
+			x, y = CameraRes.ApplyCameraTransformToPoint(x, y)
+			vector.DrawFilledRect(
+				Screen,
+				float32(x),
+				float32(y),
+				float32(playerBox.Half.X*2),
+				float32(playerBox.Half.Y*2),
+				color.RGBA{128, 0, 0, 10},
+				false,
+			)
+		}
 	}
 
 	// Draw drop Items
@@ -124,9 +134,26 @@ func (c *Camera) Draw() {
 	for itemQuery.Next() {
 		id, pos, animIndex, _, _ := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(pos.X, pos.Y+Sinspace[animIndex.Index])
+		x := pos.X - DropItemHalfSize.X
+		y := pos.Y - DropItemHalfSize.Y
+		siny := y + Sinspace[animIndex.Index]
+		ColorMDIO.GeoM.Translate(x, siny)
 		if id.ID != items.Air {
+
 			CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+
+			if DrawItemHitboxEnabled {
+				x, y = CameraRes.ApplyCameraTransformToPoint(x, y)
+				vector.DrawFilledRect(
+					Screen,
+					float32(x),
+					float32(y),
+					float32(DropItemHalfSize.X*2),
+					float32(DropItemHalfSize.Y*2),
+					color.RGBA{128, 0, 0, 10},
+					false,
+				)
+			}
 		}
 	}
 
@@ -149,20 +176,4 @@ func (c *Camera) Draw() {
 		CameraRes.DrawWithColorM(res.BlockBorder, ColorM, ColorMDIO, Screen)
 	}
 
-	// Draw all rects for debug
-	if DrawDebugHitboxesEnabled {
-		itemQuery := FilterDroppedItem.Query(&ECWorld)
-		for itemQuery.Next() {
-			_, pos, _, _, _ := itemQuery.Get()
-			vector.DrawFilledRect(
-				Screen,
-				float32(pos.X),
-				float32(pos.Y),
-				float32(DropItemHalfSize.X),
-				float32(DropItemHalfSize.Y),
-				color.RGBA{128, 0, 0, 10},
-				false,
-			)
-		}
-	}
 }

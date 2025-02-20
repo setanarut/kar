@@ -196,22 +196,9 @@ func (ui *UI) Update() error {
 			}
 		}
 
-		// Debug
-		if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-			DrawDebugTextEnabled = !DrawDebugTextEnabled
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-			DrawDebugHitboxesEnabled = !DrawDebugHitboxesEnabled
-		}
-
 		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
 			InventoryRes.ClearCurrentSlot()
 		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyK) {
-			InventoryRes.RandomFillAllSlots()
-		}
-
 	}
 	return nil
 }

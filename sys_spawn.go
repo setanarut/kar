@@ -12,10 +12,7 @@ var (
 )
 
 func AppendToSpawnList(x, y float64, id uint8, dur int) {
-	toSpawn = append(
-		toSpawn,
-		SpawnData{X: x - 4, Y: y - 4, Id: id, Durability: dur},
-	)
+	toSpawn = append(toSpawn, SpawnData{x, y, id, dur})
 }
 
 type Spawn struct {

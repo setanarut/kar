@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"fmt"
 	"image"
 	"log"
 	"math"
@@ -37,15 +38,11 @@ func Linspace(start, stop float64, num int) (resources []float64) {
 //	n := 10            // Number of points
 func SinSpace(start, end, amplitude float64, n int) []float64 {
 	points := make([]float64, n)
-	step := (end - start) / float64(n-1)
-
-	for i := 0; i < n; i++ {
-		// Normalize the step to be between 0 and 2*Pi for one full sinusoidal wave
-		t := start + step*float64(i)
-		// Apply the amplitude to the sine wave
+	for i := range n {
+		// Normalize t to [0, 2π] range
+		t := MapRange(float64(i), 0, float64(n-1), start, end)
 		points[i] = amplitude * math.Sin(t)
 	}
-
 	return points
 }
 
@@ -60,4 +57,10 @@ func ReadPNG(filePath string) image.Image {
 		log.Fatal(err)
 	}
 	return image
+}
+
+func init() {
+	result := SinSpace(0, 2*math.Pi, 3, 60)
+	fmt.Printf("First value: %f\n", result[0])
+	fmt.Printf("Last value: %f\n", result[len(result)-1])
 }

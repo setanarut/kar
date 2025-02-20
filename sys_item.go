@@ -4,8 +4,6 @@ import (
 	"github.com/mlange-42/arche/ecs"
 )
 
-var SinspaceLen int = len(Sinspace) - 1
-
 type Item struct {
 	toRemoveComponent []ecs.Entity
 	itemBox           AABB
@@ -28,7 +26,6 @@ func (i *Item) Update() error {
 	// dropped items collisions and animations
 	if ECWorld.Alive(CurrentPlayer) {
 		if !GameDataRes.CraftingState {
-			// playerPos, playerSize := MapAABB.GetUnchecked(CurrentPlayer)
 			playerBox := MapAABB.GetUnchecked(CurrentPlayer)
 
 			itemQuery := FilterDroppedItem.Query(&ECWorld)
@@ -59,12 +56,11 @@ func (i *Item) Update() error {
 						i.toRemoveComponent = append(i.toRemoveComponent, itemEntity)
 					}
 				}
-
+				i.itemBox.Pos.Y += 6
 				// vertical item sine animation
-				i.itemBox.Pos.Y += 10
 				dy := TileCollider.CollideY(i.itemBox, ItemGravity)
 				itemPos.Y += dy
-				timers.Index = (timers.Index + 1) % SinspaceLen
+				timers.Index = (timers.Index + 1) % len(Sinspace)
 
 			}
 		}
@@ -79,4 +75,10 @@ func (i *Item) Update() error {
 }
 func (i *Item) Draw() {
 
+	// itemQuery := FilterDroppedItem.Query(&ECWorld)
+	// for itemQuery.Next() {
+
+	// 	itemID, itemPos, timers, delayer, durability := itemQuery.Get()
+
+	// }
 }

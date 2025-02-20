@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"kar/items"
@@ -386,39 +387,31 @@ func (p *Player) Update() error {
 				}
 			}
 
-			// ########### UPDATE PHYSICS ############
-			currentAccel, currentDecel, maxSpeed := ctrl.WalkAcceleration, ctrl.WalkDeceleration, ctrl.MaxWalkSpeed
-			pVelocity.Y += ctrl.Gravity
-			pVelocity.Y = min(ctrl.MaxFallSpeed, pVelocity.Y)
+			/// Update Physics
+			currentAccel := ctrl.WalkAcceleration
+			currentDecel := ctrl.WalkDeceleration
+			maxSpeed := ctrl.MaxWalkSpeed
+			pVelocity.Y = min(ctrl.MaxFallSpeed, pVelocity.Y+ctrl.Gravity)
 
 			if !isSkidding {
 				if isRunKeyPressed {
-					maxSpeed = ctrl.MaxRunSpeed
-					currentAccel = ctrl.RunAcceleration
-					currentDecel = ctrl.RunDeceleration
-				} else if absXVelocity > ctrl.MaxWalkSpeed {
+					maxSpeed, currentAccel, currentDecel = ctrl.MaxRunSpeed, ctrl.RunAcceleration, ctrl.RunDeceleration
+				} else if math.Abs(pVelocity.X) > ctrl.MaxWalkSpeed {
 					currentDecel = ctrl.RunDeceleration
 				}
 			}
 
-			if inputAxis.X > 0 {
-				if pVelocity.X > maxSpeed {
-					pVelocity.X = max(maxSpeed, pVelocity.X-currentDecel)
-				} else {
-					pVelocity.X = min(maxSpeed, pVelocity.X+currentAccel)
-				}
+			targetSpeed := maxSpeed
+			if inputAxis.X == 0 {
+				targetSpeed = 0
 			} else if inputAxis.X < 0 {
-				if pVelocity.X < -maxSpeed {
-					pVelocity.X = min(-maxSpeed, pVelocity.X+currentDecel)
-				} else {
-					pVelocity.X = max(-maxSpeed, pVelocity.X-currentAccel)
-				}
+				targetSpeed = -maxSpeed
+			}
+
+			if pVelocity.X < targetSpeed {
+				pVelocity.X = min(targetSpeed, pVelocity.X+currentAccel)
 			} else {
-				if pVelocity.X > 0 {
-					pVelocity.X = max(0, pVelocity.X-currentDecel)
-				} else if pVelocity.X < 0 {
-					pVelocity.X = min(0, pVelocity.X+currentDecel)
-				}
+				pVelocity.X = max(targetSpeed, pVelocity.X-currentDecel)
 			}
 
 			// Player and tilemap collision
@@ -453,7 +446,6 @@ func (p *Player) Update() error {
 								CeilBlockTick = 3
 							}
 						}
-
 					}
 					// Right or Left wall collision
 					if ci.Normal.X == -1 || ci.Normal.X == 1 {
@@ -529,10 +521,11 @@ func (p *Player) Update() error {
 
 			}
 
-			// Drop Item
+			// drop Item
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 				currentSlot := InventoryRes.CurrentSlot()
 				if currentSlot.ID != items.Air {
+					fmt.Println(pBox)
 					AppendToSpawnList(
 						pBox.Pos.X,
 						pBox.Pos.Y,
@@ -582,7 +575,7 @@ func (p *Player) Update() error {
 	return nil
 }
 func (c *Player) Draw() {
-	if DrawDebugHitboxesEnabled {
+	if DrawPlayerTileHitboxEnabled {
 		// Draw player tile for debug
 		x, y, w, h := TileMapRes.GetTileRect(c.playerTile.X, c.playerTile.Y)
 		x, y = CameraRes.ApplyCameraTransformToPoint(x, y)
