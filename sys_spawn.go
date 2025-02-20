@@ -6,14 +6,17 @@ import (
 	"github.com/mlange-42/arche/ecs"
 )
 
+// SpawnData is a helper for delaying spawn events
+type SpawnData struct {
+	X, Y       float64
+	Id         uint8
+	Durability int
+}
+
 var (
 	toSpawn  = []SpawnData{}
 	toRemove []ecs.Entity
 )
-
-func AppendToSpawnList(x, y float64, id uint8, dur int) {
-	toSpawn = append(toSpawn, SpawnData{x, y, id, dur})
-}
 
 type Spawn struct {
 	tile uint8

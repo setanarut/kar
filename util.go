@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"fmt"
 	"image"
 	"log"
 	"math"
@@ -57,10 +56,4 @@ func ReadPNG(filePath string) image.Image {
 		log.Fatal(err)
 	}
 	return image
-}
-
-func init() {
-	result := SinSpace(0, 2*math.Pi, 3, 60)
-	fmt.Printf("First value: %f\n", result[0])
-	fmt.Printf("Last value: %f\n", result[len(result)-1])
 }

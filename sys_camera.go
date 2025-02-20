@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"image"
 	"image/color"
 	"kar/items"
 	"kar/res"
@@ -13,14 +12,9 @@ import (
 	"github.com/setanarut/kamera/v2"
 )
 
-var CeilBlockCoord image.Point
-var CeilBlockTick float64
-
 type Camera struct{}
 
-func (c *Camera) Init() {
-
-}
+func (c *Camera) Init() {}
 
 func (c *Camera) Update() error {
 

@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"kar/items"
@@ -20,7 +19,6 @@ import (
 	"github.com/mlange-42/arche/generic"
 	"github.com/quasilyte/gdata"
 	"github.com/setanarut/anim"
-	"github.com/setanarut/fastnoise"
 	"github.com/setanarut/kamera/v2"
 )
 
@@ -44,6 +42,8 @@ var (
 	PreviousGameState = "menu"
 )
 var (
+	CeilBlockCoord    image.Point
+	CeilBlockTick     float64
 	DropItemHalfSize  = Vec{4, 4}
 	EnemyWormHalfSize = Vec{6, 6}
 )
@@ -81,13 +81,12 @@ type ISystem interface {
 }
 
 func init() {
-
-	fmt.Println("SSSSSSSSSSSSSSSS")
 	var err error
 	DataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
 	if err != nil {
 		panic(err)
 	}
+
 	SerdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
 	GameTileMapGenerator = tilemap.NewGenerator(TileMapRes)
 	TileCollider = NewCollider(
@@ -117,11 +116,12 @@ func NewGame() {
 	ecs.AddResource(&ECWorld, CameraRes)
 	ecs.AddResource(&ECWorld, TileMapRes)
 
-	GameTileMapGenerator.Opts.HighestSurfaceLevel = 10
-	GameTileMapGenerator.Opts.LowestSurfaceLevel = 30
+	// GameTileMapGenerator.Opts.HighestSurfaceLevel = 10
+	// GameTileMapGenerator.Opts.LowestSurfaceLevel = 30
+	// GameTileMapGenerator.NoiseState.FractalType(fastnoise.FractalFBm)
+	// GameTileMapGenerator.NoiseState.NoiseType(fastnoise.Perlin)
+	// GameTileMapGenerator.NoiseState.Frequency = 0.01
 	GameTileMapGenerator.SetSeed(rand.Int())
-	GameTileMapGenerator.NoiseState.FractalType(fastnoise.FractalFBm)
-	GameTileMapGenerator.NoiseState.Frequency = 0.01
 	GameTileMapGenerator.Generate()
 	x, y := TileMapRes.FindSpawnPosition()
 	SpawnX, SpawnY := TileMapRes.TileToWorldCenter(x, y)
@@ -140,9 +140,11 @@ func SaveGame() {
 		log.Fatal("Error serializing world:", err)
 	}
 	DataManager.SaveItem("01save", jsonData)
+
 }
 
 func LoadGame() {
+
 	if DataManager.ItemExists("01save") {
 		if !ECWorld.Alive(CurrentPlayer) {
 			CurrentPlayer = SpawnPlayer(0, 0)

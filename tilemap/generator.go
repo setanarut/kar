@@ -28,10 +28,10 @@ type Generator struct {
 func DefaultWorldOpts() WorldOpts {
 	return WorldOpts{
 		SurfaceFlatness:     0,
-		HighestSurfaceLevel: 0,
-		LowestSurfaceLevel:  50,
-		HighestIronLevel:    60,
-		LowestIronLevel:     80,
+		HighestSurfaceLevel: 10,
+		LowestSurfaceLevel:  30,
+		HighestIronLevel:    35,
+		LowestIronLevel:     50,
 	}
 }
 
@@ -53,15 +53,30 @@ func (g *Generator) Generate() {
 	g.IronOreLayer()
 }
 
+func (g *Generator) Choose(a, b uint8) uint8 {
+	if g.Rand.Float64() < 0.5 {
+		return a
+	}
+	return b
+}
+
 func (g *Generator) IronOreLayer() {
 	// Rect içinde rastgele nokta oluştur. for döngüsü ile
 	rect := image.Rect(0, int(g.Opts.HighestIronLevel), g.Tilemap.W, int(g.Opts.LowestIronLevel))
-	for i := 0; i < 5; i++ {
+	for range 150 {
 		x, y := g.RandomPointInRect(rect)
-		g.Tilemap.Set(x, y, items.IronOre)
-		g.Tilemap.Set(x, y-1, items.IronOre)
-		g.Tilemap.Set(x-1, y, items.IronOre)
-		g.Tilemap.Set(x-1, y-1, items.IronOre)
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y, items.IronOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y-1, items.IronOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y, items.IronOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y-1, items.IronOre)
+		}
 
 	}
 }
@@ -84,7 +99,7 @@ func (g *Generator) StoneLayer() {
 func (g *Generator) Surface() {
 	// surface bounds
 	for y := int(g.Opts.HighestSurfaceLevel); y <= int(g.Opts.LowestSurfaceLevel); y++ {
-		for x := 0; x < g.Tilemap.W; x++ {
+		for x := range g.Tilemap.W {
 			upperBlockID := g.Tilemap.Get(x, y-1)
 			currentBlockID := g.Tilemap.Get(x, y)
 			if upperBlockID == items.Air && currentBlockID == items.Stone {

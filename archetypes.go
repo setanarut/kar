@@ -88,13 +88,6 @@ func SpawnProjectile(id uint8, x, y, vx, vy float64) ecs.Entity {
 	)
 }
 
-// SpawnData is a helper for delaying spawn events
-type SpawnData struct {
-	X, Y       float64
-	Id         uint8
-	Durability int
-}
-
 func SpawnPlayer(centerX, centerY float64) ecs.Entity {
 	ctrl := &Controller{
 		CurrentState:                        "falling",

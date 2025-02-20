@@ -1,7 +1,6 @@
 package kar
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"kar/items"
@@ -257,6 +256,8 @@ func (p *Player) Update() error {
 					PlayerAnimPlayer.SetAnim("jump")
 				}
 
+				// TODO erken zıplama toleransı için mantık yaz.
+
 				// transitions
 				if p.isOnFloor {
 					if absXVelocity <= 0 {
@@ -334,7 +335,7 @@ func (p *Player) Update() error {
 								dropid = items.OakLeaves
 							}
 						}
-						AppendToSpawnList(x, y, dropid, 0)
+						toSpawn = append(toSpawn, SpawnData{x, y, dropid, 0})
 					}
 				}
 				// transitions
@@ -525,13 +526,12 @@ func (p *Player) Update() error {
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 				currentSlot := InventoryRes.CurrentSlot()
 				if currentSlot.ID != items.Air {
-					fmt.Println(pBox)
-					AppendToSpawnList(
+					toSpawn = append(toSpawn, SpawnData{
 						pBox.Pos.X,
 						pBox.Pos.Y,
 						currentSlot.ID,
 						currentSlot.Durability,
-					)
+					})
 					InventoryRes.RemoveItemFromSelectedSlot()
 					onInventorySlotChanged()
 				}

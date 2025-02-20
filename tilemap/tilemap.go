@@ -65,6 +65,9 @@ func (tm *TileMap) GetImage() *image.RGBA {
 	return im
 }
 
+func (t *TileMap) GetImageByte() []byte {
+	return imageToPNGBytes(t.GetImage())
+}
 func (t *TileMap) String() string {
 	s := ""
 	for _, row := range t.Grid {
@@ -228,7 +231,6 @@ func WritePNG(im image.Image, name string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	if err := png.Encode(f, im); err != nil {
 		f.Close()
 		log.Fatal(err)
@@ -237,4 +239,12 @@ func WritePNG(im image.Image, name string) {
 	if err := f.Close(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func imageToPNGBytes(im image.Image) []byte {
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, im); err != nil {
+		log.Fatal(err)
+	}
+	return buf.Bytes()
 }

@@ -29,10 +29,10 @@ func (g *Game) Init() {
 
 func (g *Game) Update() error {
 
+	// Debug
 	if inpututil.IsKeyJustPressed(ebiten.KeyK) {
 		InventoryRes.RandomFillAllSlots()
 	}
-	// Debug
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
 		DrawDebugTextEnabled = !DrawDebugTextEnabled
 	}
@@ -44,15 +44,21 @@ func (g *Game) Update() error {
 		DrawPlayerTileHitboxEnabled = !DrawPlayerTileHitboxEnabled
 	}
 
+	if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
+		DataManager.SaveItem("map.png", TileMapRes.GetImageByte())
+	}
+
 	if ebiten.IsFocused() {
 		switch CurrentGameState {
 		case "menu":
 
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-				PreviousGameState = "menu"
-				CurrentGameState = "playing"
-				ColorM.Reset()
-				TextDO.ColorScale.Reset()
+				if PreviousGameState == "playing" {
+					PreviousGameState = "menu"
+					CurrentGameState = "playing"
+					ColorM.Reset()
+					TextDO.ColorScale.Reset()
+				}
 			}
 			// enter playing
 			g.systems[6].Update() // MainMenu
