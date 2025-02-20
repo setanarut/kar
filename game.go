@@ -1,6 +1,8 @@
 package kar
 
 import (
+	"kar/items"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -46,6 +48,12 @@ func (g *Game) Update() error {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
 		DataManager.SaveItem("map.png", TileMapRes.GetImageByte())
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
+		box := MapAABB.Get(CurrentPlayer)
+		TileMapRes.Set(TileMapRes.W/2, TileMapRes.H-3, items.Air)
+		box.Pos.X, box.Pos.Y = TileMapRes.TileToWorldCenter(TileMapRes.W/2, TileMapRes.H-3)
+		CameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 	}
 
 	if ebiten.IsFocused() {

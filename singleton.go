@@ -116,11 +116,6 @@ func NewGame() {
 	ecs.AddResource(&ECWorld, CameraRes)
 	ecs.AddResource(&ECWorld, TileMapRes)
 
-	// GameTileMapGenerator.Opts.HighestSurfaceLevel = 10
-	// GameTileMapGenerator.Opts.LowestSurfaceLevel = 30
-	// GameTileMapGenerator.NoiseState.FractalType(fastnoise.FractalFBm)
-	// GameTileMapGenerator.NoiseState.NoiseType(fastnoise.Perlin)
-	// GameTileMapGenerator.NoiseState.Frequency = 0.01
 	GameTileMapGenerator.SetSeed(rand.Int())
 	GameTileMapGenerator.Generate()
 	x, y := TileMapRes.FindSpawnPosition()
@@ -146,9 +141,6 @@ func SaveGame() {
 func LoadGame() {
 
 	if DataManager.ItemExists("01save") {
-		if !ECWorld.Alive(CurrentPlayer) {
-			CurrentPlayer = SpawnPlayer(0, 0)
-		}
 		ECWorld.Reset()
 		ecs.AddResource(&ECWorld, GameDataRes)
 		ecs.AddResource(&ECWorld, InventoryRes)
@@ -164,6 +156,7 @@ func LoadGame() {
 		if err != nil {
 			log.Fatal("Error deserializing world:", err)
 		}
+
 		PlayerAnimPlayer.Update()
 	}
 }

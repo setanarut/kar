@@ -13,8 +13,14 @@ type WorldOpts struct {
 	SurfaceFlatness     float64
 	HighestSurfaceLevel float64
 	LowestSurfaceLevel  float64
+	HighestGoldLevel    float64
+	LowestGoldLevel     float64
 	HighestIronLevel    float64
 	LowestIronLevel     float64
+	HighestCoalLevel    float64
+	LowestCoalLevel     float64
+	HighestDiamondLevel float64
+	LowestDiamondLevel  float64
 }
 
 type Generator struct {
@@ -30,8 +36,14 @@ func DefaultWorldOpts() WorldOpts {
 		SurfaceFlatness:     0,
 		HighestSurfaceLevel: 10,
 		LowestSurfaceLevel:  30,
-		HighestIronLevel:    35,
-		LowestIronLevel:     50,
+		HighestCoalLevel:    12,
+		LowestCoalLevel:     100,
+		HighestGoldLevel:    35,
+		LowestGoldLevel:     45,
+		HighestIronLevel:    50,
+		LowestIronLevel:     70,
+		HighestDiamondLevel: 100,
+		LowestDiamondLevel:  110,
 	}
 }
 
@@ -50,20 +62,78 @@ func NewGenerator(t *TileMap) *Generator {
 func (g *Generator) Generate() {
 	g.StoneLayer() // Base stone layer
 	g.Surface()    // Fill surface (tree/dirt)
-	g.IronOreLayer()
+	g.CoalOreLayer(20)
+	g.GoldOreLayer(20)
+	g.IronOreLayer(150)
+	g.DiamondOreLayer(20)
+	g.FillBedrockLayer()
 }
 
-func (g *Generator) Choose(a, b uint8) uint8 {
-	if g.Rand.Float64() < 0.5 {
-		return a
+func (g *Generator) FillBedrockLayer() {
+	for x := range g.Tilemap.W {
+		g.Tilemap.Set(x, g.Tilemap.H-1, items.Bedrock)
 	}
-	return b
 }
+func (g *Generator) DiamondOreLayer(n int) {
+	rect := image.Rect(0, int(g.Opts.HighestDiamondLevel), g.Tilemap.W, int(g.Opts.LowestDiamondLevel))
+	for range n {
+		x, y := g.RandomPointInRect(rect)
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y, items.DiamondOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y-1, items.DiamondOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y, items.DiamondOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y-1, items.DiamondOre)
+		}
 
-func (g *Generator) IronOreLayer() {
-	// Rect içinde rastgele nokta oluştur. for döngüsü ile
+	}
+}
+func (g *Generator) CoalOreLayer(n int) {
+	rect := image.Rect(0, int(g.Opts.HighestCoalLevel), g.Tilemap.W, int(g.Opts.LowestCoalLevel))
+	for range n {
+		x, y := g.RandomPointInRect(rect)
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y, items.CoalOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y-1, items.CoalOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y, items.CoalOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y-1, items.CoalOre)
+		}
+
+	}
+}
+func (g *Generator) GoldOreLayer(n int) {
+	rect := image.Rect(0, int(g.Opts.HighestGoldLevel), g.Tilemap.W, int(g.Opts.LowestGoldLevel))
+	for range n {
+		x, y := g.RandomPointInRect(rect)
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y, items.GoldOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x, y-1, items.GoldOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y, items.GoldOre)
+		}
+		if g.Rand.Float64() < 0.5 {
+			g.Tilemap.Set(x-1, y-1, items.GoldOre)
+		}
+
+	}
+}
+func (g *Generator) IronOreLayer(n int) {
 	rect := image.Rect(0, int(g.Opts.HighestIronLevel), g.Tilemap.W, int(g.Opts.LowestIronLevel))
-	for range 150 {
+	for range n {
 		x, y := g.RandomPointInRect(rect)
 		if g.Rand.Float64() < 0.5 {
 			g.Tilemap.Set(x, y, items.IronOre)
@@ -80,9 +150,6 @@ func (g *Generator) IronOreLayer() {
 
 	}
 }
-
-// func (g *Generator) GenerateCoalOreLayer()    {}
-// func (g *Generator) GenerateDiamondOreLayer() {}
 func (g *Generator) StoneLayer() {
 	for y := range g.Tilemap.H {
 		for x := range g.Tilemap.W {
