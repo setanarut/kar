@@ -8,48 +8,42 @@ import (
 )
 
 var (
-	MapPlayer      = ecs.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
-	MapEnemy       = ecs.NewMap3[Position, Velocity, AI](&world)
-	MapAABB        = ecs.NewMap[AABB](&world)
-	MapHealth      = ecs.NewMap[Health](&world)
-	MapDurability  = ecs.NewMap[Durability](&world)
-	MapPosition    = ecs.NewMap[Position](&world)
-	MapDroppedItem = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
-	// MapDroppedToolItem  = ecs.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
-	MapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
-	MapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
-	MapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
+	mapPosition         = ecs.NewMap[Position](&world)
+	mapAABB             = ecs.NewMap[AABB](&world)
+	mapDurability       = ecs.NewMap[Durability](&world)
+	mapHealth           = ecs.NewMap[Health](&world)
+	mapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
+	mapEnemy            = ecs.NewMap3[Position, Velocity, AI](&world)
+	mapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
+	mapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
+	mapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
+	mapPlayer           = ecs.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
 )
 
 // Query Filters
 var (
-	FilterPlayer           = ecs.NewFilter5[AABB, Velocity, Health, Controller, Facing](&world)
-	FilterEnemy            = ecs.NewFilter3[Position, Velocity, AI](&world)
-	FilterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]()) // Exclusive
-	FilterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
-
-	FilterDroppedItem = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
-	// Optional(gn.T[CollisionDelayer]())
-	// Optional(gn.T[Durability]())
-
-	FilterEffect = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
+	filterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
+	filterEnemy            = ecs.NewFilter3[Position, Velocity, AI](&world)
+	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
+	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
+	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
 )
 
 func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
-	e := MapDroppedItem.NewEntity(
+	e := mapDroppedItem.NewEntity(
 		&ItemID{id},
 		&Position{x, y},
 		&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
 		&CollisionDelayer{ItemCollisionDelay},
 	)
 	if items.HasTag(id, items.Tool) {
-		MapDurability.Add(e, &Durability{durability})
+		mapDurability.Add(e, &Durability{durability})
 	}
 	return e
 }
 
 func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
-	return MapEnemy.NewEntity(
+	return mapEnemy.NewEntity(
 		&Position{x, y},
 		&Velocity{vx, vy},
 		&AI{"worm"},
@@ -57,14 +51,14 @@ func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
 }
 
 func SpawnEffect(id uint8, x, y float64) {
-	MapEffect.NewEntity(&ItemID{id}, &Position{x - 10, y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
-	MapEffect.NewEntity(&ItemID{id}, &Position{x + 2, y - 10}, &Velocity{1, 0}, &Rotation{0.1})
-	MapEffect.NewEntity(&ItemID{id}, &Position{x - 10, y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
-	MapEffect.NewEntity(&ItemID{id}, &Position{x + 2, y + 2}, &Velocity{0.5, 0}, &Rotation{0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{x - 10, y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{x + 2, y - 10}, &Velocity{1, 0}, &Rotation{0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{x - 10, y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{x + 2, y + 2}, &Velocity{0.5, 0}, &Rotation{0.1})
 }
 
 func SpawnProjectile(id uint8, x, y, vx, vy float64) ecs.Entity {
-	return MapProjectile.NewEntity(
+	return mapProjectile.NewEntity(
 		&ItemID{id},
 		&Position{x, y},
 		&Velocity{vx, vy},
@@ -95,7 +89,7 @@ func SpawnPlayer(centerX, centerY float64) ecs.Entity {
 		RunDeceleration:                     0.04,
 		SkiddingJumpEnabled:                 true,
 	}
-	return MapPlayer.NewEntity(
+	return mapPlayer.NewEntity(
 		&AABB{
 			Pos:  Vec{centerX, centerY},
 			Half: Vec{8, 8},

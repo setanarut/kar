@@ -16,7 +16,7 @@ func (i *Item) Init() {
 }
 func (i *Item) Update() {
 
-	q := FilterCollisionDelayer.Query()
+	q := filterCollisionDelayer.Query()
 
 	for q.Next() {
 		delayer := q.Get()
@@ -26,31 +26,28 @@ func (i *Item) Update() {
 	// dropped items collisions and animations
 	if world.Alive(currentPlayer) {
 		if gameDataRes.GameplayState == Playing {
-			playerBox := MapAABB.GetUnchecked(currentPlayer)
-			itemQuery := FilterDroppedItem.Query()
+			playerBox := mapAABB.GetUnchecked(currentPlayer)
+			itemQuery := filterDroppedItem.Query()
 			for itemQuery.Next() {
 				itemID, itemPos, timers := itemQuery.Get()
 				i.itemBox.Pos = Vec(*itemPos)
 				itemEntity := itemQuery.Entity()
-				// Check player-item collision
-				if !MapCollisionDelayer.HasUnchecked(itemEntity) {
-					if playerBox.Overlap(i.itemBox, i.itemHit) {
-						// if Durability component exists, pass durability
-						if MapDurability.HasUnchecked(itemEntity) {
-							d := MapDurability.GetUnchecked(itemEntity)
-							if inventoryRes.AddItemIfEmpty(itemID.ID, d.Durability) {
-								toRemove = append(toRemove, itemEntity)
-							}
-						} else {
-							if inventoryRes.AddItemIfEmpty(itemID.ID, 0) {
-								toRemove = append(toRemove, itemEntity)
-							}
 
+				if !mapCollisionDelayer.HasUnchecked(itemEntity) {
+					// Check player-item collision
+					if playerBox.Overlap(i.itemBox, i.itemHit) {
+						// if Durability component exists, get durability
+						dur := 0
+						if mapDurability.HasUnchecked(itemEntity) {
+							dur = mapDurability.GetUnchecked(itemEntity).Durability
+						}
+						if inventoryRes.AddItemIfEmpty(itemID.ID, dur) {
+							toRemove = append(toRemove, itemEntity)
 						}
 						onInventorySlotChanged()
 					}
 				} else {
-					if MapCollisionDelayer.GetUnchecked(itemEntity).Duration < 0 {
+					if mapCollisionDelayer.GetUnchecked(itemEntity).Duration < 0 {
 						i.toRemoveComponent = append(i.toRemoveComponent, itemEntity)
 					}
 				}
@@ -66,7 +63,7 @@ func (i *Item) Update() {
 
 	// Remove MapCollisionDelayer components
 	for _, entity := range i.toRemoveComponent {
-		MapCollisionDelayer.Remove(entity)
+		mapCollisionDelayer.Remove(entity)
 	}
 	i.toRemoveComponent = i.toRemoveComponent[:0]
 }

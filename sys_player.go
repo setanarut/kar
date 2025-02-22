@@ -39,7 +39,7 @@ func (p *Player) Update() {
 		if world.Alive(currentPlayer) {
 			animPlayer.Update()
 
-			pBox, pVelocity, pHealth, ctrl, pFacing := MapPlayer.Get(currentPlayer)
+			pBox, pVelocity, pHealth, ctrl, pFacing := mapPlayer.Get(currentPlayer)
 			absXVelocity := math.Abs(pVelocity.X)
 			// Update input
 			isBreakKeyPressed := ebiten.IsKeyPressed(ebiten.KeyRight)
@@ -489,7 +489,7 @@ func (p *Player) Update() {
 						Half: Vec{10, 10},
 					}
 					// check overlaps
-					queryItem := FilterDroppedItem.Query()
+					queryItem := filterDroppedItem.Query()
 					for queryItem.Next() {
 						_, itemPos, _ := queryItem.Get()
 						p.itemBox.Pos = Vec(*itemPos)
@@ -537,7 +537,7 @@ func (p *Player) Update() {
 				}
 			}
 			// projectile physics
-			q := FilterProjectile.Query()
+			q := filterProjectile.Query()
 			for q.Next() {
 				itemID, projectilePos, projectileVel := q.Get()
 				// snowball physics

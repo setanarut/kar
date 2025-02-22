@@ -28,6 +28,7 @@ var (
 )
 var animDefaultPlaybackData anim.PlaybackData
 
+// GameplayStates
 const (
 	Playing int = iota
 	CraftingTable3x3
