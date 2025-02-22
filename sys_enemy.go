@@ -26,7 +26,7 @@ func (e *Enemy) Update() {
 
 	if world.Alive(currentPlayer) {
 		playerBox, playerVelocity, _, _, _ := MapPlayer.Get(currentPlayer)
-		enemyQuery := FilterEnemy.Query(&world)
+		enemyQuery := FilterEnemy.Query()
 
 		for enemyQuery.Next() {
 
@@ -100,7 +100,7 @@ func (e *Enemy) Update() {
 	}
 }
 func (e *Enemy) Draw() {
-	q := FilterEnemy.Query(&world)
+	q := FilterEnemy.Query()
 	for q.Next() {
 		pos, _, AI := q.Get()
 		x, y := cameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)

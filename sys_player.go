@@ -489,7 +489,7 @@ func (p *Player) Update() {
 						Half: Vec{10, 10},
 					}
 					// check overlaps
-					queryItem := FilterDroppedItem.Query(&world)
+					queryItem := FilterDroppedItem.Query()
 					for queryItem.Next() {
 						_, itemPos, _, _, _ := queryItem.Get()
 						p.itemBox.Pos = Vec(*itemPos)
@@ -537,7 +537,7 @@ func (p *Player) Update() {
 				}
 			}
 			// projectile physics
-			q := FilterProjectile.Query(&world)
+			q := FilterProjectile.Query()
 			for q.Next() {
 				itemID, projectilePos, projectileVel := q.Get()
 				// snowball physics

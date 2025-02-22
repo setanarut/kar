@@ -123,7 +123,8 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw drop Items
-	itemQuery := FilterDroppedItem.Query(&world)
+
+	itemQuery := FilterDroppedItem.Query()
 	for itemQuery.Next() {
 		id, pos, animIndex, _, _ := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
@@ -151,7 +152,7 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw snowball
-	q := FilterProjectile.Query(&world)
+	q := FilterProjectile.Query()
 	for q.Next() {
 		id, pos, _ := q.Get()
 		ColorMDIO.GeoM.Reset()

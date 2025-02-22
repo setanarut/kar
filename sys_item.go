@@ -1,7 +1,7 @@
 package kar
 
 import (
-	"github.com/mlange-42/arche/ecs"
+	"github.com/mlange-42/ark/ecs"
 )
 
 type Item struct {
@@ -16,7 +16,7 @@ func (i *Item) Init() {
 }
 func (i *Item) Update() {
 
-	q := FilterCollisionDelayer.Query(&world)
+	q := FilterCollisionDelayer.Query()
 
 	for q.Next() {
 		delayer := q.Get()
@@ -27,14 +27,13 @@ func (i *Item) Update() {
 	if world.Alive(currentPlayer) {
 		if gameDataRes.GameplayState == Playing {
 			playerBox := MapAABB.GetUnchecked(currentPlayer)
-
-			itemQuery := FilterDroppedItem.Query(&world)
+			itemQuery := FilterDroppedItem.Query()
 			for itemQuery.Next() {
 				itemID, itemPos, timers, delayer, durability := itemQuery.Get()
 				i.itemBox.Pos = Vec(*itemPos)
 				itemEntity := itemQuery.Entity()
 				// Check player-item collision
-				if delayer == nil {
+				if MapCollisionDelayer.HasUnchecked(itemEntity) {
 					if playerBox.Overlap(i.itemBox, i.itemHit) {
 						// if Durability component exists, pass durability
 						if durability != nil {

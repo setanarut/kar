@@ -3,7 +3,6 @@ package kar
 import (
 	"image"
 	"image/color"
-	"kar/items"
 	"kar/tilemap"
 	"kar/v"
 	"math"
@@ -13,7 +12,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
-	archeserde "github.com/mlange-42/arche-serde"
 	"github.com/mlange-42/ark/ecs"
 	"github.com/quasilyte/gdata"
 	"github.com/setanarut/anim"
@@ -50,11 +48,11 @@ var (
 	enemyWormHalfSize = Vec{6, 6}
 )
 var (
-	world                       ecs.World = ecs.NewWorld(100)
-	currentPlayer               ecs.Entity
-	renderArea                  = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
-	dataManager                 *gdata.Manager
-	serdeOpt                    archeserde.Option
+	world         ecs.World = ecs.NewWorld(100)
+	currentPlayer ecs.Entity
+	renderArea    = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
+	dataManager   *gdata.Manager
+	// serdeOpt                    archeserde.Option
 	Sinspace                    []float64  = SinSpace(0, 2*math.Pi, 3, 60)
 	DrawItemHitboxEnabled       bool       = false
 	DrawPlayerTileHitboxEnabled bool       = false
@@ -94,24 +92,13 @@ func init() {
 		tileMapRes.TileW,
 		tileMapRes.TileH,
 	)
-
-	inventoryRes.SetSlot(0, items.Snowball, 64, 0)
 	currentPlayer = SpawnPlayer(-5000, -5000)
 }
 
 func NewGame() {
-	// world.Reset()
-	// inventoryRes.Reset()
+	inventoryRes.Reset()
 	*animPlayer.Data = animDefaultPlaybackData
 	gameDataRes = &gameData{}
-
-	inventoryResMap.Add(inventoryRes)
-	tilemapResMap.Add(tileMapRes)
-	craftingtableResMap.Add(craftingTableRes)
-	cameraResMap.Add(cameraRes)
-	gameDataResMap.Add(gameDataRes)
-	animPlaybackDataResMap.Add(animPlayer.Data)
-
 	GameTileMapGenerator.SetSeed(rand.Int())
 	GameTileMapGenerator.Generate()
 	x, y := tileMapRes.FindSpawnPosition()

@@ -15,7 +15,7 @@ func (e *Effects) Init() {
 }
 func (e *Effects) Update() {
 
-	q := FilterEffect.Query(&world)
+	q := FilterEffect.Query()
 
 	for q.Next() {
 		_, p, v, _ := q.Get()
@@ -27,7 +27,7 @@ func (e *Effects) Update() {
 	}
 }
 func (e *Effects) Draw() {
-	q := FilterEffect.Query(&world)
+	q := FilterEffect.Query()
 	for q.Next() {
 		id, p, v, r := q.Get()
 		ColorMDIO.GeoM.Reset()

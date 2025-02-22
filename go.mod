@@ -5,7 +5,6 @@ go 1.24.0
 require (
 	github.com/anthonynsimon/bild v0.14.0
 	github.com/hajimehoshi/ebiten/v2 v2.8.6
-	github.com/mlange-42/arche v0.15.3
 	github.com/setanarut/anim v1.3.1
 	github.com/setanarut/fastnoise v1.1.1
 	github.com/setanarut/kamera/v2 v2.96.1
@@ -18,7 +17,6 @@ require (
 	github.com/ebitengine/purego v0.8.2 // indirect
 	github.com/go-text/typesetting v0.3.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
-	github.com/mlange-42/arche-serde v0.2.1
 	github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903
 	github.com/quasilyte/gdata v0.8.1
 	golang.org/x/image v0.24.0 // indirect

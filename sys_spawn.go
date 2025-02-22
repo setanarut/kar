@@ -3,7 +3,7 @@ package kar
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/mlange-42/arche/ecs"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // spawnData is a helper for delaying spawn events
