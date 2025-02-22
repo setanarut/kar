@@ -16,89 +16,88 @@ type Camera struct{}
 
 func (c *Camera) Init() {}
 
-func (c *Camera) Update() error {
+func (c *Camera) Update() {
 
-	if ECWorld.Alive(CurrentPlayer) {
-		playerAABB := MapAABB.Get(CurrentPlayer)
+	if world.Alive(currentPlayer) {
+		playerAABB := MapAABB.Get(currentPlayer)
 		// Toggle camera follow
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
-			switch CameraRes.SmoothType {
+			switch cameraRes.SmoothType {
 			case kamera.Lerp:
-				CameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
-				CameraRes.SmoothType = kamera.SmoothDamp
+				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
+				cameraRes.SmoothType = kamera.SmoothDamp
 			case kamera.SmoothDamp:
-				CameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
-				CameraRes.SmoothType = kamera.Lerp
+				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
+				cameraRes.SmoothType = kamera.Lerp
 			}
 		}
 
 		// Camera follow
-		if MapHealth.Get(CurrentPlayer).Current > 0 {
-			if CameraRes.SmoothType == kamera.Lerp {
+		if MapHealth.Get(currentPlayer).Current > 0 {
+			if cameraRes.SmoothType == kamera.Lerp {
 				// if playerCenterX < CameraRes.X {
 				// 	CameraRes.X -= CameraRes.Width
 				// }
 				// if playerCenterX > CameraRes.Right() {
 				// 	CameraRes.X += CameraRes.Width
 				// }
-				if playerAABB.Pos.Y < CameraRes.Y {
-					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y-CameraRes.Height)
+				if playerAABB.Pos.Y < cameraRes.Y {
+					cameraRes.SetTopLeft(cameraRes.X, cameraRes.Y-cameraRes.Height)
 				}
-				if playerAABB.Pos.Y > CameraRes.Bottom() {
-					CameraRes.SetTopLeft(CameraRes.X, CameraRes.Y+CameraRes.Height)
+				if playerAABB.Pos.Y > cameraRes.Bottom() {
+					cameraRes.SetTopLeft(cameraRes.X, cameraRes.Y+cameraRes.Height)
 				}
-				CameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
-			} else if CameraRes.SmoothType == kamera.SmoothDamp {
-				CameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
+				cameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
+			} else if cameraRes.SmoothType == kamera.SmoothDamp {
+				cameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
 			}
 		}
 	}
-	return nil
 }
 func (c *Camera) Draw() {
 
 	// DRAW TILEMAPs
 
 	// clamp tilemap bounds
-	camMin := TileMapRes.WorldToTile(CameraRes.X, CameraRes.Y)
-	camMin.X = min(max(camMin.X, 0), TileMapRes.W)
-	camMin.Y = min(max(camMin.Y, 0), TileMapRes.H)
-	camMaxX := min(max(camMin.X+RenderArea.X, 0), TileMapRes.W)
-	camMaxY := min(max(camMin.Y+RenderArea.Y, 0), TileMapRes.H)
+	camMin := tileMapRes.WorldToTile(cameraRes.X, cameraRes.Y)
+	camMin.X = min(max(camMin.X, 0), tileMapRes.W)
+	camMin.Y = min(max(camMin.Y, 0), tileMapRes.H)
+	camMaxX := min(max(camMin.X+renderArea.X, 0), tileMapRes.W)
+	camMaxY := min(max(camMin.Y+renderArea.Y, 0), tileMapRes.H)
 	// draw tiles
 	for y := camMin.Y; y < camMaxY; y++ {
 		for x := camMin.X; x < camMaxX; x++ {
-			tileID := TileMapRes.Grid[y][x]
+			tileID := tileMapRes.Grid[y][x]
 			if tileID != 0 {
-				px, py := float64(x*TileMapRes.TileW), float64(y*TileMapRes.TileH)
+				px, py := float64(x*tileMapRes.TileW), float64(y*tileMapRes.TileH)
 				ColorMDIO.GeoM.Reset()
 
-				if x == CeilBlockCoord.X && y == CeilBlockCoord.Y {
+				if x == ceilBlockCoord.X && y == ceilBlockCoord.Y {
 					if tileID == items.Bedrock {
-						if CeilBlockTick > 0 {
-							CeilBlockTick -= 0.1
+						if ceilBlockTick > 0 {
+							ceilBlockTick -= 0.1
 						}
-						py -= CeilBlockTick
+						py -= ceilBlockTick
 					}
 				}
 
 				ColorMDIO.GeoM.Translate(px, py)
 				if items.HasTag(tileID, items.UnbreakableBlock) {
-					CameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], ColorM, ColorMDIO, Screen)
+					cameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], ColorM, ColorMDIO, Screen)
 				} else {
-					if x == GameDataRes.TargetBlockCoord.X && y == GameDataRes.TargetBlockCoord.Y {
-						i := MapRange(GameDataRes.BlockHealth, 0, 180, 0, 5)
-						CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], ColorM, ColorMDIO, Screen)
+					if x == gameDataRes.TargetBlockCoord.X && y == gameDataRes.TargetBlockCoord.Y {
+						i := MapRange(gameDataRes.BlockHealth, 0, 180, 0, 5)
+						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], ColorM, ColorMDIO, Screen)
 					} else {
-						CameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], ColorM, ColorMDIO, Screen)
+						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], ColorM, ColorMDIO, Screen)
 					}
 				}
 			}
 		}
 	}
 	// Draw player
-	if ECWorld.Alive(CurrentPlayer) {
-		playerBox, _, _, _, pFacing := MapPlayer.Get(CurrentPlayer)
+	if world.Alive(currentPlayer) {
+		playerBox, _, _, _, pFacing := MapPlayer.Get(currentPlayer)
 		ColorMDIO.GeoM.Reset()
 		x := playerBox.Pos.X - playerBox.Half.X
 		y := playerBox.Pos.Y - playerBox.Half.Y
@@ -108,9 +107,9 @@ func (c *Camera) Draw() {
 		} else {
 			ColorMDIO.GeoM.Translate(x, y)
 		}
-		CameraRes.DrawWithColorM(PlayerAnimPlayer.CurrentFrame, ColorM, ColorMDIO, Screen)
+		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, ColorM, ColorMDIO, Screen)
 		if DrawItemHitboxEnabled {
-			x, y = CameraRes.ApplyCameraTransformToPoint(x, y)
+			x, y = cameraRes.ApplyCameraTransformToPoint(x, y)
 			vector.DrawFilledRect(
 				Screen,
 				float32(x),
@@ -124,26 +123,26 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw drop Items
-	itemQuery := FilterDroppedItem.Query(&ECWorld)
+	itemQuery := FilterDroppedItem.Query(&world)
 	for itemQuery.Next() {
 		id, pos, animIndex, _, _ := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
-		x := pos.X - DropItemHalfSize.X
-		y := pos.Y - DropItemHalfSize.Y
+		x := pos.X - dropItemHalfSize.X
+		y := pos.Y - dropItemHalfSize.Y
 		siny := y + Sinspace[animIndex.Index]
 		ColorMDIO.GeoM.Translate(x, siny)
 		if id.ID != items.Air {
 
-			CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+			cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
 
 			if DrawItemHitboxEnabled {
-				x, y = CameraRes.ApplyCameraTransformToPoint(x, y)
+				x, y = cameraRes.ApplyCameraTransformToPoint(x, y)
 				vector.DrawFilledRect(
 					Screen,
 					float32(x),
 					float32(y),
-					float32(DropItemHalfSize.X*2),
-					float32(DropItemHalfSize.Y*2),
+					float32(dropItemHalfSize.X*2),
+					float32(dropItemHalfSize.Y*2),
 					color.RGBA{128, 0, 0, 10},
 					false,
 				)
@@ -152,22 +151,22 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw snowball
-	q := FilterProjectile.Query(&ECWorld)
+	q := FilterProjectile.Query(&world)
 	for q.Next() {
 		id, pos, _ := q.Get()
 		ColorMDIO.GeoM.Reset()
 		ColorMDIO.GeoM.Translate(pos.X, pos.Y)
-		CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+		cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
 	}
 
 	// Draw target tile border
-	if GameDataRes.IsRayHit {
+	if gameDataRes.IsRayHit {
 		ColorMDIO.GeoM.Reset()
 		ColorMDIO.GeoM.Translate(
-			float64(GameDataRes.TargetBlockCoord.X*TileMapRes.TileW)-1,
-			float64(GameDataRes.TargetBlockCoord.Y*TileMapRes.TileH)-1,
+			float64(gameDataRes.TargetBlockCoord.X*tileMapRes.TileW)-1,
+			float64(gameDataRes.TargetBlockCoord.Y*tileMapRes.TileH)-1,
 		)
-		CameraRes.DrawWithColorM(res.BlockBorder, ColorM, ColorMDIO, Screen)
+		cameraRes.DrawWithColorM(res.BlockBorder, ColorM, ColorMDIO, Screen)
 	}
 
 }

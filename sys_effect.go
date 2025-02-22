@@ -13,22 +13,21 @@ func (e *Effects) Init() {
 	e.g = 0.2
 
 }
-func (e *Effects) Update() error {
+func (e *Effects) Update() {
 
-	q := FilterEffect.Query(&ECWorld)
+	q := FilterEffect.Query(&world)
 
 	for q.Next() {
 		_, p, v, _ := q.Get()
 		v.Y += e.g
 		p.Y += v.Y
-		if p.Y > CameraRes.Y+CameraRes.Height {
+		if p.Y > cameraRes.Y+cameraRes.Height {
 			toRemove = append(toRemove, q.Entity())
 		}
 	}
-	return nil
 }
 func (e *Effects) Draw() {
-	q := FilterEffect.Query(&ECWorld)
+	q := FilterEffect.Query(&world)
 	for q.Next() {
 		id, p, v, r := q.Get()
 		ColorMDIO.GeoM.Reset()
@@ -37,7 +36,7 @@ func (e *Effects) Draw() {
 		ColorMDIO.GeoM.Translate(4, 4)
 		ColorMDIO.GeoM.Translate(p.X, p.Y)
 		ColorM.Scale(1.3, 1.3, 1.3, 1)
-		CameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+		cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
 		ColorM.Reset()
 
 		if math.Signbit(r.Angle) {

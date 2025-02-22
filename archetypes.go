@@ -9,17 +9,17 @@ import (
 )
 
 var (
-	MapPlayer           = gn.NewMap5[AABB, Velocity, Health, Controller, Facing](&ECWorld)
-	MapEnemy            = gn.NewMap3[Position, Velocity, AI](&ECWorld)
-	MapAABB             = gn.NewMap[AABB](&ECWorld)
-	MapHealth           = gn.NewMap[Health](&ECWorld)
-	MapDurability       = gn.NewMap[Durability](&ECWorld)
-	MapPosition         = gn.NewMap[Position](&ECWorld)
-	MapDroppedItem      = gn.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&ECWorld)
-	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&ECWorld)
-	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&ECWorld)
-	MapCollisionDelayer = gn.NewMap1[CollisionDelayer](&ECWorld)
-	MapEffect           = gn.NewMap4[ItemID, Position, Velocity, Rotation](&ECWorld)
+	MapPlayer           = gn.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
+	MapEnemy            = gn.NewMap3[Position, Velocity, AI](&world)
+	MapAABB             = gn.NewMap[AABB](&world)
+	MapHealth           = gn.NewMap[Health](&world)
+	MapDurability       = gn.NewMap[Durability](&world)
+	MapPosition         = gn.NewMap[Position](&world)
+	MapDroppedItem      = gn.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
+	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
+	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&world)
+	MapCollisionDelayer = gn.NewMap1[CollisionDelayer](&world)
+	MapEffect           = gn.NewMap4[ItemID, Position, Velocity, Rotation](&world)
 )
 
 // Query Filters

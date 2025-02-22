@@ -11,12 +11,12 @@ type Item struct {
 }
 
 func (i *Item) Init() {
-	i.itemBox = AABB{Half: DropItemHalfSize}
+	i.itemBox = AABB{Half: dropItemHalfSize}
 	i.itemHit = &HitInfo{}
 }
-func (i *Item) Update() error {
+func (i *Item) Update() {
 
-	q := FilterCollisionDelayer.Query(&ECWorld)
+	q := FilterCollisionDelayer.Query(&world)
 
 	for q.Next() {
 		delayer := q.Get()
@@ -24,13 +24,12 @@ func (i *Item) Update() error {
 	}
 
 	// dropped items collisions and animations
-	if ECWorld.Alive(CurrentPlayer) {
-		if !GameDataRes.CraftingState {
-			playerBox := MapAABB.GetUnchecked(CurrentPlayer)
+	if world.Alive(currentPlayer) {
+		if gameDataRes.GameplayState == Playing {
+			playerBox := MapAABB.GetUnchecked(currentPlayer)
 
-			itemQuery := FilterDroppedItem.Query(&ECWorld)
+			itemQuery := FilterDroppedItem.Query(&world)
 			for itemQuery.Next() {
-
 				itemID, itemPos, timers, delayer, durability := itemQuery.Get()
 				i.itemBox.Pos = Vec(*itemPos)
 				itemEntity := itemQuery.Entity()
@@ -39,11 +38,11 @@ func (i *Item) Update() error {
 					if playerBox.Overlap(i.itemBox, i.itemHit) {
 						// if Durability component exists, pass durability
 						if durability != nil {
-							if InventoryRes.AddItemIfEmpty(itemID.ID, durability.Durability) {
+							if inventoryRes.AddItemIfEmpty(itemID.ID, durability.Durability) {
 								toRemove = append(toRemove, itemEntity)
 							}
 						} else {
-							if InventoryRes.AddItemIfEmpty(itemID.ID, 0) {
+							if inventoryRes.AddItemIfEmpty(itemID.ID, 0) {
 								toRemove = append(toRemove, itemEntity)
 							}
 
@@ -58,10 +57,10 @@ func (i *Item) Update() error {
 				}
 				i.itemBox.Pos.Y += 6
 				// vertical item sine animation
+				TileCollider.Collisions = TileCollider.Collisions[:0]
 				dy := TileCollider.CollideY(i.itemBox, ItemGravity)
 				itemPos.Y += dy
 				timers.Index = (timers.Index + 1) % len(Sinspace)
-
 			}
 		}
 	}
@@ -71,7 +70,6 @@ func (i *Item) Update() error {
 		MapCollisionDelayer.Remove(entity)
 	}
 	i.toRemoveComponent = i.toRemoveComponent[:0]
-	return nil
 }
 func (i *Item) Draw() {
 

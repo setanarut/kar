@@ -36,7 +36,7 @@ func DefaultWorldOpts() WorldOpts {
 		SurfaceFlatness:     0,
 		HighestSurfaceLevel: 10,
 		LowestSurfaceLevel:  30,
-		HighestCoalLevel:    12,
+		HighestCoalLevel:    32,
 		LowestCoalLevel:     100,
 		HighestGoldLevel:    35,
 		LowestGoldLevel:     45,

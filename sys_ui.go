@@ -13,241 +13,230 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-var (
-	// hotbarPositionX        = ScreenW/2 - float64(res.Hotbar.Bounds().Dx())/2
-	hotbarPositionX        = 4.
-	hotbarPositionY        = 9.
-	hotbarRightEdgePosX    = hotbarPositionX + float64(res.Hotbar.Bounds().Dx())
-	craftingTablePositionX = hotbarPositionX + 49
-	craftingTablePositionY = hotbarPositionY + 39
-)
+type UI struct {
+	hotbarPos           Vec
+	craftingTablePos    Vec
+	hotbarRightEdgePosX float64
+}
 
-type UI struct{}
+func (ui *UI) Init() {
+	ui.hotbarPos = Vec{4, 9}
+	ui.hotbarRightEdgePosX = ui.hotbarPos.X + float64(res.Hotbar.Bounds().Dx())
+	ui.craftingTablePos = ui.hotbarPos.Add(Vec{49, 39})
+}
+func (ui *UI) Update() {
 
-func (ui *UI) Init() {}
-func (ui *UI) Update() error {
-
-	if ECWorld.Alive(CurrentPlayer) {
-
-		// Hotbar slot navigation
-		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-			InventoryRes.SelectPrevSlot()
-			onInventorySlotChanged()
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-			InventoryRes.SelectNextSlot()
-			onInventorySlotChanged()
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-			if InventoryRes.CurrentSlotIndex != InventoryRes.QuickSlot2 {
-				InventoryRes.QuickSlot1 = InventoryRes.CurrentSlotIndex
-			}
-
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyT) {
-			if InventoryRes.CurrentSlotIndex != InventoryRes.QuickSlot1 {
-				InventoryRes.QuickSlot2 = InventoryRes.CurrentSlotIndex
-			}
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyTab) {
-			switch InventoryRes.CurrentSlotIndex {
-			case InventoryRes.QuickSlot1:
-				InventoryRes.CurrentSlotIndex = InventoryRes.QuickSlot2
-			case InventoryRes.QuickSlot2:
-				InventoryRes.CurrentSlotIndex = InventoryRes.QuickSlot1
-			default:
-				InventoryRes.CurrentSlotIndex = InventoryRes.QuickSlot1
-			}
-			onInventorySlotChanged()
-		}
+	if world.Alive(currentPlayer) {
 
 		// Toggle crafting state
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-			if TileMapRes.Get(GameDataRes.TargetBlockCoord.X, GameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
-				GameDataRes.CraftingState4 = false
-			} else {
-				GameDataRes.CraftingState4 = true
-			}
-
-			CraftingTableRes.SlotPosX = 1
-			CraftingTableRes.SlotPosY = 1
-
-			// clear crafting table when exit
-			if GameDataRes.CraftingState {
+			switch gameDataRes.GameplayState {
+			case Playing:
+				if tileMapRes.Get(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
+					gameDataRes.GameplayState = CraftingTable3x3
+				} else {
+					gameDataRes.GameplayState = CraftingTable2x2
+				}
+			case CraftingTable3x3, CraftingTable2x2:
+				// clear crafting table when exit
 				for y := range 3 {
 					for x := range 3 {
-						itemID := CraftingTableRes.Slots[y][x].ID
+						itemID := craftingTableRes.Slots[y][x].ID
 						if itemID != 0 {
-							quantity := CraftingTableRes.Slots[y][x].Quantity
+							quantity := craftingTableRes.Slots[y][x].Quantity
 							for range quantity {
-								durability := CraftingTableRes.Slots[y][x].Durability
+								durability := craftingTableRes.Slots[y][x].Durability
 								// move items from crafting table to hotbar if possible
-								if InventoryRes.AddItemIfEmpty(CraftingTableRes.Slots[y][x].ID, durability) {
-									CraftingTableRes.RemoveItem(x, y)
+								if inventoryRes.AddItemIfEmpty(craftingTableRes.Slots[y][x].ID, durability) {
+									craftingTableRes.RemoveItem(x, y)
 								} else {
 									// move items from crafting table to world if hotbar is full
-									CraftingTableRes.RemoveItem(x, y)
-									playerPos := MapPosition.GetUnchecked(CurrentPlayer)
+									craftingTableRes.RemoveItem(x, y)
+									playerPos := MapPosition.GetUnchecked(currentPlayer)
 									SpawnItem(
 										playerPos.X+8,
 										playerPos.Y+8,
 										itemID,
-										CraftingTableRes.Slots[y][x].Durability,
+										craftingTableRes.Slots[y][x].Durability,
 									)
 								}
-
 							}
 						}
 					}
 				}
-				CraftingTableRes.ResultSlot = items.Slot{}
+				craftingTableRes.ResultSlot = items.Slot{}
+				gameDataRes.GameplayState = Playing
 			}
-
-			GameDataRes.CraftingState = !GameDataRes.CraftingState
-
 			onInventorySlotChanged()
-
 		}
 
-		if GameDataRes.CraftingState {
-			// Crafting table slot navigation
+		// Hotbar slot navigation
+		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+			inventoryRes.SelectPrevSlot()
+			onInventorySlotChanged()
+		}
+
+		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
+			inventoryRes.SelectNextSlot()
+			onInventorySlotChanged()
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			if inventoryRes.CurrentSlotIndex != inventoryRes.QuickSlot2 {
+				inventoryRes.QuickSlot1 = inventoryRes.CurrentSlotIndex
+			}
+
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyT) {
+			if inventoryRes.CurrentSlotIndex != inventoryRes.QuickSlot1 {
+				inventoryRes.QuickSlot2 = inventoryRes.CurrentSlotIndex
+			}
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyTab) {
+			switch inventoryRes.CurrentSlotIndex {
+			case inventoryRes.QuickSlot1:
+				inventoryRes.CurrentSlotIndex = inventoryRes.QuickSlot2
+			case inventoryRes.QuickSlot2:
+				inventoryRes.CurrentSlotIndex = inventoryRes.QuickSlot1
+			default:
+				inventoryRes.CurrentSlotIndex = inventoryRes.QuickSlot1
+			}
+			onInventorySlotChanged()
+		}
+
+		switch gameDataRes.GameplayState {
+		case CraftingTable2x2, CraftingTable3x3:
 			if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-				if GameDataRes.CraftingState4 {
-					CraftingTableRes.SlotPosX = min(CraftingTableRes.SlotPosX+1, 1)
+				if gameDataRes.GameplayState == CraftingTable2x2 {
+					craftingTableRes.SlotPosX = min(craftingTableRes.SlotPosX+1, 1)
 				} else {
-					CraftingTableRes.SlotPosX = min(CraftingTableRes.SlotPosX+1, 2)
+					craftingTableRes.SlotPosX = min(craftingTableRes.SlotPosX+1, 2)
 				}
 			}
 			if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-				CraftingTableRes.SlotPosX = max(CraftingTableRes.SlotPosX-1, 0)
+				craftingTableRes.SlotPosX = max(craftingTableRes.SlotPosX-1, 0)
 			}
+
 			if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-				if GameDataRes.CraftingState4 {
-					CraftingTableRes.SlotPosY = min(CraftingTableRes.SlotPosY+1, 1)
+				if gameDataRes.GameplayState == CraftingTable2x2 {
+					craftingTableRes.SlotPosY = min(craftingTableRes.SlotPosY+1, 1)
 				} else {
-					CraftingTableRes.SlotPosY = min(CraftingTableRes.SlotPosY+1, 2)
+					craftingTableRes.SlotPosY = min(craftingTableRes.SlotPosY+1, 2)
 				}
 			}
 			if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-				CraftingTableRes.SlotPosY = max(CraftingTableRes.SlotPosY-1, 0)
+				craftingTableRes.SlotPosY = max(craftingTableRes.SlotPosY-1, 0)
 			}
 
 			// Move items from hotbar to crafting table
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-				cs := CraftingTableRes.CurrentSlot()
-				if InventoryRes.CurrentSlotID() != 0 {
-					if CraftingTableRes.CurrentSlot().ID == 0 {
-						id, dur := InventoryRes.RemoveItemFromSelectedSlot()
+				cs := craftingTableRes.CurrentSlot()
+				if inventoryRes.CurrentSlotID() != 0 {
+					if craftingTableRes.CurrentSlot().ID == 0 {
+						id, dur := inventoryRes.RemoveItemFromSelectedSlot()
 						cs.ID = id
 						cs.Durability = dur
 						cs.Quantity = 1
-					} else if cs.ID == InventoryRes.CurrentSlotID() {
-						InventoryRes.RemoveItemFromSelectedSlot()
+					} else if cs.ID == inventoryRes.CurrentSlotID() {
+						inventoryRes.RemoveItemFromSelectedSlot()
 						cs.Quantity++
 					}
 				}
-				CraftingTableRes.UpdateResultSlot()
+				craftingTableRes.UpdateResultSlot()
 				onInventorySlotChanged()
 			}
 			// Move items from crafting table to hotbar
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-				cs := CraftingTableRes.CurrentSlot()
+				cs := craftingTableRes.CurrentSlot()
 				if cs.ID != 0 {
 					if cs.Quantity == 1 {
-						if InventoryRes.AddItemIfEmpty(cs.ID, cs.Durability) {
-							CraftingTableRes.ClearCurrenSlot()
+						if inventoryRes.AddItemIfEmpty(cs.ID, cs.Durability) {
+							craftingTableRes.ClearCurrenSlot()
 						}
 					} else if cs.Quantity > 1 {
-						if InventoryRes.AddItemIfEmpty(cs.ID, cs.Durability) {
+						if inventoryRes.AddItemIfEmpty(cs.ID, cs.Durability) {
 							cs.Quantity--
 
 						}
 					}
-
 				}
-				CraftingTableRes.UpdateResultSlot()
+				craftingTableRes.UpdateResultSlot()
 				onInventorySlotChanged()
 			}
 			// apply recipe
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-				minimum := CraftingTableRes.UpdateResultSlot()
-				resultID := CraftingTableRes.ResultSlot.ID
+				minimum := craftingTableRes.UpdateResultSlot()
+				resultID := craftingTableRes.ResultSlot.ID
 				dur := items.GetDefaultDurability(resultID)
 				if resultID != 0 {
 					for range minimum {
-						if InventoryRes.AddItemIfEmpty(resultID, dur) {
+						if inventoryRes.AddItemIfEmpty(resultID, dur) {
 							for y := range 3 {
 								for x := range 3 {
-									if CraftingTableRes.Slots[y][x].Quantity > 0 {
-										CraftingTableRes.Slots[y][x].Quantity--
+									if craftingTableRes.Slots[y][x].Quantity > 0 {
+										craftingTableRes.Slots[y][x].Quantity--
 									}
-									if CraftingTableRes.Slots[y][x].Quantity == 0 {
-										CraftingTableRes.Slots[y][x].ID = 0
+									if craftingTableRes.Slots[y][x].Quantity == 0 {
+										craftingTableRes.Slots[y][x].ID = 0
 									}
 								}
 							}
-							CraftingTableRes.ResultSlot.ID = 0
+							craftingTableRes.ResultSlot.ID = 0
 						}
 					}
 				}
-				CraftingTableRes.UpdateResultSlot()
+				craftingTableRes.UpdateResultSlot()
 				onInventorySlotChanged()
 			}
 		}
 
-		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-			InventoryRes.ClearCurrentSlot()
-		}
 	}
-	return nil
 }
 
 func (ui *UI) Draw() {
-	if ECWorld.Alive(CurrentPlayer) {
+	if world.Alive(currentPlayer) {
 
 		// Draw hotbar background
 		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(hotbarPositionX, hotbarPositionY)
+		ColorMDIO.GeoM.Translate(ui.hotbarPos.X, ui.hotbarPos.Y)
 		colorm.DrawImage(Screen, res.Hotbar, ColorM, ColorMDIO)
 
 		// Draw Quick-slot numbers
-		dotX := float64(InventoryRes.QuickSlot1)*17 + float64(hotbarPositionX) + 7
+		dotX := float64(inventoryRes.QuickSlot1)*17 + float64(ui.hotbarPos.X) + 7
 		TextDO.GeoM.Reset()
 		TextDO.GeoM.Translate(dotX, -4)
-		text.Draw(Screen, strconv.Itoa(InventoryRes.QuickSlot1+1), res.Font, TextDO)
-		dotX = float64(InventoryRes.QuickSlot2)*17 + float64(hotbarPositionX) + 7
+		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot1+1), res.Font, TextDO)
+		dotX = float64(inventoryRes.QuickSlot2)*17 + float64(ui.hotbarPos.X) + 7
 		TextDO.GeoM.Reset()
 		TextDO.GeoM.Translate(dotX, -4)
-		text.Draw(Screen, strconv.Itoa(InventoryRes.QuickSlot2+1), res.Font, TextDO)
+		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot2+1), res.Font, TextDO)
 
 		// Draw slots
 		for x := range 9 {
-			slotID := InventoryRes.Slots[x].ID
-			quantity := InventoryRes.Slots[x].Quantity
+			slotID := inventoryRes.Slots[x].ID
+			quantity := inventoryRes.Slots[x].Quantity
 			SlotOffsetX := float64(x) * 17
-			SlotOffsetX += hotbarPositionX
+			SlotOffsetX += ui.hotbarPos.X
 
 			// draw hotbar item icons
 			ColorMDIO.GeoM.Reset()
-			ColorMDIO.GeoM.Translate(SlotOffsetX+(5), hotbarPositionY+(5))
-			if slotID != items.Air && InventoryRes.Slots[x].Quantity > 0 {
+			ColorMDIO.GeoM.Translate(SlotOffsetX+(5), ui.hotbarPos.Y+(5))
+			if slotID != items.Air && inventoryRes.Slots[x].Quantity > 0 {
 				colorm.DrawImage(Screen, res.Icon8[slotID], ColorM, ColorMDIO)
 			}
 			// Draw hotbar selected slot border
-			if x == InventoryRes.CurrentSlotIndex {
+			if x == inventoryRes.CurrentSlotIndex {
 				// border
 				ColorMDIO.GeoM.Translate(-5, -5)
 				colorm.DrawImage(Screen, res.SlotBorder, ColorM, ColorMDIO)
 				// Draw hotbar slot item display name
-				if !InventoryRes.IsCurrentSlotEmpty() {
+				if !inventoryRes.IsCurrentSlotEmpty() {
 					TextDO.GeoM.Reset()
-					TextDO.GeoM.Translate(SlotOffsetX-1, hotbarPositionY+14)
+					TextDO.GeoM.Translate(SlotOffsetX-1, ui.hotbarPos.Y+14)
 					if items.HasTag(slotID, items.Tool) {
 						text.Draw(Screen, fmt.Sprintf(
 							"%v\nDurability %v",
 							items.Property[slotID].DisplayName,
-							InventoryRes.Slots[x].Durability,
+							inventoryRes.Slots[x].Durability,
 						), res.Font, TextDO)
 					} else {
 						text.Draw(Screen, items.Property[slotID].DisplayName, res.Font, TextDO)
@@ -258,7 +247,7 @@ func (ui *UI) Draw() {
 			// Draw item quantity number
 			if quantity > 1 && items.IsStackable(slotID) {
 				TextDO.GeoM.Reset()
-				TextDO.GeoM.Translate(SlotOffsetX+6, hotbarPositionY+4)
+				TextDO.GeoM.Translate(SlotOffsetX+6, ui.hotbarPos.Y+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
 				if quantity < 10 {
 					num = " " + num
@@ -269,18 +258,17 @@ func (ui *UI) Draw() {
 
 		// Draw player health text
 		TextDO.GeoM.Reset()
-		TextDO.GeoM.Translate(hotbarRightEdgePosX+8, hotbarPositionY)
-		playerHealth := MapHealth.GetUnchecked(CurrentPlayer)
+		TextDO.GeoM.Translate(ui.hotbarRightEdgePosX+8, ui.hotbarPos.Y)
+		playerHealth := MapHealth.GetUnchecked(currentPlayer)
 		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, TextDO)
 
-		// Draw crafting table
-		if GameDataRes.CraftingState {
-
+		switch gameDataRes.GameplayState {
+		case CraftingTable2x2, CraftingTable3x3:
 			// crafting table Background
 			ColorMDIO.GeoM.Reset()
-			ColorMDIO.GeoM.Translate(craftingTablePositionX, craftingTablePositionY)
+			ColorMDIO.GeoM.Translate(ui.craftingTablePos.X, ui.craftingTablePos.Y)
 
-			if GameDataRes.CraftingState4 {
+			if gameDataRes.GameplayState == CraftingTable2x2 {
 				colorm.DrawImage(Screen, res.CraftingTable4, ColorM, ColorMDIO)
 			} else {
 				colorm.DrawImage(Screen, res.CraftingTable, ColorM, ColorMDIO)
@@ -289,20 +277,20 @@ func (ui *UI) Draw() {
 			// draw crafting table item icons
 			for x := 0; x < 3; x++ {
 				for y := 0; y < 3; y++ {
-					if CraftingTableRes.Slots[y][x].ID != items.Air {
-						sx := craftingTablePositionX + float64(x*17)
-						sy := craftingTablePositionY + float64(y*17)
+					if craftingTableRes.Slots[y][x].ID != items.Air {
+						sx := ui.craftingTablePos.X + float64(x*17)
+						sy := ui.craftingTablePos.Y + float64(y*17)
 						ColorMDIO.GeoM.Reset()
 						ColorMDIO.GeoM.Translate(sx+6, sy+6)
 						colorm.DrawImage(
 							Screen,
-							res.Icon8[CraftingTableRes.Slots[y][x].ID],
+							res.Icon8[craftingTableRes.Slots[y][x].ID],
 							ColorM,
 							ColorMDIO,
 						)
 
 						// Draw item quantity number
-						quantity := CraftingTableRes.Slots[y][x].Quantity
+						quantity := craftingTableRes.Slots[y][x].Quantity
 						if quantity > 1 {
 							TextDO.GeoM.Reset()
 							TextDO.GeoM.Translate(sx+7, sy+5)
@@ -315,9 +303,9 @@ func (ui *UI) Draw() {
 					}
 
 					// draw selected slot border of crqfting table
-					if x == CraftingTableRes.SlotPosX && y == CraftingTableRes.SlotPosY {
-						sx := craftingTablePositionX + float64(x*17)
-						sy := craftingTablePositionY + float64(y*17)
+					if x == craftingTableRes.SlotPosX && y == craftingTableRes.SlotPosY {
+						sx := ui.craftingTablePos.X + float64(x*17)
+						sy := ui.craftingTablePos.Y + float64(y*17)
 						ColorMDIO.GeoM.Reset()
 						ColorMDIO.GeoM.Translate(sx+1, sy+1)
 						colorm.DrawImage(Screen, res.SlotBorder, ColorM, ColorMDIO)
@@ -327,25 +315,25 @@ func (ui *UI) Draw() {
 			}
 
 			// draw crafting table result item icon
-			if CraftingTableRes.ResultSlot.ID != 0 {
+			if craftingTableRes.ResultSlot.ID != 0 {
 				ColorMDIO.GeoM.Reset()
 
-				if GameDataRes.CraftingState4 {
-					ColorMDIO.GeoM.Translate(craftingTablePositionX+41, craftingTablePositionY+14)
+				if gameDataRes.GameplayState == CraftingTable2x2 {
+					ColorMDIO.GeoM.Translate(ui.craftingTablePos.X+41, ui.craftingTablePos.Y+14)
 				} else {
-					ColorMDIO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+23)
+					ColorMDIO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+23)
 				}
 
-				colorm.DrawImage(Screen, res.Icon8[CraftingTableRes.ResultSlot.ID], ColorM, ColorMDIO)
+				colorm.DrawImage(Screen, res.Icon8[craftingTableRes.ResultSlot.ID], ColorM, ColorMDIO)
 
 				// Draw result item quantity number
-				quantity := CraftingTableRes.ResultSlot.Quantity
+				quantity := craftingTableRes.ResultSlot.Quantity
 				if quantity > 1 {
 					TextDO.GeoM.Reset()
-					if GameDataRes.CraftingState4 {
-						TextDO.GeoM.Translate(craftingTablePositionX+42, craftingTablePositionY+13)
+					if gameDataRes.GameplayState == CraftingTable2x2 {
+						TextDO.GeoM.Translate(ui.craftingTablePos.X+42, ui.craftingTablePos.Y+13)
 					} else {
-						TextDO.GeoM.Translate(craftingTablePositionX+58, craftingTablePositionY+22)
+						TextDO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+22)
 					}
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
@@ -359,46 +347,47 @@ func (ui *UI) Draw() {
 
 		// Draw debug info
 		if DrawDebugTextEnabled {
-			_, vel, _, playerController, _ := MapPlayer.Get(CurrentPlayer)
+			_, vel, _, playerController, _ := MapPlayer.Get(currentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
-				"state %v\nAbsVelocity: %v",
+				"state %v\nVel.X: %.2f\nVel.Y: %.2f",
 				playerController.CurrentState,
-				vel,
+				vel.X,
+				vel.Y,
 			), 10, 50)
 		}
 
-	} else if CurrentGameState != "menu" {
-		ebitenutil.DebugPrintAt(Screen, "YOU ARE DEAD!", int(ScreenW/2)-30, int(ScreenH/2))
+	} else if currentGameState != "menu" {
+		ebitenutil.DebugPrintAt(Screen, "YOU ARE DEAD!", int(ScreenSize.X/2)-30, int(ScreenSize.Y/2))
 	}
 }
 
 func onInventorySlotChanged() {
-	switch InventoryRes.CurrentSlotID() {
+	switch inventoryRes.CurrentSlotID() {
 	case items.WoodenAxe:
-		PlayerAnimPlayer.SetAtlas("WoodenAxe")
+		animPlayer.SetAtlas("WoodenAxe")
 	case items.WoodenPickaxe:
-		PlayerAnimPlayer.SetAtlas("WoodenPickaxe")
+		animPlayer.SetAtlas("WoodenPickaxe")
 	case items.WoodenShovel:
-		PlayerAnimPlayer.SetAtlas("WoodenShovel")
+		animPlayer.SetAtlas("WoodenShovel")
 	case items.StoneAxe:
-		PlayerAnimPlayer.SetAtlas("StoneAxe")
+		animPlayer.SetAtlas("StoneAxe")
 	case items.StonePickaxe:
-		PlayerAnimPlayer.SetAtlas("StonePickaxe")
+		animPlayer.SetAtlas("StonePickaxe")
 	case items.StoneShovel:
-		PlayerAnimPlayer.SetAtlas("StoneShovel")
+		animPlayer.SetAtlas("StoneShovel")
 	case items.IronAxe:
-		PlayerAnimPlayer.SetAtlas("IronAxe")
+		animPlayer.SetAtlas("IronAxe")
 	case items.IronPickaxe:
-		PlayerAnimPlayer.SetAtlas("IronPickaxe")
+		animPlayer.SetAtlas("IronPickaxe")
 	case items.IronShovel:
-		PlayerAnimPlayer.SetAtlas("IronShovel")
+		animPlayer.SetAtlas("IronShovel")
 	case items.DiamondAxe:
-		PlayerAnimPlayer.SetAtlas("DiamondAxe")
+		animPlayer.SetAtlas("DiamondAxe")
 	case items.DiamondPickaxe:
-		PlayerAnimPlayer.SetAtlas("DiamondPickaxe")
+		animPlayer.SetAtlas("DiamondPickaxe")
 	case items.DiamondShovel:
-		PlayerAnimPlayer.SetAtlas("DiamondShovel")
+		animPlayer.SetAtlas("DiamondShovel")
 	default:
-		PlayerAnimPlayer.SetAtlas("Default")
+		animPlayer.SetAtlas("Default")
 	}
 }

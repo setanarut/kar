@@ -14,14 +14,6 @@ type AABB struct {
 	Half Vec
 }
 
-func (b AABB) Min() Vec {
-	return b.Pos.Sub(b.Half)
-}
-
-func (b AABB) Max() Vec {
-	return b.Pos.Add(b.Half)
-}
-
 type HitInfo struct {
 	Pos    Vec
 	Delta  Vec

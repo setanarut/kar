@@ -38,23 +38,25 @@ const (
 )
 
 var (
-	CurrentGameState  = "menu"
-	PreviousGameState = "menu"
+	WindowScale = 2.0
+	ScreenSize  = Vec{500, 340}
 )
 var (
-	CeilBlockCoord    image.Point
-	CeilBlockTick     float64
-	DropItemHalfSize  = Vec{4, 4}
-	EnemyWormHalfSize = Vec{6, 6}
+	currentGameState  = "menu"
+	previousGameState = "menu"
 )
 var (
-	ECWorld                     ecs.World = ecs.NewWorld()
-	CurrentPlayer               ecs.Entity
-	RenderArea                  = image.Point{(int(ScreenW) / 20) + 3, (int(ScreenH) / 20) + 3}
-	DataManager                 *gdata.Manager
-	SerdeOpt                    archeserde.Option
-	WindowScale                            = 2.0
-	ScreenW, ScreenH                       = 500.0, 340.0
+	ceilBlockCoord    image.Point
+	ceilBlockTick     float64
+	dropItemHalfSize  = Vec{4, 4}
+	enemyWormHalfSize = Vec{6, 6}
+)
+var (
+	world                       ecs.World = ecs.NewWorld()
+	currentPlayer               ecs.Entity
+	renderArea                  = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
+	dataManager                 *gdata.Manager
+	serdeOpt                    archeserde.Option
 	Sinspace                    []float64  = SinSpace(0, 2*math.Pi, 3, 60)
 	DrawItemHitboxEnabled       bool       = false
 	DrawPlayerTileHitboxEnabled bool       = false
@@ -62,7 +64,7 @@ var (
 	BackgroundColor             color.RGBA = color.RGBA{36, 36, 39, 255}
 	TileCollider                *Collider
 	GameTileMapGenerator        *tilemap.Generator
-	PlayerAnimPlayer            *anim.AnimationPlayer
+	animPlayer                  *anim.AnimationPlayer
 	Screen                      *ebiten.Image
 	ColorMDIO                   *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
 	ColorM                      colorm.ColorM            = colorm.ColorM{}
@@ -76,87 +78,86 @@ var (
 
 type ISystem interface {
 	Init()
-	Update() error
+	Update()
 	Draw()
 }
 
 func init() {
 	var err error
-	DataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
+	dataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
 	if err != nil {
 		panic(err)
 	}
 
-	SerdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
-	GameTileMapGenerator = tilemap.NewGenerator(TileMapRes)
+	serdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
+	GameTileMapGenerator = tilemap.NewGenerator(tileMapRes)
 	TileCollider = NewCollider(
-		TileMapRes.Grid,
-		TileMapRes.TileW,
-		TileMapRes.TileH,
+		tileMapRes.Grid,
+		tileMapRes.TileW,
+		tileMapRes.TileH,
 	)
 	// ECS Resources
-	ecs.AddResource(&ECWorld, InventoryRes)
-	ecs.AddResource(&ECWorld, CraftingTableRes)
-	ecs.AddResource(&ECWorld, PlayerAnimPlayer.Data)
-	ecs.AddResource(&ECWorld, GameDataRes)
-	ecs.AddResource(&ECWorld, TileMapRes)
-	ecs.AddResource(&ECWorld, CameraRes)
-	InventoryRes.SetSlot(0, items.Snowball, 64, 0)
+	ecs.AddResource(&world, inventoryRes)
+	ecs.AddResource(&world, craftingTableRes)
+	ecs.AddResource(&world, animPlayer.Data)
+	ecs.AddResource(&world, gameDataRes)
+	ecs.AddResource(&world, tileMapRes)
+	ecs.AddResource(&world, cameraRes)
+	inventoryRes.SetSlot(0, items.Snowball, 64, 0)
 }
 
 func NewGame() {
-	ECWorld.Reset()
-	InventoryRes.Reset()
-	*PlayerAnimPlayer.Data = AnimDefaultPlaybackData
-	GameDataRes = &GameData{}
-	ecs.AddResource(&ECWorld, GameDataRes)
-	ecs.AddResource(&ECWorld, InventoryRes)
-	ecs.AddResource(&ECWorld, CraftingTableRes)
-	ecs.AddResource(&ECWorld, PlayerAnimPlayer.Data)
-	ecs.AddResource(&ECWorld, CameraRes)
-	ecs.AddResource(&ECWorld, TileMapRes)
+	world.Reset()
+	inventoryRes.Reset()
+	*animPlayer.Data = animDefaultPlaybackData
+	gameDataRes = &gameData{}
+	ecs.AddResource(&world, gameDataRes)
+	ecs.AddResource(&world, inventoryRes)
+	ecs.AddResource(&world, craftingTableRes)
+	ecs.AddResource(&world, animPlayer.Data)
+	ecs.AddResource(&world, cameraRes)
+	ecs.AddResource(&world, tileMapRes)
 
 	GameTileMapGenerator.SetSeed(rand.Int())
 	GameTileMapGenerator.Generate()
-	x, y := TileMapRes.FindSpawnPosition()
-	SpawnX, SpawnY := TileMapRes.TileToWorldCenter(x, y)
-	CameraRes.SmoothType = kamera.None
-	CameraRes.SetCenter(SpawnX, SpawnY)
-	CurrentPlayer = SpawnPlayer(SpawnX, SpawnY)
-	CameraRes.SetTopLeft(TileMapRes.FloorToBlockCenter(CameraRes.X, CameraRes.Y))
-	CameraRes.SmoothOptions.LerpSpeedX = 0.5
-	CameraRes.SmoothOptions.LerpSpeedY = 0
-	CameraRes.SmoothType = kamera.SmoothDamp
+	x, y := tileMapRes.FindSpawnPosition()
+	SpawnX, SpawnY := tileMapRes.TileToWorldCenter(x, y)
+	cameraRes.SmoothType = kamera.None
+	cameraRes.SetCenter(SpawnX, SpawnY)
+	currentPlayer = SpawnPlayer(SpawnX, SpawnY)
+	cameraRes.SetTopLeft(tileMapRes.FloorToBlockCenter(cameraRes.X, cameraRes.Y))
+	cameraRes.SmoothOptions.LerpSpeedX = 0.5
+	cameraRes.SmoothOptions.LerpSpeedY = 0
+	cameraRes.SmoothType = kamera.SmoothDamp
 }
 
 func SaveGame() {
-	jsonData, err := archeserde.Serialize(&ECWorld, SerdeOpt)
+	jsonData, err := archeserde.Serialize(&world, serdeOpt)
 	if err != nil {
 		log.Fatal("Error serializing world:", err)
 	}
-	DataManager.SaveItem("01save", jsonData)
+	dataManager.SaveItem("01save", jsonData)
 
 }
 
 func LoadGame() {
-
-	if DataManager.ItemExists("01save") {
-		ECWorld.Reset()
-		ecs.AddResource(&ECWorld, GameDataRes)
-		ecs.AddResource(&ECWorld, InventoryRes)
-		ecs.AddResource(&ECWorld, CraftingTableRes)
-		ecs.AddResource(&ECWorld, PlayerAnimPlayer.Data)
-		ecs.AddResource(&ECWorld, CameraRes)
-		ecs.AddResource(&ECWorld, TileMapRes)
-		jsonData, err := DataManager.LoadItem("01save")
+	if dataManager.ItemExists("01save") {
+		world.Reset()
+		ecs.AddResource(&world, gameDataRes)
+		ecs.AddResource(&world, inventoryRes)
+		ecs.AddResource(&world, craftingTableRes)
+		ecs.AddResource(&world, animPlayer.Data)
+		ecs.AddResource(&world, cameraRes)
+		ecs.AddResource(&world, tileMapRes)
+		jsonData, err := dataManager.LoadItem("01save")
 		if err != nil {
 			log.Fatal("Error loading saved data:", err)
 		}
-		err = archeserde.Deserialize(jsonData, &ECWorld)
+		err = archeserde.Deserialize(jsonData, &world)
 		if err != nil {
 			log.Fatal("Error deserializing world:", err)
 		}
 
-		PlayerAnimPlayer.Update()
+		animPlayer.Update()
 	}
 }

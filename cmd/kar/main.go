@@ -17,7 +17,7 @@ func main() {
 		InitUnfocused:   false,
 	}
 	ebiten.SetScreenClearedEveryFrame(false)
-	ebiten.SetWindowSize(int(kar.ScreenW*kar.WindowScale), int(kar.ScreenH*kar.WindowScale))
+	ebiten.SetWindowSize(int(kar.ScreenSize.X*kar.WindowScale), int(kar.ScreenSize.Y*kar.WindowScale))
 	if err := ebiten.RunGameWithOptions(game, opts); err != nil {
 		log.Fatal(err)
 	}

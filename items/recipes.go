@@ -86,6 +86,12 @@ func init() {
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
+	Recipes[Furnace] = [][]Slot{
+		{Slot{ID: Stone}, Slot{ID: Stone}, Slot{ID: Stone}},
+		{Slot{ID: Stone}, Slot{ID: Air}, Slot{ID: Stone}},
+		{Slot{ID: Stone}, Slot{ID: Stone}, Slot{ID: Stone}},
+	}
+
 	// output item multiplier
 	for _, recipe := range Recipes {
 		recipe[0][0].Quantity = 1

@@ -32,8 +32,11 @@ func (g *Game) Init() {
 func (g *Game) Update() error {
 
 	// Debug
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		inventoryRes.ClearCurrentSlot()
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyK) {
-		InventoryRes.RandomFillAllSlots()
+		inventoryRes.RandomFillAllSlots()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
 		DrawDebugTextEnabled = !DrawDebugTextEnabled
@@ -47,23 +50,23 @@ func (g *Game) Update() error {
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
-		DataManager.SaveItem("map.png", TileMapRes.GetImageByte())
+		dataManager.SaveItem("map.png", tileMapRes.GetImageByte())
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
-		box := MapAABB.Get(CurrentPlayer)
-		TileMapRes.Set(TileMapRes.W/2, TileMapRes.H-3, items.Air)
-		box.Pos.X, box.Pos.Y = TileMapRes.TileToWorldCenter(TileMapRes.W/2, TileMapRes.H-3)
-		CameraRes.SetCenter(box.Pos.X, box.Pos.Y)
+		box := MapAABB.Get(currentPlayer)
+		tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
+		box.Pos.X, box.Pos.Y = tileMapRes.TileToWorldCenter(tileMapRes.W/2, tileMapRes.H-3)
+		cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 	}
 
 	if ebiten.IsFocused() {
-		switch CurrentGameState {
+		switch currentGameState {
 		case "menu":
 
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-				if PreviousGameState == "playing" {
-					PreviousGameState = "menu"
-					CurrentGameState = "playing"
+				if previousGameState == "playing" {
+					previousGameState = "menu"
+					currentGameState = "playing"
 					ColorM.Reset()
 					TextDO.ColorScale.Reset()
 				}
@@ -73,8 +76,8 @@ func (g *Game) Update() error {
 
 		case "playing":
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-				PreviousGameState = "playing"
-				CurrentGameState = "menu"
+				previousGameState = "playing"
+				currentGameState = "menu"
 				ColorM.ChangeHSV(1, 0, 0.5) // BW
 				TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
@@ -95,7 +98,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	Screen = screen
 	Screen.Fill(BackgroundColor)
 
-	switch CurrentGameState {
+	switch currentGameState {
 	case "menu":
 		g.systems[0].Draw()
 		g.systems[6].Draw()
@@ -112,7 +115,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) LayoutF(w, h float64) (float64, float64) {
-	return ScreenW, ScreenH
+	return ScreenSize.X, ScreenSize.Y
 }
 
 func (g *Game) Layout(w, h int) (int, int) {

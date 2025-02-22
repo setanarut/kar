@@ -198,5 +198,5 @@ func (v Vec) Equals(other Vec) bool {
 
 // String returns string representation of this vector.
 func (v Vec) String() string {
-	return fmt.Sprintf("Vec{X: %f, Y: %f}", v.X, v.Y)
+	return fmt.Sprintf("Vec{%.2f, %.2f}", v.X, v.Y)
 }

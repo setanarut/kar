@@ -25,6 +25,7 @@ type AI struct {
 type AnimationIndex struct {
 	Index int
 }
+
 type CollisionDelayer struct {
 	Duration time.Duration
 }

@@ -6,15 +6,15 @@ import (
 	"github.com/mlange-42/arche/ecs"
 )
 
-// SpawnData is a helper for delaying spawn events
-type SpawnData struct {
+// spawnData is a helper for delaying spawn events
+type spawnData struct {
 	X, Y       float64
 	Id         uint8
 	Durability int
 }
 
 var (
-	toSpawn  = []SpawnData{}
+	toSpawn  = []spawnData{}
 	toRemove []ecs.Entity
 )
 
@@ -22,21 +22,18 @@ type Spawn struct {
 	tile uint8
 }
 
-func (s *Spawn) Init() {
-
-}
-
-func (s *Spawn) Update() error {
+func (s *Spawn) Init() {}
+func (s *Spawn) Update() {
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
-		p := TileMapRes.WorldToTile(x, y)
-		TileMapRes.Set(p.X, p.Y, s.tile)
+		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
+		p := tileMapRes.WorldToTile(x, y)
+		tileMapRes.Set(p.X, p.Y, s.tile)
 	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
-		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
-		p := TileMapRes.WorldToTile(x, y)
-		s.tile = TileMapRes.Get(p.X, p.Y)
+		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
+		p := tileMapRes.WorldToTile(x, y)
+		s.tile = tileMapRes.Get(p.X, p.Y)
 	}
 
 	// Spawn item
@@ -47,10 +44,9 @@ func (s *Spawn) Update() error {
 	toSpawn = toSpawn[:0]
 
 	for _, e := range toRemove {
-		ECWorld.RemoveEntity(e)
+		world.RemoveEntity(e)
 	}
 	toRemove = toRemove[:0]
-	return nil
 }
 func (s *Spawn) Draw() {
 }

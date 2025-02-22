@@ -15,18 +15,18 @@ type Enemy struct {
 }
 
 func (e *Enemy) Init() {
-	e.enemyRect = AABB{Half: EnemyWormHalfSize}
+	e.enemyRect = AABB{Half: enemyWormHalfSize}
 }
 
-func (e *Enemy) Update() error {
+func (e *Enemy) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		x, y := CameraRes.ScreenToWorld(ebiten.CursorPosition())
+		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
 		SpawnEnemy(x, y, 0.5, 0)
 	}
 
-	if ECWorld.Alive(CurrentPlayer) {
-		playerBox, playerVelocity, _, _, _ := MapPlayer.Get(CurrentPlayer)
-		enemyQuery := FilterEnemy.Query(&ECWorld)
+	if world.Alive(currentPlayer) {
+		playerBox, playerVelocity, _, _, _ := MapPlayer.Get(currentPlayer)
+		enemyQuery := FilterEnemy.Query(&world)
 
 		for enemyQuery.Next() {
 
@@ -60,7 +60,7 @@ func (e *Enemy) Update() error {
 				hit := &HitInfo{}
 				wormBox := AABB{
 					Pos:  Vec(*enemyPos),
-					Half: EnemyWormHalfSize,
+					Half: enemyWormHalfSize,
 				}
 
 				collided := wormBox.OverlapSweep(*playerBox, Vec(*playerVelocity), hit)
@@ -98,21 +98,20 @@ func (e *Enemy) Update() error {
 			}
 		}
 	}
-	return nil
 }
 func (e *Enemy) Draw() {
-	q := FilterEnemy.Query(&ECWorld)
+	q := FilterEnemy.Query(&world)
 	for q.Next() {
 		pos, _, AI := q.Get()
-		x, y := CameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)
+		x, y := cameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)
 		switch AI.Name {
 		case "worm":
 			vector.DrawFilledRect(
 				Screen,
-				float32(x-EnemyWormHalfSize.X),
-				float32(y-EnemyWormHalfSize.Y),
-				float32(EnemyWormHalfSize.X*2),
-				float32(EnemyWormHalfSize.Y*2),
+				float32(x-enemyWormHalfSize.X),
+				float32(y-enemyWormHalfSize.Y),
+				float32(enemyWormHalfSize.X*2),
+				float32(enemyWormHalfSize.Y*2),
 				color.RGBA{128, 0, 0, 10},
 				false,
 			)
