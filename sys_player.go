@@ -491,7 +491,7 @@ func (p *Player) Update() {
 					// check overlaps
 					queryItem := FilterDroppedItem.Query()
 					for queryItem.Next() {
-						_, itemPos, _, _, _ := queryItem.Get()
+						_, itemPos, _ := queryItem.Get()
 						p.itemBox.Pos = Vec(*itemPos)
 						anyItemOverlapsWithPlaceRect = placeTileBox.Overlap(p.itemBox, nil)
 						if anyItemOverlapsWithPlaceRect {

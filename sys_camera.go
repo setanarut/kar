@@ -126,7 +126,7 @@ func (c *Camera) Draw() {
 
 	itemQuery := FilterDroppedItem.Query()
 	for itemQuery.Next() {
-		id, pos, animIndex, _, _ := itemQuery.Get()
+		id, pos, animIndex := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
 		x := pos.X - dropItemHalfSize.X
 		y := pos.Y - dropItemHalfSize.Y

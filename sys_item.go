@@ -29,15 +29,16 @@ func (i *Item) Update() {
 			playerBox := MapAABB.GetUnchecked(currentPlayer)
 			itemQuery := FilterDroppedItem.Query()
 			for itemQuery.Next() {
-				itemID, itemPos, timers, delayer, durability := itemQuery.Get()
+				itemID, itemPos, timers := itemQuery.Get()
 				i.itemBox.Pos = Vec(*itemPos)
 				itemEntity := itemQuery.Entity()
 				// Check player-item collision
-				if MapCollisionDelayer.HasUnchecked(itemEntity) {
+				if !MapCollisionDelayer.HasUnchecked(itemEntity) {
 					if playerBox.Overlap(i.itemBox, i.itemHit) {
 						// if Durability component exists, pass durability
-						if durability != nil {
-							if inventoryRes.AddItemIfEmpty(itemID.ID, durability.Durability) {
+						if MapDurability.HasUnchecked(itemEntity) {
+							d := MapDurability.GetUnchecked(itemEntity)
+							if inventoryRes.AddItemIfEmpty(itemID.ID, d.Durability) {
 								toRemove = append(toRemove, itemEntity)
 							}
 						} else {
@@ -49,8 +50,7 @@ func (i *Item) Update() {
 						onInventorySlotChanged()
 					}
 				} else {
-					// delayer.Duration -= Tick
-					if delayer.Duration < 0 {
+					if MapCollisionDelayer.GetUnchecked(itemEntity).Duration < 0 {
 						i.toRemoveComponent = append(i.toRemoveComponent, itemEntity)
 					}
 				}

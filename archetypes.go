@@ -8,14 +8,14 @@ import (
 )
 
 var (
-	MapPlayer           = ecs.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
-	MapEnemy            = ecs.NewMap3[Position, Velocity, AI](&world)
-	MapAABB             = ecs.NewMap[AABB](&world)
-	MapHealth           = ecs.NewMap[Health](&world)
-	MapDurability       = ecs.NewMap[Durability](&world)
-	MapPosition         = ecs.NewMap[Position](&world)
-	MapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
-	MapDroppedToolItem  = ecs.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
+	MapPlayer      = ecs.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
+	MapEnemy       = ecs.NewMap3[Position, Velocity, AI](&world)
+	MapAABB        = ecs.NewMap[AABB](&world)
+	MapHealth      = ecs.NewMap[Health](&world)
+	MapDurability  = ecs.NewMap[Durability](&world)
+	MapPosition    = ecs.NewMap[Position](&world)
+	MapDroppedItem = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
+	// MapDroppedToolItem  = ecs.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
 	MapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
 	MapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
 	MapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
@@ -28,7 +28,7 @@ var (
 	FilterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]()) // Exclusive
 	FilterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
 
-	FilterDroppedItem = ecs.NewFilter5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
+	FilterDroppedItem = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	// Optional(gn.T[CollisionDelayer]())
 	// Optional(gn.T[Durability]())
 
@@ -36,23 +36,16 @@ var (
 )
 
 func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
-
+	e := MapDroppedItem.NewEntity(
+		&ItemID{id},
+		&Position{x, y},
+		&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
+		&CollisionDelayer{ItemCollisionDelay},
+	)
 	if items.HasTag(id, items.Tool) {
-		return MapDroppedToolItem.NewEntity(
-			&ItemID{id},
-			&Position{x, y},
-			&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
-			&CollisionDelayer{ItemCollisionDelay},
-			&Durability{durability},
-		)
-	} else {
-		return MapDroppedItem.NewEntity(
-			&ItemID{id},
-			&Position{x, y},
-			&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
-			&CollisionDelayer{ItemCollisionDelay},
-		)
+		MapDurability.Add(e, &Durability{durability})
 	}
+	return e
 }
 
 func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
