@@ -6,6 +6,7 @@ import (
 	"kar/res"
 	"kar/tilemap"
 
+	"github.com/mlange-42/ark/ecs"
 	"github.com/setanarut/anim"
 	"github.com/setanarut/kamera/v2"
 )
@@ -17,6 +18,13 @@ var (
 	craftingTableRes *items.CraftTable
 	inventoryRes     *items.Inventory
 	cameraRes        *kamera.Camera
+
+	inventoryResMap        = ecs.NewResource[items.Inventory](&world)
+	tilemapResMap          = ecs.NewResource[tilemap.TileMap](&world)
+	craftingtableResMap    = ecs.NewResource[items.CraftTable](&world)
+	cameraResMap           = ecs.NewResource[kamera.Camera](&world)
+	gameDataResMap         = ecs.NewResource[gameData](&world)
+	animPlaybackDataResMap = ecs.NewResource[anim.PlaybackData](&world)
 )
 var animDefaultPlaybackData anim.PlaybackData
 
@@ -67,4 +75,11 @@ func init() {
 	animPlayer.NewAnim("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
 	animPlayer.SetAnim("idleRight")
 	animDefaultPlaybackData = *animPlayer.Data
+
+	inventoryResMap.Add(inventoryRes)
+	tilemapResMap.Add(tileMapRes)
+	craftingtableResMap.Add(craftingTableRes)
+	cameraResMap.Add(cameraRes)
+	gameDataResMap.Add(gameDataRes)
+	animPlaybackDataResMap.Add(animPlayer.Data)
 }

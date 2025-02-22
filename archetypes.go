@@ -4,49 +4,38 @@ import (
 	"kar/items"
 	"math/rand/v2"
 
-	"github.com/mlange-42/arche/ecs"
-	gn "github.com/mlange-42/arche/generic"
+	"github.com/mlange-42/ark/ecs"
 )
 
 var (
-	MapPlayer           = gn.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
-	MapEnemy            = gn.NewMap3[Position, Velocity, AI](&world)
-	MapAABB             = gn.NewMap[AABB](&world)
-	MapHealth           = gn.NewMap[Health](&world)
-	MapDurability       = gn.NewMap[Durability](&world)
-	MapPosition         = gn.NewMap[Position](&world)
-	MapDroppedItem      = gn.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
-	MapDroppedToolItem  = gn.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
-	MapProjectile       = gn.NewMap3[ItemID, Position, Velocity](&world)
-	MapCollisionDelayer = gn.NewMap1[CollisionDelayer](&world)
-	MapEffect           = gn.NewMap4[ItemID, Position, Velocity, Rotation](&world)
+	MapPlayer           = ecs.NewMap5[AABB, Velocity, Health, Controller, Facing](&world)
+	MapEnemy            = ecs.NewMap3[Position, Velocity, AI](&world)
+	MapAABB             = ecs.NewMap[AABB](&world)
+	MapHealth           = ecs.NewMap[Health](&world)
+	MapDurability       = ecs.NewMap[Durability](&world)
+	MapPosition         = ecs.NewMap[Position](&world)
+	MapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
+	MapDroppedToolItem  = ecs.NewMap5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability](&world)
+	MapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
+	MapCollisionDelayer = ecs.NewMap1[CollisionDelayer](&world)
+	MapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
 )
 
 // Query Filters
 var (
-	FilterPlayer = gn.NewFilter5[
-		AABB,
-		Velocity,
-		Health,
-		Controller,
-		Facing]()
-	FilterEnemy            = gn.NewFilter3[Position, Velocity, AI]()
-	FilterProjectile       = gn.NewFilter3[ItemID, Position, Velocity]().Exclusive()
-	FilterCollisionDelayer = gn.NewFilter1[CollisionDelayer]()
-	FilterDroppedItem      = gn.NewFilter5[
-		ItemID,
-		Position,
-		AnimationIndex,
-		CollisionDelayer,
-		Durability,
-	]().
-		Optional(gn.T[CollisionDelayer]()).
-		Optional(gn.T[Durability]())
-	FilterEffect = gn.NewFilter4[ItemID, Position, Velocity, Rotation]().Exclusive()
+	FilterPlayer           = ecs.NewFilter5[AABB, Velocity, Health, Controller, Facing](&world)
+	FilterEnemy            = ecs.NewFilter3[Position, Velocity, AI](&world)
+	FilterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]()) // Exclusive
+	FilterCollisionDelayer = ecs.NewFilter1[CollisionDelayer]
+
+	// FilterDroppedItem      = ecs.NewFilter5[ItemID, Position, AnimationIndex, CollisionDelayer, Durability]
+	// Optional(gn.T[CollisionDelayer]())
+	// Optional(gn.T[Durability]())
+
+	// FilterEffect = ecs.NewFilter4[ItemID, Position, Velocity, Rotation].Exclusive()
 )
 
 func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
-
 	if items.HasTag(id, items.Tool) {
 		return MapDroppedToolItem.NewWith(
 			&ItemID{id},

@@ -6,7 +6,6 @@ import (
 	"kar/items"
 	"kar/tilemap"
 	"kar/v"
-	"log"
 	"math"
 	"math/rand/v2"
 	"time"
@@ -15,8 +14,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	archeserde "github.com/mlange-42/arche-serde"
-	"github.com/mlange-42/arche/ecs"
-	"github.com/mlange-42/arche/generic"
+	"github.com/mlange-42/ark/ecs"
 	"github.com/quasilyte/gdata"
 	"github.com/setanarut/anim"
 	"github.com/setanarut/kamera/v2"
@@ -52,7 +50,7 @@ var (
 	enemyWormHalfSize = Vec{6, 6}
 )
 var (
-	world                       ecs.World = ecs.NewWorld()
+	world                       ecs.World = ecs.NewWorld(100)
 	currentPlayer               ecs.Entity
 	renderArea                  = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
 	dataManager                 *gdata.Manager
@@ -89,35 +87,30 @@ func init() {
 		panic(err)
 	}
 
-	serdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
+	// serdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
 	GameTileMapGenerator = tilemap.NewGenerator(tileMapRes)
 	TileCollider = NewCollider(
 		tileMapRes.Grid,
 		tileMapRes.TileW,
 		tileMapRes.TileH,
 	)
-	// ECS Resources
-	ecs.AddResource(&world, inventoryRes)
-	ecs.AddResource(&world, craftingTableRes)
-	ecs.AddResource(&world, animPlayer.Data)
-	ecs.AddResource(&world, gameDataRes)
-	ecs.AddResource(&world, tileMapRes)
-	ecs.AddResource(&world, cameraRes)
+
 	inventoryRes.SetSlot(0, items.Snowball, 64, 0)
 	currentPlayer = SpawnPlayer(-5000, -5000)
 }
 
 func NewGame() {
-	world.Reset()
-	inventoryRes.Reset()
+	// world.Reset()
+	// inventoryRes.Reset()
 	*animPlayer.Data = animDefaultPlaybackData
 	gameDataRes = &gameData{}
-	ecs.AddResource(&world, gameDataRes)
-	ecs.AddResource(&world, inventoryRes)
-	ecs.AddResource(&world, craftingTableRes)
-	ecs.AddResource(&world, animPlayer.Data)
-	ecs.AddResource(&world, cameraRes)
-	ecs.AddResource(&world, tileMapRes)
+
+	inventoryResMap.Add(inventoryRes)
+	tilemapResMap.Add(tileMapRes)
+	craftingtableResMap.Add(craftingTableRes)
+	cameraResMap.Add(cameraRes)
+	gameDataResMap.Add(gameDataRes)
+	animPlaybackDataResMap.Add(animPlayer.Data)
 
 	GameTileMapGenerator.SetSeed(rand.Int())
 	GameTileMapGenerator.Generate()
@@ -133,32 +126,32 @@ func NewGame() {
 }
 
 func SaveGame() {
-	jsonData, err := archeserde.Serialize(&world, serdeOpt)
-	if err != nil {
-		log.Fatal("Error serializing world:", err)
-	}
-	dataManager.SaveItem("01save", jsonData)
+	// jsonData, err := archeserde.Serialize(&world, serdeOpt)
+	// if err != nil {
+	// 	log.Fatal("Error serializing world:", err)
+	// }
+	// dataManager.SaveItem("01save", jsonData)
 
 }
 
 func LoadGame() {
-	if dataManager.ItemExists("01save") {
-		world.Reset()
-		ecs.AddResource(&world, gameDataRes)
-		ecs.AddResource(&world, inventoryRes)
-		ecs.AddResource(&world, craftingTableRes)
-		ecs.AddResource(&world, animPlayer.Data)
-		ecs.AddResource(&world, cameraRes)
-		ecs.AddResource(&world, tileMapRes)
-		jsonData, err := dataManager.LoadItem("01save")
-		if err != nil {
-			log.Fatal("Error loading saved data:", err)
-		}
-		err = archeserde.Deserialize(jsonData, &world)
-		if err != nil {
-			log.Fatal("Error deserializing world:", err)
-		}
+	// if dataManager.ItemExists("01save") {
+	// 	world.Reset()
+	// 	ecs.AddResource(&world, gameDataRes)
+	// 	ecs.AddResource(&world, inventoryRes)
+	// 	ecs.AddResource(&world, craftingTableRes)
+	// 	ecs.AddResource(&world, animPlayer.Data)
+	// 	ecs.AddResource(&world, cameraRes)
+	// 	ecs.AddResource(&world, tileMapRes)
+	// 	jsonData, err := dataManager.LoadItem("01save")
+	// 	if err != nil {
+	// 		log.Fatal("Error loading saved data:", err)
+	// 	}
+	// 	err = archeserde.Deserialize(jsonData, &world)
+	// 	if err != nil {
+	// 		log.Fatal("Error deserializing world:", err)
+	// 	}
 
-		animPlayer.Update()
-	}
+	// 	animPlayer.Update()
+	// }
 }
