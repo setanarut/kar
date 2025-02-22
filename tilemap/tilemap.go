@@ -13,6 +13,13 @@ import (
 	"os"
 )
 
+var (
+	Up    = image.Point{0, -1} // {0, -1}
+	Down  = image.Point{0, 1}  // {0, 1}
+	Left  = image.Point{-1, 0} // {-1, 0}
+	Right = image.Point{1, 0}  // {1, 0}
+)
+
 type TileMap struct {
 	Grid         [][]uint8
 	W, H         int

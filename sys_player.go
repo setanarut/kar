@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"kar/items"
+	"kar/tilemap"
 	"kar/v"
 	"math"
 	"math/rand/v2"
@@ -440,7 +441,7 @@ func (p *Player) Update() {
 							wx, wy := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
 							SpawnEffect(tileID, wx, wy)
 						case items.Random:
-							if tileMapRes.Get(ci.TileCoords.X, ci.TileCoords.Y-1) == items.Air {
+							if tileMapRes.GetUnchecked(ci.TileCoords.Add(tilemap.Up)) == items.Air {
 								tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Bedrock)
 								ceilBlockCoord = ci.TileCoords
 								ceilBlockTick = 3

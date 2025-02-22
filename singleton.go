@@ -104,6 +104,7 @@ func init() {
 	ecs.AddResource(&world, tileMapRes)
 	ecs.AddResource(&world, cameraRes)
 	inventoryRes.SetSlot(0, items.Snowball, 64, 0)
+	currentPlayer = SpawnPlayer(-5000, -5000)
 }
 
 func NewGame() {
