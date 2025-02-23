@@ -8,7 +8,7 @@ import (
 
 // spawnData is a helper for delaying spawn events
 type spawnData struct {
-	X, Y       float64
+	Pos        Vec
 	Id         uint8
 	Durability int
 }
@@ -38,7 +38,7 @@ func (s *Spawn) Update() {
 
 	// Spawn item
 	for _, d := range toSpawn {
-		SpawnItem(d.X, d.Y, d.Id, d.Durability)
+		SpawnItem(d.Pos, d.Id, d.Durability)
 	}
 
 	toSpawn = toSpawn[:0]

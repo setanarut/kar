@@ -30,7 +30,7 @@ func (i *Item) Update() {
 			itemQuery := filterDroppedItem.Query()
 			for itemQuery.Next() {
 				itemID, itemPos, timers := itemQuery.Get()
-				i.itemBox.Pos = Vec(*itemPos)
+				i.itemBox.Pos = itemPos.Vec
 				itemEntity := itemQuery.Entity()
 
 				if !mapCollisionDelayer.HasUnchecked(itemEntity) {

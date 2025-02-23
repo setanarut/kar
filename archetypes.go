@@ -2,13 +2,14 @@ package kar
 
 import (
 	"kar/items"
+	"kar/v"
 	"math/rand/v2"
 
 	"github.com/mlange-42/ark/ecs"
 )
 
 var (
-	mapPosition         = ecs.NewMap[Position](&world)
+	mapPosition         = ecs.NewMap1[Position](&world)
 	mapAABB             = ecs.NewMap[AABB](&world)
 	mapDurability       = ecs.NewMap[Durability](&world)
 	mapHealth           = ecs.NewMap[Health](&world)
@@ -29,10 +30,10 @@ var (
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
 )
 
-func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
+func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 	e := mapDroppedItem.NewEntity(
 		&ItemID{id},
-		&Position{x, y},
+		&Position{pos},
 		&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
 		&CollisionDelayer{ItemCollisionDelay},
 	)
@@ -42,30 +43,30 @@ func SpawnItem(x, y float64, id uint8, durability int) ecs.Entity {
 	return e
 }
 
-func SpawnEnemy(x, y, vx, vy float64) ecs.Entity {
+func SpawnEnemy(pos, vel Vec) ecs.Entity {
 	return mapEnemy.NewEntity(
-		&Position{x, y},
-		&Velocity{vx, vy},
+		&Position{pos},
+		&Velocity{vel},
 		&AI{"worm"},
 	)
 }
 
-func SpawnEffect(id uint8, x, y float64) {
-	mapEffect.NewEntity(&ItemID{id}, &Position{x - 10, y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{x + 2, y - 10}, &Velocity{1, 0}, &Rotation{0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{x - 10, y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{x + 2, y + 2}, &Velocity{0.5, 0}, &Rotation{0.1})
+func SpawnEffect(id uint8, pos Vec) {
+	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X - 10, pos.Y - 10}}, &Velocity{v.Left}, &Rotation{-0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X + 2, pos.Y - 10}}, &Velocity{v.Right}, &Rotation{0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X - 10, pos.Y + 2}}, &Velocity{Vec{-0.5, 0}}, &Rotation{-0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X + 2, pos.Y + 2}}, &Velocity{Vec{0.5, 0}}, &Rotation{0.1})
 }
 
-func SpawnProjectile(id uint8, x, y, vx, vy float64) ecs.Entity {
+func SpawnProjectile(id uint8, pos, vel Vec) ecs.Entity {
 	return mapProjectile.NewEntity(
 		&ItemID{id},
-		&Position{x, y},
-		&Velocity{vx, vy},
+		&Position{pos},
+		&Velocity{vel},
 	)
 }
 
-func SpawnPlayer(centerX, centerY float64) ecs.Entity {
+func SpawnPlayer(pos Vec) ecs.Entity {
 	ctrl := &Controller{
 		CurrentState:                        "falling",
 		Gravity:                             0.19,
@@ -91,12 +92,12 @@ func SpawnPlayer(centerX, centerY float64) ecs.Entity {
 	}
 	return mapPlayer.NewEntity(
 		&AABB{
-			Pos:  Vec{centerX, centerY},
+			Pos:  pos,
 			Half: Vec{8, 8},
 		},
-		&Velocity{0, 0},
+		&Velocity{},
 		&Health{20, 20},
 		ctrl,
-		&Facing{0, 1},
+		&Facing{v.Down},
 	)
 }

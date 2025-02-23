@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/png"
 	"kar/items"
+	"kar/v"
 	"log"
 	"math"
 	"os"
@@ -117,16 +118,14 @@ func (t *TileMap) WorldToTile2(x, y float64) (int, int) {
 	return int(math.Floor(x / float64(t.TileW))), int(math.Floor(y / float64(t.TileH)))
 }
 
-func (t *TileMap) FloorToBlockCenter(x, y float64) (float64, float64) {
+func (t *TileMap) FloorToBlockCenter(x, y float64) v.Vec {
 	p := t.WorldToTile(x, y)
 	return t.TileToWorldCenter(p.X, p.Y)
 }
 
 // Tile coords to block center
-func (t *TileMap) TileToWorldCenter(x, y int) (float64, float64) {
-	a := float64((x * t.TileW) + t.TileW/2)
-	b := float64((y * t.TileH) + t.TileH/2)
-	return a, b
+func (t *TileMap) TileToWorldCenter(x, y int) v.Vec {
+	return v.Vec{float64((x * t.TileW) + t.TileW/2), float64((y * t.TileH) + t.TileH/2)}
 }
 
 func (t *TileMap) Get(x, y int) uint8 {

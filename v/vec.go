@@ -68,7 +68,7 @@ func (v Vec) NegY() Vec {
 	return Vec{v.X, -v.Y}
 }
 
-// NegY negates Y.
+// NegY negates X.
 func (v Vec) NegX() Vec {
 	return Vec{v.X, -v.Y}
 }

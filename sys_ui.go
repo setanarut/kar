@@ -52,10 +52,8 @@ func (ui *UI) Update() {
 								} else {
 									// move items from crafting table to world if hotbar is full
 									craftingTableRes.RemoveItem(x, y)
-									playerPos := mapPosition.GetUnchecked(currentPlayer)
 									SpawnItem(
-										playerPos.X+8,
-										playerPos.Y+8,
+										mapAABB.GetUnchecked(currentPlayer).Pos,
 										itemID,
 										craftingTableRes.Slots[y][x].Durability,
 									)

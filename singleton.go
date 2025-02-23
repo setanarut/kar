@@ -92,7 +92,7 @@ func init() {
 		tileMapRes.TileW,
 		tileMapRes.TileH,
 	)
-	currentPlayer = SpawnPlayer(-5000, -5000)
+	currentPlayer = SpawnPlayer(Vec{-5000, -5000})
 }
 
 func NewGame() {
@@ -102,11 +102,12 @@ func NewGame() {
 	GameTileMapGenerator.SetSeed(rand.Int())
 	GameTileMapGenerator.Generate()
 	x, y := tileMapRes.FindSpawnPosition()
-	SpawnX, SpawnY := tileMapRes.TileToWorldCenter(x, y)
+	SpawnPos := tileMapRes.TileToWorldCenter(x, y)
 	cameraRes.SmoothType = kamera.None
-	cameraRes.SetCenter(SpawnX, SpawnY)
-	currentPlayer = SpawnPlayer(SpawnX, SpawnY)
-	cameraRes.SetTopLeft(tileMapRes.FloorToBlockCenter(cameraRes.X, cameraRes.Y))
+	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
+	currentPlayer = SpawnPlayer(SpawnPos)
+	blockCenter := tileMapRes.FloorToBlockCenter(cameraRes.X, cameraRes.Y)
+	cameraRes.SetTopLeft(blockCenter.X, blockCenter.Y)
 	cameraRes.SmoothOptions.LerpSpeedX = 0.5
 	cameraRes.SmoothOptions.LerpSpeedY = 0
 	cameraRes.SmoothType = kamera.SmoothDamp

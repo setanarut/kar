@@ -21,7 +21,7 @@ func (e *Enemy) Init() {
 func (e *Enemy) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
-		SpawnEnemy(x, y, 0.5, 0)
+		SpawnEnemy(Vec{x, y}, Vec{0.5, 0})
 	}
 
 	if world.Alive(currentPlayer) {
@@ -29,9 +29,7 @@ func (e *Enemy) Update() {
 		enemyQuery := filterEnemy.Query()
 
 		for enemyQuery.Next() {
-
 			enemyPos, enemyVel, enemyAI := enemyQuery.Get()
-
 			switch enemyAI.Name {
 			case "worm":
 				// enemyPos.X += enemyVel.X
@@ -39,7 +37,7 @@ func (e *Enemy) Update() {
 
 				TileCollider.Collide(
 					e.enemyRect,
-					Vec(*enemyVel),
+					enemyVel.Vec,
 					func(infos []HitTileInfo, delta Vec) {
 						enemyPos.X += delta.X
 						enemyPos.Y += delta.Y
@@ -59,11 +57,11 @@ func (e *Enemy) Update() {
 				// player-enemy collision
 				hit := &HitInfo{}
 				wormBox := AABB{
-					Pos:  Vec(*enemyPos),
+					Pos:  enemyPos.Vec,
 					Half: enemyWormHalfSize,
 				}
 
-				collided := wormBox.OverlapSweep(*playerBox, Vec(*playerVelocity), hit)
+				collided := wormBox.OverlapSweep(*playerBox, playerVelocity.Vec, hit)
 
 				if collided {
 					playerVelocity.X += hit.Delta.X
@@ -100,6 +98,7 @@ func (e *Enemy) Update() {
 	}
 }
 func (e *Enemy) Draw() {
+
 	q := filterEnemy.Query()
 	for q.Next() {
 		pos, _, AI := q.Get()

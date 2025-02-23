@@ -64,14 +64,14 @@ func (p *Player) Update() {
 				// restrict facing direction to 4 directions (no diagonal)
 				switch inputAxis {
 				case v.Up, v.Down, v.Left, v.Right:
-					*pFacing = Facing(inputAxis)
+					pFacing.Vec = inputAxis
 				default:
-					*pFacing = Facing{}
+					pFacing.Vec = Vec{}
 				}
 			}
 
 			if absXVelocity > 0.01 {
-				*pFacing = Facing{math.Copysign(1, pVelocity.X), 0}
+				pFacing.Vec = Vec{math.Copysign(1, pVelocity.X), 0}
 			}
 
 			isSkidding := inputAxis.X != 0 && (pVelocity.X*inputAxis.X < 0)
@@ -328,14 +328,14 @@ func (p *Player) Update() {
 							}
 						}
 						// Spawn drop item
-						x, y := tileMapRes.TileToWorldCenter(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
+						pos := tileMapRes.TileToWorldCenter(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
 						dropid := items.Property[blockID].DropID
 						if blockID == items.OakLeaves {
 							if rand.N(2) == 0 {
 								dropid = items.OakLeaves
 							}
 						}
-						toSpawn = append(toSpawn, spawnData{x, y, dropid, 0})
+						toSpawn = append(toSpawn, spawnData{pos, dropid, 0})
 					}
 				}
 				// transitions
@@ -416,7 +416,7 @@ func (p *Player) Update() {
 			}
 
 			// Player and tilemap collision
-			TileCollider.Collide(*pBox, Vec(*pVelocity), func(collisionInfos []HitTileInfo, delta Vec) {
+			TileCollider.Collide(*pBox, pVelocity.Vec, func(collisionInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
 				// Reset velocity when collide
@@ -438,8 +438,8 @@ func (p *Player) Update() {
 						case items.StoneBricks:
 							// Destroy block when ceil hit
 							tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
-							wx, wy := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
-							SpawnEffect(tileID, wx, wy)
+							effectPos := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
+							SpawnEffect(tileID, effectPos)
 						case items.Random:
 							if tileMapRes.GetUnchecked(ci.TileCoords.Add(tilemap.Up)) == items.Air {
 								tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Bedrock)
@@ -453,8 +453,8 @@ func (p *Player) Update() {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
 						if absXVelocity == ctrl.MaxRunSpeed && isBreakKeyPressed {
 							tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
-							wx, wy := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
-							SpawnEffect(tileID, wx, wy)
+							effectPos := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
+							SpawnEffect(tileID, effectPos)
 						}
 						pVelocity.X = 0
 						// absXVelocity = 0
@@ -492,7 +492,7 @@ func (p *Player) Update() {
 					queryItem := filterDroppedItem.Query()
 					for queryItem.Next() {
 						_, itemPos, _ := queryItem.Get()
-						p.itemBox.Pos = Vec(*itemPos)
+						p.itemBox.Pos = itemPos.Vec
 						anyItemOverlapsWithPlaceRect = placeTileBox.Overlap(p.itemBox, nil)
 						if anyItemOverlapsWithPlaceRect {
 							queryItem.Close()
@@ -510,16 +510,17 @@ func (p *Player) Update() {
 					// if slot item snowball, throw snowball
 				} else if inventoryRes.CurrentSlot().ID == items.Snowball {
 					if ctrl.CurrentState != "skidding" {
-						switch *pFacing {
-						case Facing{1, 0}:
-							SpawnProjectile(items.Snowball, pBox.Pos.X, pBox.Pos.Y-4, SnowballSpeedX, SnowballMaxFallVelocity)
-						case Facing{-1, 0}:
-							SpawnProjectile(items.Snowball, pBox.Pos.X, pBox.Pos.Y-4, -SnowballSpeedX, SnowballMaxFallVelocity)
+						spawnPos := Vec{pBox.Pos.X, pBox.Pos.Y - 4}
+						spawnVel := Vec{SnowballSpeedX, SnowballMaxFallVelocity}
+						switch pFacing.Vec {
+						case v.Right:
+							SpawnProjectile(items.Snowball, spawnPos, spawnVel)
+						case v.Left:
+							SpawnProjectile(items.Snowball, spawnPos, spawnVel.NegX())
 						}
 						inventoryRes.RemoveItemFromSelectedSlot()
 					}
 				}
-
 			}
 
 			// drop Item
@@ -527,8 +528,7 @@ func (p *Player) Update() {
 				currentSlot := inventoryRes.CurrentSlot()
 				if currentSlot.ID != items.Air {
 					toSpawn = append(toSpawn, spawnData{
-						pBox.Pos.X,
-						pBox.Pos.Y,
+						pBox.Pos,
 						currentSlot.ID,
 						currentSlot.Durability,
 					})
@@ -544,8 +544,8 @@ func (p *Player) Update() {
 				if itemID.ID == items.Snowball {
 					projectileVel.Y += SnowballGravity
 					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
-					p.snowBallBox.Pos = Vec(*projectilePos)
-					TileCollider.Collide(p.snowBallBox, Vec(*projectileVel), func(ci []HitTileInfo, delta Vec) {
+					p.snowBallBox.Pos = projectilePos.Vec
+					TileCollider.Collide(p.snowBallBox, projectileVel.Vec, func(ci []HitTileInfo, delta Vec) {
 						projectilePos.X += delta.X
 						projectilePos.Y += delta.Y
 						isHorizontalCollision := false
