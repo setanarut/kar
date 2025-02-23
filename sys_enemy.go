@@ -3,7 +3,6 @@ package kar
 import (
 	"fmt"
 	"image/color"
-	"kar/v"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -30,22 +29,20 @@ func (e *Enemy) Update() {
 
 		for enemyQuery.Next() {
 			enemyPos, enemyVel, enemyAI := enemyQuery.Get()
+
 			switch enemyAI.Name {
 			case "worm":
-				// enemyPos.X += enemyVel.X
-				// enemyPos.Y += enemyVel.Y
-
+				enemyPos.Vec = enemyPos.Add(enemyVel.Vec)
+				e.enemyRect.Pos = enemyPos.Vec
 				TileCollider.Collide(
 					e.enemyRect,
 					enemyVel.Vec,
 					func(infos []HitTileInfo, delta Vec) {
-						enemyPos.X += delta.X
-						enemyPos.Y += delta.Y
 						for _, info := range infos {
-							if info.Normal == v.Left {
+							if info.Normal.X == -1 {
 								enemyVel.X *= -1
 							}
-							if info.Normal == v.Right {
+							if info.Normal.X == 1 {
 								enemyVel.X *= -1
 							}
 							// TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)
@@ -56,12 +53,8 @@ func (e *Enemy) Update() {
 
 				// player-enemy collision
 				hit := &HitInfo{}
-				wormBox := AABB{
-					Pos:  enemyPos.Vec,
-					Half: enemyWormHalfSize,
-				}
 
-				collided := wormBox.OverlapSweep(*playerBox, playerVelocity.Vec, hit)
+				collided := e.enemyRect.OverlapSweep(playerBox, playerVelocity.Vec, hit)
 
 				if collided {
 					playerVelocity.X += hit.Delta.X
@@ -82,6 +75,8 @@ func (e *Enemy) Update() {
 					if hit.Normal.X < 0 {
 						playerVelocity.X = -2
 						// playerHealth.Current -= 6
+						// TODO oyuncu çarpınca çarpışma devre dışı kalsın
+						// oyuncuya yanıp sönme componenti ekle
 						fmt.Println("SAĞ")
 					}
 					if hit.Normal.X > 0 {

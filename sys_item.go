@@ -6,12 +6,12 @@ import (
 
 type Item struct {
 	toRemoveComponent []ecs.Entity
-	itemBox           AABB
+	itemBox           *AABB
 	itemHit           *HitInfo
 }
 
 func (i *Item) Init() {
-	i.itemBox = AABB{Half: dropItemHalfSize}
+	i.itemBox = &AABB{Half: dropItemHalfSize}
 	i.itemHit = &HitInfo{}
 }
 func (i *Item) Update() {
@@ -54,7 +54,7 @@ func (i *Item) Update() {
 				i.itemBox.Pos.Y += 6
 				// vertical item sine animation
 				TileCollider.Collisions = TileCollider.Collisions[:0]
-				dy := TileCollider.CollideY(i.itemBox, ItemGravity)
+				dy := TileCollider.CollideY(*i.itemBox, ItemGravity)
 				itemPos.Y += dy
 				timers.Index = (timers.Index + 1) % len(Sinspace)
 			}

@@ -9,7 +9,6 @@ import (
 )
 
 var (
-	mapPosition         = ecs.NewMap1[Position](&world)
 	mapAABB             = ecs.NewMap[AABB](&world)
 	mapDurability       = ecs.NewMap[Durability](&world)
 	mapHealth           = ecs.NewMap[Health](&world)

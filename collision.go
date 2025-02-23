@@ -68,7 +68,7 @@ func (a AABB) Segment(pos, delta, padding Vec, hit *HitInfo) bool {
 	return true
 }
 
-func (a AABB) Overlap(a2 AABB, hit *HitInfo) bool {
+func (a AABB) Overlap(a2 *AABB, hit *HitInfo) bool {
 	dx := a2.Pos.X - a.Pos.X
 	px := a2.Half.X + a.Half.X - math.Abs(dx)
 	if px <= 0 {
@@ -105,7 +105,7 @@ func (a AABB) Overlap(a2 AABB, hit *HitInfo) bool {
 	return true
 }
 
-func (a AABB) OverlapSweep(a2 AABB, delta Vec, hit *HitInfo) bool {
+func (a AABB) OverlapSweep(a2 *AABB, delta Vec, hit *HitInfo) bool {
 	if delta.IsZero() {
 		return a.Overlap(a2, hit)
 	}

@@ -20,7 +20,7 @@ type Player struct {
 	dyingCountdown float64
 
 	itemHit     *HitInfo
-	itemBox     AABB
+	itemBox     *AABB
 	snowBallBox AABB
 	isOnFloor   bool
 	playerTile  image.Point
@@ -28,7 +28,7 @@ type Player struct {
 
 func (p *Player) Init() {
 	p.bounceVelocity = -math.Sqrt(2 * SnowballGravity * SnowballBounceHeight)
-	p.itemBox = AABB{Half: dropItemHalfSize}
+	p.itemBox = &AABB{Half: dropItemHalfSize}
 	p.snowBallBox = AABB{Half: Vec{4, 4}}
 	p.itemHit = &HitInfo{}
 }
@@ -431,7 +431,6 @@ func (p *Player) Update() {
 					}
 					// Ceil collision
 					if ci.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
-
 						pVelocity.Y = 0
 
 						switch tileID {
@@ -484,7 +483,7 @@ func (p *Player) Update() {
 				if gameDataRes.IsRayHit && items.HasTag(inventoryRes.CurrentSlot().ID, items.Block) {
 					// Get tile rect
 					p.placeTile = gameDataRes.TargetBlockCoord.Sub(image.Point{int(pFacing.X), int(pFacing.Y)})
-					placeTileBox := AABB{
+					placeTileBox := &AABB{
 						Pos:  Vec{float64(p.placeTile.X*20) + 10, float64(p.placeTile.Y*20) + 10},
 						Half: Vec{10, 10},
 					}
