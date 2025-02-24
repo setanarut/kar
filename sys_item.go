@@ -53,10 +53,10 @@ func (i *Item) Update() {
 				}
 				i.itemBox.Pos.Y += 6
 				// vertical item sine animation
-				TileCollider.Collisions = TileCollider.Collisions[:0]
-				dy := TileCollider.CollideY(*i.itemBox, ItemGravity)
+				tileCollider.Collisions = tileCollider.Collisions[:0]
+				dy := tileCollider.CollideY(*i.itemBox, ItemGravity)
 				itemPos.Y += dy
-				timers.Index = (timers.Index + 1) % len(Sinspace)
+				timers.Index = (timers.Index + 1) % len(sinspace)
 			}
 		}
 	}

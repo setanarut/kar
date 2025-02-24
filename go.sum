@@ -22,6 +22,8 @@ github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903 h1:ykevnO8c0fbv4KVlT
 github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903/go.mod h1:fuZlVyRNW+mXvYElMava0w8BDEEthT3CJl4YJ0lPasg=
 github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196 h1:jqd+chlyJPchNs8coiXim5EnQb0XgffXmBaDWa+r2nM=
 github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196/go.mod h1:fuZlVyRNW+mXvYElMava0w8BDEEthT3CJl4YJ0lPasg=
+github.com/mlange-42/ark v0.1.0 h1:UqBMuhaT/FhNM8eKK+Qgryip7UrWo0wmPAS7H/r4yho=
+github.com/mlange-42/ark v0.1.0/go.mod h1:47KXHr5HLftLn4iyL8w04iv7KJUNUoDymEIotD41f3o=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

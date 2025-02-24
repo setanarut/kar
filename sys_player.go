@@ -90,8 +90,8 @@ func (p *Player) Update() {
 					animPlayer.Data.Paused = false
 					previousGameState = "playing"
 					currentGameState = "menu"
-					ColorM.ChangeHSV(1, 0, 0.5) // BW
-					TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
+					colorM.ChangeHSV(1, 0, 0.5) // BW
+					textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 					world.RemoveEntity(currentPlayer)
 					p.dyingCountdown = 0
 				}
@@ -420,7 +420,7 @@ func (p *Player) Update() {
 			}
 
 			// Player and tilemap collision
-			TileCollider.Collide(*pBox, *pVelocity, func(collisionInfos []HitTileInfo, delta Vec) {
+			tileCollider.Collide(*pBox, *pVelocity, func(collisionInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
 				// Reset velocity when collide
@@ -548,7 +548,7 @@ func (p *Player) Update() {
 					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
 					p.snowBallBox.Pos.X = projectilePos.X
 					p.snowBallBox.Pos.Y = projectilePos.Y
-					TileCollider.Collide(p.snowBallBox, *(*Vec)(projectileVel), func(ci []HitTileInfo, delta Vec) {
+					tileCollider.Collide(p.snowBallBox, *(*Vec)(projectileVel), func(ci []HitTileInfo, delta Vec) {
 						projectilePos.X += delta.X
 						projectilePos.Y += delta.Y
 						isHorizontalCollision := false
@@ -577,7 +577,7 @@ func (p *Player) Update() {
 	}
 }
 func (c *Player) Draw() {
-	if DrawPlayerTileHitboxEnabled {
+	if drawPlayerTileHitboxEnabled {
 		// Draw player tile for debug
 		x, y, w, h := tileMapRes.GetTileRect(c.playerTile.X, c.playerTile.Y)
 		x, y = cameraRes.ApplyCameraTransformToPoint(x, y)

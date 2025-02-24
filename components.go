@@ -8,8 +8,8 @@ type ItemID struct {
 	ID uint8
 }
 type Facing Vec
-type Position Vec
 type Velocity Vec
+type Position Vec
 
 type Rotation struct {
 	Angle float64

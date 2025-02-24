@@ -26,6 +26,7 @@ var (
 	gameDataResMap         = ecs.NewResource[gameData](&world)
 	animPlaybackDataResMap = ecs.NewResource[anim.PlaybackData](&world)
 )
+
 var animDefaultPlaybackData anim.PlaybackData
 
 // GameplayStates

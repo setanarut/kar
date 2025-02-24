@@ -50,8 +50,8 @@ func (m *MainMenu) Update() {
 			currentGameState = "playing"
 		}
 
-		ColorM.Reset()
-		TextDO.ColorScale.Reset()
+		colorM.Reset()
+		textDO.ColorScale.Reset()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) {

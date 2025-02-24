@@ -30,14 +30,14 @@ func (e *Effects) Draw() {
 	q := filterEffect.Query()
 	for q.Next() {
 		id, p, v, r := q.Get()
-		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(-4, -4)
-		ColorMDIO.GeoM.Rotate(r.Angle)
-		ColorMDIO.GeoM.Translate(4, 4)
-		ColorMDIO.GeoM.Translate(p.X, p.Y)
-		ColorM.Scale(1.3, 1.3, 1.3, 1)
-		cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
-		ColorM.Reset()
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Translate(-4, -4)
+		colorMDIO.GeoM.Rotate(r.Angle)
+		colorMDIO.GeoM.Translate(4, 4)
+		colorMDIO.GeoM.Translate(p.X, p.Y)
+		colorM.Scale(1.3, 1.3, 1.3, 1)
+		cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
+		colorM.Reset()
 
 		if math.Signbit(r.Angle) {
 			r.Angle -= 0.2

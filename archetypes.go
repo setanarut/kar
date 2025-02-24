@@ -8,21 +8,6 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// var (
-// 	itemIDID           = ecs.ComponentID[ItemID](&world)
-// 	aabbID             = ecs.ComponentID[AABB](&world)
-// 	velID              = ecs.ComponentID[Velocity](&world)
-// 	posID              = ecs.ComponentID[Position](&world)
-// 	rotID              = ecs.ComponentID[Rotation](&world)
-// 	healthID           = ecs.ComponentID[Health](&world)
-// 	controllerID       = ecs.ComponentID[Controller](&world)
-// 	facingID           = ecs.ComponentID[Facing](&world)
-// 	aiID               = ecs.ComponentID[AI](&world)
-// 	animationIndexID   = ecs.ComponentID[AnimationIndex](&world)
-// 	collisionDelayerID = ecs.ComponentID[CollisionDelayer](&world)
-// 	durabilityID       = ecs.ComponentID[Durability](&world)
-// )
-
 var (
 	mapVel              = ecs.NewMap[Velocity](&world)
 	mapFacing           = ecs.NewMap[Facing](&world)
@@ -45,15 +30,13 @@ var (
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
-
-	// maskEnemy = ecs.All(posID, velID, aiID)
 )
 
 func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 	e := mapDroppedItem.NewEntity(
 		&ItemID{id},
 		&Position{pos.X, pos.Y},
-		&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
+		&AnimationIndex{rand.IntN(len(sinspace) - 1)},
 		&CollisionDelayer{ItemCollisionDelay},
 	)
 	if items.HasTag(id, items.Tool) {

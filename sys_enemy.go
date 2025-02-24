@@ -36,7 +36,7 @@ func (e *Enemy) Update() {
 			case "worm":
 				*enemyPos = enemyPos.Add(*enemyVel)
 				e.enemyRect.Pos = *enemyPos
-				TileCollider.Collide(
+				tileCollider.Collide(
 					e.enemyRect,
 					*enemyVel,
 					func(infos []HitTileInfo, delta Vec) {
