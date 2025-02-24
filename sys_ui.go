@@ -32,7 +32,7 @@ func (ui *UI) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 			switch gameDataRes.GameplayState {
 			case Playing:
-				if tileMapRes.Get(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
+				if tileMapRes.GetID(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
 					gameDataRes.GameplayState = CraftingTable3x3
 				} else {
 					gameDataRes.GameplayState = CraftingTable2x2
@@ -345,7 +345,7 @@ func (ui *UI) Draw() {
 
 		// Draw debug info
 		if DrawDebugTextEnabled {
-			_, vel, _, playerController, _ := mapPlayer.Get(currentPlayer)
+			_, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				"state %v\nVel.X: %.2f\nVel.Y: %.2f",
 				playerController.CurrentState,

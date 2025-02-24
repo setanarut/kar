@@ -18,12 +18,10 @@ github.com/hajimehoshi/ebiten/v2 v2.8.6 h1:Dkd/sYI0TYyZRCE7GVxV59XC+WCi2BbGAbIBj
 github.com/hajimehoshi/ebiten/v2 v2.8.6/go.mod h1:cCQ3np7rdmaJa1ZnvslraVlpxNb3wCjEnAP1LHNyXNA=
 github.com/jezek/xgb v1.1.1 h1:bE/r8ZZtSv7l9gk6nU0mYx51aXrvnyb44892TwSaqS4=
 github.com/jezek/xgb v1.1.1/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
-github.com/mlange-42/arche v0.15.3 h1:vonT1aCIHmu3nnCopzmhzOP5+J2NswVTexa2UDyek34=
-github.com/mlange-42/arche v0.15.3/go.mod h1:bX5PDzTbf2pEIlwnjRu3IpVqduLsxve4rUblXV0Byj0=
-github.com/mlange-42/arche-serde v0.2.1 h1:jaSOo58VS0f3d4om0AZFmGd0RI/hq0U+ikQX0HKzJrY=
-github.com/mlange-42/arche-serde v0.2.1/go.mod h1:Axi7zqVxWlVCwwvrCllGEa+ZVL9Uy7PCjyS/aC1Kgao=
 github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903 h1:ykevnO8c0fbv4KVlTXjIieB6W7INw7/avKJi3uUUlWE=
 github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903/go.mod h1:fuZlVyRNW+mXvYElMava0w8BDEEthT3CJl4YJ0lPasg=
+github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196 h1:jqd+chlyJPchNs8coiXim5EnQb0XgffXmBaDWa+r2nM=
+github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196/go.mod h1:fuZlVyRNW+mXvYElMava0w8BDEEthT3CJl4YJ0lPasg=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

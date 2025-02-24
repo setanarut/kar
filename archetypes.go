@@ -8,7 +8,25 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
+// var (
+// 	itemIDID           = ecs.ComponentID[ItemID](&world)
+// 	aabbID             = ecs.ComponentID[AABB](&world)
+// 	velID              = ecs.ComponentID[Velocity](&world)
+// 	posID              = ecs.ComponentID[Position](&world)
+// 	rotID              = ecs.ComponentID[Rotation](&world)
+// 	healthID           = ecs.ComponentID[Health](&world)
+// 	controllerID       = ecs.ComponentID[Controller](&world)
+// 	facingID           = ecs.ComponentID[Facing](&world)
+// 	aiID               = ecs.ComponentID[AI](&world)
+// 	animationIndexID   = ecs.ComponentID[AnimationIndex](&world)
+// 	collisionDelayerID = ecs.ComponentID[CollisionDelayer](&world)
+// 	durabilityID       = ecs.ComponentID[Durability](&world)
+// )
+
 var (
+	mapVel              = ecs.NewMap[Velocity](&world)
+	mapFacing           = ecs.NewMap[Facing](&world)
+	mapPos              = ecs.NewMap[Position](&world)
 	mapAABB             = ecs.NewMap[AABB](&world)
 	mapDurability       = ecs.NewMap[Durability](&world)
 	mapHealth           = ecs.NewMap[Health](&world)
@@ -27,12 +45,14 @@ var (
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
+
+	// maskEnemy = ecs.All(posID, velID, aiID)
 )
 
 func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 	e := mapDroppedItem.NewEntity(
 		&ItemID{id},
-		&Position{pos},
+		&Position{pos.X, pos.Y},
 		&AnimationIndex{rand.IntN(len(Sinspace) - 1)},
 		&CollisionDelayer{ItemCollisionDelay},
 	)
@@ -44,24 +64,25 @@ func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 
 func SpawnEnemy(pos, vel Vec) ecs.Entity {
 	return mapEnemy.NewEntity(
-		&Position{pos},
-		&Velocity{vel},
+		(*Position)(&pos),
+		(*Velocity)(&vel),
 		&AI{"worm"},
 	)
 }
 
 func SpawnEffect(id uint8, pos Vec) {
-	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X - 10, pos.Y - 10}}, &Velocity{v.Left}, &Rotation{-0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X + 2, pos.Y - 10}}, &Velocity{v.Right}, &Rotation{0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X - 10, pos.Y + 2}}, &Velocity{Vec{-0.5, 0}}, &Rotation{-0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{Vec{pos.X + 2, pos.Y + 2}}, &Velocity{Vec{0.5, 0}}, &Rotation{0.1})
+
+	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X + 2, pos.Y - 10}, &Velocity{1, 0}, &Rotation{0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
+	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X + 2, pos.Y + 2}, &Velocity{0.5, 0}, &Rotation{0.1})
 }
 
 func SpawnProjectile(id uint8, pos, vel Vec) ecs.Entity {
 	return mapProjectile.NewEntity(
 		&ItemID{id},
-		&Position{pos},
-		&Velocity{vel},
+		(*Position)(&pos),
+		(*Velocity)(&vel),
 	)
 }
 
@@ -97,6 +118,6 @@ func SpawnPlayer(pos Vec) ecs.Entity {
 		&Velocity{},
 		&Health{20, 20},
 		ctrl,
-		&Facing{v.Down},
+		&Facing{v.Down.X, v.Down.Y},
 	)
 }

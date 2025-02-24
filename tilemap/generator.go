@@ -167,13 +167,13 @@ func (g *Generator) Surface() {
 	// surface bounds
 	for y := int(g.Opts.HighestSurfaceLevel); y <= int(g.Opts.LowestSurfaceLevel); y++ {
 		for x := range g.Tilemap.W {
-			upperBlockID := g.Tilemap.Get(x, y-1)
-			currentBlockID := g.Tilemap.Get(x, y)
+			upperBlockID := g.Tilemap.GetID(x, y-1)
+			currentBlockID := g.Tilemap.GetID(x, y)
 			if upperBlockID == items.Air && currentBlockID == items.Stone {
 				g.Tilemap.Set(x, y, items.GrassBlock)
 
 				if g.Rand.Float64() < 0.15 {
-					if g.Tilemap.Get(x-1, y-1) != items.OakLog && g.Tilemap.Get(x+1, y-1) != items.OakLog {
+					if g.Tilemap.GetID(x-1, y-1) != items.OakLog && g.Tilemap.GetID(x+1, y-1) != items.OakLog {
 						g.makeTree(x, y-1)
 					}
 				}

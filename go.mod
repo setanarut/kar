@@ -17,7 +17,7 @@ require (
 	github.com/ebitengine/purego v0.8.2 // indirect
 	github.com/go-text/typesetting v0.3.0 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
-	github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903
+	github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196
 	github.com/quasilyte/gdata v0.8.1
 	golang.org/x/image v0.24.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect

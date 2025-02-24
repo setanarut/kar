@@ -24,19 +24,21 @@ func (e *Enemy) Update() {
 	}
 
 	if world.Alive(currentPlayer) {
-		playerBox, playerVelocity, _, _, _ := mapPlayer.Get(currentPlayer)
+		playerBox := mapAABB.GetUnchecked(currentPlayer)
+		playerVelocity := (*Vec)(mapVel.GetUnchecked(currentPlayer))
+
 		enemyQuery := filterEnemy.Query()
-
 		for enemyQuery.Next() {
-			enemyPos, enemyVel, enemyAI := enemyQuery.Get()
-
+			p, v, enemyAI := enemyQuery.Get()
+			enemyPos := (*Vec)(p)
+			enemyVel := (*Vec)(v)
 			switch enemyAI.Name {
 			case "worm":
-				enemyPos.Vec = enemyPos.Add(enemyVel.Vec)
-				e.enemyRect.Pos = enemyPos.Vec
+				*enemyPos = enemyPos.Add(*enemyVel)
+				e.enemyRect.Pos = *enemyPos
 				TileCollider.Collide(
 					e.enemyRect,
-					enemyVel.Vec,
+					*enemyVel,
 					func(infos []HitTileInfo, delta Vec) {
 						for _, info := range infos {
 							if info.Normal.X == -1 {
@@ -54,7 +56,7 @@ func (e *Enemy) Update() {
 				// player-enemy collision
 				hit := &HitInfo{}
 
-				collided := e.enemyRect.OverlapSweep(playerBox, playerVelocity.Vec, hit)
+				collided := e.enemyRect.OverlapSweep(playerBox, *playerVelocity, hit)
 
 				if collided {
 					playerVelocity.X += hit.Delta.X

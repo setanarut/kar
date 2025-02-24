@@ -33,7 +33,7 @@ func (s *Spawn) Update() {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
 		p := tileMapRes.WorldToTile(x, y)
-		s.tile = tileMapRes.Get(p.X, p.Y)
+		s.tile = tileMapRes.GetID(p.X, p.Y)
 	}
 
 	// Spawn item

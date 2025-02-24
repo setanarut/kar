@@ -39,7 +39,11 @@ func (p *Player) Update() {
 		if world.Alive(currentPlayer) {
 			animPlayer.Update()
 
-			pBox, pVelocity, pHealth, ctrl, pFacing := mapPlayer.Get(currentPlayer)
+			pBox, vl, pHealth, ctrl, fc := mapPlayer.GetUnchecked(currentPlayer)
+
+			pFacing := (*Vec)(fc)
+			pVelocity := (*Vec)(vl)
+
 			absXVelocity := math.Abs(pVelocity.X)
 			// Update input
 			isBreakKeyPressed := ebiten.IsKeyPressed(ebiten.KeyRight)
@@ -64,14 +68,14 @@ func (p *Player) Update() {
 				// restrict facing direction to 4 directions (no diagonal)
 				switch inputAxis {
 				case v.Up, v.Down, v.Left, v.Right:
-					pFacing.Vec = inputAxis
+					*pFacing = inputAxis
 				default:
-					pFacing.Vec = Vec{}
+					*pFacing = Vec{}
 				}
 			}
 
 			if absXVelocity > 0.01 {
-				pFacing.Vec = Vec{math.Copysign(1, pVelocity.X), 0}
+				*pFacing = Vec{math.Copysign(1, pVelocity.X), 0}
 			}
 
 			isSkidding := inputAxis.X != 0 && (pVelocity.X*inputAxis.X < 0)
@@ -304,7 +308,7 @@ func (p *Player) Update() {
 
 				// break block
 				if gameDataRes.IsRayHit {
-					blockID := tileMapRes.Get(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
+					blockID := tileMapRes.GetID(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
 					if !items.HasTag(blockID, items.UnbreakableBlock) {
 						if items.IsBestTool(blockID, inventoryRes.CurrentSlotID()) {
 							gameDataRes.BlockHealth += PlayerBestToolDamage
@@ -416,7 +420,7 @@ func (p *Player) Update() {
 			}
 
 			// Player and tilemap collision
-			TileCollider.Collide(*pBox, pVelocity.Vec, func(collisionInfos []HitTileInfo, delta Vec) {
+			TileCollider.Collide(*pBox, *pVelocity, func(collisionInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
 				// Reset velocity when collide
@@ -490,8 +494,7 @@ func (p *Player) Update() {
 					// check overlaps
 					queryItem := filterDroppedItem.Query()
 					for queryItem.Next() {
-						_, itemPos, _ := queryItem.Get()
-						p.itemBox.Pos = itemPos.Vec
+						p.itemBox.Pos = *(*Vec)(mapPos.GetUnchecked(queryItem.Entity()))
 						anyItemOverlapsWithPlaceRect = placeTileBox.Overlap(p.itemBox, nil)
 						if anyItemOverlapsWithPlaceRect {
 							queryItem.Close()
@@ -511,7 +514,7 @@ func (p *Player) Update() {
 					if ctrl.CurrentState != "skidding" {
 						spawnPos := Vec{pBox.Pos.X, pBox.Pos.Y - 4}
 						spawnVel := Vec{SnowballSpeedX, SnowballMaxFallVelocity}
-						switch pFacing.Vec {
+						switch *pFacing {
 						case v.Right:
 							SpawnProjectile(items.Snowball, spawnPos, spawnVel)
 						case v.Left:
@@ -543,8 +546,9 @@ func (p *Player) Update() {
 				if itemID.ID == items.Snowball {
 					projectileVel.Y += SnowballGravity
 					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
-					p.snowBallBox.Pos = projectilePos.Vec
-					TileCollider.Collide(p.snowBallBox, projectileVel.Vec, func(ci []HitTileInfo, delta Vec) {
+					p.snowBallBox.Pos.X = projectilePos.X
+					p.snowBallBox.Pos.Y = projectilePos.Y
+					TileCollider.Collide(p.snowBallBox, *(*Vec)(projectileVel), func(ci []HitTileInfo, delta Vec) {
 						projectilePos.X += delta.X
 						projectilePos.Y += delta.Y
 						isHorizontalCollision := false

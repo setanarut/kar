@@ -19,7 +19,7 @@ func (c *Camera) Init() {}
 func (c *Camera) Update() {
 
 	if world.Alive(currentPlayer) {
-		playerAABB := mapAABB.Get(currentPlayer)
+		playerAABB := mapAABB.GetUnchecked(currentPlayer)
 		// Toggle camera follow
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 			switch cameraRes.SmoothType {
@@ -33,7 +33,7 @@ func (c *Camera) Update() {
 		}
 
 		// Camera follow
-		if mapHealth.Get(currentPlayer).Current > 0 {
+		if mapHealth.GetUnchecked(currentPlayer).Current > 0 {
 			if cameraRes.SmoothType == kamera.Lerp {
 				// if playerCenterX < CameraRes.X {
 				// 	CameraRes.X -= CameraRes.Width
@@ -97,11 +97,12 @@ func (c *Camera) Draw() {
 	}
 	// Draw player
 	if world.Alive(currentPlayer) {
-		playerBox, _, _, _, pFacing := mapPlayer.Get(currentPlayer)
+		playerBox := mapAABB.GetUnchecked(currentPlayer)
+
 		ColorMDIO.GeoM.Reset()
 		x := playerBox.Pos.X - playerBox.Half.X
 		y := playerBox.Pos.Y - playerBox.Half.Y
-		if pFacing.X == -1 {
+		if mapFacing.GetUnchecked(currentPlayer).X == -1 {
 			ColorMDIO.GeoM.Scale(-1, 1)
 			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
 		} else {
