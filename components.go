@@ -7,10 +7,9 @@ import (
 type ItemID struct {
 	ID uint8
 }
-
-type Velocity Vec
-type Position Vec
 type Facing Vec
+type Position Vec
+type Velocity Vec
 
 type Rotation struct {
 	Angle float64

@@ -3,12 +3,12 @@ package kar
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/mlange-42/arche/ecs"
+	"github.com/mlange-42/ark/ecs"
 )
 
 // spawnData is a helper for delaying spawn events
 type spawnData struct {
-	X, Y       float64
+	Pos        Vec
 	Id         uint8
 	Durability int
 }
@@ -33,12 +33,12 @@ func (s *Spawn) Update() {
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
 		p := tileMapRes.WorldToTile(x, y)
-		s.tile = tileMapRes.Get(p.X, p.Y)
+		s.tile = tileMapRes.GetID(p.X, p.Y)
 	}
 
 	// Spawn item
 	for _, d := range toSpawn {
-		SpawnItem(d.X, d.Y, d.Id, d.Durability)
+		SpawnItem(d.Pos, d.Id, d.Durability)
 	}
 
 	toSpawn = toSpawn[:0]

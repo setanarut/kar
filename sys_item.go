@@ -1,22 +1,22 @@
 package kar
 
 import (
-	"github.com/mlange-42/arche/ecs"
+	"github.com/mlange-42/ark/ecs"
 )
 
 type Item struct {
 	toRemoveComponent []ecs.Entity
-	itemBox           AABB
+	itemBox           *AABB
 	itemHit           *HitInfo
 }
 
 func (i *Item) Init() {
-	i.itemBox = AABB{Half: dropItemHalfSize}
+	i.itemBox = &AABB{Half: dropItemHalfSize}
 	i.itemHit = &HitInfo{}
 }
 func (i *Item) Update() {
 
-	q := FilterCollisionDelayer.Query(&world)
+	q := filterCollisionDelayer.Query()
 
 	for q.Next() {
 		delayer := q.Get()
@@ -26,39 +26,35 @@ func (i *Item) Update() {
 	// dropped items collisions and animations
 	if world.Alive(currentPlayer) {
 		if gameDataRes.GameplayState == Playing {
-			playerBox := MapAABB.GetUnchecked(currentPlayer)
-
-			itemQuery := FilterDroppedItem.Query(&world)
+			playerBox := mapAABB.GetUnchecked(currentPlayer)
+			itemQuery := filterDroppedItem.Query()
 			for itemQuery.Next() {
-				itemID, itemPos, timers, delayer, durability := itemQuery.Get()
+				itemID, itemPos, timers := itemQuery.Get()
 				i.itemBox.Pos = Vec(*itemPos)
 				itemEntity := itemQuery.Entity()
-				// Check player-item collision
-				if delayer == nil {
-					if playerBox.Overlap(i.itemBox, i.itemHit) {
-						// if Durability component exists, pass durability
-						if durability != nil {
-							if inventoryRes.AddItemIfEmpty(itemID.ID, durability.Durability) {
-								toRemove = append(toRemove, itemEntity)
-							}
-						} else {
-							if inventoryRes.AddItemIfEmpty(itemID.ID, 0) {
-								toRemove = append(toRemove, itemEntity)
-							}
 
+				if !mapCollisionDelayer.HasUnchecked(itemEntity) {
+					// Check player-item collision
+					if playerBox.Overlap(i.itemBox, i.itemHit) {
+						// if Durability component exists, get durability
+						dur := 0
+						if mapDurability.HasUnchecked(itemEntity) {
+							dur = mapDurability.GetUnchecked(itemEntity).Durability
+						}
+						if inventoryRes.AddItemIfEmpty(itemID.ID, dur) {
+							toRemove = append(toRemove, itemEntity)
 						}
 						onInventorySlotChanged()
 					}
 				} else {
-					// delayer.Duration -= Tick
-					if delayer.Duration < 0 {
+					if mapCollisionDelayer.GetUnchecked(itemEntity).Duration < 0 {
 						i.toRemoveComponent = append(i.toRemoveComponent, itemEntity)
 					}
 				}
 				i.itemBox.Pos.Y += 6
 				// vertical item sine animation
 				TileCollider.Collisions = TileCollider.Collisions[:0]
-				dy := TileCollider.CollideY(i.itemBox, ItemGravity)
+				dy := TileCollider.CollideY(*i.itemBox, ItemGravity)
 				itemPos.Y += dy
 				timers.Index = (timers.Index + 1) % len(Sinspace)
 			}
@@ -67,7 +63,7 @@ func (i *Item) Update() {
 
 	// Remove MapCollisionDelayer components
 	for _, entity := range i.toRemoveComponent {
-		MapCollisionDelayer.Remove(entity)
+		mapCollisionDelayer.Remove(entity)
 	}
 	i.toRemoveComponent = i.toRemoveComponent[:0]
 }

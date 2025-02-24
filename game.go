@@ -53,9 +53,9 @@ func (g *Game) Update() error {
 		dataManager.SaveItem("map.png", tileMapRes.GetImageByte())
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
-		box := MapAABB.Get(currentPlayer)
+		box := mapAABB.GetUnchecked(currentPlayer)
 		tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
-		box.Pos.X, box.Pos.Y = tileMapRes.TileToWorldCenter(tileMapRes.W/2, tileMapRes.H-3)
+		box.Pos = tileMapRes.TileToWorldCenter(tileMapRes.W/2, tileMapRes.H-3)
 		cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 	}
 

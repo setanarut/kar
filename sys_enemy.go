@@ -3,7 +3,6 @@ package kar
 import (
 	"fmt"
 	"image/color"
-	"kar/v"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -21,33 +20,31 @@ func (e *Enemy) Init() {
 func (e *Enemy) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
-		SpawnEnemy(x, y, 0.5, 0)
+		SpawnEnemy(Vec{x, y}, Vec{0.5, 0})
 	}
 
 	if world.Alive(currentPlayer) {
-		playerBox, playerVelocity, _, _, _ := MapPlayer.Get(currentPlayer)
-		enemyQuery := FilterEnemy.Query(&world)
+		playerBox := mapAABB.GetUnchecked(currentPlayer)
+		playerVelocity := (*Vec)(mapVel.GetUnchecked(currentPlayer))
 
+		enemyQuery := filterEnemy.Query()
 		for enemyQuery.Next() {
-
-			enemyPos, enemyVel, enemyAI := enemyQuery.Get()
-
+			p, v, enemyAI := enemyQuery.Get()
+			enemyPos := (*Vec)(p)
+			enemyVel := (*Vec)(v)
 			switch enemyAI.Name {
 			case "worm":
-				// enemyPos.X += enemyVel.X
-				// enemyPos.Y += enemyVel.Y
-
+				*enemyPos = enemyPos.Add(*enemyVel)
+				e.enemyRect.Pos = *enemyPos
 				TileCollider.Collide(
 					e.enemyRect,
-					Vec(*enemyVel),
+					*enemyVel,
 					func(infos []HitTileInfo, delta Vec) {
-						enemyPos.X += delta.X
-						enemyPos.Y += delta.Y
 						for _, info := range infos {
-							if info.Normal == v.Left {
+							if info.Normal.X == -1 {
 								enemyVel.X *= -1
 							}
-							if info.Normal == v.Right {
+							if info.Normal.X == 1 {
 								enemyVel.X *= -1
 							}
 							// TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)
@@ -58,12 +55,8 @@ func (e *Enemy) Update() {
 
 				// player-enemy collision
 				hit := &HitInfo{}
-				wormBox := AABB{
-					Pos:  Vec(*enemyPos),
-					Half: enemyWormHalfSize,
-				}
 
-				collided := wormBox.OverlapSweep(*playerBox, Vec(*playerVelocity), hit)
+				collided := e.enemyRect.OverlapSweep(playerBox, *playerVelocity, hit)
 
 				if collided {
 					playerVelocity.X += hit.Delta.X
@@ -84,6 +77,8 @@ func (e *Enemy) Update() {
 					if hit.Normal.X < 0 {
 						playerVelocity.X = -2
 						// playerHealth.Current -= 6
+						// TODO oyuncu çarpınca çarpışma devre dışı kalsın
+						// oyuncuya yanıp sönme componenti ekle
 						fmt.Println("SAĞ")
 					}
 					if hit.Normal.X > 0 {
@@ -100,7 +95,8 @@ func (e *Enemy) Update() {
 	}
 }
 func (e *Enemy) Draw() {
-	q := FilterEnemy.Query(&world)
+
+	q := filterEnemy.Query()
 	for q.Next() {
 		pos, _, AI := q.Get()
 		x, y := cameraRes.ApplyCameraTransformToPoint(pos.X, pos.Y)

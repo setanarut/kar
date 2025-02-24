@@ -19,7 +19,7 @@ func (c *Camera) Init() {}
 func (c *Camera) Update() {
 
 	if world.Alive(currentPlayer) {
-		playerAABB := MapAABB.Get(currentPlayer)
+		playerAABB := mapAABB.GetUnchecked(currentPlayer)
 		// Toggle camera follow
 		if inpututil.IsKeyJustPressed(ebiten.KeyL) {
 			switch cameraRes.SmoothType {
@@ -33,7 +33,7 @@ func (c *Camera) Update() {
 		}
 
 		// Camera follow
-		if MapHealth.Get(currentPlayer).Current > 0 {
+		if mapHealth.GetUnchecked(currentPlayer).Current > 0 {
 			if cameraRes.SmoothType == kamera.Lerp {
 				// if playerCenterX < CameraRes.X {
 				// 	CameraRes.X -= CameraRes.Width
@@ -97,11 +97,12 @@ func (c *Camera) Draw() {
 	}
 	// Draw player
 	if world.Alive(currentPlayer) {
-		playerBox, _, _, _, pFacing := MapPlayer.Get(currentPlayer)
+		playerBox := mapAABB.GetUnchecked(currentPlayer)
+
 		ColorMDIO.GeoM.Reset()
 		x := playerBox.Pos.X - playerBox.Half.X
 		y := playerBox.Pos.Y - playerBox.Half.Y
-		if pFacing.X == -1 {
+		if mapFacing.GetUnchecked(currentPlayer).X == -1 {
 			ColorMDIO.GeoM.Scale(-1, 1)
 			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
 		} else {
@@ -123,9 +124,9 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw drop Items
-	itemQuery := FilterDroppedItem.Query(&world)
+	itemQuery := filterDroppedItem.Query()
 	for itemQuery.Next() {
-		id, pos, animIndex, _, _ := itemQuery.Get()
+		id, pos, animIndex := itemQuery.Get()
 		ColorMDIO.GeoM.Reset()
 		x := pos.X - dropItemHalfSize.X
 		y := pos.Y - dropItemHalfSize.Y
@@ -151,11 +152,11 @@ func (c *Camera) Draw() {
 	}
 
 	// Draw snowball
-	q := FilterProjectile.Query(&world)
+	q := filterProjectile.Query()
 	for q.Next() {
 		id, pos, _ := q.Get()
 		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(pos.X, pos.Y)
+		ColorMDIO.GeoM.Translate(pos.X-dropItemHalfSize.X, pos.Y-dropItemHalfSize.Y)
 		cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
 	}
 

@@ -32,7 +32,7 @@ func (ui *UI) Update() {
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 			switch gameDataRes.GameplayState {
 			case Playing:
-				if tileMapRes.Get(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
+				if tileMapRes.GetID(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
 					gameDataRes.GameplayState = CraftingTable3x3
 				} else {
 					gameDataRes.GameplayState = CraftingTable2x2
@@ -52,10 +52,8 @@ func (ui *UI) Update() {
 								} else {
 									// move items from crafting table to world if hotbar is full
 									craftingTableRes.RemoveItem(x, y)
-									playerPos := MapPosition.GetUnchecked(currentPlayer)
 									SpawnItem(
-										playerPos.X+8,
-										playerPos.Y+8,
+										mapAABB.GetUnchecked(currentPlayer).Pos,
 										itemID,
 										craftingTableRes.Slots[y][x].Durability,
 									)
@@ -259,7 +257,7 @@ func (ui *UI) Draw() {
 		// Draw player health text
 		TextDO.GeoM.Reset()
 		TextDO.GeoM.Translate(ui.hotbarRightEdgePosX+8, ui.hotbarPos.Y)
-		playerHealth := MapHealth.GetUnchecked(currentPlayer)
+		playerHealth := mapHealth.GetUnchecked(currentPlayer)
 		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, TextDO)
 
 		switch gameDataRes.GameplayState {
@@ -347,7 +345,7 @@ func (ui *UI) Draw() {
 
 		// Draw debug info
 		if DrawDebugTextEnabled {
-			_, vel, _, playerController, _ := MapPlayer.Get(currentPlayer)
+			_, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				"state %v\nVel.X: %.2f\nVel.Y: %.2f",
 				playerController.CurrentState,

@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/png"
 	"kar/items"
+	"kar/v"
 	"log"
 	"math"
 	"os"
@@ -100,7 +101,7 @@ func (t *TileMap) Raycast(pos image.Point, dirX, dirY, dist int) (image.Point, b
 		for range dist {
 			pos.X += dirX
 			pos.Y += dirY
-			if t.Get(pos.X, pos.Y) != items.Air {
+			if t.GetID(pos.X, pos.Y) != items.Air {
 				return pos, true
 			}
 		}
@@ -117,19 +118,17 @@ func (t *TileMap) WorldToTile2(x, y float64) (int, int) {
 	return int(math.Floor(x / float64(t.TileW))), int(math.Floor(y / float64(t.TileH)))
 }
 
-func (t *TileMap) FloorToBlockCenter(x, y float64) (float64, float64) {
+func (t *TileMap) FloorToBlockCenter(x, y float64) v.Vec {
 	p := t.WorldToTile(x, y)
 	return t.TileToWorldCenter(p.X, p.Y)
 }
 
 // Tile coords to block center
-func (t *TileMap) TileToWorldCenter(x, y int) (float64, float64) {
-	a := float64((x * t.TileW) + t.TileW/2)
-	b := float64((y * t.TileH) + t.TileH/2)
-	return a, b
+func (t *TileMap) TileToWorldCenter(x, y int) v.Vec {
+	return v.Vec{float64((x * t.TileW) + t.TileW/2), float64((y * t.TileH) + t.TileH/2)}
 }
 
-func (t *TileMap) Get(x, y int) uint8 {
+func (t *TileMap) GetID(x, y int) uint8 {
 	if x < 0 || x >= t.W || y < 0 || y >= t.H {
 		return 0
 	}
@@ -141,7 +140,7 @@ func (t *TileMap) GetUnchecked(coords image.Point) uint8 {
 }
 
 func (t *TileMap) TileIDProperty(x, y int) items.ItemProperty {
-	return items.Property[t.Get(x, y)]
+	return items.Property[t.GetID(x, y)]
 }
 
 func (t *TileMap) Set(x, y int, id uint8) {
@@ -162,8 +161,8 @@ func (t *TileMap) GetTileRect(x, y int) (rectX, rectY, rectW, rectH float64) {
 func (t *TileMap) FindSpawnPosition() (px, py int) {
 	x := 20 * 20
 	for y := range t.H - 1 {
-		upperTile := t.Get(x, y)
-		downTile := t.Get(x, y+1)
+		upperTile := t.GetID(x, y)
+		downTile := t.GetID(x, y+1)
 		if downTile != items.Air && upperTile == items.Air {
 			// px, py = t.TileToWorldCenter(x, y-1)
 			px, py = x, y-1
