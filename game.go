@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"image"
 	"kar/items"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -25,8 +26,8 @@ func (g *Game) Init() {
 	for _, sys := range g.systems {
 		sys.Init()
 	}
-	ColorM.ChangeHSV(1, 0, 0.5) // BW
-	TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
+	colorM.ChangeHSV(1, 0, 0.5) // BW
+	textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 }
 
 func (g *Game) Update() error {
@@ -39,14 +40,14 @@ func (g *Game) Update() error {
 		inventoryRes.RandomFillAllSlots()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-		DrawDebugTextEnabled = !DrawDebugTextEnabled
+		drawDebugTextEnabled = !drawDebugTextEnabled
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		DrawItemHitboxEnabled = !DrawItemHitboxEnabled
+		drawItemHitboxEnabled = !drawItemHitboxEnabled
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyB) {
-		DrawPlayerTileHitboxEnabled = !DrawPlayerTileHitboxEnabled
+		drawPlayerTileHitboxEnabled = !drawPlayerTileHitboxEnabled
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
@@ -55,7 +56,7 @@ func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
 		box := mapAABB.GetUnchecked(currentPlayer)
 		tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
-		box.Pos = tileMapRes.TileToWorldCenter(tileMapRes.W/2, tileMapRes.H-3)
+		box.Pos = tileMapRes.TileToWorld(image.Point{tileMapRes.W / 2, tileMapRes.H - 3})
 		cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 	}
 
@@ -67,8 +68,8 @@ func (g *Game) Update() error {
 				if previousGameState == "playing" {
 					previousGameState = "menu"
 					currentGameState = "playing"
-					ColorM.Reset()
-					TextDO.ColorScale.Reset()
+					colorM.Reset()
+					textDO.ColorScale.Reset()
 				}
 			}
 			// enter playing
@@ -78,8 +79,8 @@ func (g *Game) Update() error {
 			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 				previousGameState = "playing"
 				currentGameState = "menu"
-				ColorM.ChangeHSV(1, 0, 0.5) // BW
-				TextDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
+				colorM.ChangeHSV(1, 0, 0.5) // BW
+				textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
 			g.systems[0].Update()
 			g.systems[1].Update()
@@ -96,7 +97,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	Screen = screen
-	Screen.Fill(BackgroundColor)
+	Screen.Fill(backgroundColor)
 
 	switch currentGameState {
 	case "menu":

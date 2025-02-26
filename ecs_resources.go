@@ -26,14 +26,15 @@ var (
 	gameDataResMap         = ecs.NewResource[gameData](&world)
 	animPlaybackDataResMap = ecs.NewResource[anim.PlaybackData](&world)
 )
+
 var animDefaultPlaybackData anim.PlaybackData
 
 // GameplayStates
 const (
 	Playing int = iota
 	CraftingTable3x3
-	CraftingTable2x2
-	Furnace
+	Crafting2x2
+	Furnace1x2
 )
 
 type gameData struct {

@@ -3,6 +3,7 @@ package kar
 import (
 	"image"
 	"image/color"
+	"kar/items"
 	"kar/tilemap"
 	"kar/v"
 	"math"
@@ -34,8 +35,9 @@ const (
 )
 
 var (
-	WindowScale = 2.0
+	Screen      *ebiten.Image
 	ScreenSize  = Vec{500, 340}
+	WindowScale = 2.0
 )
 var (
 	currentGameState  = "menu"
@@ -53,18 +55,17 @@ var (
 	renderArea    = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
 	dataManager   *gdata.Manager
 	// serdeOpt                    archeserde.Option
-	Sinspace                    []float64  = SinSpace(0, 2*math.Pi, 3, 60)
-	DrawItemHitboxEnabled       bool       = false
-	DrawPlayerTileHitboxEnabled bool       = false
-	DrawDebugTextEnabled        bool       = false
-	BackgroundColor             color.RGBA = color.RGBA{36, 36, 39, 255}
-	TileCollider                *Collider
-	GameTileMapGenerator        *tilemap.Generator
+	sinspace                    []float64  = SinSpace(0, 2*math.Pi, 3, 60)
+	drawItemHitboxEnabled       bool       = false
+	drawPlayerTileHitboxEnabled bool       = false
+	drawDebugTextEnabled        bool       = false
+	backgroundColor             color.RGBA = color.RGBA{36, 36, 39, 255}
+	tileCollider                *Collider
+	gameTileMapGenerator        *tilemap.Generator
 	animPlayer                  *anim.AnimationPlayer
-	Screen                      *ebiten.Image
-	ColorMDIO                   *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
-	ColorM                      colorm.ColorM            = colorm.ColorM{}
-	TextDO                      *text.DrawOptions        = &text.DrawOptions{
+	colorMDIO                   *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
+	colorM                      colorm.ColorM            = colorm.ColorM{}
+	textDO                      *text.DrawOptions        = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
@@ -86,8 +87,8 @@ func init() {
 	}
 
 	// serdeOpt = archeserde.Opts.SkipComponents(generic.T[anim.AnimationPlayer]())
-	GameTileMapGenerator = tilemap.NewGenerator(tileMapRes)
-	TileCollider = NewCollider(
+	gameTileMapGenerator = tilemap.NewGenerator(tileMapRes)
+	tileCollider = NewCollider(
 		tileMapRes.Grid,
 		tileMapRes.TileW,
 		tileMapRes.TileH,
@@ -97,20 +98,37 @@ func init() {
 
 func NewGame() {
 	inventoryRes.Reset()
+
 	*animPlayer.Data = animDefaultPlaybackData
 	gameDataRes = &gameData{}
-	GameTileMapGenerator.SetSeed(rand.Int())
-	GameTileMapGenerator.Generate()
-	x, y := tileMapRes.FindSpawnPosition()
-	SpawnPos := tileMapRes.TileToWorldCenter(x, y)
-	cameraRes.SmoothType = kamera.None
-	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
-	currentPlayer = SpawnPlayer(SpawnPos)
-	blockCenter := tileMapRes.FloorToBlockCenter(cameraRes.X, cameraRes.Y)
-	cameraRes.SetTopLeft(blockCenter.X, blockCenter.Y)
+	gameTileMapGenerator.SetSeed(rand.Int())
+	gameTileMapGenerator.Generate()
+
+	spawnCoord := tileMapRes.FindSpawnPosition()
+	SpawnPos := tileMapRes.TileToWorld(spawnCoord)
+
 	cameraRes.SmoothOptions.LerpSpeedX = 0.5
 	cameraRes.SmoothOptions.LerpSpeedY = 0
 	cameraRes.SmoothType = kamera.SmoothDamp
+	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
+
+	currentPlayer = SpawnPlayer(SpawnPos)
+
+	// debug
+	spawnCoord.X++
+	tileMapRes.Set(spawnCoord.X, spawnCoord.Y, items.Furnace)
+	spawnCoord.X -= 2
+	tileMapRes.Set(spawnCoord.X, spawnCoord.Y, items.CraftingTable)
+
+	inventoryRes.SetSlot(0, items.Coal, 64, 0)
+	inventoryRes.SetSlot(1, items.RawGold, 64, 0)
+	inventoryRes.SetSlot(2, items.RawIron, 64, 0)
+	inventoryRes.SetSlot(3, items.Stick, 64, 0)
+	inventoryRes.SetSlot(4, items.DiamondPickaxe, 64, 0)
+	inventoryRes.SetSlot(5, items.DiamondShovel, 64, 0)
+	inventoryRes.SetSlot(6, items.DiamondAxe, 64, 0)
+	inventoryRes.SetSlot(7, items.Diamond, 64, 0)
+
 }
 
 func SaveGame() {

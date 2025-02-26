@@ -119,13 +119,12 @@ func (t *TileMap) WorldToTile2(x, y float64) (int, int) {
 }
 
 func (t *TileMap) FloorToBlockCenter(x, y float64) v.Vec {
-	p := t.WorldToTile(x, y)
-	return t.TileToWorldCenter(p.X, p.Y)
+	return t.TileToWorld(t.WorldToTile(x, y))
 }
 
 // Tile coords to block center
-func (t *TileMap) TileToWorldCenter(x, y int) v.Vec {
-	return v.Vec{float64((x * t.TileW) + t.TileW/2), float64((y * t.TileH) + t.TileH/2)}
+func (t *TileMap) TileToWorld(p image.Point) v.Vec {
+	return v.Vec{float64((p.X * t.TileW) + t.TileW/2), float64((p.Y * t.TileH) + t.TileH/2)}
 }
 
 func (t *TileMap) GetID(x, y int) uint8 {
@@ -158,18 +157,16 @@ func (t *TileMap) GetTileRect(x, y int) (rectX, rectY, rectW, rectH float64) {
 // 	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)
 // }
 
-func (t *TileMap) FindSpawnPosition() (px, py int) {
+func (t *TileMap) FindSpawnPosition() image.Point {
 	x := 20 * 20
 	for y := range t.H - 1 {
 		upperTile := t.GetID(x, y)
 		downTile := t.GetID(x, y+1)
 		if downTile != items.Air && upperTile == items.Air {
-			// px, py = t.TileToWorldCenter(x, y-1)
-			px, py = x, y-1
-			break
+			return image.Point{x, y - 1}
 		}
 	}
-	return px, py
+	return image.Point{}
 }
 
 // Veriyi diske yazan fonksiyon (hata durumunda log kullanılıyor)

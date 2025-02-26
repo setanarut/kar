@@ -2,6 +2,7 @@ package kar
 
 import (
 	"fmt"
+	"image"
 	"kar/items"
 	"kar/res"
 	"strconv"
@@ -28,16 +29,21 @@ func (ui *UI) Update() {
 
 	if world.Alive(currentPlayer) {
 
-		// Toggle crafting state
+		// toggle crafting state
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-			switch gameDataRes.GameplayState {
-			case Playing:
-				if tileMapRes.GetID(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y) == items.CraftingTable {
+
+			if gameDataRes.GameplayState == Playing {
+				craftingTableRes.Pos = image.Point{}
+				targetBlockID := tileMapRes.GetID(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
+				switch targetBlockID {
+				case items.CraftingTable:
 					gameDataRes.GameplayState = CraftingTable3x3
-				} else {
-					gameDataRes.GameplayState = CraftingTable2x2
+				case items.Furnace:
+					gameDataRes.GameplayState = Furnace1x2
+				default:
+					gameDataRes.GameplayState = Crafting2x2
 				}
-			case CraftingTable3x3, CraftingTable2x2:
+			} else {
 				// clear crafting table when exit
 				for y := range 3 {
 					for x := range 3 {
@@ -65,10 +71,13 @@ func (ui *UI) Update() {
 				craftingTableRes.ResultSlot = items.Slot{}
 				gameDataRes.GameplayState = Playing
 			}
+
 			onInventorySlotChanged()
+
 		}
 
-		// Hotbar slot navigation
+		// -------------------- HOTBAR --------------------
+
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
 			inventoryRes.SelectPrevSlot()
 			onInventorySlotChanged()
@@ -101,28 +110,35 @@ func (ui *UI) Update() {
 			onInventorySlotChanged()
 		}
 
-		switch gameDataRes.GameplayState {
-		case CraftingTable2x2, CraftingTable3x3:
+		// -------------------- CRAFTING TABLES --------------------
+
+		if gameDataRes.GameplayState != Playing {
+
 			if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-				if gameDataRes.GameplayState == CraftingTable2x2 {
-					craftingTableRes.SlotPosX = min(craftingTableRes.SlotPosX+1, 1)
-				} else {
-					craftingTableRes.SlotPosX = min(craftingTableRes.SlotPosX+1, 2)
+				switch gameDataRes.GameplayState {
+				case Furnace1x2:
+					craftingTableRes.Pos.X = min(craftingTableRes.Pos.X+1, 0)
+				case Crafting2x2:
+					craftingTableRes.Pos.X = min(craftingTableRes.Pos.X+1, 1)
+				case CraftingTable3x3:
+					craftingTableRes.Pos.X = min(craftingTableRes.Pos.X+1, 2)
 				}
 			}
-			if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-				craftingTableRes.SlotPosX = max(craftingTableRes.SlotPosX-1, 0)
+			if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+				switch gameDataRes.GameplayState {
+				case Furnace1x2, Crafting2x2:
+					craftingTableRes.Pos.Y = min(craftingTableRes.Pos.Y+1, 1)
+				case CraftingTable3x3:
+					craftingTableRes.Pos.Y = min(craftingTableRes.Pos.Y+1, 2)
+				}
 			}
 
-			if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-				if gameDataRes.GameplayState == CraftingTable2x2 {
-					craftingTableRes.SlotPosY = min(craftingTableRes.SlotPosY+1, 1)
-				} else {
-					craftingTableRes.SlotPosY = min(craftingTableRes.SlotPosY+1, 2)
-				}
+			if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+				craftingTableRes.Pos.X = max(craftingTableRes.Pos.X-1, 0)
 			}
+
 			if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-				craftingTableRes.SlotPosY = max(craftingTableRes.SlotPosY-1, 0)
+				craftingTableRes.Pos.Y = max(craftingTableRes.Pos.Y-1, 0)
 			}
 
 			// Move items from hotbar to crafting table
@@ -139,7 +155,7 @@ func (ui *UI) Update() {
 						cs.Quantity++
 					}
 				}
-				craftingTableRes.UpdateResultSlot()
+				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 			// Move items from crafting table to hotbar
@@ -157,12 +173,12 @@ func (ui *UI) Update() {
 						}
 					}
 				}
-				craftingTableRes.UpdateResultSlot()
+				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 			// apply recipe
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-				minimum := craftingTableRes.UpdateResultSlot()
+				minimum := updateCraftingResultSlot()
 				resultID := craftingTableRes.ResultSlot.ID
 				dur := items.GetDefaultDurability(resultID)
 				if resultID != 0 {
@@ -182,11 +198,10 @@ func (ui *UI) Update() {
 						}
 					}
 				}
-				craftingTableRes.UpdateResultSlot()
+				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 		}
-
 	}
 }
 
@@ -194,19 +209,19 @@ func (ui *UI) Draw() {
 	if world.Alive(currentPlayer) {
 
 		// Draw hotbar background
-		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(ui.hotbarPos.X, ui.hotbarPos.Y)
-		colorm.DrawImage(Screen, res.Hotbar, ColorM, ColorMDIO)
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Translate(ui.hotbarPos.X, ui.hotbarPos.Y)
+		colorm.DrawImage(Screen, res.Hotbar, colorM, colorMDIO)
 
 		// Draw Quick-slot numbers
 		dotX := float64(inventoryRes.QuickSlot1)*17 + float64(ui.hotbarPos.X) + 7
-		TextDO.GeoM.Reset()
-		TextDO.GeoM.Translate(dotX, -4)
-		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot1+1), res.Font, TextDO)
+		textDO.GeoM.Reset()
+		textDO.GeoM.Translate(dotX, -4)
+		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot1+1), res.Font, textDO)
 		dotX = float64(inventoryRes.QuickSlot2)*17 + float64(ui.hotbarPos.X) + 7
-		TextDO.GeoM.Reset()
-		TextDO.GeoM.Translate(dotX, -4)
-		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot2+1), res.Font, TextDO)
+		textDO.GeoM.Reset()
+		textDO.GeoM.Translate(dotX, -4)
+		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot2+1), res.Font, textDO)
 
 		// Draw slots
 		for x := range 9 {
@@ -216,97 +231,100 @@ func (ui *UI) Draw() {
 			SlotOffsetX += ui.hotbarPos.X
 
 			// draw hotbar item icons
-			ColorMDIO.GeoM.Reset()
-			ColorMDIO.GeoM.Translate(SlotOffsetX+(5), ui.hotbarPos.Y+(5))
+			colorMDIO.GeoM.Reset()
+			colorMDIO.GeoM.Translate(SlotOffsetX+(5), ui.hotbarPos.Y+(5))
 			if slotID != items.Air && inventoryRes.Slots[x].Quantity > 0 {
-				colorm.DrawImage(Screen, res.Icon8[slotID], ColorM, ColorMDIO)
+				colorm.DrawImage(Screen, res.Icon8[slotID], colorM, colorMDIO)
 			}
 			// Draw hotbar selected slot border
 			if x == inventoryRes.CurrentSlotIndex {
 				// border
-				ColorMDIO.GeoM.Translate(-5, -5)
-				colorm.DrawImage(Screen, res.SlotBorder, ColorM, ColorMDIO)
+				colorMDIO.GeoM.Translate(-5, -5)
+				colorm.DrawImage(Screen, res.SlotBorder, colorM, colorMDIO)
 				// Draw hotbar slot item display name
 				if !inventoryRes.IsCurrentSlotEmpty() {
-					TextDO.GeoM.Reset()
-					TextDO.GeoM.Translate(SlotOffsetX-1, ui.hotbarPos.Y+14)
+					textDO.GeoM.Reset()
+					textDO.GeoM.Translate(SlotOffsetX-1, ui.hotbarPos.Y+14)
 					if items.HasTag(slotID, items.Tool) {
 						text.Draw(Screen, fmt.Sprintf(
 							"%v\nDurability %v",
 							items.Property[slotID].DisplayName,
 							inventoryRes.Slots[x].Durability,
-						), res.Font, TextDO)
+						), res.Font, textDO)
 					} else {
-						text.Draw(Screen, items.Property[slotID].DisplayName, res.Font, TextDO)
+						text.Draw(Screen, items.Property[slotID].DisplayName, res.Font, textDO)
 					}
 				}
 			}
 
 			// Draw item quantity number
 			if quantity > 1 && items.IsStackable(slotID) {
-				TextDO.GeoM.Reset()
-				TextDO.GeoM.Translate(SlotOffsetX+6, ui.hotbarPos.Y+4)
+				textDO.GeoM.Reset()
+				textDO.GeoM.Translate(SlotOffsetX+6, ui.hotbarPos.Y+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
 				if quantity < 10 {
 					num = " " + num
 				}
-				text.Draw(Screen, num, res.Font, TextDO)
+				text.Draw(Screen, num, res.Font, textDO)
 			}
 		}
 
 		// Draw player health text
-		TextDO.GeoM.Reset()
-		TextDO.GeoM.Translate(ui.hotbarRightEdgePosX+8, ui.hotbarPos.Y)
+		textDO.GeoM.Reset()
+		textDO.GeoM.Translate(ui.hotbarRightEdgePosX+8, ui.hotbarPos.Y)
 		playerHealth := mapHealth.GetUnchecked(currentPlayer)
-		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, TextDO)
+		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, textDO)
 
-		switch gameDataRes.GameplayState {
-		case CraftingTable2x2, CraftingTable3x3:
+		if gameDataRes.GameplayState != Playing {
+
 			// crafting table Background
-			ColorMDIO.GeoM.Reset()
-			ColorMDIO.GeoM.Translate(ui.craftingTablePos.X, ui.craftingTablePos.Y)
+			colorMDIO.GeoM.Reset()
+			colorMDIO.GeoM.Translate(ui.craftingTablePos.X, ui.craftingTablePos.Y)
 
-			if gameDataRes.GameplayState == CraftingTable2x2 {
-				colorm.DrawImage(Screen, res.CraftingTable4, ColorM, ColorMDIO)
-			} else {
-				colorm.DrawImage(Screen, res.CraftingTable, ColorM, ColorMDIO)
+			switch gameDataRes.GameplayState {
+			case Furnace1x2:
+				colorm.DrawImage(Screen, res.CraftingTable1x2, colorM, colorMDIO)
+			case Crafting2x2:
+				colorm.DrawImage(Screen, res.CraftingTable2x2, colorM, colorMDIO)
+			case CraftingTable3x3:
+				colorm.DrawImage(Screen, res.CraftingTable3x3, colorM, colorMDIO)
 			}
 
 			// draw crafting table item icons
-			for x := 0; x < 3; x++ {
-				for y := 0; y < 3; y++ {
+			for x := range 3 {
+				for y := range 3 {
 					if craftingTableRes.Slots[y][x].ID != items.Air {
 						sx := ui.craftingTablePos.X + float64(x*17)
 						sy := ui.craftingTablePos.Y + float64(y*17)
-						ColorMDIO.GeoM.Reset()
-						ColorMDIO.GeoM.Translate(sx+6, sy+6)
+						colorMDIO.GeoM.Reset()
+						colorMDIO.GeoM.Translate(sx+6, sy+6)
 						colorm.DrawImage(
 							Screen,
 							res.Icon8[craftingTableRes.Slots[y][x].ID],
-							ColorM,
-							ColorMDIO,
+							colorM,
+							colorMDIO,
 						)
 
 						// Draw item quantity number
 						quantity := craftingTableRes.Slots[y][x].Quantity
 						if quantity > 1 {
-							TextDO.GeoM.Reset()
-							TextDO.GeoM.Translate(sx+7, sy+5)
+							textDO.GeoM.Reset()
+							textDO.GeoM.Translate(sx+7, sy+5)
 							num := strconv.FormatUint(uint64(quantity), 10)
 							if quantity < 10 {
 								num = " " + num
 							}
-							text.Draw(Screen, num, res.Font, TextDO)
+							text.Draw(Screen, num, res.Font, textDO)
 						}
 					}
 
-					// draw selected slot border of crqfting table
-					if x == craftingTableRes.SlotPosX && y == craftingTableRes.SlotPosY {
+					// draw selected slot border of crafting table
+					if x == craftingTableRes.Pos.X && y == craftingTableRes.Pos.Y {
 						sx := ui.craftingTablePos.X + float64(x*17)
 						sy := ui.craftingTablePos.Y + float64(y*17)
-						ColorMDIO.GeoM.Reset()
-						ColorMDIO.GeoM.Translate(sx+1, sy+1)
-						colorm.DrawImage(Screen, res.SlotBorder, ColorM, ColorMDIO)
+						colorMDIO.GeoM.Reset()
+						colorMDIO.GeoM.Translate(sx+1, sy+1)
+						colorm.DrawImage(Screen, res.SlotBorder, colorM, colorMDIO)
 					}
 
 				}
@@ -314,37 +332,46 @@ func (ui *UI) Draw() {
 
 			// draw crafting table result item icon
 			if craftingTableRes.ResultSlot.ID != 0 {
-				ColorMDIO.GeoM.Reset()
+				colorMDIO.GeoM.Reset()
 
-				if gameDataRes.GameplayState == CraftingTable2x2 {
-					ColorMDIO.GeoM.Translate(ui.craftingTablePos.X+41, ui.craftingTablePos.Y+14)
-				} else {
-					ColorMDIO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+23)
+				switch gameDataRes.GameplayState {
+				case Furnace1x2:
+					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+23, ui.craftingTablePos.Y+14)
+				case CraftingTable3x3:
+					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+23)
+				case Crafting2x2:
+					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+41, ui.craftingTablePos.Y+14)
 				}
 
-				colorm.DrawImage(Screen, res.Icon8[craftingTableRes.ResultSlot.ID], ColorM, ColorMDIO)
+				colorm.DrawImage(Screen, res.Icon8[craftingTableRes.ResultSlot.ID], colorM, colorMDIO)
 
 				// Draw result item quantity number
 				quantity := craftingTableRes.ResultSlot.Quantity
+
 				if quantity > 1 {
-					TextDO.GeoM.Reset()
-					if gameDataRes.GameplayState == CraftingTable2x2 {
-						TextDO.GeoM.Translate(ui.craftingTablePos.X+42, ui.craftingTablePos.Y+13)
-					} else {
-						TextDO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+22)
+					textDO.GeoM.Reset()
+
+					switch gameDataRes.GameplayState {
+					case Furnace1x2:
+						textDO.GeoM.Translate(ui.craftingTablePos.X+24, ui.craftingTablePos.Y+13)
+					case CraftingTable3x3:
+						textDO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+22)
+					case Crafting2x2:
+						textDO.GeoM.Translate(ui.craftingTablePos.X+42, ui.craftingTablePos.Y+13)
 					}
+
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
 						num = " " + num
 					}
-					text.Draw(Screen, num, res.Font, TextDO)
+					text.Draw(Screen, num, res.Font, textDO)
 				}
 			}
 
 		}
 
 		// Draw debug info
-		if DrawDebugTextEnabled {
+		if drawDebugTextEnabled {
 			_, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				"state %v\nVel.X: %.2f\nVel.Y: %.2f",
@@ -388,4 +415,13 @@ func onInventorySlotChanged() {
 	default:
 		animPlayer.SetAtlas("Default")
 	}
+}
+
+func updateCraftingResultSlot() (minimum uint8) {
+	if gameDataRes.GameplayState == Furnace1x2 {
+		minimum = craftingTableRes.UpdateResultSlot(items.FurnaceRecipes)
+	} else {
+		minimum = craftingTableRes.UpdateResultSlot(items.CraftingRecipes)
+	}
+	return minimum
 }

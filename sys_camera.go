@@ -70,7 +70,7 @@ func (c *Camera) Draw() {
 			tileID := tileMapRes.Grid[y][x]
 			if tileID != 0 {
 				px, py := float64(x*tileMapRes.TileW), float64(y*tileMapRes.TileH)
-				ColorMDIO.GeoM.Reset()
+				colorMDIO.GeoM.Reset()
 
 				if x == ceilBlockCoord.X && y == ceilBlockCoord.Y {
 					if tileID == items.Bedrock {
@@ -81,15 +81,15 @@ func (c *Camera) Draw() {
 					}
 				}
 
-				ColorMDIO.GeoM.Translate(px, py)
+				colorMDIO.GeoM.Translate(px, py)
 				if items.HasTag(tileID, items.UnbreakableBlock) {
-					cameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], ColorM, ColorMDIO, Screen)
+					cameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], colorM, colorMDIO, Screen)
 				} else {
 					if x == gameDataRes.TargetBlockCoord.X && y == gameDataRes.TargetBlockCoord.Y {
 						i := MapRange(gameDataRes.BlockHealth, 0, 180, 0, 5)
-						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], ColorM, ColorMDIO, Screen)
+						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], colorM, colorMDIO, Screen)
 					} else {
-						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], ColorM, ColorMDIO, Screen)
+						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], colorM, colorMDIO, Screen)
 					}
 				}
 			}
@@ -99,17 +99,17 @@ func (c *Camera) Draw() {
 	if world.Alive(currentPlayer) {
 		playerBox := mapAABB.GetUnchecked(currentPlayer)
 
-		ColorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Reset()
 		x := playerBox.Pos.X - playerBox.Half.X
 		y := playerBox.Pos.Y - playerBox.Half.Y
 		if mapFacing.GetUnchecked(currentPlayer).X == -1 {
-			ColorMDIO.GeoM.Scale(-1, 1)
-			ColorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
+			colorMDIO.GeoM.Scale(-1, 1)
+			colorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
 		} else {
-			ColorMDIO.GeoM.Translate(x, y)
+			colorMDIO.GeoM.Translate(x, y)
 		}
-		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, ColorM, ColorMDIO, Screen)
-		if DrawItemHitboxEnabled {
+		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, colorM, colorMDIO, Screen)
+		if drawItemHitboxEnabled {
 			x, y = cameraRes.ApplyCameraTransformToPoint(x, y)
 			vector.DrawFilledRect(
 				Screen,
@@ -127,16 +127,16 @@ func (c *Camera) Draw() {
 	itemQuery := filterDroppedItem.Query()
 	for itemQuery.Next() {
 		id, pos, animIndex := itemQuery.Get()
-		ColorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Reset()
 		x := pos.X - dropItemHalfSize.X
 		y := pos.Y - dropItemHalfSize.Y
-		siny := y + Sinspace[animIndex.Index]
-		ColorMDIO.GeoM.Translate(x, siny)
+		siny := y + sinspace[animIndex.Index]
+		colorMDIO.GeoM.Translate(x, siny)
 		if id.ID != items.Air {
 
-			cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+			cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
 
-			if DrawItemHitboxEnabled {
+			if drawItemHitboxEnabled {
 				x, y = cameraRes.ApplyCameraTransformToPoint(x, y)
 				vector.DrawFilledRect(
 					Screen,
@@ -155,19 +155,19 @@ func (c *Camera) Draw() {
 	q := filterProjectile.Query()
 	for q.Next() {
 		id, pos, _ := q.Get()
-		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(pos.X-dropItemHalfSize.X, pos.Y-dropItemHalfSize.Y)
-		cameraRes.DrawWithColorM(res.Icon8[id.ID], ColorM, ColorMDIO, Screen)
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Translate(pos.X-dropItemHalfSize.X, pos.Y-dropItemHalfSize.Y)
+		cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
 	}
 
 	// Draw target tile border
 	if gameDataRes.IsRayHit {
-		ColorMDIO.GeoM.Reset()
-		ColorMDIO.GeoM.Translate(
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Translate(
 			float64(gameDataRes.TargetBlockCoord.X*tileMapRes.TileW)-1,
 			float64(gameDataRes.TargetBlockCoord.Y*tileMapRes.TileH)-1,
 		)
-		cameraRes.DrawWithColorM(res.BlockBorder, ColorM, ColorMDIO, Screen)
+		cameraRes.DrawWithColorM(res.BlockBorder, colorM, colorMDIO, Screen)
 	}
 
 }
