@@ -2,100 +2,128 @@ package items
 
 type Recipe [][]Slot
 
-var Recipes map[uint8]Recipe
+var CraftingRecipes map[uint8]Recipe
+var FurnaceRecipes map[uint8]Recipe
 
 func init() {
-	Recipes = make(map[uint8]Recipe)
 
-	Recipes[OakPlanks] = [][]Slot{{Slot{ID: OakLog}}}
-	Recipes[Stick] = [][]Slot{
+	CraftingRecipes = make(map[uint8]Recipe)
+	FurnaceRecipes = make(map[uint8]Recipe)
+
+	CraftingRecipes[OakPlanks] = [][]Slot{{Slot{ID: OakLog}}}
+
+	CraftingRecipes[Stick] = [][]Slot{
 		{Slot{ID: OakPlanks}, Slot{}},
 		{Slot{ID: OakPlanks}, Slot{}},
 	}
-	Recipes[CraftingTable] = [][]Slot{
+
+	CraftingRecipes[CraftingTable] = [][]Slot{
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
 	}
 
 	// Axe
-	Recipes[WoodenAxe] = [][]Slot{
+	CraftingRecipes[WoodenAxe] = [][]Slot{
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}, Slot{ID: 0}},
 		{Slot{ID: OakPlanks}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
-	Recipes[StoneAxe] = [][]Slot{
+	CraftingRecipes[StoneAxe] = [][]Slot{
 		{Slot{ID: Stone}, Slot{ID: Stone}, Slot{ID: 0}},
 		{Slot{ID: Stone}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
-	Recipes[IronAxe] = [][]Slot{
+	CraftingRecipes[IronAxe] = [][]Slot{
 		{Slot{ID: IronIngot}, Slot{ID: IronIngot}, Slot{ID: 0}},
 		{Slot{ID: IronIngot}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
-	Recipes[DiamondAxe] = [][]Slot{
+
+	CraftingRecipes[DiamondAxe] = [][]Slot{
 		{Slot{ID: Diamond}, Slot{ID: Diamond}, Slot{ID: 0}},
 		{Slot{ID: Diamond}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
 	// Shovel
-	Recipes[WoodenShovel] = [][]Slot{
+	CraftingRecipes[WoodenShovel] = [][]Slot{
 		{Slot{ID: 0}, Slot{ID: OakPlanks}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
-	Recipes[StoneShovel] = [][]Slot{
+
+	CraftingRecipes[StoneShovel] = [][]Slot{
 		{Slot{ID: 0}, Slot{ID: Stone}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
-	Recipes[IronShovel] = [][]Slot{
+
+	CraftingRecipes[IronShovel] = [][]Slot{
 		{Slot{ID: 0}, Slot{ID: IronIngot}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
-	Recipes[DiamondShovel] = [][]Slot{
+
+	CraftingRecipes[DiamondShovel] = [][]Slot{
 		{Slot{ID: 0}, Slot{ID: Diamond}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
 	// Pickaxe
-	Recipes[WoodenPickaxe] = [][]Slot{
+	CraftingRecipes[WoodenPickaxe] = [][]Slot{
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
-	Recipes[StonePickaxe] = [][]Slot{
+
+	CraftingRecipes[StonePickaxe] = [][]Slot{
 		{Slot{ID: Stone}, Slot{ID: Stone}, Slot{ID: Stone}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
-	Recipes[IronPickaxe] = [][]Slot{
+	CraftingRecipes[IronPickaxe] = [][]Slot{
 		{Slot{ID: IronIngot}, Slot{ID: IronIngot}, Slot{ID: IronIngot}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
-	Recipes[DiamondPickaxe] = [][]Slot{
+
+	CraftingRecipes[DiamondPickaxe] = [][]Slot{
 		{Slot{ID: Diamond}, Slot{ID: Diamond}, Slot{ID: Diamond}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 		{Slot{ID: 0}, Slot{ID: Stick}, Slot{ID: 0}},
 	}
 
-	Recipes[Furnace] = [][]Slot{
+	CraftingRecipes[Furnace] = [][]Slot{
 		{Slot{ID: Stone}, Slot{ID: Stone}, Slot{ID: Stone}},
 		{Slot{ID: Stone}, Slot{ID: Air}, Slot{ID: Stone}},
 		{Slot{ID: Stone}, Slot{ID: Stone}, Slot{ID: Stone}},
 	}
 
 	// output item multiplier
-	for _, recipe := range Recipes {
+	for _, recipe := range CraftingRecipes {
 		recipe[0][0].Quantity = 1
 	}
-	Recipes[OakPlanks][0][0].Quantity = 4
-	Recipes[Stick][0][0].Quantity = 4
+	CraftingRecipes[OakPlanks][0][0].Quantity = 4
+	CraftingRecipes[Stick][0][0].Quantity = 4
+
+	// --- FURNACE RECIPES ---
+
+	FurnaceRecipes[IronIngot] = [][]Slot{
+		{Slot{ID: RawIron}, Slot{}},
+		{Slot{ID: Coal}, Slot{}},
+	}
+	FurnaceRecipes[GoldIngot] = [][]Slot{
+		{Slot{ID: RawGold}, Slot{}},
+		{Slot{ID: Coal}, Slot{}},
+	}
+
+	// output item multiplier
+	for _, recipe := range FurnaceRecipes {
+		recipe[0][0].Quantity = 1
+	}
+
 }

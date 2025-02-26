@@ -1,6 +1,7 @@
 package kar
 
 import (
+	"image"
 	"kar/items"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -55,7 +56,7 @@ func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
 		box := mapAABB.GetUnchecked(currentPlayer)
 		tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
-		box.Pos = tileMapRes.TileToWorldCenter(tileMapRes.W/2, tileMapRes.H-3)
+		box.Pos = tileMapRes.TileToWorld(image.Point{tileMapRes.W / 2, tileMapRes.H - 3})
 		cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 	}
 

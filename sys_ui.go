@@ -2,6 +2,7 @@ package kar
 
 import (
 	"fmt"
+	"image"
 	"kar/items"
 	"kar/res"
 	"strconv"
@@ -31,22 +32,19 @@ func (ui *UI) Update() {
 		// toggle crafting state
 		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
 
-			switch gameDataRes.GameplayState {
-
-			// detect table mode
-			case Playing:
+			if gameDataRes.GameplayState == Playing {
+				craftingTableRes.Pos = image.Point{}
 				targetBlockID := tileMapRes.GetID(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
 				switch targetBlockID {
 				case items.CraftingTable:
 					gameDataRes.GameplayState = CraftingTable3x3
 				case items.Furnace:
-					gameDataRes.GameplayState = Furnace
+					gameDataRes.GameplayState = Furnace1x2
 				default:
-					gameDataRes.GameplayState = CraftingTable2x2
+					gameDataRes.GameplayState = Crafting2x2
 				}
-
-			// clear crafting table when exit
-			case CraftingTable3x3, CraftingTable2x2:
+			} else {
+				// clear crafting table when exit
 				for y := range 3 {
 					for x := range 3 {
 						itemID := craftingTableRes.Slots[y][x].ID
@@ -73,10 +71,13 @@ func (ui *UI) Update() {
 				craftingTableRes.ResultSlot = items.Slot{}
 				gameDataRes.GameplayState = Playing
 			}
+
 			onInventorySlotChanged()
+
 		}
 
-		// hotbar slot navigation
+		// -------------------- HOTBAR --------------------
+
 		if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
 			inventoryRes.SelectPrevSlot()
 			onInventorySlotChanged()
@@ -109,28 +110,35 @@ func (ui *UI) Update() {
 			onInventorySlotChanged()
 		}
 
-		switch gameDataRes.GameplayState {
-		case CraftingTable2x2, CraftingTable3x3:
+		// -------------------- CRAFTING TABLES --------------------
+
+		if gameDataRes.GameplayState != Playing {
+
 			if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-				if gameDataRes.GameplayState == CraftingTable2x2 {
-					craftingTableRes.SlotPosX = min(craftingTableRes.SlotPosX+1, 1)
-				} else {
-					craftingTableRes.SlotPosX = min(craftingTableRes.SlotPosX+1, 2)
+				switch gameDataRes.GameplayState {
+				case Furnace1x2:
+					craftingTableRes.Pos.X = min(craftingTableRes.Pos.X+1, 0)
+				case Crafting2x2:
+					craftingTableRes.Pos.X = min(craftingTableRes.Pos.X+1, 1)
+				case CraftingTable3x3:
+					craftingTableRes.Pos.X = min(craftingTableRes.Pos.X+1, 2)
 				}
 			}
-			if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-				craftingTableRes.SlotPosX = max(craftingTableRes.SlotPosX-1, 0)
+			if inpututil.IsKeyJustPressed(ebiten.KeyS) {
+				switch gameDataRes.GameplayState {
+				case Furnace1x2, Crafting2x2:
+					craftingTableRes.Pos.Y = min(craftingTableRes.Pos.Y+1, 1)
+				case CraftingTable3x3:
+					craftingTableRes.Pos.Y = min(craftingTableRes.Pos.Y+1, 2)
+				}
 			}
 
-			if inpututil.IsKeyJustPressed(ebiten.KeyS) {
-				if gameDataRes.GameplayState == CraftingTable2x2 {
-					craftingTableRes.SlotPosY = min(craftingTableRes.SlotPosY+1, 1)
-				} else {
-					craftingTableRes.SlotPosY = min(craftingTableRes.SlotPosY+1, 2)
-				}
+			if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+				craftingTableRes.Pos.X = max(craftingTableRes.Pos.X-1, 0)
 			}
+
 			if inpututil.IsKeyJustPressed(ebiten.KeyW) {
-				craftingTableRes.SlotPosY = max(craftingTableRes.SlotPosY-1, 0)
+				craftingTableRes.Pos.Y = max(craftingTableRes.Pos.Y-1, 0)
 			}
 
 			// Move items from hotbar to crafting table
@@ -147,7 +155,7 @@ func (ui *UI) Update() {
 						cs.Quantity++
 					}
 				}
-				craftingTableRes.UpdateResultSlot()
+				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 			// Move items from crafting table to hotbar
@@ -165,12 +173,12 @@ func (ui *UI) Update() {
 						}
 					}
 				}
-				craftingTableRes.UpdateResultSlot()
+				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 			// apply recipe
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-				minimum := craftingTableRes.UpdateResultSlot()
+				minimum := updateCraftingResultSlot()
 				resultID := craftingTableRes.ResultSlot.ID
 				dur := items.GetDefaultDurability(resultID)
 				if resultID != 0 {
@@ -190,11 +198,10 @@ func (ui *UI) Update() {
 						}
 					}
 				}
-				craftingTableRes.UpdateResultSlot()
+				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 		}
-
 	}
 }
 
@@ -268,21 +275,24 @@ func (ui *UI) Draw() {
 		playerHealth := mapHealth.GetUnchecked(currentPlayer)
 		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, textDO)
 
-		switch gameDataRes.GameplayState {
-		case CraftingTable2x2, CraftingTable3x3:
+		if gameDataRes.GameplayState != Playing {
+
 			// crafting table Background
 			colorMDIO.GeoM.Reset()
 			colorMDIO.GeoM.Translate(ui.craftingTablePos.X, ui.craftingTablePos.Y)
 
-			if gameDataRes.GameplayState == CraftingTable2x2 {
-				colorm.DrawImage(Screen, res.CraftingTable4, colorM, colorMDIO)
-			} else {
-				colorm.DrawImage(Screen, res.CraftingTable, colorM, colorMDIO)
+			switch gameDataRes.GameplayState {
+			case Furnace1x2:
+				colorm.DrawImage(Screen, res.CraftingTable1x2, colorM, colorMDIO)
+			case Crafting2x2:
+				colorm.DrawImage(Screen, res.CraftingTable2x2, colorM, colorMDIO)
+			case CraftingTable3x3:
+				colorm.DrawImage(Screen, res.CraftingTable3x3, colorM, colorMDIO)
 			}
 
 			// draw crafting table item icons
-			for x := 0; x < 3; x++ {
-				for y := 0; y < 3; y++ {
+			for x := range 3 {
+				for y := range 3 {
 					if craftingTableRes.Slots[y][x].ID != items.Air {
 						sx := ui.craftingTablePos.X + float64(x*17)
 						sy := ui.craftingTablePos.Y + float64(y*17)
@@ -308,8 +318,8 @@ func (ui *UI) Draw() {
 						}
 					}
 
-					// draw selected slot border of crqfting table
-					if x == craftingTableRes.SlotPosX && y == craftingTableRes.SlotPosY {
+					// draw selected slot border of crafting table
+					if x == craftingTableRes.Pos.X && y == craftingTableRes.Pos.Y {
 						sx := ui.craftingTablePos.X + float64(x*17)
 						sy := ui.craftingTablePos.Y + float64(y*17)
 						colorMDIO.GeoM.Reset()
@@ -324,23 +334,32 @@ func (ui *UI) Draw() {
 			if craftingTableRes.ResultSlot.ID != 0 {
 				colorMDIO.GeoM.Reset()
 
-				if gameDataRes.GameplayState == CraftingTable2x2 {
-					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+41, ui.craftingTablePos.Y+14)
-				} else {
+				switch gameDataRes.GameplayState {
+				case Furnace1x2:
+					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+23, ui.craftingTablePos.Y+14)
+				case CraftingTable3x3:
 					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+23)
+				case Crafting2x2:
+					colorMDIO.GeoM.Translate(ui.craftingTablePos.X+41, ui.craftingTablePos.Y+14)
 				}
 
 				colorm.DrawImage(Screen, res.Icon8[craftingTableRes.ResultSlot.ID], colorM, colorMDIO)
 
 				// Draw result item quantity number
 				quantity := craftingTableRes.ResultSlot.Quantity
+
 				if quantity > 1 {
 					textDO.GeoM.Reset()
-					if gameDataRes.GameplayState == CraftingTable2x2 {
-						textDO.GeoM.Translate(ui.craftingTablePos.X+42, ui.craftingTablePos.Y+13)
-					} else {
+
+					switch gameDataRes.GameplayState {
+					case Furnace1x2:
+						textDO.GeoM.Translate(ui.craftingTablePos.X+24, ui.craftingTablePos.Y+13)
+					case CraftingTable3x3:
 						textDO.GeoM.Translate(ui.craftingTablePos.X+58, ui.craftingTablePos.Y+22)
+					case Crafting2x2:
+						textDO.GeoM.Translate(ui.craftingTablePos.X+42, ui.craftingTablePos.Y+13)
 					}
+
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
 						num = " " + num
@@ -396,4 +415,13 @@ func onInventorySlotChanged() {
 	default:
 		animPlayer.SetAtlas("Default")
 	}
+}
+
+func updateCraftingResultSlot() (minimum uint8) {
+	if gameDataRes.GameplayState == Furnace1x2 {
+		minimum = craftingTableRes.UpdateResultSlot(items.FurnaceRecipes)
+	} else {
+		minimum = craftingTableRes.UpdateResultSlot(items.CraftingRecipes)
+	}
+	return minimum
 }

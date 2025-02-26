@@ -37,7 +37,7 @@ func GetDefaultDurability(id uint8) int {
 			return 100
 		}
 		if HasTag(id, MaterialIron) {
-			return 200
+			return 400
 		}
 		if HasTag(id, MaterialDiamond) {
 			return 800

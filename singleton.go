@@ -3,6 +3,7 @@ package kar
 import (
 	"image"
 	"image/color"
+	"kar/items"
 	"kar/tilemap"
 	"kar/v"
 	"math"
@@ -97,20 +98,37 @@ func init() {
 
 func NewGame() {
 	inventoryRes.Reset()
+
 	*animPlayer.Data = animDefaultPlaybackData
 	gameDataRes = &gameData{}
 	gameTileMapGenerator.SetSeed(rand.Int())
 	gameTileMapGenerator.Generate()
-	x, y := tileMapRes.FindSpawnPosition()
-	SpawnPos := tileMapRes.TileToWorldCenter(x, y)
-	cameraRes.SmoothType = kamera.None
-	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
-	currentPlayer = SpawnPlayer(SpawnPos)
-	blockCenter := tileMapRes.FloorToBlockCenter(cameraRes.X, cameraRes.Y)
-	cameraRes.SetTopLeft(blockCenter.X, blockCenter.Y)
+
+	spawnCoord := tileMapRes.FindSpawnPosition()
+	SpawnPos := tileMapRes.TileToWorld(spawnCoord)
+
 	cameraRes.SmoothOptions.LerpSpeedX = 0.5
 	cameraRes.SmoothOptions.LerpSpeedY = 0
 	cameraRes.SmoothType = kamera.SmoothDamp
+	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
+
+	currentPlayer = SpawnPlayer(SpawnPos)
+
+	// debug
+	spawnCoord.X++
+	tileMapRes.Set(spawnCoord.X, spawnCoord.Y, items.Furnace)
+	spawnCoord.X -= 2
+	tileMapRes.Set(spawnCoord.X, spawnCoord.Y, items.CraftingTable)
+
+	inventoryRes.SetSlot(0, items.Coal, 64, 0)
+	inventoryRes.SetSlot(1, items.RawGold, 64, 0)
+	inventoryRes.SetSlot(2, items.RawIron, 64, 0)
+	inventoryRes.SetSlot(3, items.Stick, 64, 0)
+	inventoryRes.SetSlot(4, items.DiamondPickaxe, 64, 0)
+	inventoryRes.SetSlot(5, items.DiamondShovel, 64, 0)
+	inventoryRes.SetSlot(6, items.DiamondAxe, 64, 0)
+	inventoryRes.SetSlot(7, items.Diamond, 64, 0)
+
 }
 
 func SaveGame() {

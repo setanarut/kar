@@ -332,7 +332,7 @@ func (p *Player) Update() {
 							}
 						}
 						// Spawn drop item
-						pos := tileMapRes.TileToWorldCenter(gameDataRes.TargetBlockCoord.X, gameDataRes.TargetBlockCoord.Y)
+						pos := tileMapRes.TileToWorld(gameDataRes.TargetBlockCoord)
 						dropid := items.Property[blockID].DropID
 						if blockID == items.OakLeaves {
 							if rand.N(2) == 0 {
@@ -441,7 +441,7 @@ func (p *Player) Update() {
 						case items.StoneBricks:
 							// Destroy block when ceil hit
 							tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
-							effectPos := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
+							effectPos := tileMapRes.TileToWorld(ci.TileCoords)
 							SpawnEffect(tileID, effectPos)
 						case items.Random:
 							if tileMapRes.GetUnchecked(ci.TileCoords.Add(tilemap.Up)) == items.Air {
@@ -456,7 +456,7 @@ func (p *Player) Update() {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
 						if absXVelocity == ctrl.MaxRunSpeed && isBreakKeyPressed {
 							tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
-							effectPos := tileMapRes.TileToWorldCenter(ci.TileCoords.X, ci.TileCoords.Y)
+							effectPos := tileMapRes.TileToWorld(ci.TileCoords)
 							SpawnEffect(tileID, effectPos)
 						}
 						pVelocity.X = 0
