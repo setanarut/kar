@@ -56,7 +56,7 @@ func (c *Camera) Update() {
 }
 func (c *Camera) Draw() {
 
-	// DRAW TILEMAPs
+	// DRAW TILEMAP
 
 	// clamp tilemap bounds
 	camMin := tileMapRes.WorldToTile(cameraRes.X, cameraRes.Y)
@@ -64,6 +64,7 @@ func (c *Camera) Draw() {
 	camMin.Y = min(max(camMin.Y, 0), tileMapRes.H)
 	camMaxX := min(max(camMin.X+renderArea.X, 0), tileMapRes.W)
 	camMaxY := min(max(camMin.Y+renderArea.Y, 0), tileMapRes.H)
+
 	// draw tiles
 	for y := camMin.Y; y < camMaxY; y++ {
 		for x := camMin.X; x < camMaxX; x++ {

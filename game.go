@@ -62,27 +62,26 @@ func (g *Game) Update() error {
 			cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 		}
 
-		switch currentGameState {
-		case "menu":
-
-			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-				if previousGameState == "playing" {
-					previousGameState = "menu"
-					currentGameState = "playing"
-					colorM.Reset()
-					textDO.ColorScale.Reset()
-				}
-			}
-			// enter playing
-			g.systems[6].Update() // MainMenu
-
-		case "playing":
-			if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-				previousGameState = "playing"
+		// toggle menu
+		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+			switch currentGameState {
+			case "menu":
+				currentGameState = "playing"
+				previousGameState = "menu"
+				colorM.Reset()
+				textDO.ColorScale.Reset()
+			case "playing":
 				currentGameState = "menu"
+				previousGameState = "playing"
 				colorM.ChangeHSV(1, 0, 0.5) // BW
 				textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
+		}
+		// Update systems
+		switch currentGameState {
+		case "menu":
+			g.systems[6].Update()
+		case "playing":
 			g.systems[0].Update()
 			g.systems[1].Update()
 			g.systems[2].Update()
