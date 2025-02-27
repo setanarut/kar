@@ -18,10 +18,6 @@ github.com/hajimehoshi/ebiten/v2 v2.8.6 h1:Dkd/sYI0TYyZRCE7GVxV59XC+WCi2BbGAbIBj
 github.com/hajimehoshi/ebiten/v2 v2.8.6/go.mod h1:cCQ3np7rdmaJa1ZnvslraVlpxNb3wCjEnAP1LHNyXNA=
 github.com/jezek/xgb v1.1.1 h1:bE/r8ZZtSv7l9gk6nU0mYx51aXrvnyb44892TwSaqS4=
 github.com/jezek/xgb v1.1.1/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
-github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903 h1:ykevnO8c0fbv4KVlTXjIieB6W7INw7/avKJi3uUUlWE=
-github.com/mlange-42/ark v0.0.0-20250222145954-bd0ed2e5a903/go.mod h1:fuZlVyRNW+mXvYElMava0w8BDEEthT3CJl4YJ0lPasg=
-github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196 h1:jqd+chlyJPchNs8coiXim5EnQb0XgffXmBaDWa+r2nM=
-github.com/mlange-42/ark v0.0.0-20250223222059-27da0ea67196/go.mod h1:fuZlVyRNW+mXvYElMava0w8BDEEthT3CJl4YJ0lPasg=
 github.com/mlange-42/ark v0.1.0 h1:UqBMuhaT/FhNM8eKK+Qgryip7UrWo0wmPAS7H/r4yho=
 github.com/mlange-42/ark v0.1.0/go.mod h1:47KXHr5HLftLn4iyL8w04iv7KJUNUoDymEIotD41f3o=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=

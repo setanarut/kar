@@ -28,9 +28,8 @@ func (ui *UI) Init() {
 func (ui *UI) Update() {
 
 	if world.Alive(currentPlayer) {
-
 		// toggle crafting state
-		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
 
 			if gameDataRes.GameplayState == Playing {
 				craftingTableRes.Pos = image.Point{}
@@ -142,34 +141,34 @@ func (ui *UI) Update() {
 			}
 
 			// Move items from hotbar to crafting table
-			if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-				cs := craftingTableRes.CurrentSlot()
-				if inventoryRes.CurrentSlotID() != 0 {
-					if craftingTableRes.CurrentSlot().ID == 0 {
+			if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
+				invSlot := inventoryRes.CurrentSlot()
+				tableSlot := craftingTableRes.CurrentSlot()
+				if invSlot.ID != 0 {
+					if tableSlot.ID == 0 {
 						id, dur := inventoryRes.RemoveItemFromSelectedSlot()
-						cs.ID = id
-						cs.Durability = dur
-						cs.Quantity = 1
-					} else if cs.ID == inventoryRes.CurrentSlotID() {
+						tableSlot.ID = id
+						tableSlot.Durability = dur
+						tableSlot.Quantity = 1
+					} else if tableSlot.ID == invSlot.ID {
 						inventoryRes.RemoveItemFromSelectedSlot()
-						cs.Quantity++
+						tableSlot.Quantity++
 					}
 				}
 				updateCraftingResultSlot()
 				onInventorySlotChanged()
 			}
 			// Move items from crafting table to hotbar
-			if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-				cs := craftingTableRes.CurrentSlot()
-				if cs.ID != 0 {
-					if cs.Quantity == 1 {
-						if inventoryRes.AddItemIfEmpty(cs.ID, cs.Durability) {
+			if inpututil.IsKeyJustPressed(ebiten.KeyLeft) {
+				tableSlot := craftingTableRes.CurrentSlot()
+				if tableSlot.ID != 0 {
+					if tableSlot.Quantity == 1 {
+						if inventoryRes.AddItemIfEmpty(tableSlot.ID, tableSlot.Durability) {
 							craftingTableRes.ClearCurrenSlot()
 						}
-					} else if cs.Quantity > 1 {
-						if inventoryRes.AddItemIfEmpty(cs.ID, cs.Durability) {
-							cs.Quantity--
-
+					} else if tableSlot.Quantity > 1 {
+						if inventoryRes.AddItemIfEmpty(tableSlot.ID, tableSlot.Durability) {
+							tableSlot.Quantity--
 						}
 					}
 				}
@@ -177,7 +176,7 @@ func (ui *UI) Update() {
 				onInventorySlotChanged()
 			}
 			// apply recipe
-			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+			if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
 				minimum := updateCraftingResultSlot()
 				resultID := craftingTableRes.ResultSlot.ID
 				dur := items.GetDefaultDurability(resultID)

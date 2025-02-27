@@ -134,7 +134,7 @@ func (t *TileMap) GetID(x, y int) uint8 {
 	return t.Grid[y][x]
 }
 
-func (t *TileMap) GetUnchecked(coords image.Point) uint8 {
+func (t *TileMap) GetIDUnchecked(coords image.Point) uint8 {
 	return t.Grid[coords.Y][coords.X]
 }
 

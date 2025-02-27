@@ -420,13 +420,14 @@ func (p *Player) Update() {
 			}
 
 			// Player and tilemap collision
+
 			tileCollider.Collide(*pBox, *pVelocity, func(collisionInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
 				// Reset velocity when collide
 				for _, ci := range collisionInfos {
 
-					tileID := tileMapRes.GetUnchecked(ci.TileCoords)
+					tileID := tileMapRes.GetIDUnchecked(ci.TileCoords)
 
 					if ci.Normal.Y == -1 {
 						// Ground collision
@@ -444,7 +445,7 @@ func (p *Player) Update() {
 							effectPos := tileMapRes.TileToWorld(ci.TileCoords)
 							SpawnEffect(tileID, effectPos)
 						case items.Random:
-							if tileMapRes.GetUnchecked(ci.TileCoords.Add(tilemap.Up)) == items.Air {
+							if tileMapRes.GetIDUnchecked(ci.TileCoords.Add(tilemap.Up)) == items.Air {
 								tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Bedrock)
 								ceilBlockCoord = ci.TileCoords
 								ceilBlockTick = 3
@@ -460,7 +461,6 @@ func (p *Player) Update() {
 							SpawnEffect(tileID, effectPos)
 						}
 						pVelocity.X = 0
-						// absXVelocity = 0
 					}
 				}
 			},

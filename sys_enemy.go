@@ -1,8 +1,8 @@
 package kar
 
 import (
-	"fmt"
 	"image/color"
+	"kar/v"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -10,10 +10,12 @@ import (
 )
 
 type Enemy struct {
-	enemyRect AABB
+	enemyRect    AABB
+	enemyHitInfo *HitInfo
 }
 
 func (e *Enemy) Init() {
+	e.enemyHitInfo = &HitInfo{}
 	e.enemyRect = AABB{Half: enemyWormHalfSize}
 }
 
@@ -23,69 +25,45 @@ func (e *Enemy) Update() {
 		SpawnEnemy(Vec{x, y}, Vec{0.5, 0})
 	}
 
-	if world.Alive(currentPlayer) {
-		playerBox := mapAABB.GetUnchecked(currentPlayer)
-		playerVelocity := (*Vec)(mapVel.GetUnchecked(currentPlayer))
+	playerBox := mapAABB.GetUnchecked(currentPlayer)
+	playerVelocity := (*Vec)(mapVel.GetUnchecked(currentPlayer))
 
+	if world.Alive(currentPlayer) {
 		enemyQuery := filterEnemy.Query()
 		for enemyQuery.Next() {
-			p, v, enemyAI := enemyQuery.Get()
-			enemyPos := (*Vec)(p)
-			enemyVel := (*Vec)(v)
+			epos, evel, enemyAI := enemyQuery.Get()
+			enemyPos := (*Vec)(epos)
+			enemyVel := (*Vec)(evel)
 			switch enemyAI.Name {
 			case "worm":
 				*enemyPos = enemyPos.Add(*enemyVel)
 				e.enemyRect.Pos = *enemyPos
-				tileCollider.Collide(
-					e.enemyRect,
-					*enemyVel,
-					func(infos []HitTileInfo, delta Vec) {
-						for _, info := range infos {
-							if info.Normal.X == -1 {
-								enemyVel.X *= -1
-							}
-							if info.Normal.X == 1 {
-								enemyVel.X *= -1
-							}
-							// TileMapRes.Set(info.TileCoords[0], info.TileCoords[1], items.Air)
 
-						}
-					},
-				)
+				// Enemy tilemap collision
+				delta := tileCollider.Collide(e.enemyRect, *enemyVel, nil)
+				if enemyVel.X != delta.X {
+					enemyVel.X *= -1
+				}
 
-				// player-enemy collision
-				hit := &HitInfo{}
-
-				collided := e.enemyRect.OverlapSweep(playerBox, *playerVelocity, hit)
-
+				// Player enemy collision
+				collided := e.enemyRect.OverlapSweep(playerBox, *playerVelocity, e.enemyHitInfo)
 				if collided {
-					playerVelocity.X += hit.Delta.X
-					playerVelocity.Y += hit.Delta.Y
-					playerBox.Pos.X += playerVelocity.X
-					playerBox.Pos.Y += playerVelocity.Y
+					*playerVelocity = playerVelocity.Add(e.enemyHitInfo.Delta)
+					playerBox.Pos = playerBox.Pos.Add(*playerVelocity)
 
-					if hit.Normal.Y < 0 {
+					if e.enemyHitInfo.Normal == v.Up {
 						toRemove = append(toRemove, enemyQuery.Entity())
-						playerVelocity.Y = -2
-						// playerVelocity.X += enemyVel.X
-						fmt.Println("TOP")
+						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
 					}
-					if hit.Normal.Y > 0 {
-						playerVelocity.Y = 2
-						fmt.Println("ALT")
-					}
-					if hit.Normal.X < 0 {
-						playerVelocity.X = -2
-						// playerHealth.Current -= 6
+
+					// Horizontal collision
+					if e.enemyHitInfo.Normal == v.Right || e.enemyHitInfo.Normal == v.Left {
+						enemyVel.X *= -1
+						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
 						// TODO oyuncu çarpınca çarpışma devre dışı kalsın
 						// oyuncuya yanıp sönme componenti ekle
-						fmt.Println("SAĞ")
 					}
-					if hit.Normal.X > 0 {
-						playerVelocity.X = 2
-						fmt.Println("SOL")
-						// playerHealth.Current -= 6
-					}
+
 				}
 
 			case "other":

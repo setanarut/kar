@@ -124,9 +124,9 @@ func NewGame() {
 	inventoryRes.SetSlot(1, items.RawGold, 64, 0)
 	inventoryRes.SetSlot(2, items.RawIron, 64, 0)
 	inventoryRes.SetSlot(3, items.Stick, 64, 0)
-	inventoryRes.SetSlot(4, items.DiamondPickaxe, 64, 0)
-	inventoryRes.SetSlot(5, items.DiamondShovel, 64, 0)
-	inventoryRes.SetSlot(6, items.DiamondAxe, 64, 0)
+	inventoryRes.SetSlot(4, items.DiamondPickaxe, 1, items.GetDefaultDurability(items.DiamondPickaxe))
+	inventoryRes.SetSlot(5, items.DiamondShovel, 1, items.GetDefaultDurability(items.DiamondShovel))
+	inventoryRes.SetSlot(6, items.DiamondAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
 	inventoryRes.SetSlot(7, items.Diamond, 64, 0)
 
 }
