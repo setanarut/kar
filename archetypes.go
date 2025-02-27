@@ -54,7 +54,6 @@ func SpawnEnemy(pos, vel Vec) ecs.Entity {
 }
 
 func SpawnEffect(id uint8, pos Vec) {
-
 	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
 	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X + 2, pos.Y - 10}, &Velocity{1, 0}, &Rotation{0.1})
 	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})

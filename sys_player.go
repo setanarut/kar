@@ -421,43 +421,43 @@ func (p *Player) Update() {
 
 			// Player and tilemap collision
 
-			tileCollider.Collide(*pBox, *pVelocity, func(collisionInfos []HitTileInfo, delta Vec) {
+			tileCollider.Collide(*pBox, *pVelocity, func(hitInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
 				// Reset velocity when collide
-				for _, ci := range collisionInfos {
+				for _, hit := range hitInfos {
 
-					tileID := tileMapRes.GetIDUnchecked(ci.TileCoords)
+					tileID := tileMapRes.GetIDUnchecked(hit.TileCoords)
 
-					if ci.Normal.Y == -1 {
+					if hit.Normal.Y == -1 {
 						// Ground collision
 						pVelocity.Y = 0
 						p.isOnFloor = true
 					}
 					// Ceil collision
-					if ci.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
+					if hit.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
 						pVelocity.Y = 0
 
 						switch tileID {
 						case items.StoneBricks:
 							// Destroy block when ceil hit
-							tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
-							effectPos := tileMapRes.TileToWorld(ci.TileCoords)
+							tileMapRes.Set(hit.TileCoords.X, hit.TileCoords.Y, items.Air)
+							effectPos := tileMapRes.TileToWorld(hit.TileCoords)
 							SpawnEffect(tileID, effectPos)
 						case items.Random:
-							if tileMapRes.GetIDUnchecked(ci.TileCoords.Add(tilemap.Up)) == items.Air {
-								tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Bedrock)
-								ceilBlockCoord = ci.TileCoords
+							if tileMapRes.GetIDUnchecked(hit.TileCoords.Add(tilemap.Up)) == items.Air {
+								tileMapRes.Set(hit.TileCoords.X, hit.TileCoords.Y, items.Bedrock)
+								ceilBlockCoord = hit.TileCoords
 								ceilBlockTick = 3
 							}
 						}
 					}
 					// Right or Left wall collision
-					if ci.Normal.X == -1 || ci.Normal.X == 1 {
+					if hit.Normal.X == -1 || hit.Normal.X == 1 {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
 						if absXVelocity == ctrl.MaxRunSpeed && isBreakKeyPressed {
-							tileMapRes.Set(ci.TileCoords.X, ci.TileCoords.Y, items.Air)
-							effectPos := tileMapRes.TileToWorld(ci.TileCoords)
+							tileMapRes.Set(hit.TileCoords.X, hit.TileCoords.Y, items.Air)
+							effectPos := tileMapRes.TileToWorld(hit.TileCoords)
 							SpawnEffect(tileID, effectPos)
 						}
 						pVelocity.X = 0

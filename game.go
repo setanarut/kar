@@ -32,35 +32,36 @@ func (g *Game) Init() {
 
 func (g *Game) Update() error {
 
-	// Debug
-	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		inventoryRes.ClearCurrentSlot()
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyK) {
-		inventoryRes.RandomFillAllSlots()
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-		drawDebugTextEnabled = !drawDebugTextEnabled
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		drawItemHitboxEnabled = !drawItemHitboxEnabled
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyB) {
-		drawPlayerTileHitboxEnabled = !drawPlayerTileHitboxEnabled
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
-		dataManager.SaveItem("map.png", tileMapRes.GetImageByte())
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
-		box := mapAABB.GetUnchecked(currentPlayer)
-		tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
-		box.Pos = tileMapRes.TileToWorld(image.Point{tileMapRes.W / 2, tileMapRes.H - 3})
-		cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
-	}
-
 	if ebiten.IsFocused() {
+
+		// Debug
+		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+			inventoryRes.ClearCurrentSlot()
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyK) {
+			inventoryRes.RandomFillAllSlots()
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyV) {
+			drawDebugTextEnabled = !drawDebugTextEnabled
+		}
+
+		if inpututil.IsKeyJustPressed(ebiten.KeyC) {
+			drawItemHitboxEnabled = !drawItemHitboxEnabled
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyB) {
+			drawPlayerTileHitboxEnabled = !drawPlayerTileHitboxEnabled
+		}
+
+		if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
+			dataManager.SaveItem("map.png", tileMapRes.GetImageByte())
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
+			box := mapAABB.GetUnchecked(currentPlayer)
+			tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
+			box.Pos = tileMapRes.TileToWorld(image.Point{tileMapRes.W / 2, tileMapRes.H - 3})
+			cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
+		}
+
 		switch currentGameState {
 		case "menu":
 

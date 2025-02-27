@@ -46,13 +46,16 @@ func (e *Enemy) Update() {
 				}
 
 				// Player enemy collision
-				collided := e.enemyRect.OverlapSweep(playerBox, *playerVelocity, e.enemyHitInfo)
-				if collided {
+				if e.enemyRect.OverlapSweep(playerBox, *playerVelocity, e.enemyHitInfo) {
+
 					*playerVelocity = playerVelocity.Add(e.enemyHitInfo.Delta)
 					playerBox.Pos = playerBox.Pos.Add(*playerVelocity)
 
 					if e.enemyHitInfo.Normal == v.Up {
 						toRemove = append(toRemove, enemyQuery.Entity())
+						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
+					}
+					if e.enemyHitInfo.Normal == v.Down {
 						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
 					}
 
