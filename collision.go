@@ -14,6 +14,15 @@ type AABB struct {
 	Half Vec
 }
 
+func (a *AABB) Left() float64       { return a.Pos.X - a.Half.X }
+func (a *AABB) Right() float64      { return a.Pos.X + a.Half.X }
+func (a *AABB) Top() float64        { return a.Pos.Y - a.Half.Y }
+func (a *AABB) Bottom() float64     { return a.Pos.Y + a.Half.Y }
+func (a *AABB) SetLeft(l float64)   { a.Pos.X = l + a.Half.X }
+func (a *AABB) SetRight(r float64)  { a.Pos.X = r - a.Half.X }
+func (a *AABB) SetTop(t float64)    { a.Pos.Y = t + a.Half.Y }
+func (a *AABB) SetBottom(b float64) { a.Pos.Y = b - a.Half.Y }
+
 type HitInfo struct {
 	Pos    Vec
 	Delta  Vec
@@ -21,13 +30,62 @@ type HitInfo struct {
 	Time   float64
 }
 
-// HitTileInfo stores information about a collision with a tile
-type HitTileInfo struct {
-	TileCoords image.Point // X,Y coordinates of the tile in the tilemap
-	Normal     Vec         // Normal vector of the collision (-1/0/1)
+func (h *HitInfo) Reset() {
+	*h = HitInfo{}
 }
 
-func (a AABB) Segment(pos, delta, padding Vec, hit *HitInfo) bool {
+type HitInfo2 struct {
+	L, Floor, R, Ceil bool
+	Delta             Vec
+}
+
+func CollideAABB(a, platform *AABB, aVel, bVel Vec, h *HitInfo2) bool {
+	// Calculate old positions using velocities
+	aOldPos := Vec{a.Pos.X - aVel.X, a.Pos.Y - aVel.Y}
+	bOldPos := Vec{platform.Pos.X - bVel.X, platform.Pos.Y - bVel.Y}
+
+	// Check collision at current positions using half dimensions
+	xDist := math.Abs(a.Pos.X - platform.Pos.X)
+	yDist := math.Abs(a.Pos.Y - platform.Pos.Y)
+
+	// Combined half widths and heights
+	combinedHalfW := a.Half.X + platform.Half.X
+	combinedHalfH := a.Half.Y + platform.Half.Y
+
+	// Early exit check
+	if xDist > combinedHalfW || yDist > combinedHalfH {
+		return false
+	}
+
+	// Calculate old distances using calculated old positions
+	oldXDist := math.Abs(aOldPos.X - bOldPos.X)
+	oldYDist := math.Abs(aOldPos.Y - bOldPos.Y)
+
+	// Check collision direction and calculate position delta
+	if yDist < combinedHalfH {
+		if a.Pos.Y > platform.Pos.Y && oldYDist >= combinedHalfH {
+			h.Delta.Y = (platform.Pos.Y + combinedHalfH + EPSILON) - a.Pos.Y
+			h.Ceil = true
+		} else if a.Pos.Y < platform.Pos.Y && oldYDist >= combinedHalfH {
+			h.Delta.Y = (platform.Pos.Y - combinedHalfH - EPSILON) - a.Pos.Y
+			h.Floor = true
+		}
+	}
+
+	if xDist < combinedHalfW {
+		if a.Pos.X > platform.Pos.X && oldXDist >= combinedHalfW {
+			h.Delta.X = (platform.Pos.X + combinedHalfW + EPSILON) - a.Pos.X
+			h.R = true
+		} else if a.Pos.X < platform.Pos.X && oldXDist >= combinedHalfW {
+			h.Delta.X = (platform.Pos.X - combinedHalfW - EPSILON) - a.Pos.X
+			h.L = true
+		}
+	}
+
+	return true
+}
+
+func Segment(a *AABB, pos, delta, padding Vec, hit *HitInfo) bool {
 	scaleX := 1.0 / delta.X
 	scaleY := 1.0 / delta.Y
 	signX := sign(scaleX)
@@ -68,15 +126,16 @@ func (a AABB) Segment(pos, delta, padding Vec, hit *HitInfo) bool {
 	return true
 }
 
-func (a AABB) Overlap(a2 *AABB, hit *HitInfo) bool {
-	dx := a2.Pos.X - a.Pos.X
-	px := a2.Half.X + a.Half.X - math.Abs(dx)
+// OverlapSweep returns hit info for b
+func Overlap(a, b *AABB, hit *HitInfo) bool {
+	dx := b.Pos.X - a.Pos.X
+	px := b.Half.X + a.Half.X - math.Abs(dx)
 	if px <= 0 {
 		return false
 	}
 
-	dy := a2.Pos.Y - a.Pos.Y
-	py := a2.Half.Y + a.Half.Y - math.Abs(dy)
+	dy := b.Pos.Y - a.Pos.Y
+	py := b.Half.Y + a.Half.Y - math.Abs(dy)
 	if py <= 0 {
 		return false
 	}
@@ -85,47 +144,65 @@ func (a AABB) Overlap(a2 *AABB, hit *HitInfo) bool {
 		return true
 	}
 
-	// hit.Collider = box1
-	hit.Delta = Vec{}
-	hit.Normal = Vec{}
-	hit.Time = 0 // boxes overlap
 	if px < py {
 		sx := sign(dx)
 		hit.Delta.X = px * sx
 		hit.Normal.X = sx
 		hit.Pos.X = a.Pos.X + a.Half.X*sx
-		hit.Pos.Y = a2.Pos.Y
+		hit.Pos.Y = b.Pos.Y
 	} else {
 		sy := sign(dy)
 		hit.Delta.Y = py * sy
 		hit.Normal.Y = sy
-		hit.Pos.X = a2.Pos.X
+		hit.Pos.X = b.Pos.X
 		hit.Pos.Y = a.Pos.Y + a.Half.Y*sy
 	}
 	return true
 }
 
-func (a AABB) OverlapSweep(a2 *AABB, delta Vec, hit *HitInfo) bool {
-	if delta.IsZero() {
-		return a.Overlap(a2, hit)
+// OverlapSweep returns hit info for b
+func OverlapSweep(staticA, b *AABB, bDelta Vec, hit *HitInfo) bool {
+	if bDelta.IsZero() {
+		return Overlap(staticA, b, hit)
 	}
-	result := a.Segment(a2.Pos, delta, a2.Half, hit)
+	result := Segment(staticA, b.Pos, bDelta, b.Half, hit)
 	if result {
 		// hit.Time = 1.0
 		hit.Time = clamp(hit.Time-EPSILON, 0, 1)
-		direction := delta.Unit()
+		direction := bDelta.Unit()
 		hit.Pos.X = clamp(
-			hit.Pos.X+direction.X*a2.Half.X,
-			a.Pos.X-a.Half.X,
-			a.Pos.X+a.Half.X,
+			hit.Pos.X+direction.X*b.Half.X,
+			staticA.Pos.X-staticA.Half.X,
+			staticA.Pos.X+staticA.Half.X,
 		)
 		hit.Pos.Y = clamp(
-			hit.Pos.Y+direction.Y*a2.Half.Y,
-			a.Pos.Y-a.Half.Y,
-			a.Pos.Y+a.Half.Y,
+			hit.Pos.Y+direction.Y*b.Half.Y,
+			staticA.Pos.Y-staticA.Half.Y,
+			staticA.Pos.Y+staticA.Half.Y,
 		)
 	}
 	return result
+}
+
+// OverlapSweep2 returns hit info for b
+func OverlapSweep2(a, b *AABB, aDelta, bDelta Vec, hit *HitInfo) bool {
+	delta := bDelta.Sub(aDelta)
+	isCollide := OverlapSweep(a, b, delta, hit)
+	if isCollide {
+		hit.Pos = hit.Pos.Add(aDelta.Scale(hit.Time))
+		if hit.Normal.X != 0 {
+			hit.Pos.X = b.Pos.X + (bDelta.X * hit.Time) - (hit.Normal.X * b.Half.X)
+		} else {
+			hit.Pos.Y = b.Pos.Y + (bDelta.Y * hit.Time) - (hit.Normal.Y * b.Half.Y)
+		}
+	}
+	return isCollide
+}
+
+// HitTileInfo stores information about a collision with a tile
+type HitTileInfo struct {
+	TileCoords image.Point // X,Y coordinates of the tile in the tilemap
+	Normal     Vec         // Normal vector of the collision (-1/0/1)
 }
 
 // Collider handles collision detection between rectangles and a 2D tilemap

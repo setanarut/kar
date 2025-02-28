@@ -35,7 +35,7 @@ func (i *Item) Update() {
 
 				if !mapCollisionDelayer.HasUnchecked(itemEntity) {
 					// Check player-item collision
-					if playerBox.Overlap(i.itemBox, i.itemHit) {
+					if Overlap(playerBox, i.itemBox, i.itemHit) {
 						// if Durability component exists, get durability
 						dur := 0
 						if mapDurability.HasUnchecked(itemEntity) {

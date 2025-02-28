@@ -420,7 +420,6 @@ func (p *Player) Update() {
 			}
 
 			// Player and tilemap collision
-
 			tileCollider.Collide(*pBox, *pVelocity, func(hitInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
 				pBox.Pos = pBox.Pos.Add(delta)
@@ -466,6 +465,41 @@ func (p *Player) Update() {
 			},
 			)
 
+			// Enemy collision (pozisyon güncellendikten sonra olması gerek)
+			hiti := &HitInfo2{}
+			enemyQuery := filterEnemy.Query()
+			for enemyQuery.Next() {
+				epos, evel, _ := enemyQuery.Get()
+				enemyVel := (*Vec)(evel)
+				epos.X += enemyVel.X
+				epos.Y += enemyVel.Y
+				enemyRect := &AABB{
+					Pos:  *(*Vec)(epos),
+					Half: enemyWormHalfSize,
+				}
+				if CollideAABB(pBox, enemyRect, *pVelocity, *enemyVel, hiti) {
+					pBox.Pos = pBox.Pos.Add(hiti.Delta)
+					if hiti.Ceil {
+						// ctrl.CurrentState = "idle" // TODO hareketli platformlar için platform durumu yaz.
+						// pVelocity.Y = 0
+					}
+					if hiti.Floor {
+						// pVelocity.X = enemyVel.X + pVelocity.X
+						pVelocity.Y = 0
+						p.isOnFloor = true
+					}
+					if hiti.R {
+						// pVelocity.X = enemyVel.X
+						// pVelocity.X = 0
+					}
+					if hiti.L {
+						// pVelocity.X = 0
+						// pVelocity.X = enemyVel.X
+					}
+
+				}
+			}
+
 			// player facing raycast for target block
 			p.playerTile = tileMapRes.WorldToTile(pBox.Pos.X, pBox.Pos.Y)
 			targetBlockTemp := gameDataRes.TargetBlockCoord
@@ -495,14 +529,14 @@ func (p *Player) Update() {
 					queryItem := filterDroppedItem.Query()
 					for queryItem.Next() {
 						p.itemBox.Pos = *(*Vec)(mapPos.GetUnchecked(queryItem.Entity()))
-						anyItemOverlapsWithPlaceRect = placeTileBox.Overlap(p.itemBox, nil)
+						anyItemOverlapsWithPlaceRect = Overlap(placeTileBox, p.itemBox, nil)
 						if anyItemOverlapsWithPlaceRect {
 							queryItem.Close()
 							break
 						}
 					}
 					if !anyItemOverlapsWithPlaceRect {
-						if !pBox.Overlap(placeTileBox, nil) {
+						if !Overlap(pBox, placeTileBox, nil) {
 							// place block
 							tileMapRes.Set(p.placeTile.X, p.placeTile.Y, inventoryRes.CurrentSlotID())
 							// remove item

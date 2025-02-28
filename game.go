@@ -15,8 +15,8 @@ type Game struct {
 func (g *Game) Init() {
 	g.systems = []ISystem{
 		&Camera{},
-		&Player{},
 		&Enemy{},
+		&Player{},
 		&Item{},
 		&UI{},
 		&Effects{},

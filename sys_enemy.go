@@ -2,7 +2,6 @@ package kar
 
 import (
 	"image/color"
-	"kar/v"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -10,13 +9,13 @@ import (
 )
 
 type Enemy struct {
-	enemyRect    AABB
-	enemyHitInfo *HitInfo
+	enemyRect *AABB
+	hit       *HitInfo
 }
 
 func (e *Enemy) Init() {
-	e.enemyHitInfo = &HitInfo{}
-	e.enemyRect = AABB{Half: enemyWormHalfSize}
+	e.hit = &HitInfo{}
+	e.enemyRect = &AABB{Half: enemyWormHalfSize}
 }
 
 func (e *Enemy) Update() {
@@ -25,55 +24,52 @@ func (e *Enemy) Update() {
 		SpawnEnemy(Vec{x, y}, Vec{0.5, 0})
 	}
 
-	playerBox := mapAABB.GetUnchecked(currentPlayer)
-	playerVelocity := (*Vec)(mapVel.GetUnchecked(currentPlayer))
+	// if world.Alive(currentPlayer) {
 
-	if world.Alive(currentPlayer) {
-		enemyQuery := filterEnemy.Query()
-		for enemyQuery.Next() {
-			epos, evel, enemyAI := enemyQuery.Get()
-			enemyPos := (*Vec)(epos)
-			enemyVel := (*Vec)(evel)
-			switch enemyAI.Name {
-			case "worm":
-				*enemyPos = enemyPos.Add(*enemyVel)
-				e.enemyRect.Pos = *enemyPos
+	// 	enemyQuery := filterEnemy.Query()
 
-				// Enemy tilemap collision
-				delta := tileCollider.Collide(e.enemyRect, *enemyVel, nil)
-				if enemyVel.X != delta.X {
-					enemyVel.X *= -1
-				}
+	// 	for enemyQuery.Next() {
+	// 		epos, evel, _ := enemyQuery.Get()
+	// 		enemyPos := (*Vec)(epos)
+	// 		enemyVel := (*Vec)(evel)
+	// 		e.enemyRect.Pos = *enemyPos
 
-				// Player enemy collision
-				if e.enemyRect.OverlapSweep(playerBox, *playerVelocity, e.enemyHitInfo) {
+	// 		// switch enemyAI.Name {
+	// 		// Player enemy collision
+	// 		pBox := mapAABB.GetUnchecked(currentPlayer)
+	// 		pVel := (*Vec)(mapVel.GetUnchecked(currentPlayer))
 
-					*playerVelocity = playerVelocity.Add(e.enemyHitInfo.Delta)
-					playerBox.Pos = playerBox.Pos.Add(*playerVelocity)
+	// 		e.hit.Reset()
+	// 		if OverlapSweep2(e.enemyRect, pBox, *enemyVel, *pVel, e.hit) {
+	// 			*pVel = pVel.Add(e.hit.Delta)
+	// 			// apply enemy collision delta to player
+	// 			// pBox.Pos = pBox.Pos.Add(*pVel)
 
-					if e.enemyHitInfo.Normal == v.Up {
-						toRemove = append(toRemove, enemyQuery.Entity())
-						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
-					}
-					if e.enemyHitInfo.Normal == v.Down {
-						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
-					}
+	// 			// if e.hit.Normal == v.Up {
+	// 			// 	toRemove = append(toRemove, enemyQuery.Entity())
+	// 			// 	*pVel = e.hit.Normal.Scale(2)
+	// 			// }
+	// 			// if e.hit.Normal == v.Down {
+	// 			// 	pVel.Y = e.hit.Normal.Y * math.Abs(pVel.Y)
+	// 			// 	mapHealth.GetUnchecked(currentPlayer).Current -= 10
+	// 			// }
+	// 			// if e.hit.Normal == v.Right || e.hit.Normal == v.Left {
+	// 			// 	mapHealth.GetUnchecked(currentPlayer).Current -= 10
+	// 			// 	pVel.X = e.hit.Normal.X * math.Abs(pVel.X)
+	// 			// }
 
-					// Horizontal collision
-					if e.enemyHitInfo.Normal == v.Right || e.enemyHitInfo.Normal == v.Left {
-						enemyVel.X *= -1
-						*playerVelocity = e.enemyHitInfo.Normal.Scale(3)
-						// TODO oyuncu çarpınca çarpışma devre dışı kalsın
-						// oyuncuya yanıp sönme componenti ekle
-					}
+	// 		}
 
-				}
+	// 		// delta := tileCollider.Collide(*e.enemyRect, *enemyVel, nil)
+	// 		// *enemyPos = enemyPos.Add(delta)
 
-			case "other":
-				// other
-			}
-		}
-	}
+	// 		// if enemyVel.X != delta.X {
+	// 		// 	enemyVel.X *= -1
+	// 		// }
+	// 		// }
+	// 	}
+	// }
+
 }
 func (e *Enemy) Draw() {
 
