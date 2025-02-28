@@ -477,24 +477,19 @@ func (p *Player) Update() {
 					Pos:  *(*Vec)(epos),
 					Half: enemyWormHalfSize,
 				}
-				if CollideAABB(pBox, enemyRect, *pVelocity, *enemyVel, hiti) {
+				if AABBPlatform(pBox, enemyRect, *pVelocity, *enemyVel, hiti) {
 					pBox.Pos = pBox.Pos.Add(hiti.Delta)
-					if hiti.Ceil {
+					if hiti.Top {
 						// ctrl.CurrentState = "idle" // TODO hareketli platformlar için platform durumu yaz.
-						// pVelocity.Y = 0
 					}
-					if hiti.Floor {
+					if hiti.Bottom {
 						// pVelocity.X = enemyVel.X + pVelocity.X
 						pVelocity.Y = 0
 						p.isOnFloor = true
 					}
-					if hiti.R {
-						// pVelocity.X = enemyVel.X
-						// pVelocity.X = 0
+					if hiti.Right {
 					}
-					if hiti.L {
-						// pVelocity.X = 0
-						// pVelocity.X = enemyVel.X
+					if hiti.Left {
 					}
 
 				}

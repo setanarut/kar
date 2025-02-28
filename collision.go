@@ -35,11 +35,12 @@ func (h *HitInfo) Reset() {
 }
 
 type HitInfo2 struct {
-	L, Floor, R, Ceil bool
-	Delta             Vec
+	Right, Bottom, Left, Top bool
+	Delta                    Vec
 }
 
-func CollideAABB(a, platform *AABB, aVel, bVel Vec, h *HitInfo2) bool {
+// AABBPlatform moving platform collision
+func AABBPlatform(a, platform *AABB, aVel, bVel Vec, h *HitInfo2) bool {
 	// Calculate old positions using velocities
 	aOldPos := Vec{a.Pos.X - aVel.X, a.Pos.Y - aVel.Y}
 	bOldPos := Vec{platform.Pos.X - bVel.X, platform.Pos.Y - bVel.Y}
@@ -65,20 +66,20 @@ func CollideAABB(a, platform *AABB, aVel, bVel Vec, h *HitInfo2) bool {
 	if yDist < combinedHalfH {
 		if a.Pos.Y > platform.Pos.Y && oldYDist >= combinedHalfH {
 			h.Delta.Y = (platform.Pos.Y + combinedHalfH + EPSILON) - a.Pos.Y
-			h.Ceil = true
+			h.Top = true
 		} else if a.Pos.Y < platform.Pos.Y && oldYDist >= combinedHalfH {
 			h.Delta.Y = (platform.Pos.Y - combinedHalfH - EPSILON) - a.Pos.Y
-			h.Floor = true
+			h.Bottom = true
 		}
 	}
 
 	if xDist < combinedHalfW {
 		if a.Pos.X > platform.Pos.X && oldXDist >= combinedHalfW {
 			h.Delta.X = (platform.Pos.X + combinedHalfW + EPSILON) - a.Pos.X
-			h.R = true
+			h.Left = true
 		} else if a.Pos.X < platform.Pos.X && oldXDist >= combinedHalfW {
 			h.Delta.X = (platform.Pos.X - combinedHalfW - EPSILON) - a.Pos.X
-			h.L = true
+			h.Right = true
 		}
 	}
 
