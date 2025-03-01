@@ -110,18 +110,7 @@ func (c *Camera) Draw() {
 			colorMDIO.GeoM.Translate(x, y)
 		}
 		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, colorM, colorMDIO, Screen)
-		if drawItemHitboxEnabled {
-			x, y = cameraRes.ApplyCameraTransformToPoint(x, y)
-			vector.DrawFilledRect(
-				Screen,
-				float32(x),
-				float32(y),
-				float32(playerBox.Half.X*2),
-				float32(playerBox.Half.Y*2),
-				color.RGBA{128, 0, 0, 10},
-				false,
-			)
-		}
+
 	}
 
 	// Draw drop Items

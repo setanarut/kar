@@ -25,6 +25,11 @@ type Spawn struct {
 func (s *Spawn) Init() {}
 func (s *Spawn) Update() {
 
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
+		SpawnEnemy(Vec{x, y}, Vec{0.3, 0})
+	}
+
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
 		p := tileMapRes.WorldToTile(x, y)

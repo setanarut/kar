@@ -9,14 +9,13 @@ import (
 )
 
 var (
-	mapVel              = ecs.NewMap[Velocity](&world)
 	mapFacing           = ecs.NewMap[Facing](&world)
 	mapPos              = ecs.NewMap[Position](&world)
 	mapAABB             = ecs.NewMap[AABB](&world)
 	mapDurability       = ecs.NewMap[Durability](&world)
 	mapHealth           = ecs.NewMap[Health](&world)
 	mapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
-	mapEnemy            = ecs.NewMap3[Position, Velocity, AI](&world)
+	mapEnemy            = ecs.NewMap3[AABB, Velocity, AI](&world)
 	mapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
 	mapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
 	mapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
@@ -26,7 +25,7 @@ var (
 // Query Filters
 var (
 	filterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
-	filterEnemy            = ecs.NewFilter3[Position, Velocity, AI](&world)
+	filterEnemy            = ecs.NewFilter3[AABB, Velocity, AI](&world)
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
@@ -47,7 +46,10 @@ func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 
 func SpawnEnemy(pos, vel Vec) ecs.Entity {
 	return mapEnemy.NewEntity(
-		(*Position)(&pos),
+		&AABB{
+			Pos:  pos,
+			Half: v.Vec{6, 6},
+		},
 		(*Velocity)(&vel),
 		&AI{"worm"},
 	)

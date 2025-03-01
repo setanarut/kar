@@ -26,6 +26,10 @@ type Vec struct {
 func (v Vec) Add(other Vec) Vec {
 	return Vec{v.X + other.X, v.Y + other.Y}
 }
+func (v *Vec) AddInplace(other Vec) {
+	v.X += other.X
+	v.Y += other.Y
+}
 
 // Sub returns this - other
 func (v Vec) Sub(other Vec) Vec {

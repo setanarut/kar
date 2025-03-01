@@ -44,10 +44,9 @@ var (
 	previousGameState = "menu"
 )
 var (
-	ceilBlockCoord    image.Point
-	ceilBlockTick     float64
-	dropItemHalfSize  = Vec{4, 4}
-	enemyWormHalfSize = Vec{6, 6}
+	ceilBlockCoord   image.Point
+	ceilBlockTick    float64
+	dropItemHalfSize = Vec{4, 4}
 )
 var (
 	world         ecs.World = ecs.NewWorld(100)

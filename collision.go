@@ -40,7 +40,7 @@ type HitInfo2 struct {
 }
 
 // AABBPlatform moving platform collision
-func AABBPlatform(a, platform *AABB, aVel, bVel Vec, h *HitInfo2) bool {
+func AABBPlatform(a, platform *AABB, aVel, bVel *Vec, h *HitInfo2) bool {
 	// Calculate old positions using velocities
 	aOldPos := Vec{a.Pos.X - aVel.X, a.Pos.Y - aVel.Y}
 	bOldPos := Vec{platform.Pos.X - bVel.X, platform.Pos.Y - bVel.Y}
@@ -190,7 +190,7 @@ func OverlapSweep2(a, b *AABB, aDelta, bDelta Vec, hit *HitInfo) bool {
 	delta := bDelta.Sub(aDelta)
 	isCollide := OverlapSweep(a, b, delta, hit)
 	if isCollide {
-		hit.Pos = hit.Pos.Add(aDelta.Scale(hit.Time))
+		hit.Pos.AddInplace(aDelta.Scale(hit.Time))
 		if hit.Normal.X != 0 {
 			hit.Pos.X = b.Pos.X + (bDelta.X * hit.Time) - (hit.Normal.X * b.Half.X)
 		} else {

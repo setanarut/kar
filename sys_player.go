@@ -2,7 +2,6 @@ package kar
 
 import (
 	"image"
-	"image/color"
 	"kar/items"
 	"kar/tilemap"
 	"kar/v"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 type Player struct {
@@ -422,7 +420,7 @@ func (p *Player) Update() {
 			// Player and tilemap collision
 			tileCollider.Collide(*pBox, *pVelocity, func(hitInfos []HitTileInfo, delta Vec) {
 				p.isOnFloor = false
-				pBox.Pos = pBox.Pos.Add(delta)
+				pBox.Pos.AddInplace(delta)
 				// Reset velocity when collide
 				for _, hit := range hitInfos {
 
@@ -469,16 +467,9 @@ func (p *Player) Update() {
 			hiti := &HitInfo2{}
 			enemyQuery := filterEnemy.Query()
 			for enemyQuery.Next() {
-				epos, evel, _ := enemyQuery.Get()
-				enemyVel := (*Vec)(evel)
-				epos.X += enemyVel.X
-				epos.Y += enemyVel.Y
-				enemyRect := &AABB{
-					Pos:  *(*Vec)(epos),
-					Half: enemyWormHalfSize,
-				}
-				if AABBPlatform(pBox, enemyRect, *pVelocity, *enemyVel, hiti) {
-					pBox.Pos = pBox.Pos.Add(hiti.Delta)
+				eAABB, eVel, _ := enemyQuery.Get()
+				if AABBPlatform(pBox, eAABB, pVelocity, (*Vec)(eVel), hiti) {
+					pBox.Pos.AddInplace(hiti.Delta)
 					if hiti.Top {
 						// ctrl.CurrentState = "idle" // TODO hareketli platformlar için platform durumu yaz.
 					}
@@ -606,18 +597,10 @@ func (p *Player) Update() {
 	}
 }
 func (c *Player) Draw() {
-	if drawPlayerTileHitboxEnabled {
-		// Draw player tile for debug
-		x, y, w, h := tileMapRes.GetTileRect(c.playerTile.X, c.playerTile.Y)
-		x, y = cameraRes.ApplyCameraTransformToPoint(x, y)
-		vector.DrawFilledRect(
-			Screen,
-			float32(x),
-			float32(y),
-			float32(w),
-			float32(h),
-			color.RGBA{0, 0, 128, 10},
-			false,
-		)
+	if world.Alive(currentPlayer) {
+		if drawPlayerTileHitboxEnabled {
+			box := mapAABB.Get(currentPlayer)
+			DrawAABB(box)
+		}
 	}
 }

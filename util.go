@@ -2,9 +2,12 @@ package kar
 
 import (
 	"image"
+	"image/color"
 	"log"
 	"math"
 	"os"
+
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
 func MapRange(v, a, b, c, d float64) float64 {
@@ -56,4 +59,17 @@ func ReadPNG(filePath string) image.Image {
 		log.Fatal(err)
 	}
 	return image
+}
+
+func DrawAABB(aabb *AABB) {
+	x, y := cameraRes.ApplyCameraTransformToPoint(aabb.Pos.X, aabb.Pos.Y)
+	vector.DrawFilledRect(
+		Screen,
+		float32(x-aabb.Half.X),
+		float32(y-aabb.Half.Y),
+		float32(aabb.Half.X*2),
+		float32(aabb.Half.Y*2),
+		color.RGBA{128, 0, 0, 10},
+		false,
+	)
 }
