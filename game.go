@@ -55,7 +55,6 @@ func (g *Game) Update() error {
 		// Update systems
 		switch currentGameState {
 		case "menu":
-			g.systems[5].Update()
 			g.systems[7].Update()
 			if debugEnabled {
 				g.systems[8].Draw()
