@@ -13,6 +13,7 @@ _*.go
 
 /internal
 /cmd/dene
+/cmd/wasm
 /wasm
 
 # Test binary, built with `go test -c`
