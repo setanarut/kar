@@ -117,8 +117,6 @@ func NewGame() {
 	cameraRes.SmoothOptions.LerpSpeedY = 0
 	cameraRes.SmoothType = kamera.SmoothDamp
 	cameraRes.Tick = 0
-	cameraRes.TempTargetX = box.Pos.X
-	cameraRes.TempTargetY = box.Pos.Y
 	cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 
 	// debug
