@@ -1,8 +1,9 @@
 # Kar
 
-Kar is a 2D crafting/mining/platformer game (Work in progress).
+Kar is a 2D crafting/mining/platformer game (Work in progress).  
+https://setanarut.itch.io/kar
 
-![screenshot](https://github.com/user-attachments/assets/648b2dc2-ceba-4809-a953-8f55b74c8d57)
+<img width="556" alt="a" src="https://github.com/user-attachments/assets/f6f1b2c4-7c63-481f-9af4-f28078510504" />
 
 ## Controls
 
