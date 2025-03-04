@@ -39,7 +39,7 @@ func (m *MainMenu) Update() {
 			currentGameState = "playing"
 		case 1:
 			if previousGameState == "playing" {
-				SaveGame()
+				SaveGame() // TODO oyun yokken menude iken kayıt tuşu olmamalı
 				previousGameState = "menu"
 				currentGameState = "playing"
 			}
