@@ -3,7 +3,6 @@ package kar
 import (
 	"image"
 	"image/color"
-	"kar/items"
 	"kar/tilemap"
 	"log"
 	"math"
@@ -35,6 +34,8 @@ const (
 	ItemCollisionDelay      time.Duration = time.Second / 2
 )
 
+var debugEnabled bool = false
+
 var (
 	Screen      *ebiten.Image
 	ScreenSize  = Vec{500, 340}
@@ -50,20 +51,17 @@ var (
 	dropItemAABB   = &AABB{Half: Vec{4, 4}}
 )
 var (
-	world                       ecs.World = ecs.NewWorld(100)
-	currentPlayer               ecs.Entity
-	renderArea                  = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
-	dataManager                 *gdata.Manager
-	sinspace                    []float64  = Sinspace(0, 2*math.Pi, 3, 60)
-	drawItemHitboxEnabled       bool       = false
-	drawPlayerTileHitboxEnabled bool       = false
-	drawDebugTextEnabled        bool       = false
-	backgroundColor             color.RGBA = color.RGBA{36, 36, 39, 255}
-	tileCollider                *Collider
-	gameTileMapGenerator        *tilemap.Generator
-	colorMDIO                   *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
-	colorM                      colorm.ColorM            = colorm.ColorM{}
-	textDO                      *text.DrawOptions        = &text.DrawOptions{
+	world                ecs.World = ecs.NewWorld(100)
+	currentPlayer        ecs.Entity
+	renderArea           = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
+	dataManager          *gdata.Manager
+	sinspace             []float64  = Sinspace(0, 2*math.Pi, 3, 60)
+	backgroundColor      color.RGBA = color.RGBA{36, 36, 39, 255}
+	tileCollider         *Collider
+	gameTileMapGenerator *tilemap.Generator
+	colorMDIO            *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
+	colorM               colorm.ColorM            = colorm.ColorM{}
+	textDO               *text.DrawOptions        = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
@@ -78,6 +76,8 @@ type ISystem interface {
 }
 
 func init() {
+	cameraRes.SmoothOptions.LerpSpeedX = 0.5
+	cameraRes.SmoothOptions.LerpSpeedY = 0
 	var err error
 	dataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
 	if err != nil {
@@ -92,6 +92,7 @@ func init() {
 }
 
 func NewGame() {
+	debugEnabled = false
 	world.Reset()
 	inventoryRes.Reset()
 
@@ -112,28 +113,8 @@ func NewGame() {
 	currentPlayer = SpawnPlayer(SpawnPos)
 	box := mapAABB.Get(currentPlayer)
 	box.SetBottom(tileMapRes.GetTileBottom(spawnCoord.X, spawnCoord.Y))
-
-	cameraRes.SmoothOptions.LerpSpeedX = 0.5
-	cameraRes.SmoothOptions.LerpSpeedY = 0
 	cameraRes.SmoothType = kamera.SmoothDamp
-	cameraRes.Tick = 0
 	cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
-
-	// debug
-	spawnCoord.X++
-	tileMapRes.Set(spawnCoord.X, spawnCoord.Y, items.Furnace)
-	spawnCoord.X -= 2
-	tileMapRes.Set(spawnCoord.X, spawnCoord.Y, items.CraftingTable)
-
-	inventoryRes.SetSlot(0, items.Coal, 64, 0)
-	inventoryRes.SetSlot(1, items.RawGold, 64, 0)
-	inventoryRes.SetSlot(2, items.RawIron, 64, 0)
-	inventoryRes.SetSlot(3, items.Stick, 64, 0)
-	inventoryRes.SetSlot(4, items.DiamondPickaxe, 1, items.GetDefaultDurability(items.DiamondPickaxe))
-	inventoryRes.SetSlot(5, items.DiamondShovel, 1, items.GetDefaultDurability(items.DiamondShovel))
-	inventoryRes.SetSlot(6, items.DiamondAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
-	inventoryRes.SetSlot(7, items.Diamond, 64, 0)
-
 }
 
 func SaveGame() {
@@ -146,6 +127,7 @@ func SaveGame() {
 }
 
 func LoadGame() {
+	debugEnabled = false
 	if dataManager.ItemExists("01save") {
 		world.Reset()
 

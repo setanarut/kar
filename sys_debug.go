@@ -11,11 +11,13 @@ import (
 )
 
 type Debug struct {
-	tile uint8
+	drawItemHitboxEnabled       bool
+	drawPlayerTileHitboxEnabled bool
+	drawDebugTextEnabled        bool
+	tile                        uint8
 }
 
-func (d *Debug) Init() {
-}
+func (d *Debug) Init() {}
 func (d *Debug) Update() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
@@ -40,15 +42,29 @@ func (d *Debug) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyK) {
 		inventoryRes.RandomFillAllSlots()
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyM) {
+		inventoryRes.SetSlot(0, items.Coal, 64, 0)
+		inventoryRes.SetSlot(1, items.RawGold, 64, 0)
+		inventoryRes.SetSlot(2, items.RawIron, 64, 0)
+		inventoryRes.SetSlot(3, items.Stick, 64, 0)
+		inventoryRes.SetSlot(4, items.DiamondPickaxe, 1, items.GetDefaultDurability(items.DiamondPickaxe))
+		inventoryRes.SetSlot(5, items.DiamondShovel, 1, items.GetDefaultDurability(items.DiamondShovel))
+		inventoryRes.SetSlot(6, items.DiamondAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
+		inventoryRes.SetSlot(7, items.Diamond, 64, 0)
+
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-		drawDebugTextEnabled = !drawDebugTextEnabled
+		d.drawDebugTextEnabled = !d.drawDebugTextEnabled
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyO) {
+
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		drawItemHitboxEnabled = !drawItemHitboxEnabled
+		d.drawItemHitboxEnabled = !d.drawItemHitboxEnabled
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyB) {
-		drawPlayerTileHitboxEnabled = !drawPlayerTileHitboxEnabled
+		d.drawPlayerTileHitboxEnabled = !d.drawPlayerTileHitboxEnabled
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
@@ -63,10 +79,12 @@ func (d *Debug) Update() {
 
 }
 func (d *Debug) Draw() {
-	// Draw debug info
-	if drawDebugTextEnabled {
-		if world.Alive(currentPlayer) {
-			_, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
+	if world.Alive(currentPlayer) {
+		box, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
+		if d.drawPlayerTileHitboxEnabled {
+			DrawAABB(box)
+		}
+		if d.drawDebugTextEnabled {
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				"state %v\nVel.X: %.2f\nVel.Y: %.2f\nCamera: %v",
 				playerController.CurrentState,
@@ -74,11 +92,10 @@ func (d *Debug) Draw() {
 				vel.Y,
 				cameraRes,
 			), 0, 10)
-		} else {
-			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
-				"Camera: %v",
-				cameraRes,
-			), 0, 10)
 		}
+
+	} else {
+		ebitenutil.DebugPrintAt(Screen, fmt.Sprintf("Camera: %v", cameraRes), 0, 10)
 	}
+	ebitenutil.DebugPrintAt(Screen, fmt.Sprintf("DEBUG MODE: %v", debugEnabled), int(ScreenSize.X)-60, 10)
 }

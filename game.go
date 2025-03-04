@@ -29,8 +29,13 @@ func (g *Game) Init() {
 }
 
 func (g *Game) Update() error {
-
 	if ebiten.IsFocused() {
+
+		if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+			if ebiten.IsKeyPressed(ebiten.KeyMeta) && ebiten.IsKeyPressed(ebiten.KeyShift) {
+				debugEnabled = !debugEnabled
+			}
+		}
 
 		// toggle menu
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -52,7 +57,9 @@ func (g *Game) Update() error {
 		case "menu":
 			g.systems[5].Update()
 			g.systems[7].Update()
-			g.systems[8].Update()
+			if debugEnabled {
+				g.systems[8].Draw()
+			}
 		case "playing":
 			g.systems[0].Update()
 			g.systems[1].Update()
@@ -62,7 +69,9 @@ func (g *Game) Update() error {
 			g.systems[5].Update()
 			g.systems[6].Update()
 			// g.systems[7].Update()
-			g.systems[8].Update()
+			if debugEnabled {
+				g.systems[8].Update()
+			}
 		}
 	}
 	return nil
@@ -76,7 +85,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case "menu":
 		g.systems[5].Draw()
 		g.systems[7].Draw()
-		g.systems[8].Draw()
+		if debugEnabled {
+			g.systems[8].Draw()
+		}
 	case "playing":
 		g.systems[0].Draw()
 		g.systems[1].Draw()
@@ -86,7 +97,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.systems[5].Draw()
 		g.systems[6].Draw()
 		// g.systems[7].Draw()
-		g.systems[8].Draw()
+		if debugEnabled {
+			g.systems[8].Draw()
+		}
 	}
 }
 

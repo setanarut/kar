@@ -601,11 +601,4 @@ func (p *Player) Update() {
 		}
 	}
 }
-func (c *Player) Draw() {
-	if world.Alive(currentPlayer) {
-		if drawPlayerTileHitboxEnabled {
-			box := mapAABB.Get(currentPlayer)
-			DrawAABB(box)
-		}
-	}
-}
+func (c *Player) Draw() {}

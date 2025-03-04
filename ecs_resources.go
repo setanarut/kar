@@ -50,7 +50,11 @@ func init() {
 	craftingTableRes = items.NewCraftTable()
 	inventoryRes = items.NewInventory()
 	tileMapRes = tilemap.MakeTileMap(512, 512, 20, 20)
+
 	cameraRes = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
+	cameraRes.SmoothOptions.LerpSpeedX = 0.5
+	cameraRes.SmoothOptions.LerpSpeedY = 0
+
 	animPlayer = anim.NewAnimationPlayer(
 		&anim.Atlas{"Default", res.Player},
 		&anim.Atlas{"WoodenAxe", res.PlayerWoodenAxeAtlas},
