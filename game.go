@@ -80,7 +80,7 @@ func (g *Game) Update() error {
 		// Update systems
 		switch currentGameState {
 		case "menu":
-			g.systems[0].Update()
+			// g.systems[0].Update()
 			g.systems[6].Update()
 		case "playing":
 			g.systems[0].Update()
@@ -102,7 +102,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	switch currentGameState {
 	case "menu":
-		g.systems[0].Draw()
+		// g.systems[0].Draw()
 		g.systems[6].Draw()
 	case "playing":
 		g.systems[0].Draw()
