@@ -369,17 +369,6 @@ func (ui *UI) Draw() {
 
 		}
 
-		// Draw debug info
-		if drawDebugTextEnabled {
-			_, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
-			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
-				"state %v\nVel.X: %.2f\nVel.Y: %.2f",
-				playerController.CurrentState,
-				vel.X,
-				vel.Y,
-			), 10, 50)
-		}
-
 	} else if currentGameState != "menu" {
 		ebitenutil.DebugPrintAt(Screen, "YOU ARE DEAD!", int(ScreenSize.X/2)-30, int(ScreenSize.Y/2))
 	}

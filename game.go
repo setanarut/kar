@@ -1,9 +1,6 @@
 package kar
 
 import (
-	"image"
-	"kar/items"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -14,14 +11,15 @@ type Game struct {
 
 func (g *Game) Init() {
 	g.systems = []ISystem{
-		&Camera{},
+		&Spawn{},
 		&Enemy{},
 		&Player{},
 		&Item{},
-		&UI{},
 		&Effects{},
+		&Camera{},
+		&UI{},
 		&MainMenu{},
-		&Spawn{},
+		&Debug{},
 	}
 	for _, sys := range g.systems {
 		sys.Init()
@@ -33,34 +31,6 @@ func (g *Game) Init() {
 func (g *Game) Update() error {
 
 	if ebiten.IsFocused() {
-
-		// Debug
-		if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-			inventoryRes.ClearCurrentSlot()
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyK) {
-			inventoryRes.RandomFillAllSlots()
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyV) {
-			drawDebugTextEnabled = !drawDebugTextEnabled
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-			drawItemHitboxEnabled = !drawItemHitboxEnabled
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyB) {
-			drawPlayerTileHitboxEnabled = !drawPlayerTileHitboxEnabled
-		}
-
-		if inpututil.IsKeyJustPressed(ebiten.KeyF12) {
-			dataManager.SaveItem("map.png", tileMapRes.GetImageByte())
-		}
-		if inpututil.IsKeyJustPressed(ebiten.KeyF11) {
-			box := mapAABB.GetUnchecked(currentPlayer)
-			tileMapRes.Set(tileMapRes.W/2, tileMapRes.H-3, items.Air)
-			box.Pos = tileMapRes.TileToWorld(image.Point{tileMapRes.W / 2, tileMapRes.H - 3})
-			cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
-		}
 
 		// toggle menu
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -80,8 +50,9 @@ func (g *Game) Update() error {
 		// Update systems
 		switch currentGameState {
 		case "menu":
-			// g.systems[0].Update()
-			g.systems[6].Update()
+			g.systems[5].Update()
+			g.systems[7].Update()
+			g.systems[8].Update()
 		case "playing":
 			g.systems[0].Update()
 			g.systems[1].Update()
@@ -89,8 +60,9 @@ func (g *Game) Update() error {
 			g.systems[3].Update()
 			g.systems[4].Update()
 			g.systems[5].Update()
-			// g.systems[6].Update()
-			g.systems[7].Update()
+			g.systems[6].Update()
+			// g.systems[7].Update()
+			g.systems[8].Update()
 		}
 	}
 	return nil
@@ -102,8 +74,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	switch currentGameState {
 	case "menu":
-		// g.systems[0].Draw()
-		g.systems[6].Draw()
+		g.systems[5].Draw()
+		g.systems[7].Draw()
+		g.systems[8].Draw()
 	case "playing":
 		g.systems[0].Draw()
 		g.systems[1].Draw()
@@ -111,8 +84,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.systems[3].Draw()
 		g.systems[4].Draw()
 		g.systems[5].Draw()
-		// g.systems[6].Draw()
-		g.systems[7].Draw()
+		g.systems[6].Draw()
+		// g.systems[7].Draw()
+		g.systems[8].Draw()
 	}
 }
 

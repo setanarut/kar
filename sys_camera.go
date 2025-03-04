@@ -3,7 +3,6 @@ package kar
 import (
 	"kar/items"
 	"kar/res"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -14,7 +13,6 @@ type Camera struct{}
 
 func (c *Camera) Init() {}
 func (c *Camera) Update() {
-
 	if world.Alive(currentPlayer) {
 		playerAABB := mapAABB.GetUnchecked(currentPlayer)
 		// Toggle camera follow
@@ -24,6 +22,9 @@ func (c *Camera) Update() {
 				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
 				cameraRes.SmoothType = kamera.SmoothDamp
 			case kamera.SmoothDamp:
+				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
+				cameraRes.SmoothType = kamera.None
+			case kamera.None:
 				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
 				cameraRes.SmoothType = kamera.Lerp
 			}
@@ -44,10 +45,12 @@ func (c *Camera) Update() {
 				if playerAABB.Pos.Y > cameraRes.Bottom() {
 					cameraRes.SetTopLeft(cameraRes.X, cameraRes.Y+cameraRes.Height)
 				}
-				cameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
+				cameraRes.LookAt(playerAABB.Pos.X, playerAABB.Pos.Y)
 
 			} else if cameraRes.SmoothType == kamera.SmoothDamp {
-				cameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
+				cameraRes.LookAt(playerAABB.Pos.X, playerAABB.Pos.Y)
+			} else if cameraRes.SmoothType == kamera.None {
+				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
 			}
 		}
 	}

@@ -154,9 +154,9 @@ func (t *TileMap) GetTileRect(x, y int) (rectX, rectY, rectW, rectH float64) {
 	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)
 }
 
-// func (t *TileMap) GetTileRect2(x, y int) (Position, Size) {
-// 	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)
-// }
+func (t *TileMap) GetTileBottom(x, y int) float64 {
+	return float64((y + 1) * t.TileH)
+}
 
 func (t *TileMap) FindSpawnPosition() image.Point {
 	x := 20 * 20
@@ -164,7 +164,7 @@ func (t *TileMap) FindSpawnPosition() image.Point {
 		upperTile := t.GetID(x, y)
 		downTile := t.GetID(x, y+1)
 		if downTile != items.Air && upperTile == items.Air {
-			return image.Point{x, y - 1}
+			return image.Point{x, y}
 		}
 	}
 	return image.Point{}

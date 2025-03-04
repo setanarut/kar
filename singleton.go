@@ -110,11 +110,16 @@ func NewGame() {
 	spawnCoord := tileMapRes.FindSpawnPosition()
 	SpawnPos := tileMapRes.TileToWorld(spawnCoord)
 	currentPlayer = SpawnPlayer(SpawnPos)
+	box := mapAABB.Get(currentPlayer)
+	box.SetBottom(tileMapRes.GetTileBottom(spawnCoord.X, spawnCoord.Y))
 
-	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
 	cameraRes.SmoothOptions.LerpSpeedX = 0.5
 	cameraRes.SmoothOptions.LerpSpeedY = 0
-	cameraRes.SmoothType = kamera.Lerp
+	cameraRes.SmoothType = kamera.SmoothDamp
+	cameraRes.Tick = 0
+	cameraRes.TempTargetX = box.Pos.X
+	cameraRes.TempTargetY = box.Pos.Y
+	cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
 
 	// debug
 	spawnCoord.X++
