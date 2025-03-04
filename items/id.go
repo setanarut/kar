@@ -16,7 +16,6 @@ const (
 	DiamondShovel
 	Dirt
 	Furnace
-	FurnaceOn
 	GoldIngot
 	GoldOre
 	GrassBlock

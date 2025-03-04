@@ -125,12 +125,6 @@ var Property = map[uint8]ItemProperty{
 		Tags:         Block,
 		BestToolTag:  ToolPickaxe,
 	},
-	FurnaceOn: {
-		DisplayName:  "Furnace On",
-		DropID:       Furnace,
-		MaxStackSize: 1,
-		BestToolTag:  ToolPickaxe,
-	},
 	GoldIngot: {
 		DisplayName:  "Gold Ingot",
 		MaxStackSize: 64,
