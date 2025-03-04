@@ -45,6 +45,7 @@ func (c *Camera) Update() {
 					cameraRes.SetTopLeft(cameraRes.X, cameraRes.Y+cameraRes.Height)
 				}
 				cameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
+
 			} else if cameraRes.SmoothType == kamera.SmoothDamp {
 				cameraRes.LookAt(math.Floor(playerAABB.Pos.X), math.Floor(playerAABB.Pos.Y))
 			}

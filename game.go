@@ -105,9 +105,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.systems[0].Draw()
 		g.systems[6].Draw()
 	case "playing":
-		if previousGameState == "menu" {
-			g.systems[0].Update()
-		}
 		g.systems[0].Draw()
 		g.systems[1].Draw()
 		g.systems[2].Draw()

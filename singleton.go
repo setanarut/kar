@@ -114,7 +114,7 @@ func NewGame() {
 	cameraRes.SetCenter(SpawnPos.X, SpawnPos.Y)
 	cameraRes.SmoothOptions.LerpSpeedX = 0.5
 	cameraRes.SmoothOptions.LerpSpeedY = 0
-	cameraRes.SmoothType = kamera.SmoothDamp
+	cameraRes.SmoothType = kamera.Lerp
 
 	// debug
 	spawnCoord.X++
