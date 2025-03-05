@@ -5,6 +5,7 @@ import (
 	"math"
 )
 
+// block breaking effect system
 type Effects struct {
 	g float64
 }

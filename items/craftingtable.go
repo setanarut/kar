@@ -17,7 +17,7 @@ func NewCraftTable() *CraftTable {
 // returns zero (air) if no recipe is found, otherwise returns the recipe result and quantity.
 func (c *CraftTable) CheckRecipe(recipes map[uint8]Recipe) (uint8, uint8) {
 	cropped := c.cropRecipe(c.Slots)
-	for itemIDKey, recipe := range recipes { // TODO CraftTable Recipes'i argüman olarak alsın. fırın için farklı tarifler mümkün olsun.
+	for itemIDKey, recipe := range recipes {
 		if c.Equal(cropped, c.cropRecipe(recipe)) {
 
 			return itemIDKey, recipe[0][0].Quantity

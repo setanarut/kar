@@ -24,12 +24,12 @@ var (
 
 // Query Filters
 var (
-	filterPlayer           = ecs.NewFilter5[AABB, Velocity, Health, Controller, Facing](&world)
 	filterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
 	filterEnemy            = ecs.NewFilter3[AABB, Velocity, AI](&world)
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
+	filterPlayer           = ecs.NewFilter5[AABB, Velocity, Health, Controller, Facing](&world)
 )
 
 func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
