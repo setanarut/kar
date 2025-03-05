@@ -1,6 +1,9 @@
 package kar
 
 import (
+	"kar/items"
+	"kar/res"
+
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -67,11 +70,15 @@ func (i *Item) Update() {
 	i.toRemoveComponent = i.toRemoveComponent[:0]
 }
 func (i *Item) Draw() {
-
-	// itemQuery := FilterDroppedItem.Query(&ECWorld)
-	// for itemQuery.Next() {
-
-	// 	itemID, itemPos, timers, delayer, durability := itemQuery.Get()
-
-	// }
+	// Draw drop Items
+	itemQuery := filterDroppedItem.Query()
+	for itemQuery.Next() {
+		id, pos, animIndex := itemQuery.Get()
+		dropItemAABB.Pos = *(*Vec)(pos)
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Translate(dropItemAABB.Left(), dropItemAABB.Top()+sinspace[animIndex.Index])
+		if id.ID != items.Air {
+			cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
+		}
+	}
 }

@@ -51,6 +51,7 @@ func (d *Debug) Update() {
 		inventoryRes.SetSlot(5, items.DiamondShovel, 1, items.GetDefaultDurability(items.DiamondShovel))
 		inventoryRes.SetSlot(6, items.DiamondAxe, 1, items.GetDefaultDurability(items.DiamondAxe))
 		inventoryRes.SetSlot(7, items.Diamond, 64, 0)
+		inventoryRes.SetSlot(8, items.Snowball, 64, 0)
 
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyV) {

@@ -13,18 +13,15 @@ import (
 )
 
 type Player struct {
-	bounceVelocity float64
 	placeTile      image.Point
 	dyingCountdown float64
 	itemHit        *HitInfo
-	snowBallBox    AABB
 	isOnFloor      bool
 	playerTile     image.Point
 }
 
 func (p *Player) Init() {
-	p.bounceVelocity = -math.Sqrt(2 * SnowballGravity * SnowballBounceHeight)
-	p.snowBallBox = AABB{Half: Vec{4, 4}}
+
 	p.itemHit = &HitInfo{}
 }
 
@@ -563,42 +560,25 @@ func (p *Player) Update() {
 					onInventorySlotChanged()
 				}
 			}
-			// projectile physics
-			q := filterProjectile.Query()
-			for q.Next() {
-				itemID, projectilePos, projectileVel := q.Get()
-				// snowball physics
-				if itemID.ID == items.Snowball {
-					projectileVel.Y += SnowballGravity
-					projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
-					p.snowBallBox.Pos.X = projectilePos.X
-					p.snowBallBox.Pos.Y = projectilePos.Y
-					tileCollider.Collide(p.snowBallBox, *(*Vec)(projectileVel), func(ci []HitTileInfo, delta Vec) {
-						projectilePos.X += delta.X
-						projectilePos.Y += delta.Y
-						isHorizontalCollision := false
-						for _, cinfo := range ci {
-							if cinfo.Normal.Y == -1 {
 
-								projectileVel.Y = p.bounceVelocity
-							}
-							if cinfo.Normal.X == -1 && projectileVel.X > 0 && projectileVel.Y > 0 {
-								isHorizontalCollision = true
-							}
-							if cinfo.Normal.X == 1 && projectileVel.X < 0 && projectileVel.Y > 0 {
-								isHorizontalCollision = true
-							}
-						}
-						if isHorizontalCollision {
-							if world.Alive(q.Entity()) {
-								toRemove = append(toRemove, q.Entity())
-							}
-						}
-					},
-					)
-				}
-			}
 		}
 	}
 }
-func (c *Player) Draw() {}
+func (c *Player) Draw() {
+	// Draw player
+	if world.Alive(currentPlayer) {
+		playerBox := mapAABB.GetUnchecked(currentPlayer)
+
+		colorMDIO.GeoM.Reset()
+		x := playerBox.Pos.X - playerBox.Half.X
+		y := playerBox.Pos.Y - playerBox.Half.Y
+		if mapFacing.GetUnchecked(currentPlayer).X == -1 {
+			colorMDIO.GeoM.Scale(-1, 1)
+			colorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
+		} else {
+			colorMDIO.GeoM.Translate(x, y)
+		}
+		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, colorM, colorMDIO, Screen)
+
+	}
+}

@@ -13,6 +13,7 @@ type Camera struct{}
 
 func (c *Camera) Init() {}
 func (c *Camera) Update() {
+
 	if world.Alive(currentPlayer) {
 		playerAABB := mapAABB.GetUnchecked(currentPlayer)
 		// Toggle camera follow
@@ -95,34 +96,6 @@ func (c *Camera) Draw() {
 					}
 				}
 			}
-		}
-	}
-	// Draw player
-	if world.Alive(currentPlayer) {
-		playerBox := mapAABB.GetUnchecked(currentPlayer)
-
-		colorMDIO.GeoM.Reset()
-		x := playerBox.Pos.X - playerBox.Half.X
-		y := playerBox.Pos.Y - playerBox.Half.Y
-		if mapFacing.GetUnchecked(currentPlayer).X == -1 {
-			colorMDIO.GeoM.Scale(-1, 1)
-			colorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
-		} else {
-			colorMDIO.GeoM.Translate(x, y)
-		}
-		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, colorM, colorMDIO, Screen)
-
-	}
-
-	// Draw drop Items
-	itemQuery := filterDroppedItem.Query()
-	for itemQuery.Next() {
-		id, pos, animIndex := itemQuery.Get()
-		dropItemAABB.Pos = *(*Vec)(pos)
-		colorMDIO.GeoM.Reset()
-		colorMDIO.GeoM.Translate(dropItemAABB.Left(), dropItemAABB.Top()+sinspace[animIndex.Index])
-		if id.ID != items.Air {
-			cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
 		}
 	}
 

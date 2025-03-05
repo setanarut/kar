@@ -69,12 +69,6 @@ var (
 	}
 )
 
-type ISystem interface {
-	Init()
-	Update()
-	Draw()
-}
-
 func init() {
 	cameraRes.SmoothOptions.LerpSpeedX = 0.5
 	cameraRes.SmoothOptions.LerpSpeedY = 0

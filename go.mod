@@ -11,7 +11,7 @@ require (
 	github.com/setanarut/anim v1.3.1
 	github.com/setanarut/fastnoise v1.1.1
 	github.com/setanarut/kamera/v2 v2.96.2
-	github.com/setanarut/v v1.1.0
+	github.com/setanarut/v v1.1.1
 	golang.org/x/text v0.22.0
 )
 

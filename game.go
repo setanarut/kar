@@ -6,24 +6,41 @@ import (
 )
 
 type Game struct {
-	systems []ISystem
+	spawn      *Spawn
+	enemy      *Enemy
+	player     *Player
+	item       *Item
+	effects    *Effects
+	camera     *Camera
+	ui         *UI
+	mainMenu   *MainMenu
+	debug      *Debug
+	projectile *Projectile
 }
 
 func (g *Game) Init() {
-	g.systems = []ISystem{
-		&Spawn{},
-		&Enemy{},
-		&Player{},
-		&Item{},
-		&Effects{},
-		&Camera{},
-		&UI{},
-		&MainMenu{},
-		&Debug{},
-	}
-	for _, sys := range g.systems {
-		sys.Init()
-	}
+	g.spawn = &Spawn{}
+	g.enemy = &Enemy{}
+	g.player = &Player{}
+	g.item = &Item{}
+	g.effects = &Effects{}
+	g.camera = &Camera{}
+	g.ui = &UI{}
+	g.mainMenu = &MainMenu{}
+	g.debug = &Debug{}
+	g.projectile = &Projectile{}
+
+	g.spawn.Init()
+	g.enemy.Init()
+	g.player.Init()
+	g.item.Init()
+	g.effects.Init()
+	g.camera.Init()
+	g.ui.Init()
+	g.mainMenu.Init()
+	g.debug.Init()
+	g.projectile.Init()
+
 	colorM.ChangeHSV(1, 0, 0.5) // BW
 	textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 }
@@ -55,21 +72,21 @@ func (g *Game) Update() error {
 		// Update systems
 		switch currentGameState {
 		case "menu":
-			g.systems[7].Update()
+			g.mainMenu.Update()
 			if debugEnabled {
-				g.systems[8].Draw()
+				g.debug.Update()
 			}
 		case "playing":
-			g.systems[0].Update()
-			g.systems[1].Update()
-			g.systems[2].Update()
-			g.systems[3].Update()
-			g.systems[4].Update()
-			g.systems[5].Update()
-			g.systems[6].Update()
-			// g.systems[7].Update()
+			g.spawn.Update()
+			g.enemy.Update()
+			g.player.Update()
+			g.item.Update()
+			g.effects.Update()
+			g.camera.Update()
+			g.ui.Update()
+			g.projectile.Update()
 			if debugEnabled {
-				g.systems[8].Update()
+				g.debug.Update()
 			}
 		}
 	}
@@ -82,22 +99,22 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	switch currentGameState {
 	case "menu":
-		g.systems[5].Draw()
-		g.systems[7].Draw()
+		g.camera.Draw()
+		g.mainMenu.Draw()
 		if debugEnabled {
-			g.systems[8].Draw()
+			g.debug.Draw()
 		}
 	case "playing":
-		g.systems[0].Draw()
-		g.systems[1].Draw()
-		g.systems[2].Draw()
-		g.systems[3].Draw()
-		g.systems[4].Draw()
-		g.systems[5].Draw()
-		g.systems[6].Draw()
-		// g.systems[7].Draw()
+		g.spawn.Draw()
+		g.enemy.Draw()
+		g.player.Draw()
+		g.item.Draw()
+		g.effects.Draw()
+		g.camera.Draw()
+		g.ui.Draw()
+		g.projectile.Draw()
 		if debugEnabled {
-			g.systems[8].Draw()
+			g.debug.Draw()
 		}
 	}
 }
