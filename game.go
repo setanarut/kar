@@ -1,45 +1,44 @@
 package kar
 
 import (
+	"reflect"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Game struct {
-	spawn      *Spawn
-	enemy      *Enemy
-	player     *Player
-	item       *Item
-	effects    *Effects
-	camera     *Camera
-	ui         *UI
-	mainMenu   *MainMenu
-	debug      *Debug
-	projectile *Projectile
+	Spawn      *Spawn
+	Enemy      *Enemy
+	Player     *Player
+	Item       *Item
+	Effects    *Effects
+	Camera     *Camera
+	Ui         *UI
+	MainMenu   *MainMenu
+	Menu       *Menu
+	Debug      *Debug
+	Projectile *Projectile
 }
 
 func (g *Game) Init() {
-	g.spawn = &Spawn{}
-	g.enemy = &Enemy{}
-	g.player = &Player{}
-	g.item = &Item{}
-	g.effects = &Effects{}
-	g.camera = &Camera{}
-	g.ui = &UI{}
-	g.mainMenu = &MainMenu{}
-	g.debug = &Debug{}
-	g.projectile = &Projectile{}
+	g.Spawn = &Spawn{}
+	g.Enemy = &Enemy{}
+	g.Player = &Player{}
+	g.Item = &Item{}
+	g.Effects = &Effects{}
+	g.Camera = &Camera{}
+	g.Ui = &UI{}
+	g.MainMenu = &MainMenu{}
+	g.Menu = &Menu{}
+	g.Debug = &Debug{}
+	g.Projectile = &Projectile{}
 
-	g.spawn.Init()
-	g.enemy.Init()
-	g.player.Init()
-	g.item.Init()
-	g.effects.Init()
-	g.camera.Init()
-	g.ui.Init()
-	g.mainMenu.Init()
-	g.debug.Init()
-	g.projectile.Init()
+	// Initalize systems
+	val := reflect.ValueOf(g).Elem()
+	for i := range val.NumField() {
+		val.Field(i).MethodByName("Init").Call(nil)
+	}
 
 	colorM.ChangeHSV(1, 0, 0.5) // BW
 	textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
@@ -59,34 +58,39 @@ func (g *Game) Update() error {
 			switch currentGameState {
 			case "menu":
 				currentGameState = "playing"
-				previousGameState = "menu"
+				// previousGameState = "menu"
 				colorM.Reset()
 				textDO.ColorScale.Reset()
 			case "playing":
 				currentGameState = "menu"
-				previousGameState = "playing"
+				// previousGameState = "playing"
 				colorM.ChangeHSV(1, 0, 0.5) // BW
 				textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
 		}
 		// Update systems
 		switch currentGameState {
-		case "menu":
-			g.mainMenu.Update()
+		case "mainmenu":
+			g.MainMenu.Update()
 			if debugEnabled {
-				g.debug.Update()
+				g.Debug.Update()
+			}
+		case "menu":
+			g.Menu.Update()
+			if debugEnabled {
+				g.Debug.Update()
 			}
 		case "playing":
-			g.spawn.Update()
-			g.enemy.Update()
-			g.player.Update()
-			g.item.Update()
-			g.effects.Update()
-			g.camera.Update()
-			g.ui.Update()
-			g.projectile.Update()
+			g.Camera.Update()
+			g.Player.Update()
+			g.Enemy.Update()
+			g.Item.Update()
+			g.Effects.Update()
+			g.Ui.Update()
+			g.Projectile.Update()
+			g.Spawn.Update()
 			if debugEnabled {
-				g.debug.Update()
+				g.Debug.Update()
 			}
 		}
 	}
@@ -98,23 +102,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	Screen.Fill(backgroundColor)
 
 	switch currentGameState {
-	case "menu":
-		g.camera.Draw()
-		g.mainMenu.Draw()
+	case "mainmenu":
+		g.MainMenu.Draw()
 		if debugEnabled {
-			g.debug.Draw()
+			g.Debug.Draw()
+		}
+	case "menu":
+		g.Camera.Draw()
+		g.Menu.Draw()
+		if debugEnabled {
+			g.Debug.Draw()
 		}
 	case "playing":
-		g.spawn.Draw()
-		g.enemy.Draw()
-		g.player.Draw()
-		g.item.Draw()
-		g.effects.Draw()
-		g.camera.Draw()
-		g.ui.Draw()
-		g.projectile.Draw()
+		g.Camera.Draw()
+		g.Player.Draw()
+		g.Enemy.Draw()
+		g.Item.Draw()
+		g.Projectile.Draw()
+		g.Effects.Draw()
+		g.Ui.Draw()
 		if debugEnabled {
-			g.debug.Draw()
+			g.Debug.Draw()
 		}
 	}
 }

@@ -42,8 +42,8 @@ var (
 	WindowScale = 2.0
 )
 var (
-	currentGameState  = "menu"
-	previousGameState = "menu"
+	currentGameState = "mainmenu"
+	// previousGameState = "mainmenu"
 )
 var (
 	ceilBlockCoord image.Point
@@ -70,8 +70,6 @@ var (
 )
 
 func init() {
-	cameraRes.SmoothOptions.LerpSpeedX = 0.5
-	cameraRes.SmoothOptions.LerpSpeedY = 0
 	var err error
 	dataManager, err = gdata.Open(gdata.Config{AppName: "kar"})
 	if err != nil {
@@ -90,12 +88,12 @@ func NewGame() {
 	world.Reset()
 	inventoryRes.Reset()
 
-	inventoryResMap.Add(inventoryRes)
-	craftingtableResMap.Add(craftingTableRes)
-	cameraResMap.Add(cameraRes)
-	gameDataResMap.Add(gameDataRes)
-	animPlaybackDataResMap.Add(animPlayer.Data)
-	tilemapResMap.Add(tileMapRes)
+	mapResinventory.Add(inventoryRes)
+	mapRescraftingtable.Add(craftingTableRes)
+	mapResCamera.Add(cameraRes)
+	mapResgameData.Add(gameDataRes)
+	mapResAnimPlaybackData.Add(animPlayer.Data)
+	mapRestilemap.Add(tileMapRes)
 
 	*animPlayer.Data = animDefaultPlaybackData
 	gameDataRes = &gameData{}
@@ -125,12 +123,12 @@ func LoadGame() {
 	if dataManager.ItemExists("01save") {
 		world.Reset()
 
-		inventoryResMap.Add(inventoryRes)
-		craftingtableResMap.Add(craftingTableRes)
-		cameraResMap.Add(cameraRes)
-		gameDataResMap.Add(gameDataRes)
-		animPlaybackDataResMap.Add(animPlayer.Data)
-		tilemapResMap.Add(tileMapRes)
+		mapResinventory.Add(inventoryRes)
+		mapRescraftingtable.Add(craftingTableRes)
+		mapResCamera.Add(cameraRes)
+		mapResgameData.Add(gameDataRes)
+		mapResAnimPlaybackData.Add(animPlayer.Data)
+		mapRestilemap.Add(tileMapRes)
 
 		jsonData, err := dataManager.LoadItem("01save")
 		if err != nil {

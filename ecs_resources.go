@@ -13,21 +13,21 @@ import (
 
 // ECS Resources
 var (
+	animPlayer              *anim.AnimationPlayer
 	animDefaultPlaybackData anim.PlaybackData
 
-	animPlayer       *anim.AnimationPlayer
 	cameraRes        *kamera.Camera
 	craftingTableRes *items.CraftTable
 	gameDataRes      *gameData
 	inventoryRes     *items.Inventory
 	tileMapRes       *tilemap.TileMap
 
-	animPlaybackDataResMap = ecs.NewResource[anim.PlaybackData](&world)
-	cameraResMap           = ecs.NewResource[kamera.Camera](&world)
-	craftingtableResMap    = ecs.NewResource[items.CraftTable](&world)
-	gameDataResMap         = ecs.NewResource[gameData](&world)
-	inventoryResMap        = ecs.NewResource[items.Inventory](&world)
-	tilemapResMap          = ecs.NewResource[tilemap.TileMap](&world)
+	mapResAnimPlaybackData = ecs.NewResource[anim.PlaybackData](&world)
+	mapResCamera           = ecs.NewResource[kamera.Camera](&world)
+	mapRescraftingtable    = ecs.NewResource[items.CraftTable](&world)
+	mapResgameData         = ecs.NewResource[gameData](&world)
+	mapResinventory        = ecs.NewResource[items.Inventory](&world)
+	mapRestilemap          = ecs.NewResource[tilemap.TileMap](&world)
 )
 
 // GameplayStates
@@ -50,10 +50,7 @@ func init() {
 	craftingTableRes = items.NewCraftTable()
 	inventoryRes = items.NewInventory()
 	tileMapRes = tilemap.MakeTileMap(512, 512, 20, 20)
-
 	cameraRes = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
-	cameraRes.SmoothOptions.LerpSpeedX = 0.5
-	cameraRes.SmoothOptions.LerpSpeedY = 0
 
 	animPlayer = anim.NewAnimationPlayer(
 		&anim.Atlas{"Default", res.Player},

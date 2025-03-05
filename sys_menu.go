@@ -10,14 +10,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-type MainMenu struct {
+type Menu struct {
 	drawOpt    *text.DrawOptions
 	line       int
 	text       string
 	menuOffset Vec
 }
 
-func (m *MainMenu) Init() {
+func (m *Menu) Init() {
 	m.drawOpt = &text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
@@ -25,26 +25,26 @@ func (m *MainMenu) Init() {
 		},
 	}
 
-	m.text = "NEW GAME\nLOAD"
+	m.text = "SAVE\nMAIN MENU"
 	m.menuOffset = ScreenSize.Scale(0.5).Sub(Vec{20, 30})
 	m.drawOpt.ColorScale.ScaleWithColor(color.Gray{200})
 }
 
-func (m *MainMenu) Update() {
+func (m *Menu) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
 		switch m.line {
 		case 0:
-			NewGame()
-			// previousGameState = "mainmenu"
+			SaveGame()
+			// previousGameState = "menu"
 			currentGameState = "playing"
+			colorM.Reset()
+			textDO.ColorScale.Reset()
 		case 1:
-			LoadGame()
-			// previousGameState = "mainmenu"
-			currentGameState = "playing"
+			// previousGameState = "menu"
+			currentGameState = "mainmenu"
+			colorM.Reset()
+			textDO.ColorScale.Reset()
 		}
-
-		colorM.Reset()
-		textDO.ColorScale.Reset()
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyW) {
@@ -55,7 +55,7 @@ func (m *MainMenu) Update() {
 		m.line = (m.line + 1) % 2
 	}
 }
-func (m *MainMenu) Draw() {
+func (m *Menu) Draw() {
 	m.drawOpt.GeoM.Reset()
 	m.drawOpt.GeoM.Translate(m.menuOffset.X, m.menuOffset.Y)
 

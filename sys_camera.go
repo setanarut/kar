@@ -3,6 +3,7 @@ package kar
 import (
 	"kar/items"
 	"kar/res"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -11,7 +12,10 @@ import (
 
 type Camera struct{}
 
-func (c *Camera) Init() {}
+func (c *Camera) Init() {
+	cameraRes.SmoothOptions.LerpSpeedX = 0.4
+	cameraRes.SmoothOptions.LerpSpeedY = 0.0
+}
 func (c *Camera) Update() {
 	if world.Alive(currentPlayer) {
 		playerAABB := mapAABB.GetUnchecked(currentPlayer)
@@ -45,9 +49,15 @@ func (c *Camera) Update() {
 					cameraRes.SetTopLeft(cameraRes.X, cameraRes.Y+cameraRes.Height)
 				}
 				cameraRes.LookAt(playerAABB.Pos.X, playerAABB.Pos.Y)
+				cameraRes.X = math.Floor(cameraRes.X)
+				cameraRes.Y = math.Floor(cameraRes.Y)
 
 			} else if cameraRes.SmoothType == kamera.SmoothDamp {
 				cameraRes.LookAt(playerAABB.Pos.X, playerAABB.Pos.Y)
+				// cameraRes.TempTargetX = math.Floor(cameraRes.TempTargetX)
+				// cameraRes.TempTargetY = math.Floor(cameraRes.TempTargetY)
+				cameraRes.X = math.Floor(cameraRes.X)
+				cameraRes.Y = math.Floor(cameraRes.Y)
 			} else if cameraRes.SmoothType == kamera.None {
 				cameraRes.SetCenter(playerAABB.Pos.X, playerAABB.Pos.Y)
 			}
@@ -71,8 +81,6 @@ func (c *Camera) Draw() {
 			tileID := tileMapRes.Grid[y][x]
 			if tileID != 0 {
 				px, py := float64(x*tileMapRes.TileW), float64(y*tileMapRes.TileH)
-				colorMDIO.GeoM.Reset()
-
 				if x == ceilBlockCoord.X && y == ceilBlockCoord.Y {
 					if tileID == items.Bedrock {
 						if ceilBlockTick > 0 {
@@ -82,7 +90,9 @@ func (c *Camera) Draw() {
 					}
 				}
 
+				colorMDIO.GeoM.Reset()
 				colorMDIO.GeoM.Translate(px, py)
+
 				if items.HasTag(tileID, items.UnbreakableBlock) {
 					cameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], colorM, colorMDIO, Screen)
 				} else {

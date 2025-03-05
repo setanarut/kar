@@ -203,7 +203,7 @@ var Property = map[uint8]ItemProperty{
 		DisplayName:  "Oak Sapling",
 		DropID:       OakSapling,
 		MaxStackSize: 64,
-		Tags:         Block | Item,
+		Tags:         Block | Item | NonSolidBlock,
 		BestToolTag:  ToolAxe,
 	},
 	Obsidian: {

@@ -80,8 +80,8 @@ func (p *Player) Update() {
 
 				if pBox.Pos.Y > cameraRes.Y+cameraRes.Height {
 					animPlayer.Data.Paused = false
-					previousGameState = "playing"
-					currentGameState = "menu"
+					// previousGameState = "playing"
+					currentGameState = "mainmenu"
 					colorM.ChangeHSV(1, 0, 0.5) // BW
 					textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 					world.RemoveEntity(currentPlayer)
@@ -413,14 +413,9 @@ func (p *Player) Update() {
 
 			// Player and tilemap collision
 			*pVelocity = tileCollider.Collide(*pBox, *pVelocity, func(hitInfos []HitTileInfo, delta Vec) {
-				// fmt.Print("|")
 				p.isOnFloor = false
-				// pBox.Pos.AddInplace(delta)
-				// Reset velocity when collide
 				for _, hit := range hitInfos {
-
 					tileID := tileMapRes.GetIDUnchecked(hit.TileCoords)
-
 					if hit.Normal.Y == -1 {
 						// Ground collision
 						pVelocity.Y = 0
