@@ -2,6 +2,7 @@ package kar
 
 import (
 	"kar/items"
+	"kar/res"
 	"math"
 )
 
@@ -51,4 +52,13 @@ func (p *Projectile) Update() {
 		}
 	}
 }
-func (p *Projectile) Draw() {}
+func (p *Projectile) Draw() {
+	// Draw snowball
+	q := filterProjectile.Query()
+	for q.Next() {
+		id, pos, _ := q.Get()
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Translate(pos.X-dropItemAABB.Half.X, pos.Y-dropItemAABB.Half.Y)
+		cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
+	}
+}

@@ -13,7 +13,6 @@ type Camera struct{}
 
 func (c *Camera) Init() {}
 func (c *Camera) Update() {
-
 	if world.Alive(currentPlayer) {
 		playerAABB := mapAABB.GetUnchecked(currentPlayer)
 		// Toggle camera follow
@@ -30,7 +29,6 @@ func (c *Camera) Update() {
 				cameraRes.SmoothType = kamera.Lerp
 			}
 		}
-
 		// Camera follow
 		if mapHealth.GetUnchecked(currentPlayer).Current > 0 {
 			if cameraRes.SmoothType == kamera.Lerp {
@@ -97,15 +95,6 @@ func (c *Camera) Draw() {
 				}
 			}
 		}
-	}
-
-	// Draw snowball
-	q := filterProjectile.Query()
-	for q.Next() {
-		id, pos, _ := q.Get()
-		colorMDIO.GeoM.Reset()
-		colorMDIO.GeoM.Translate(pos.X-dropItemAABB.Half.X, pos.Y-dropItemAABB.Half.Y)
-		cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
 	}
 
 	// Draw target tile border
