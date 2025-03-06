@@ -84,7 +84,6 @@ func init() {
 }
 
 func NewGame() {
-	debugEnabled = false
 	world.Reset()
 	inventoryRes.Reset()
 
@@ -119,7 +118,6 @@ func SaveGame() {
 }
 
 func LoadGame() {
-	debugEnabled = false
 	if dataManager.ItemExists("01save") {
 		world.Reset()
 

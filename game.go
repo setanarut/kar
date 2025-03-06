@@ -68,18 +68,13 @@ func (g *Game) Update() error {
 				textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 			}
 		}
+
 		// Update systems
 		switch currentGameState {
 		case "mainmenu":
 			g.MainMenu.Update()
-			if debugEnabled {
-				g.Debug.Update()
-			}
 		case "menu":
 			g.Menu.Update()
-			if debugEnabled {
-				g.Debug.Update()
-			}
 		case "playing":
 			g.Camera.Update()
 			g.Player.Update()
@@ -89,38 +84,35 @@ func (g *Game) Update() error {
 			g.Ui.Update()
 			g.Projectile.Update()
 			g.Spawn.Update()
-			if debugEnabled {
-				g.Debug.Update()
-			}
+		}
+		if debugEnabled {
+			g.Debug.Update()
 		}
 	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	Screen = screen
-	Screen.Fill(backgroundColor)
+	if ebiten.IsFocused() {
+		Screen = screen
+		Screen.Fill(backgroundColor)
 
-	switch currentGameState {
-	case "mainmenu":
-		g.MainMenu.Draw()
-		if debugEnabled {
-			g.Debug.Draw()
+		// Update systems
+		switch currentGameState {
+		case "mainmenu":
+			g.MainMenu.Draw()
+		case "menu":
+			g.Camera.Draw()
+			g.Menu.Draw()
+		case "playing":
+			g.Camera.Draw()
+			g.Player.Draw()
+			g.Enemy.Draw()
+			g.Item.Draw()
+			g.Projectile.Draw()
+			g.Effects.Draw()
+			g.Ui.Draw()
 		}
-	case "menu":
-		g.Camera.Draw()
-		g.Menu.Draw()
-		if debugEnabled {
-			g.Debug.Draw()
-		}
-	case "playing":
-		g.Camera.Draw()
-		g.Player.Draw()
-		g.Enemy.Draw()
-		g.Item.Draw()
-		g.Projectile.Draw()
-		g.Effects.Draw()
-		g.Ui.Draw()
 		if debugEnabled {
 			g.Debug.Draw()
 		}
