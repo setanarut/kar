@@ -5,12 +5,12 @@ import (
 	"math/rand/v2"
 )
 
-var BlockIDs []uint8
+var Blocks []uint8
 
 func init() {
 	for id := range Property {
 		if HasTag(id, Block) {
-			BlockIDs = append(BlockIDs, id)
+			Blocks = append(Blocks, id)
 		}
 	}
 }
@@ -47,7 +47,7 @@ func GetDefaultDurability(id uint8) int {
 }
 
 func RandomBlock() uint8 {
-	return BlockIDs[rand.IntN(len(BlockIDs))]
+	return Blocks[rand.IntN(len(Blocks))]
 }
 func DisplayName(id uint8) string {
 	return Property[id].DisplayName

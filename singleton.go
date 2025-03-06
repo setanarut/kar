@@ -3,6 +3,7 @@ package kar
 import (
 	"image"
 	"image/color"
+	"kar/items"
 	"kar/tilemap"
 	"log"
 	"math"
@@ -106,6 +107,7 @@ func NewGame() {
 	box.SetBottom(tileMapRes.GetTileBottom(spawnCoord.X, spawnCoord.Y))
 	cameraRes.SmoothType = kamera.SmoothDamp
 	cameraRes.SetCenter(box.Pos.X, box.Pos.Y)
+	inventoryRes.SetSlot(8, items.Snowball, 64, 0)
 }
 
 func SaveGame() {

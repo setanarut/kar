@@ -16,6 +16,10 @@ func init() {
 		{Slot{ID: OakPlanks}, Slot{}},
 		{Slot{ID: OakPlanks}, Slot{}},
 	}
+	CraftingRecipes[Torch] = [][]Slot{
+		{Slot{ID: Coal}, Slot{}},
+		{Slot{ID: Stick}, Slot{}},
+	}
 
 	CraftingRecipes[CraftingTable] = [][]Slot{
 		{Slot{ID: OakPlanks}, Slot{ID: OakPlanks}},
