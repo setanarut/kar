@@ -9,7 +9,7 @@ import (
 
 type Game struct {
 	Spawn      *Spawn
-	Enemy      *Enemy
+	Platform   *Platform
 	Player     *Player
 	Item       *Item
 	Effects    *Effects
@@ -23,7 +23,7 @@ type Game struct {
 
 func (g *Game) Init() {
 	g.Spawn = &Spawn{}
-	g.Enemy = &Enemy{}
+	g.Platform = &Platform{}
 	g.Player = &Player{}
 	g.Item = &Item{}
 	g.Effects = &Effects{}
@@ -78,7 +78,7 @@ func (g *Game) Update() error {
 		case "playing":
 			g.Camera.Update()
 			g.Player.Update()
-			g.Enemy.Update()
+			g.Platform.Update()
 			g.Item.Update()
 			g.Effects.Update()
 			g.Ui.Update()
@@ -106,8 +106,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			g.Menu.Draw()
 		case "playing":
 			g.Camera.Draw()
+			g.Platform.Draw()
 			g.Player.Draw()
-			g.Enemy.Draw()
 			g.Item.Draw()
 			g.Projectile.Draw()
 			g.Effects.Draw()

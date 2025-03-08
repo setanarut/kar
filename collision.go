@@ -25,6 +25,8 @@ func (a *AABB) SetLeft(l float64)   { a.Pos.X = l + a.Half.X }
 func (a *AABB) SetRight(r float64)  { a.Pos.X = r - a.Half.X }
 func (a *AABB) SetTop(t float64)    { a.Pos.Y = t + a.Half.Y }
 func (a *AABB) SetBottom(b float64) { a.Pos.Y = b - a.Half.Y }
+func (a *AABB) TopLeft() Vec        { return Vec{a.Pos.X - a.Half.X, a.Pos.Y - a.Half.Y} }
+func (a *AABB) Size() Vec           { return Vec{a.Half.X * 2, a.Half.Y * 2} }
 
 type HitInfo struct {
 	Pos    Vec
@@ -40,6 +42,10 @@ func (h *HitInfo) Reset() {
 type HitInfo2 struct {
 	Right, Bottom, Left, Top bool
 	Delta                    Vec
+}
+
+func (h *HitInfo2) Reset() {
+	*h = HitInfo2{}
 }
 
 // AABBPlatform moving platform collision

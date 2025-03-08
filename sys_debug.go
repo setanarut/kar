@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/setanarut/v"
 )
 
 type Debug struct {
@@ -22,7 +23,10 @@ func (d *Debug) Update() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
-		SpawnEnemy(Vec{x, y}, Vec{0.5, 0})
+		mapPlatform.NewEntity(&AABB{
+			Pos:  v.Vec{x, y},
+			Half: v.Vec{10, 10},
+		}, &Velocity{1, 0})
 	}
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {

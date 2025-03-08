@@ -16,6 +16,7 @@ var (
 	mapHealth           = ecs.NewMap[Health](&world)
 	mapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
 	mapEnemy            = ecs.NewMap3[AABB, Velocity, AI](&world)
+	mapPlatform         = ecs.NewMap2[AABB, Velocity](&world)
 	mapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
 	mapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
 	mapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
@@ -25,6 +26,7 @@ var (
 // Query Filters
 var (
 	filterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
+	filterPlatform         = ecs.NewFilter2[AABB, Velocity](&world).Exclusive()
 	filterEnemy            = ecs.NewFilter3[AABB, Velocity, AI](&world)
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
