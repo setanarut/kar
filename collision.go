@@ -229,6 +229,7 @@ type CollisionCallback func([]HitTileInfo, Vec)
 func (c *Collider) Collide(rect AABB, delta Vec, onCollide CollisionCallback) Vec {
 	c.Collisions = c.Collisions[:0]
 
+	// BUG Statik kontrol gerekli. platform üzerinde ise çarışma algılanmıyor
 	if delta.IsZero() {
 		return delta
 	}
