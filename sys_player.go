@@ -466,7 +466,8 @@ func (p *Player) Update() {
 					if hit.Top {
 					}
 					if hit.Bottom {
-						playerAABB.Pos = playerAABB.Pos.Add(Vec(*platformVel))
+						pvel := tileCollider.Collide(*playerAABB, Vec(*platformVel), nil)
+						playerAABB.Pos = playerAABB.Pos.Add(pvel)
 						playerVel.Y = 0
 						p.isOnFloor = true
 					}

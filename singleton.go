@@ -82,6 +82,7 @@ func init() {
 		tileMapRes.TileW,
 		tileMapRes.TileH,
 	)
+
 }
 
 func NewGame() {
