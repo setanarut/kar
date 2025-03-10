@@ -457,27 +457,32 @@ func (p *Player) Update() {
 			playerAABB.Pos = playerAABB.Pos.Add(*playerVel)
 			hit := &HitInfo2{}
 			pq := filterPlatform.Query()
+			oneWayPlatform := true
 			for pq.Next() {
 				platformAABB, platformVel := pq.Get()
 				if AABBPlatform(playerAABB, platformAABB, playerVel, (*Vec)(platformVel), hit) {
-					if !hit.Top {
-						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
-					}
+					// TODO tek yönlü bileşenini okuyup ona göre mantık seç
 					if hit.Top {
+						if !oneWayPlatform {
+							playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+							playerVel.Y = 0
+						}
 					}
 					if hit.Bottom {
+						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+						playerVel.Y = 0
 						pvel := tileCollider.Collide(*playerAABB, Vec(*platformVel), nil)
 						playerAABB.Pos = playerAABB.Pos.Add(pvel)
-						playerVel.Y = 0
 						p.isOnFloor = true
 					}
 					if hit.Right {
-						playerVel.X = 0
+						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+						playerVel.X = -1.01
 					}
 					if hit.Left {
-						playerVel.X = 0
+						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+						playerVel.X = +1.01
 					}
-
 				}
 			}
 
