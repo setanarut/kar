@@ -3,6 +3,8 @@ package kar
 import (
 	"kar/res"
 	"math"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // block breaking effect system
@@ -31,7 +33,7 @@ func (e *Effects) Draw() {
 	q := filterEffect.Query()
 	for q.Next() {
 		id, p, v, r := q.Get()
-		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM = ebiten.GeoM{}
 		colorMDIO.GeoM.Translate(-4, -4)
 		colorMDIO.GeoM.Rotate(r.Angle)
 		colorMDIO.GeoM.Translate(4, 4)
