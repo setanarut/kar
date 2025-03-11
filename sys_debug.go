@@ -23,10 +23,24 @@ func (d *Debug) Update() {
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
-		mapPlatform.NewEntity(&AABB{
-			Pos:  v.Vec{x, y},
-			Half: v.Vec{10, 10},
-		}, &Velocity{1, 0})
+		mapPlatform.NewEntity(
+			&AABB{
+				Pos:  v.Vec{x, y},
+				Half: v.Vec{10, 10},
+			},
+			&Velocity{1, 0},
+		)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
+		mapEnemy.NewEntity(
+			&AABB{
+				Pos:  v.Vec{x, y},
+				Half: v.Vec{10, 10},
+			},
+			&Velocity{1, 0},
+			&AI{},
+		)
 	}
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {

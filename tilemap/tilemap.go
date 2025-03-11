@@ -149,6 +149,9 @@ func (t *TileMap) Set(x, y int, id uint8) {
 	}
 	t.Grid[y][x] = id
 }
+func (t *TileMap) SetUnchecked(coord image.Point, id uint8) {
+	t.Grid[coord.Y][coord.X] = id
+}
 
 func (t *TileMap) GetTileRect(x, y int) (rectX, rectY, rectW, rectH float64) {
 	return float64(x * t.TileW), float64(y * t.TileH), float64(t.TileW), float64(t.TileH)

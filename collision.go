@@ -223,7 +223,7 @@ func NewCollider(tileMap [][]uint8, tileWidth, tileHeight int) *Collider {
 }
 
 // CollisionCallback is called when collisions occur, receiving collision info and final movement
-type CollisionCallback func([]HitTileInfo, Vec)
+type CollisionCallback func(hitInfos []HitTileInfo, delta Vec)
 
 // Collide checks for collisions when moving a rectangle and returns the allowed movement
 func (c *Collider) Collide(rect AABB, delta Vec, onCollide CollisionCallback) Vec {

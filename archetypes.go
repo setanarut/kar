@@ -15,8 +15,8 @@ var (
 	mapDurability       = ecs.NewMap[Durability](&world)
 	mapHealth           = ecs.NewMap[Health](&world)
 	mapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
-	mapEnemy            = ecs.NewMap3[AABB, Velocity, AI](&world)
 	mapPlatform         = ecs.NewMap2[AABB, Velocity](&world)
+	mapEnemy            = ecs.NewMap3[AABB, Velocity, AI](&world)
 	mapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
 	mapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
 	mapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
@@ -58,7 +58,7 @@ func SpawnEnemy(pos, vel Vec) ecs.Entity {
 	)
 }
 
-func SpawnEffect(id uint8, pos Vec) {
+func SpawnEffect(pos Vec, id uint8) {
 	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
 	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X + 2, pos.Y - 10}, &Velocity{1, 0}, &Rotation{0.1})
 	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
