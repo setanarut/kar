@@ -422,7 +422,7 @@ func (p *Player) Update() {
 						p.isOnFloor = true
 					}
 					// Ceil collision
-					if hit.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
+					if hit.Normal.Y == 1 {
 						playerVel.Y = 0
 
 						switch tileID {
@@ -455,13 +455,14 @@ func (p *Player) Update() {
 			playerAABB.Pos = playerAABB.Pos.Add(*playerVel)
 			hit := &HitInfo2{}
 			pq := filterPlatform.Query()
-			oneWayPlatform := true
 			for pq.Next() {
-				platformAABB, platformVel := pq.Get()
+
+				platformAABB, platformVel, platformType := pq.Get()
+
 				if AABBPlatform(playerAABB, platformAABB, playerVel, (*Vec)(platformVel), hit) {
 					// TODO tek yönlü bileşenini okuyup ona göre mantık seç
 					if hit.Top {
-						if !oneWayPlatform {
+						if platformType.Name == "solid" {
 							playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
 							playerVel.Y = 0
 						}

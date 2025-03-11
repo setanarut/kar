@@ -18,6 +18,9 @@ type Rotation struct {
 type AI struct {
 	Name string
 }
+type PlatformType struct {
+	Name string
+}
 
 // AnimationIndex holds timing-related data for item animations.
 // It tracks the current frame index for dropped item animations.
