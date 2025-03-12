@@ -20,13 +20,38 @@ type Debug struct {
 
 func (d *Debug) Init() {}
 func (d *Debug) Update() {
-
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		pos := tileMapRes.FloorToBlockCenter(cameraRes.ScreenToWorld(ebiten.CursorPosition()))
+		mapPlatform.NewEntity(
+			&AABB{
+				Pos:  v.Vec{pos.X, pos.Y},
+				Half: v.Vec{10, 10},
+			},
+			&Velocity{1, 0},
+			&PlatformType{"solid"},
+		)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		pos := tileMapRes.FloorToBlockCenter(cameraRes.ScreenToWorld(ebiten.CursorPosition()))
+		mapPlatform.NewEntity(
+			&AABB{
+				Pos:  v.Vec{pos.X, pos.Y},
+				Half: v.Vec{10, 10},
+			},
+			&Velocity{1, 0},
+			&PlatformType{"oneway"},
+		)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key3) {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
-		mapPlatform.NewEntity(&AABB{
-			Pos:  v.Vec{x, y},
-			Half: v.Vec{10, 10},
-		}, &Velocity{1, 0})
+		mapEnemy.NewEntity(
+			&AABB{
+				Pos:  v.Vec{x, y},
+				Half: v.Vec{10, 10},
+			},
+			&Velocity{1, 0},
+			&AI{},
+		)
 	}
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {

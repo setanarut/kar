@@ -4,16 +4,21 @@ import (
 	"github.com/mlange-42/ark/ecs"
 )
 
-// spawnData is a helper for delaying spawn events
-type spawnData struct {
+// spawnItemData is a helper for delaying spawn events
+type spawnItemData struct {
 	Pos        Vec
 	Id         uint8
 	Durability int
 }
+type spawnEffectData struct {
+	Pos Vec
+	Id  uint8
+}
 
 var (
-	toSpawn  = []spawnData{}
-	toRemove []ecs.Entity
+	toSpawnItem   = []spawnItemData{}
+	toSpawnEffect = []spawnEffectData{}
+	toRemove      []ecs.Entity
 )
 
 type Spawn struct {
@@ -23,11 +28,16 @@ func (s *Spawn) Init() {}
 func (s *Spawn) Update() {
 
 	// Spawn item
-	for _, data := range toSpawn {
+	for _, data := range toSpawnItem {
 		SpawnItem(data.Pos, data.Id, data.Durability)
 	}
+	// Spawn effect
+	for _, data := range toSpawnEffect {
+		SpawnEffect(data.Pos, data.Id)
+	}
 
-	toSpawn = toSpawn[:0]
+	toSpawnItem = toSpawnItem[:0]
+	toSpawnEffect = toSpawnEffect[:0]
 
 	for _, e := range toRemove {
 		world.RemoveEntity(e)

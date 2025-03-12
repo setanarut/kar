@@ -16,18 +16,19 @@ func (p *Platform) Init() {
 func (p *Platform) Update() {
 	q := filterPlatform.Query()
 	for q.Next() {
-		aabb, vel := q.Get()
+		aabb, vel, _ := q.Get()
 		delta := tileCollider.Collide(*aabb, *(*Vec)(vel), nil)
 		aabb.Pos = aabb.Pos.Add(delta)
 		if vel.X != delta.X {
 			vel.X *= -1
 		}
+
 	}
 }
 func (p *Platform) Draw() {
 	q := filterPlatform.Query()
 	for q.Next() {
-		aabb, _ := q.Get()
+		aabb, _, _ := q.Get()
 		topLeftPos := aabb.TopLeft()
 		colorMDIO.GeoM.Reset()
 		colorMDIO.GeoM.Translate(topLeftPos.X, topLeftPos.Y)

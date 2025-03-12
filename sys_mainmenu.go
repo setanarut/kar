@@ -39,7 +39,7 @@ func (m *MainMenu) Update() {
 			currentGameState = "playing"
 			m.text = "NEW GAME\nLOAD"
 		case 1:
-			LoadGame() // TODO eğer oyun yoksa playing durumunada patlıyor düzelt.
+			LoadGame()
 			// previousGameState = "mainmenu"
 			if dataManager.ItemExists("01save") {
 				currentGameState = "playing"

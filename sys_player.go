@@ -331,7 +331,7 @@ func (p *Player) Update() {
 								dropid = items.OakLeaves
 							}
 						}
-						toSpawn = append(toSpawn, spawnData{pos, dropid, 0})
+						toSpawnItem = append(toSpawnItem, spawnItemData{pos, dropid, 0})
 					}
 				}
 				// transitions
@@ -422,15 +422,14 @@ func (p *Player) Update() {
 						p.isOnFloor = true
 					}
 					// Ceil collision
-					if hit.Normal.Y == 1 { // TODO aynı anda olan çarpışmaları teke indir
+					if hit.Normal.Y == 1 {
 						playerVel.Y = 0
 
 						switch tileID {
 						case items.StoneBricks:
 							// Destroy block when ceil hit
 							tileMapRes.Set(hit.TileCoords.X, hit.TileCoords.Y, items.Air)
-							effectPos := tileMapRes.TileToWorld(hit.TileCoords)
-							SpawnEffect(tileID, effectPos)
+							SpawnEffect(tileMapRes.TileToWorld(hit.TileCoords), tileID)
 						case items.Random:
 							if tileMapRes.GetIDUnchecked(hit.TileCoords.Add(tilemap.Up)) == items.Air {
 								tileMapRes.Set(hit.TileCoords.X, hit.TileCoords.Y, items.Bedrock)
@@ -444,8 +443,7 @@ func (p *Player) Update() {
 						// While running at maximum speed, hold down the right arrow key and hit the block to destroy it.
 						if absXVelocity == ctrl.MaxRunSpeed && isBreakKeyPressed {
 							tileMapRes.Set(hit.TileCoords.X, hit.TileCoords.Y, items.Air)
-							effectPos := tileMapRes.TileToWorld(hit.TileCoords)
-							SpawnEffect(tileID, effectPos)
+							SpawnEffect(tileMapRes.TileToWorld(hit.TileCoords), tileID)
 						}
 						playerVel.X = 0
 					}
@@ -457,13 +455,14 @@ func (p *Player) Update() {
 			playerAABB.Pos = playerAABB.Pos.Add(*playerVel)
 			hit := &HitInfo2{}
 			pq := filterPlatform.Query()
-			oneWayPlatform := true
 			for pq.Next() {
-				platformAABB, platformVel := pq.Get()
+
+				platformAABB, platformVel, platformType := pq.Get()
+
 				if AABBPlatform(playerAABB, platformAABB, playerVel, (*Vec)(platformVel), hit) {
 					// TODO tek yönlü bileşenini okuyup ona göre mantık seç
 					if hit.Top {
-						if !oneWayPlatform {
+						if platformType.Name == "solid" {
 							playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
 							playerVel.Y = 0
 						}
@@ -549,7 +548,7 @@ func (p *Player) Update() {
 			if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
 				currentSlot := inventoryRes.CurrentSlot()
 				if currentSlot.ID != items.Air {
-					toSpawn = append(toSpawn, spawnData{
+					toSpawnItem = append(toSpawnItem, spawnItemData{
 						playerAABB.Pos,
 						currentSlot.ID,
 						currentSlot.Durability,
