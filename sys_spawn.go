@@ -27,6 +27,8 @@ type Spawn struct {
 func (s *Spawn) Init() {}
 func (s *Spawn) Update() {
 
+	gameDataRes.Duration += Tick
+
 	// Spawn item
 	for _, data := range toSpawnItem {
 		SpawnItem(data.Pos, data.Id, data.Durability)

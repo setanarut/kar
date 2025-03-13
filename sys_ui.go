@@ -274,8 +274,11 @@ func (ui *UI) Draw() {
 		playerHealth := mapHealth.GetUnchecked(currentPlayer)
 		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, textDO)
 
-		if gameDataRes.GameplayState != Playing {
+		// Draw Game time duration text
+		textDO.GeoM.Translate(100, 0)
+		text.Draw(Screen, formatDuration(gameDataRes.Duration), res.Font, textDO)
 
+		if gameDataRes.GameplayState != Playing {
 			// crafting table Background
 			colorMDIO.GeoM.Reset()
 			colorMDIO.GeoM.Translate(ui.craftingTablePos.X, ui.craftingTablePos.Y)

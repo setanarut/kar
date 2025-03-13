@@ -5,6 +5,7 @@ import (
 	"kar/items"
 	"kar/res"
 	"kar/tilemap"
+	"time"
 
 	"github.com/mlange-42/ark/ecs"
 	"github.com/setanarut/anim"
@@ -43,15 +44,10 @@ type gameData struct {
 	TargetBlockCoord image.Point
 	IsRayHit         bool
 	BlockHealth      float64
+	Duration         time.Duration
 }
 
 func init() {
-	gameDataRes = &gameData{GameplayState: Playing}
-	craftingTableRes = items.NewCraftTable()
-	inventoryRes = items.NewInventory()
-	tileMapRes = tilemap.MakeTileMap(512, 512, 20, 20)
-	cameraRes = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
-
 	animPlayer = anim.NewAnimationPlayer(
 		&anim.Atlas{"Default", res.Player},
 		&anim.Atlas{"WoodenAxe", res.PlayerWoodenAxeAtlas},
@@ -78,5 +74,11 @@ func init() {
 	animPlayer.NewAnim("attackWalk", 0, 16, 16, 16, 4, false, false, 8)
 	animPlayer.NewAnim("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
 	animPlayer.SetAnim("idleRight")
+
 	animDefaultPlaybackData = *animPlayer.Data
+	gameDataRes = &gameData{GameplayState: Playing}
+	craftingTableRes = items.NewCraftTable()
+	inventoryRes = items.NewInventory()
+	cameraRes = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
+	tileMapRes = tilemap.MakeTileMap(512, 512, 20, 20)
 }

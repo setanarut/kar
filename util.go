@@ -1,11 +1,13 @@
 package kar
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"log"
 	"math"
 	"os"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
@@ -64,4 +66,19 @@ func DrawAABB(aabb *AABB) {
 		color.RGBA{128, 0, 0, 10},
 		false,
 	)
+}
+
+func formatDuration(d time.Duration) string {
+	// if d < 0 {
+	// 	d = -d // Negatif süreleri pozitife çevir
+	// }
+	totalSeconds := int(d.Seconds())
+	seconds := totalSeconds % 60
+	totalMinutes := totalSeconds / 60
+	minutes := totalMinutes % 60
+	totalHours := totalMinutes / 60
+	hours := totalHours % 24
+	days := totalHours / 24
+
+	return fmt.Sprintf("%02d:%02d:%02d:%02d", days, hours, minutes, seconds)
 }

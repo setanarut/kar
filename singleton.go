@@ -88,6 +88,8 @@ func init() {
 func NewGame() {
 	world.Reset()
 	inventoryRes.Reset()
+	gameDataRes = &gameData{}
+	*animPlayer.Data = animDefaultPlaybackData
 
 	mapResinventory.Add(inventoryRes)
 	mapRescraftingtable.Add(craftingTableRes)
@@ -96,8 +98,6 @@ func NewGame() {
 	mapResAnimPlaybackData.Add(animPlayer.Data)
 	mapRestilemap.Add(tileMapRes)
 
-	*animPlayer.Data = animDefaultPlaybackData
-	gameDataRes = &gameData{}
 	gameTileMapGenerator.SetSeed(rand.Int())
 	gameTileMapGenerator.Generate()
 
