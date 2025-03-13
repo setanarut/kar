@@ -44,7 +44,8 @@ type gameData struct {
 	TargetBlockCoord image.Point
 	IsRayHit         bool
 	BlockHealth      float64
-	Duration         time.Duration
+	Duration         time.Duration // Gameplay duration
+	SpawnElapsed     time.Duration // Entity spawn timer
 }
 
 func init() {

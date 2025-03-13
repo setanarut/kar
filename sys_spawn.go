@@ -1,6 +1,8 @@
 package kar
 
 import (
+	"time"
+
 	"github.com/mlange-42/ark/ecs"
 )
 
@@ -22,12 +24,34 @@ var (
 )
 
 type Spawn struct {
+	spawnInterval time.Duration
 }
 
-func (s *Spawn) Init() {}
+func (s *Spawn) Init() {
+	s.spawnInterval = time.Second * 4
+}
 func (s *Spawn) Update() {
 
 	gameDataRes.Duration += Tick
+	gameDataRes.SpawnElapsed += Tick
+
+	if gameDataRes.SpawnElapsed > s.spawnInterval {
+		gameDataRes.SpawnElapsed = 0
+	}
+
+	if gameDataRes.SpawnElapsed == 0 {
+		if world.Alive(currentPlayer) {
+			// p := mapAABB.GetUnchecked(currentPlayer).Pos
+			// mapEnemy.NewEntity(
+			// 	&AABB{
+			// 		Pos:  p.Sub(Vec{50, 50}),
+			// 		Half: v.Vec{10, 10},
+			// 	},
+			// 	&Velocity{0.5, 0.5},
+			// 	&AI{},
+			// )
+		}
+	}
 
 	// Spawn item
 	for _, data := range toSpawnItem {
