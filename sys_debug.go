@@ -49,7 +49,7 @@ func (d *Debug) Update() {
 				Pos:  v.Vec{x, y},
 				Half: v.Vec{10, 10},
 			},
-			&Velocity{1, 0},
+			&Velocity{0.5, 0.5},
 			&AI{},
 		)
 	}
@@ -127,5 +127,6 @@ func (d *Debug) Draw() {
 	} else {
 		ebitenutil.DebugPrintAt(Screen, fmt.Sprintf("Camera: %v", cameraRes), 0, 10)
 	}
+
 	ebitenutil.DebugPrintAt(Screen, fmt.Sprintf("DEBUG MODE: %v", debugEnabled), int(ScreenSize.X)-60, 10)
 }
