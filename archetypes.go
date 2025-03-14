@@ -36,38 +36,36 @@ var (
 
 func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 	e := mapDroppedItem.NewEntity(
-		&ItemID{id},
+		NewItemID(id),
 		&Position{pos.X, pos.Y},
-		&AnimationIndex{rand.IntN(len(sinspace) - 1)},
-		&CollisionDelayer{ItemCollisionDelay},
+		NewAnimationIndex(rand.IntN(len(sinspace)-1)),
+		NewCollisionDelayer(ItemCollisionDelay),
 	)
 	if items.HasTag(id, items.Tool) {
-		mapDurability.Add(e, &Durability{durability})
+		mapDurability.Add(e, NewDurability(durability))
 	}
 	return e
 }
 
 func SpawnEnemy(pos, vel Vec) ecs.Entity {
 	return mapEnemy.NewEntity(
-		&AABB{
-			Pos:  pos,
-			Half: v.Vec{40, 6},
-		},
+		&AABB{Pos: pos, Half: v.Vec{40, 6}},
 		(*Velocity)(&vel),
-		&AI{"worm"},
+		NewAI("worm"),
 	)
 }
 
 func SpawnEffect(pos Vec, id uint8) {
-	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y - 10}, &Velocity{-1, 0}, &Rotation{-0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X + 2, pos.Y - 10}, &Velocity{1, 0}, &Rotation{0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X - 10, pos.Y + 2}, &Velocity{-0.5, 0}, &Rotation{-0.1})
-	mapEffect.NewEntity(&ItemID{id}, &Position{pos.X + 2, pos.Y + 2}, &Velocity{0.5, 0}, &Rotation{0.1})
+	mapEffect.NewEntity(NewItemID(id), &Position{pos.X - 10, pos.Y - 10}, &Velocity{-1, 0}, NewRotation(-0.1))
+	mapEffect.NewEntity(NewItemID(id), &Position{pos.X + 2, pos.Y - 10}, &Velocity{1, 0}, NewRotation(0.1))
+	mapEffect.NewEntity(NewItemID(id), &Position{pos.X - 10, pos.Y + 2}, &Velocity{-0.5, 0}, NewRotation(-0.1))
+	mapEffect.NewEntity(NewItemID(id), &Position{pos.X + 2, pos.Y + 2}, &Velocity{0.5, 0}, NewRotation(0.1))
 }
 
 func SpawnProjectile(id uint8, pos, vel Vec) ecs.Entity {
+	var pid ItemID = ItemID(id)
 	return mapProjectile.NewEntity(
-		&ItemID{id},
+		&pid,
 		(*Position)(&pos),
 		(*Velocity)(&vel),
 	)

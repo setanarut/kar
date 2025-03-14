@@ -4,36 +4,16 @@ import (
 	"time"
 )
 
-type ItemID struct {
-	ID uint8
-}
+type ItemID uint8
+type Rotation float64
 type Facing Vec
 type Velocity Vec
 type Position Vec
-
-type Rotation struct {
-	Angle float64
-}
-
-type AI struct {
-	Name string
-}
-type PlatformType struct {
-	Name string
-}
-
-// AnimationIndex holds timing-related data for item animations.
-// It tracks the current frame index for dropped item animations.
-type AnimationIndex struct {
-	Index int
-}
-
-type CollisionDelayer struct {
-	Duration time.Duration
-}
-type Durability struct {
-	Durability int
-}
+type AI string
+type PlatformType string
+type Durability int
+type AnimationIndex int // timing-related data for item animations.
+type CollisionDelayer time.Duration
 
 type Health struct {
 	Current int
@@ -65,4 +45,34 @@ type Controller struct {
 	SpeedJumpFactor                     float64
 	WalkAcceleration                    float64
 	WalkDeceleration                    float64
+}
+
+func NewRotation(value float64) *Rotation {
+	p := Rotation(value)
+	return &p
+}
+
+func NewItemID(value uint8) *ItemID {
+	p := ItemID(value)
+	return &p
+}
+func NewAnimationIndex(value int) *AnimationIndex {
+	p := AnimationIndex(value)
+	return &p
+}
+func NewDurability(value int) *Durability {
+	p := Durability(value)
+	return &p
+}
+
+func NewAI(v AI) *AI { return &v }
+
+func NewCollisionDelayer(v time.Duration) *CollisionDelayer {
+	p := CollisionDelayer(v)
+	return &p
+}
+
+func NewPlatformType(value string) *PlatformType {
+	p := PlatformType(value)
+	return &p
 }
