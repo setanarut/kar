@@ -21,7 +21,7 @@ func (p *Projectile) Update() {
 	for q.Next() {
 		itemID, projectilePos, projectileVel := q.Get()
 		// snowball physics
-		if itemID.ID == items.Snowball {
+		if uint8(*itemID) == items.Snowball {
 			projectileVel.Y += SnowballGravity
 			projectileVel.Y = min(projectileVel.Y, SnowballMaxFallVelocity)
 			p.snowBallBox.Pos.X = projectilePos.X
@@ -59,6 +59,6 @@ func (p *Projectile) Draw() {
 		id, pos, _ := q.Get()
 		colorMDIO.GeoM.Reset()
 		colorMDIO.GeoM.Translate(pos.X-dropItemAABB.Half.X, pos.Y-dropItemAABB.Half.Y)
-		cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
+		cameraRes.DrawWithColorM(res.Icon8[uint8(*id)], colorM, colorMDIO, Screen)
 	}
 }

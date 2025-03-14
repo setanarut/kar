@@ -462,7 +462,7 @@ func (p *Player) Update() {
 				if AABBPlatform(playerAABB, platformAABB, playerVel, (*Vec)(platformVel), hit) {
 					// TODO tek yönlü bileşenini okuyup ona göre mantık seç
 					if hit.Top {
-						if platformType.Name == "solid" {
+						if *platformType == "solid" {
 							playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
 							playerVel.Y = 0
 						}

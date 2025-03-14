@@ -32,22 +32,22 @@ func (e *Effects) Update() {
 func (e *Effects) Draw() {
 	q := filterEffect.Query()
 	for q.Next() {
-		id, p, v, r := q.Get()
+		id, pos, vel, angle := q.Get()
 		colorMDIO.GeoM = ebiten.GeoM{}
 		colorMDIO.GeoM.Translate(-4, -4)
-		colorMDIO.GeoM.Rotate(r.Angle)
+		colorMDIO.GeoM.Rotate(float64(*angle))
 		colorMDIO.GeoM.Translate(4, 4)
-		colorMDIO.GeoM.Translate(p.X, p.Y)
+		colorMDIO.GeoM.Translate(pos.X, pos.Y)
 		colorM.Scale(1.3, 1.3, 1.3, 1)
-		cameraRes.DrawWithColorM(res.Icon8[id.ID], colorM, colorMDIO, Screen)
+		cameraRes.DrawWithColorM(res.Icon8[uint8(*id)], colorM, colorMDIO, Screen)
 		colorM.Reset()
 
-		if math.Signbit(r.Angle) {
-			r.Angle -= 0.2
+		if math.Signbit(float64(*angle)) {
+			*angle -= 0.2
 		} else {
-			r.Angle += 0.2
+			*angle += 0.2
 		}
 
-		p.X += v.X * 2
+		pos.X += vel.X * 2
 	}
 }
