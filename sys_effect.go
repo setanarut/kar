@@ -39,7 +39,9 @@ func (e *Effects) Draw() {
 		colorMDIO.GeoM.Translate(4, 4)
 		colorMDIO.GeoM.Translate(pos.X, pos.Y)
 		colorM.Scale(1.3, 1.3, 1.3, 1)
-		cameraRes.DrawWithColorM(res.Icon8[uint8(*id)], colorM, colorMDIO, Screen)
+		if *id != 0 {
+			cameraRes.DrawWithColorM(res.Icon8[uint8(*id)], colorM, colorMDIO, Screen)
+		}
 		colorM.Reset()
 
 		if math.Signbit(float64(*angle)) {
