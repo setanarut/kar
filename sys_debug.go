@@ -28,7 +28,7 @@ func (d *Debug) Update() {
 				Half: v.Vec{10, 10},
 			},
 			&Velocity{1, 0},
-			NewPlatformType("solid"),
+			ptr(PlatformType("solid")),
 		)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key2) {
@@ -39,7 +39,7 @@ func (d *Debug) Update() {
 				Half: v.Vec{10, 10},
 			},
 			&Velocity{1, 0},
-			NewPlatformType("oneway"),
+			ptr(PlatformType("oneway")),
 		)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key3) {
@@ -50,7 +50,7 @@ func (d *Debug) Update() {
 				Half: v.Vec{10, 10},
 			},
 			&Velocity{0.5, 0.5},
-			NewAI("worm"),
+			ptr(AI("worm")),
 		)
 	}
 

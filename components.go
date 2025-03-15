@@ -47,32 +47,4 @@ type Controller struct {
 	WalkDeceleration                    float64
 }
 
-func NewRotation(value float64) *Rotation {
-	p := Rotation(value)
-	return &p
-}
-
-func NewItemID(value uint8) *ItemID {
-	p := ItemID(value)
-	return &p
-}
-func NewAnimationIndex(value int) *AnimationIndex {
-	p := AnimationIndex(value)
-	return &p
-}
-func NewDurability(value int) *Durability {
-	p := Durability(value)
-	return &p
-}
-
-func NewAI(v AI) *AI { return &v }
-
-func NewCollisionDelayer(v time.Duration) *CollisionDelayer {
-	p := CollisionDelayer(v)
-	return &p
-}
-
-func NewPlatformType(value string) *PlatformType {
-	p := PlatformType(value)
-	return &p
-}
+func ptr[T any](v T) *T { return &v }
