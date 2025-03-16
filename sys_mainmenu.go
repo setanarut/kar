@@ -5,6 +5,7 @@ import (
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -50,7 +51,7 @@ func (m *MainMenu) Update() {
 			}
 		}
 
-		colorM.Reset() // escapes to heap
+		colorM = colorm.ColorM{}
 		textDO.ColorScale.Reset()
 	}
 

@@ -90,7 +90,7 @@ func (t *TileMap) String() string {
 
 func MakeGrid(width, height int) [][]uint8 {
 	var tm [][]uint8
-	for i := 0; i < height; i++ {
+	for range height {
 		tm = append(tm, make([]uint8, width))
 	}
 	return tm

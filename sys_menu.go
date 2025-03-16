@@ -5,6 +5,7 @@ import (
 	"kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -37,12 +38,12 @@ func (m *Menu) Update() {
 			SaveGame()
 			// previousGameState = "menu"
 			currentGameState = "playing"
-			colorM.Reset()
+			colorM = colorm.ColorM{}
 			textDO.ColorScale.Reset()
 		case 1:
 			// previousGameState = "menu"
 			currentGameState = "mainmenu"
-			colorM.Reset()
+			colorM = colorm.ColorM{}
 			textDO.ColorScale.Reset()
 		}
 	}
