@@ -15,19 +15,19 @@ import (
 // ECS Resources
 var (
 	animPlayer = *anim.NewAnimationPlayer(
-		&anim.Atlas{"Default", res.Player},
-		&anim.Atlas{"WoodenAxe", res.PlayerWoodenAxeAtlas},
-		&anim.Atlas{"StoneAxe", res.PlayerStoneAxeAtlas},
-		&anim.Atlas{"IronAxe", res.PlayerIronAxeAtlas},
-		&anim.Atlas{"DiamondAxe", res.PlayerDiamondAxeAtlas},
-		&anim.Atlas{"WoodenPickaxe", res.PlayerWoodenPickaxeAtlas},
-		&anim.Atlas{"StonePickaxe", res.PlayerStonePickaxeAtlas},
-		&anim.Atlas{"IronPickaxe", res.PlayerIronPickaxeAtlas},
-		&anim.Atlas{"DiamondPickaxe", res.PlayerDiamondPickaxeAtlas},
-		&anim.Atlas{"WoodenShovel", res.PlayerWoodenShovelAtlas},
-		&anim.Atlas{"StoneShovel", res.PlayerStoneShovelAtlas},
-		&anim.Atlas{"IronShovel", res.PlayerIronShovelAtlas},
-		&anim.Atlas{"DiamondShovel", res.PlayerDiamondShovelAtlas},
+		anim.Atlas{"Default", res.Player},
+		anim.Atlas{"WoodenAxe", res.PlayerWoodenAxeAtlas},
+		anim.Atlas{"StoneAxe", res.PlayerStoneAxeAtlas},
+		anim.Atlas{"IronAxe", res.PlayerIronAxeAtlas},
+		anim.Atlas{"DiamondAxe", res.PlayerDiamondAxeAtlas},
+		anim.Atlas{"WoodenPickaxe", res.PlayerWoodenPickaxeAtlas},
+		anim.Atlas{"StonePickaxe", res.PlayerStonePickaxeAtlas},
+		anim.Atlas{"IronPickaxe", res.PlayerIronPickaxeAtlas},
+		anim.Atlas{"DiamondPickaxe", res.PlayerDiamondPickaxeAtlas},
+		anim.Atlas{"WoodenShovel", res.PlayerWoodenShovelAtlas},
+		anim.Atlas{"StoneShovel", res.PlayerStoneShovelAtlas},
+		anim.Atlas{"IronShovel", res.PlayerIronShovelAtlas},
+		anim.Atlas{"DiamondShovel", res.PlayerDiamondShovelAtlas},
 	)
 
 	mapResAnimPlaybackData = ecs.NewResource[anim.PlaybackData](&world)
@@ -76,6 +76,6 @@ func init() {
 	animPlayer.NewAnim("attackUp", 16*11, 0, 16, 16, 2, false, false, 8)
 	animPlayer.SetAnim("idleRight")
 
-	animDefaultPlaybackData = *animPlayer.Data
+	animDefaultPlaybackData = animPlayer.Data
 
 }

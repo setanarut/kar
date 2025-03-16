@@ -87,13 +87,13 @@ func NewGame() {
 	world.Reset()
 	inventoryRes.Reset()
 	gameDataRes = gameData{}
-	*animPlayer.Data = animDefaultPlaybackData
+	animPlayer.Data = animDefaultPlaybackData
 
 	mapResInventory.Add(inventoryRes)
 	mapResCraftingtable.Add(craftingTableRes)
 	mapResCamera.Add(cameraRes)
 	mapResGameData.Add(&gameDataRes)
-	mapResAnimPlaybackData.Add(animPlayer.Data)
+	mapResAnimPlaybackData.Add(&animPlayer.Data)
 	mapResTilemap.Add(&tileMapRes)
 
 	gameTileMapGenerator.SetSeed(rand.Int())
@@ -126,7 +126,7 @@ func LoadGame() {
 		mapResCraftingtable.Add(craftingTableRes)
 		mapResCamera.Add(cameraRes)
 		mapResGameData.Add(&gameDataRes)
-		mapResAnimPlaybackData.Add(animPlayer.Data)
+		mapResAnimPlaybackData.Add(&animPlayer.Data)
 		mapResTilemap.Add(&tileMapRes)
 
 		jsonData, err := dataManager.LoadItem("01save")
