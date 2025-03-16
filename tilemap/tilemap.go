@@ -28,8 +28,8 @@ type TileMap struct {
 	TileW, TileH int
 }
 
-func MakeTileMap(w, h, tileW, tileH int) *TileMap {
-	return &TileMap{
+func MakeTileMap(w, h, tileW, tileH int) TileMap {
+	return TileMap{
 		Grid:  MakeGrid(w, h),
 		W:     w,
 		H:     h,
@@ -54,7 +54,7 @@ func (tm *TileMap) WriteAsImage(path string, playerX, playerY int) {
 	WritePNG(im, path)
 }
 
-func (tm *TileMap) CloneEmpty() *TileMap {
+func (tm *TileMap) CloneEmpty() TileMap {
 	return MakeTileMap(tm.W, tm.H, tm.TileW, tm.TileH)
 }
 

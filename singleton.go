@@ -58,8 +58,7 @@ var (
 	dataManager          *gdata.Manager
 	sinspace             []float64  = Sinspace(0, 2*math.Pi, 3, 60)
 	backgroundColor      color.RGBA = color.RGBA{36, 36, 39, 255}
-	tileCollider         *Collider
-	gameTileMapGenerator *tilemap.Generator
+	gameTileMapGenerator tilemap.Generator
 	colorMDIO            *colorm.DrawImageOptions = &colorm.DrawImageOptions{}
 	colorM               colorm.ColorM            = colorm.ColorM{}
 	textDO               *text.DrawOptions        = &text.DrawOptions{
@@ -67,6 +66,10 @@ var (
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 10,
 		},
+	}
+	tileCollider = Collider{
+		TileMap:  tileMapRes.Grid,
+		TileSize: image.Point{tileMapRes.TileW, tileMapRes.TileH},
 	}
 )
 
@@ -77,26 +80,21 @@ func init() {
 		panic(err)
 	}
 	gameTileMapGenerator = tilemap.NewGenerator(tileMapRes)
-	tileCollider = NewCollider(
-		tileMapRes.Grid,
-		tileMapRes.TileW,
-		tileMapRes.TileH,
-	)
 
 }
 
 func NewGame() {
 	world.Reset()
 	inventoryRes.Reset()
-	gameDataRes = &gameData{}
+	gameDataRes = gameData{}
 	*animPlayer.Data = animDefaultPlaybackData
 
-	mapResinventory.Add(inventoryRes)
-	mapRescraftingtable.Add(craftingTableRes)
+	mapResInventory.Add(inventoryRes)
+	mapResCraftingtable.Add(craftingTableRes)
 	mapResCamera.Add(cameraRes)
-	mapResgameData.Add(gameDataRes)
+	mapResGameData.Add(&gameDataRes)
 	mapResAnimPlaybackData.Add(animPlayer.Data)
-	mapRestilemap.Add(tileMapRes)
+	mapResTilemap.Add(&tileMapRes)
 
 	gameTileMapGenerator.SetSeed(rand.Int())
 	gameTileMapGenerator.Generate()
@@ -114,7 +112,7 @@ func NewGame() {
 func SaveGame() {
 	jsonData, err := arkserde.Serialize(&world)
 	if err != nil {
-		log.Fatal("Error serializing world:", err)
+		log.Fatal(err)
 	}
 	dataManager.SaveItem("01save", jsonData)
 
@@ -124,20 +122,20 @@ func LoadGame() {
 	if dataManager.ItemExists("01save") {
 		world.Reset()
 
-		mapResinventory.Add(inventoryRes)
-		mapRescraftingtable.Add(craftingTableRes)
+		mapResInventory.Add(inventoryRes)
+		mapResCraftingtable.Add(craftingTableRes)
 		mapResCamera.Add(cameraRes)
-		mapResgameData.Add(gameDataRes)
+		mapResGameData.Add(&gameDataRes)
 		mapResAnimPlaybackData.Add(animPlayer.Data)
-		mapRestilemap.Add(tileMapRes)
+		mapResTilemap.Add(&tileMapRes)
 
 		jsonData, err := dataManager.LoadItem("01save")
 		if err != nil {
-			log.Fatal("Error loading saved data:", err)
+			log.Fatal(err)
 		}
 		err = arkserde.Deserialize(jsonData, &world)
 		if err != nil {
-			log.Fatal("Error deserializing world:", err)
+			log.Fatal(err)
 		}
 
 		if !world.Alive(currentPlayer) {

@@ -14,21 +14,35 @@ import (
 
 // ECS Resources
 var (
-	animPlayer              *anim.AnimationPlayer
-	animDefaultPlaybackData anim.PlaybackData
-
-	cameraRes        *kamera.Camera
-	craftingTableRes *items.CraftTable
-	gameDataRes      *gameData
-	inventoryRes     *items.Inventory
-	tileMapRes       *tilemap.TileMap
+	animPlayer = *anim.NewAnimationPlayer(
+		&anim.Atlas{"Default", res.Player},
+		&anim.Atlas{"WoodenAxe", res.PlayerWoodenAxeAtlas},
+		&anim.Atlas{"StoneAxe", res.PlayerStoneAxeAtlas},
+		&anim.Atlas{"IronAxe", res.PlayerIronAxeAtlas},
+		&anim.Atlas{"DiamondAxe", res.PlayerDiamondAxeAtlas},
+		&anim.Atlas{"WoodenPickaxe", res.PlayerWoodenPickaxeAtlas},
+		&anim.Atlas{"StonePickaxe", res.PlayerStonePickaxeAtlas},
+		&anim.Atlas{"IronPickaxe", res.PlayerIronPickaxeAtlas},
+		&anim.Atlas{"DiamondPickaxe", res.PlayerDiamondPickaxeAtlas},
+		&anim.Atlas{"WoodenShovel", res.PlayerWoodenShovelAtlas},
+		&anim.Atlas{"StoneShovel", res.PlayerStoneShovelAtlas},
+		&anim.Atlas{"IronShovel", res.PlayerIronShovelAtlas},
+		&anim.Atlas{"DiamondShovel", res.PlayerDiamondShovelAtlas},
+	)
 
 	mapResAnimPlaybackData = ecs.NewResource[anim.PlaybackData](&world)
 	mapResCamera           = ecs.NewResource[kamera.Camera](&world)
-	mapRescraftingtable    = ecs.NewResource[items.CraftTable](&world)
-	mapResgameData         = ecs.NewResource[gameData](&world)
-	mapResinventory        = ecs.NewResource[items.Inventory](&world)
-	mapRestilemap          = ecs.NewResource[tilemap.TileMap](&world)
+	mapResCraftingtable    = ecs.NewResource[items.CraftTable](&world)
+	mapResGameData         = ecs.NewResource[gameData](&world)
+	mapResInventory        = ecs.NewResource[items.Inventory](&world)
+	mapResTilemap          = ecs.NewResource[tilemap.TileMap](&world)
+
+	gameDataRes             = gameData{GameplayState: Playing}
+	craftingTableRes        = items.NewCraftTable()
+	inventoryRes            = items.NewInventory()
+	cameraRes               = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
+	tileMapRes              = tilemap.MakeTileMap(512, 512, 20, 20)
+	animDefaultPlaybackData anim.PlaybackData
 )
 
 // GameplayStates
@@ -49,21 +63,7 @@ type gameData struct {
 }
 
 func init() {
-	animPlayer = anim.NewAnimationPlayer(
-		&anim.Atlas{"Default", res.Player},
-		&anim.Atlas{"WoodenAxe", res.PlayerWoodenAxeAtlas},
-		&anim.Atlas{"StoneAxe", res.PlayerStoneAxeAtlas},
-		&anim.Atlas{"IronAxe", res.PlayerIronAxeAtlas},
-		&anim.Atlas{"DiamondAxe", res.PlayerDiamondAxeAtlas},
-		&anim.Atlas{"WoodenPickaxe", res.PlayerWoodenPickaxeAtlas},
-		&anim.Atlas{"StonePickaxe", res.PlayerStonePickaxeAtlas},
-		&anim.Atlas{"IronPickaxe", res.PlayerIronPickaxeAtlas},
-		&anim.Atlas{"DiamondPickaxe", res.PlayerDiamondPickaxeAtlas},
-		&anim.Atlas{"WoodenShovel", res.PlayerWoodenShovelAtlas},
-		&anim.Atlas{"StoneShovel", res.PlayerStoneShovelAtlas},
-		&anim.Atlas{"IronShovel", res.PlayerIronShovelAtlas},
-		&anim.Atlas{"DiamondShovel", res.PlayerDiamondShovelAtlas},
-	)
+
 	animPlayer.NewAnim("idleRight", 0, 0, 16, 16, 1, false, false, 1)
 	animPlayer.NewAnim("idleUp", 208, 0, 16, 16, 1, false, false, 1)
 	animPlayer.NewAnim("idleDown", 224, 0, 16, 16, 1, false, false, 1)
@@ -77,9 +77,5 @@ func init() {
 	animPlayer.SetAnim("idleRight")
 
 	animDefaultPlaybackData = *animPlayer.Data
-	gameDataRes = &gameData{GameplayState: Playing}
-	craftingTableRes = items.NewCraftTable()
-	inventoryRes = items.NewInventory()
-	cameraRes = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
-	tileMapRes = tilemap.MakeTileMap(512, 512, 20, 20)
+
 }

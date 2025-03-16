@@ -8,40 +8,27 @@ import (
 )
 
 type Game struct {
-	Spawn      *Spawn
-	Platform   *Platform
-	Enemy      *Enemy
-	Player     *Player
-	Item       *Item
-	Effects    *Effects
-	Camera     *Camera
-	Ui         *UI
-	MainMenu   *MainMenu
-	Menu       *Menu
-	Debug      *Debug
-	Projectile *Projectile
+	Spawn      Spawn
+	Platform   Platform
+	Enemy      Enemy
+	Player     Player
+	Item       Item
+	Effects    Effects
+	Camera     Camera
+	Ui         UI
+	MainMenu   MainMenu
+	Menu       Menu
+	Debug      Debug
+	Projectile Projectile
 }
 
 func (g *Game) Init() {
-	g.Spawn = &Spawn{}
-	g.Platform = &Platform{}
-	g.Enemy = &Enemy{}
-	g.Player = &Player{}
-	g.Item = &Item{}
-	g.Effects = &Effects{}
-	g.Camera = &Camera{}
-	g.Ui = &UI{}
-	g.MainMenu = &MainMenu{}
-	g.Menu = &Menu{}
-	g.Debug = &Debug{}
-	g.Projectile = &Projectile{}
-
-	// Initalize systems
-	val := reflect.ValueOf(g).Elem()
-	for i := range val.NumField() {
-		val.Field(i).MethodByName("Init").Call(nil)
+	v := reflect.ValueOf(g).Elem()
+	for i := range v.NumField() {
+		if init := v.Field(i).Addr().MethodByName("Init"); init.IsValid() {
+			init.Call(nil)
+		}
 	}
-
 	colorM.ChangeHSV(1, 0, 0.5) // BW
 	textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
 }

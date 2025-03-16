@@ -27,8 +27,8 @@ type Generator struct {
 	NoiseState *fastnoise.State[float64]
 	PCG        *rand.PCG
 	Rand       *rand.Rand
-	Opts       WorldOpts
-	Tilemap    *TileMap
+	Opts       *WorldOpts
+	Tilemap    TileMap
 }
 
 func DefaultWorldOpts() WorldOpts {
@@ -47,12 +47,13 @@ func DefaultWorldOpts() WorldOpts {
 	}
 }
 
-func NewGenerator(t *TileMap) *Generator {
-	g := &Generator{
+func NewGenerator(t TileMap) Generator {
+	g := Generator{
 		NoiseState: fastnoise.New[float64](),
-		Opts:       DefaultWorldOpts(),
 		Tilemap:    t,
 	}
+	g.Opts = &WorldOpts{}
+	*g.Opts = DefaultWorldOpts()
 	g.PCG = rand.NewPCG(0, 1024)
 	g.Rand = rand.New(g.PCG)
 	g.NoiseState.Seed = 0

@@ -17,16 +17,17 @@ type AABB struct {
 	Half Vec
 }
 
-func (a *AABB) Left() float64       { return a.Pos.X - a.Half.X }
-func (a *AABB) Right() float64      { return a.Pos.X + a.Half.X }
-func (a *AABB) Top() float64        { return a.Pos.Y - a.Half.Y }
-func (a *AABB) Bottom() float64     { return a.Pos.Y + a.Half.Y }
+func (a AABB) Left() float64   { return a.Pos.X - a.Half.X }
+func (a AABB) Right() float64  { return a.Pos.X + a.Half.X }
+func (a AABB) Top() float64    { return a.Pos.Y - a.Half.Y }
+func (a AABB) Bottom() float64 { return a.Pos.Y + a.Half.Y }
+func (a AABB) TopLeft() Vec    { return Vec{a.Pos.X - a.Half.X, a.Pos.Y - a.Half.Y} }
+func (a AABB) Size() Vec       { return Vec{a.Half.X * 2, a.Half.Y * 2} }
+
 func (a *AABB) SetLeft(l float64)   { a.Pos.X = l + a.Half.X }
 func (a *AABB) SetRight(r float64)  { a.Pos.X = r - a.Half.X }
 func (a *AABB) SetTop(t float64)    { a.Pos.Y = t + a.Half.Y }
 func (a *AABB) SetBottom(b float64) { a.Pos.Y = b - a.Half.Y }
-func (a *AABB) TopLeft() Vec        { return Vec{a.Pos.X - a.Half.X, a.Pos.Y - a.Half.Y} }
-func (a *AABB) Size() Vec           { return Vec{a.Half.X * 2, a.Half.Y * 2} }
 
 type HitInfo struct {
 	Pos    Vec
@@ -212,14 +213,6 @@ type Collider struct {
 	Collisions []HitTileInfo // List of collisions from last check
 	TileSize   image.Point   // Width and height of tiles
 	TileMap    [][]uint8     // 2D grid of tile IDs
-}
-
-// NewCollider creates a new tile collider with the given tilemap and tile dimensions
-func NewCollider(tileMap [][]uint8, tileWidth, tileHeight int) *Collider {
-	return &Collider{
-		TileMap:  tileMap,
-		TileSize: image.Point{tileWidth, tileHeight},
-	}
 }
 
 // CollisionCallback is called when collisions occur, receiving collision info and final movement

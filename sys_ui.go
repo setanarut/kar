@@ -14,6 +14,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
+const EmptyStr string = " "
+
 type UI struct {
 	hotbarPos           Vec
 	craftingTablePos    Vec
@@ -262,7 +264,7 @@ func (ui *UI) Draw() {
 				textDO.GeoM.Translate(SlotOffsetX+6, ui.hotbarPos.Y+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
 				if quantity < 10 {
-					num = " " + num
+					num = EmptyStr + num
 				}
 				text.Draw(Screen, num, res.Font, textDO)
 			}
@@ -314,7 +316,7 @@ func (ui *UI) Draw() {
 							textDO.GeoM.Translate(sx+7, sy+5)
 							num := strconv.FormatUint(uint64(quantity), 10)
 							if quantity < 10 {
-								num = " " + num
+								num = EmptyStr + num
 							}
 							text.Draw(Screen, num, res.Font, textDO)
 						}
@@ -364,7 +366,7 @@ func (ui *UI) Draw() {
 
 					num := strconv.FormatUint(uint64(quantity), 10)
 					if quantity < 10 {
-						num = " " + num
+						num = EmptyStr + num
 					}
 					text.Draw(Screen, num, res.Font, textDO)
 				}

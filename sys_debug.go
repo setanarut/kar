@@ -115,11 +115,12 @@ func (d *Debug) Draw() {
 			DrawAABB(box)
 		}
 		if d.drawDebugTextEnabled {
+			vCopy := *vel
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(
 				"state %v\nVel.X: %.2f\nVel.Y: %.2f\nCamera: %v",
 				playerController.CurrentState,
-				vel.X,
-				vel.Y,
+				vCopy.X,
+				vCopy.Y,
 				cameraRes,
 			), 0, 10)
 		}
