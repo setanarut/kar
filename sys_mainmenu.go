@@ -8,17 +8,18 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"golang.org/x/image/colornames"
 )
 
 type MainMenu struct {
-	drawOpt    *text.DrawOptions
+	drawOpt    text.DrawOptions
 	line       int
 	text       string
 	menuOffset Vec
 }
 
 func (m *MainMenu) Init() {
-	m.drawOpt = &text.DrawOptions{
+	m.drawOpt = text.DrawOptions{
 		DrawImageOptions: ebiten.DrawImageOptions{},
 		LayoutOptions: text.LayoutOptions{
 			LineSpacing: 18,
@@ -49,7 +50,7 @@ func (m *MainMenu) Update() {
 			}
 		}
 
-		colorM.Reset()
+		colorM.Reset() // escapes to heap
 		textDO.ColorScale.Reset()
 	}
 
@@ -66,7 +67,7 @@ func (m *MainMenu) Draw() {
 	m.drawOpt.GeoM.Translate(m.menuOffset.X, m.menuOffset.Y)
 
 	// draw menu text
-	text.Draw(Screen, m.text, res.Font, m.drawOpt)
+	text.Draw(Screen, m.text, res.Font, &m.drawOpt)
 
 	// draw selection box
 	vector.DrawFilledRect(
@@ -75,7 +76,7 @@ func (m *MainMenu) Draw() {
 		float32(m.menuOffset.Y+float64(m.line*18))+5,
 		3,
 		7,
-		color.White,
+		colornames.White,
 		false,
 	)
 }
