@@ -4,7 +4,6 @@ import (
 	"reflect"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/colorm"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
@@ -49,7 +48,7 @@ func (g *Game) Update() error {
 			case "menu":
 				currentGameState = "playing"
 				// previousGameState = "menu"
-				colorM = colorm.ColorM{}
+				colorM.Reset()
 				textDO.ColorScale.Reset()
 			case "playing":
 				currentGameState = "menu"
