@@ -97,7 +97,7 @@ func (c *Camera) Draw() {
 					cameraRes.DrawWithColorM(res.BlockUnbreakable[tileID], colorM, colorMDIO, Screen)
 				} else {
 					if x == gameDataRes.TargetBlockCoord.X && y == gameDataRes.TargetBlockCoord.Y {
-						i := MapRange(gameDataRes.BlockHealth, 0, 180, 0, 5)
+						i := mapRange(gameDataRes.BlockHealth, 0, 180, 0, 5)
 						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][int(i)], colorM, colorMDIO, Screen)
 					} else {
 						cameraRes.DrawWithColorM(res.BlockCrackFrames[tileID][0], colorM, colorMDIO, Screen)

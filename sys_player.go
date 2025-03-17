@@ -146,7 +146,7 @@ func (p *Player) Update() {
 					ctrl.PreviousState = ctrl.CurrentState
 					animPlayer.SetAnim("walkRight")
 				}
-				animPlayer.SetAnimFPS("walkRight", MapRange(absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				animPlayer.SetAnimFPS("walkRight", mapRange(absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
 				if isSkidding {
@@ -179,7 +179,7 @@ func (p *Player) Update() {
 				}
 
 				// while running
-				animPlayer.SetAnimFPS("walkRight", MapRange(absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
+				animPlayer.SetAnimFPS("walkRight", mapRange(absXVelocity, 0, ctrl.MaxRunSpeed, 4, 23))
 
 				// Handle specific transitions
 				if isSkidding {

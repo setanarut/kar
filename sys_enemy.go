@@ -31,6 +31,6 @@ func (p *Enemy) Draw() {
 	q := filterEnemy.Query()
 	for q.Next() {
 		aabb, _, _ := q.Get()
-		DrawAABB(aabb)
+		drawAABB(aabb)
 	}
 }

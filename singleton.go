@@ -56,7 +56,7 @@ var (
 	currentPlayer        ecs.Entity
 	renderArea           = image.Point{(int(ScreenSize.X) / 20) + 3, (int(ScreenSize.Y) / 20) + 3}
 	dataManager          *gdata.Manager
-	sinspace             []float64  = Sinspace(0, 2*math.Pi, 3, 60)
+	sinspaceOffsets      []float64  = sinspace(0, 2*math.Pi, 3, 60)
 	backgroundColor      color.RGBA = color.RGBA{36, 36, 39, 255}
 	gameTileMapGenerator tilemap.Generator
 	colorMDIO            *colorm.DrawImageOptions = &colorm.DrawImageOptions{}

@@ -2,22 +2,19 @@ package kar
 
 import (
 	"fmt"
-	"image"
 	"image/color"
-	"log"
 	"math"
-	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-func MapRange(v, a, b, c, d float64) float64 {
+func mapRange(v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
 }
 
-// Linspace returns evenly spaced numbers over a specified closed interval.
-func Linspace(start, end float64, n int) []float64 {
+// linspace returns evenly spaced numbers over a specified closed interval.
+func linspace(start, end float64, n int) []float64 {
 	nums := make([]float64, n)
 	step := (end - start) / float64(n-1)
 	nums[0] = start
@@ -28,34 +25,21 @@ func Linspace(start, end float64, n int) []float64 {
 	return nums
 }
 
-// Sinspace returns n points between start and end based on a sinusoidal function with a given amplitude
+// sinspace returns n points between start and end based on a sinusoidal function with a given amplitude
 //
 //	start := 0.0       // Start of range
 //	end := 2 * math.Pi // End of range (one full sine wave)
 //	amplitude := 2.0   // Amplitude of the sine wave
 //	n := 10            // Number of points
-func Sinspace(start, end, amplitude float64, n int) []float64 {
-	tValues := Linspace(start, end, n)
+func sinspace(start, end, amplitude float64, n int) []float64 {
+	tValues := linspace(start, end, n)
 	for i, t := range tValues {
 		tValues[i] = amplitude * math.Sin(t)
 	}
 	return tValues
 }
 
-func ReadPNG(filePath string) image.Image {
-	f, err := os.Open(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	image, _, err := image.Decode(f)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return image
-}
-
-func DrawAABB(aabb *AABB) {
+func drawAABB(aabb *AABB) {
 	x, y := cameraRes.ApplyCameraTransformToPoint(aabb.Pos.X, aabb.Pos.Y)
 	vector.DrawFilledRect(
 		Screen,
@@ -69,12 +53,6 @@ func DrawAABB(aabb *AABB) {
 }
 
 func formatDuration(d time.Duration) string {
-	totalSeconds := int(d.Seconds())
-	seconds := totalSeconds % 60
-	totalMinutes := totalSeconds / 60
-	minutes := totalMinutes % 60
-	totalHours := totalMinutes / 60
-	hours := totalHours % 24
-	days := totalHours / 24
-	return fmt.Sprintf("%02d:%02d:%02d:%02d", days, hours, minutes, seconds)
+	s := int(d.Seconds())
+	return fmt.Sprintf("%02d:%02d:%02d:%02d", (s/3600)/24, (s/3600)%24, (s/60)%60, s%60)
 }

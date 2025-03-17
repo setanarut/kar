@@ -112,7 +112,7 @@ func (d *Debug) Draw() {
 	if world.Alive(currentPlayer) {
 		box, vel, _, playerController, _ := mapPlayer.GetUnchecked(currentPlayer)
 		if d.drawPlayerTileHitboxEnabled {
-			DrawAABB(box)
+			drawAABB(box)
 		}
 		if d.drawDebugTextEnabled {
 			ebitenutil.DebugPrintAt(Screen, fmt.Sprintf(

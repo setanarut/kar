@@ -38,7 +38,7 @@ func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 	e := mapDroppedItem.NewEntity(
 		ptr(ItemID(id)),
 		&Position{pos.X, pos.Y},
-		ptr(AnimationIndex(rand.IntN(len(sinspace)-1))),
+		ptr(AnimationIndex(rand.IntN(len(sinspaceOffsets)-1))),
 		ptr(CollisionDelayer(ItemCollisionDelay)),
 	)
 	if items.HasTag(id, items.Tool) {

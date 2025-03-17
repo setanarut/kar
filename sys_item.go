@@ -57,7 +57,7 @@ func (i *Item) Update() {
 				tileCollider.Collisions = tileCollider.Collisions[:0]
 				dy := tileCollider.CollideY(dropItemAABB, ItemGravity)
 				itemPos.Y += dy
-				*animIndex = AnimationIndex((int(*animIndex) + 1) % len(sinspace))
+				*animIndex = AnimationIndex((int(*animIndex) + 1) % len(sinspaceOffsets))
 
 			}
 		}
@@ -78,7 +78,7 @@ func (i *Item) Draw() {
 		id := uint8(*itemid)
 		dropItemAABB.Pos = *(*Vec)(pos)
 		colorMDIO.GeoM.Reset()
-		colorMDIO.GeoM.Translate(dropItemAABB.Left(), dropItemAABB.Top()+sinspace[*animIndex])
+		colorMDIO.GeoM.Translate(dropItemAABB.Left(), dropItemAABB.Top()+sinspaceOffsets[*animIndex])
 		if id != items.Air {
 			cameraRes.DrawWithColorM(res.Icon8[id], colorM, colorMDIO, Screen)
 		}
