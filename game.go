@@ -65,14 +65,16 @@ func (g *Game) Update() error {
 		case "menu":
 			g.Menu.Update()
 		case "playing":
-			g.Camera.Update()
-			g.Enemy.Update()
-			g.Player.Update()
-			g.Platform.Update()
-			g.Item.Update()
-			g.Effects.Update()
+			if gameDataRes.GameplayState == Playing {
+				g.Camera.Update()
+				g.Enemy.Update()
+				g.Player.Update()
+				g.Platform.Update()
+				g.Item.Update()
+				g.Effects.Update()
+				g.Projectile.Update()
+			}
 			g.Ui.Update()
-			g.Projectile.Update()
 			g.Spawn.Update()
 		}
 		if debugEnabled {

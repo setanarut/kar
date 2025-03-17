@@ -21,10 +21,19 @@ func (e *Effects) Update() {
 	q := filterEffect.Query()
 
 	for q.Next() {
-		_, p, v, _ := q.Get()
-		v.Y += e.g
-		p.Y += v.Y
-		if p.Y > cameraRes.Y+cameraRes.Height {
+		_, pos, vel, angle := q.Get()
+		vel.Y += e.g
+		pos.Y += vel.Y
+
+		if math.Signbit(float64(*angle)) {
+			*angle -= 0.2
+		} else {
+			*angle += 0.2
+		}
+
+		pos.X += vel.X * 2
+
+		if pos.Y > cameraRes.Y+cameraRes.Height {
 			toRemove = append(toRemove, q.Entity())
 		}
 	}
@@ -32,7 +41,7 @@ func (e *Effects) Update() {
 func (e *Effects) Draw() {
 	q := filterEffect.Query()
 	for q.Next() {
-		id, pos, vel, angle := q.Get()
+		id, pos, _, angle := q.Get()
 		colorMDIO.GeoM = ebiten.GeoM{}
 		colorMDIO.GeoM.Translate(-4, -4)
 		colorMDIO.GeoM.Rotate(float64(*angle))
@@ -43,13 +52,5 @@ func (e *Effects) Draw() {
 			cameraRes.DrawWithColorM(res.Icon8[uint8(*id)], colorM, colorMDIO, Screen)
 		}
 		colorM.Reset()
-
-		if math.Signbit(float64(*angle)) {
-			*angle -= 0.2
-		} else {
-			*angle += 0.2
-		}
-
-		pos.X += vel.X * 2
 	}
 }
