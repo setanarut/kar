@@ -44,7 +44,6 @@ var (
 )
 var (
 	currentGameState = "mainmenu"
-	// previousGameState = "mainmenu"
 )
 var (
 	ceilBlockCoord image.Point
@@ -121,7 +120,6 @@ func SaveGame() {
 func LoadGame() {
 	if dataManager.ItemExists("01save") {
 		world.Reset()
-
 		mapResInventory.Add(inventoryRes)
 		mapResCraftingtable.Add(craftingTableRes)
 		mapResCamera.Add(cameraRes)
