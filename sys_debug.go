@@ -18,6 +18,8 @@ type Debug struct {
 	tile                        uint8
 }
 
+var keys = make([]ebiten.Key, 20)
+
 func (d *Debug) Init() {}
 func (d *Debug) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
@@ -52,6 +54,13 @@ func (d *Debug) Update() {
 			&Velocity{0.5, 0.5},
 			ptr(AI("worm")),
 		)
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyEqual) {
+		inventoryRes.SetSize(len(inventoryRes.Slots) + 1)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyMinus) {
+		inventoryRes.SetSize(len(inventoryRes.Slots) - 1)
 	}
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
@@ -128,5 +137,5 @@ func (d *Debug) Draw() {
 		ebitenutil.DebugPrintAt(Screen, fmt.Sprintf("Camera: %v", cameraRes), 0, 10)
 	}
 
-	ebitenutil.DebugPrintAt(Screen, fmt.Sprintf("DEBUG MODE: %v", debugEnabled), int(ScreenSize.X)-60, 10)
+	ebitenutil.DebugPrintAt(Screen, "debug mode", 8, int(ScreenSize.Y-20))
 }

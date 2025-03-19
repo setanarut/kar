@@ -16,18 +16,21 @@ import (
 
 const SpaceStr string = " "
 
+var (
+	hotbarPos = Vec{4, 9}
+)
+
 type UI struct {
-	hotbarPos           Vec
-	craftingTablePos    Vec
-	hotbarRightEdgePosX float64
+	craftingTablePos Vec
+	hotbarW          float64
 }
 
 func (ui *UI) Init() {
-	ui.hotbarPos = Vec{4, 9}
-	ui.hotbarRightEdgePosX = ui.hotbarPos.X + float64(res.Hotbar.Bounds().Dx())
-	ui.craftingTablePos = ui.hotbarPos.Add(Vec{49, 39})
+	ui.craftingTablePos = hotbarPos.Add(Vec{49, 39})
+	ui.hotbarW = (17 * float64(len(inventoryRes.Slots))) + 1
 }
 func (ui *UI) Update() {
+	ui.hotbarW = (17 * float64(len(inventoryRes.Slots))) + 1
 
 	if world.Alive(currentPlayer) {
 		// toggle crafting state
@@ -211,29 +214,39 @@ func (ui *UI) Draw() {
 
 		// Draw hotbar background
 		colorMDIO.GeoM.Reset()
-		colorMDIO.GeoM.Translate(ui.hotbarPos.X, ui.hotbarPos.Y)
-		colorm.DrawImage(Screen, res.Hotbar, colorM, colorMDIO)
+		colorMDIO.GeoM.Translate(hotbarPos.X, hotbarPos.Y)
+		colorm.DrawImage(Screen, res.HotbarEdge, colorM, colorMDIO)
+
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Scale(ui.hotbarW-8, 1)
+		colorMDIO.GeoM.Translate(hotbarPos.X+4, hotbarPos.Y)
+		colorm.DrawImage(Screen, res.HotbarMid, colorM, colorMDIO)
+
+		colorMDIO.GeoM.Reset()
+		colorMDIO.GeoM.Scale(-1, 1)
+		colorMDIO.GeoM.Translate(hotbarPos.X+ui.hotbarW, hotbarPos.Y)
+		colorm.DrawImage(Screen, res.HotbarEdge, colorM, colorMDIO)
 
 		// Draw Quick-slot numbers
-		dotX := float64(inventoryRes.QuickSlot1)*17 + float64(ui.hotbarPos.X) + 7
+		dotX := float64(inventoryRes.QuickSlot1)*17 + float64(hotbarPos.X) + 7
 		textDO.GeoM.Reset()
 		textDO.GeoM.Translate(dotX, -4)
 		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot1+1), res.Font, textDO)
-		dotX = float64(inventoryRes.QuickSlot2)*17 + float64(ui.hotbarPos.X) + 7
+		dotX = float64(inventoryRes.QuickSlot2)*17 + float64(hotbarPos.X) + 7
 		textDO.GeoM.Reset()
 		textDO.GeoM.Translate(dotX, -4)
 		text.Draw(Screen, strconv.Itoa(inventoryRes.QuickSlot2+1), res.Font, textDO)
 
 		// Draw slots
-		for x := range 9 {
+		for x := range len(inventoryRes.Slots) {
 			slotID := inventoryRes.Slots[x].ID
 			quantity := inventoryRes.Slots[x].Quantity
 			SlotOffsetX := float64(x) * 17
-			SlotOffsetX += ui.hotbarPos.X
+			SlotOffsetX += hotbarPos.X
 
 			// draw hotbar item icons
 			colorMDIO.GeoM.Reset()
-			colorMDIO.GeoM.Translate(SlotOffsetX+(5), ui.hotbarPos.Y+(5))
+			colorMDIO.GeoM.Translate(SlotOffsetX+(5), hotbarPos.Y+(5))
 			if slotID != items.Air && inventoryRes.Slots[x].Quantity > 0 {
 				colorm.DrawImage(Screen, res.Icon8[slotID], colorM, colorMDIO)
 			}
@@ -245,7 +258,7 @@ func (ui *UI) Draw() {
 				// Draw hotbar slot item display name
 				if !inventoryRes.IsCurrentSlotEmpty() {
 					textDO.GeoM.Reset()
-					textDO.GeoM.Translate(SlotOffsetX-1, ui.hotbarPos.Y+14)
+					textDO.GeoM.Translate(SlotOffsetX-1, hotbarPos.Y+14)
 					if items.HasTag(slotID, items.Tool) {
 						text.Draw(Screen, fmt.Sprintf(
 							"%v\nDurability %v",
@@ -261,7 +274,7 @@ func (ui *UI) Draw() {
 			// Draw item quantity number
 			if quantity > 1 && items.IsStackable(slotID) {
 				textDO.GeoM.Reset()
-				textDO.GeoM.Translate(SlotOffsetX+6, ui.hotbarPos.Y+4)
+				textDO.GeoM.Translate(SlotOffsetX+6, hotbarPos.Y+4)
 				num := strconv.FormatUint(uint64(quantity), 10)
 				if quantity < 10 {
 					num = SpaceStr + num
@@ -272,12 +285,13 @@ func (ui *UI) Draw() {
 
 		// Draw player health text
 		textDO.GeoM.Reset()
-		textDO.GeoM.Translate(ui.hotbarRightEdgePosX+8, ui.hotbarPos.Y)
+		textDO.GeoM.Translate(ui.hotbarW+8, hotbarPos.Y)
 		playerHealth := mapHealth.GetUnchecked(currentPlayer)
 		text.Draw(Screen, fmt.Sprintf("Health %v", playerHealth.Current), res.Font, textDO)
 
 		// Draw Game time duration text
-		textDO.GeoM.Translate(100, 0)
+		textDO.GeoM.Reset()
+		textDO.GeoM.Translate(ScreenSize.X-58, ScreenSize.Y-18)
 		text.Draw(Screen, formatDuration(gameDataRes.Duration), res.Font, textDO)
 
 		if gameDataRes.GameplayState != Playing {

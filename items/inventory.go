@@ -8,12 +8,17 @@ type Slot struct {
 
 type Inventory struct {
 	CurrentSlotIndex       int
-	Slots                  [9]Slot
 	QuickSlot1, QuickSlot2 int
+	Slots                  []Slot
 }
 
-func NewInventory() *Inventory {
-	return &Inventory{QuickSlot1: 0, QuickSlot2: 1}
+func NewInventory(size int) *Inventory {
+	return &Inventory{
+		QuickSlot1:       0,
+		QuickSlot2:       1,
+		CurrentSlotIndex: 0,
+		Slots:            make([]Slot, size, 40),
+	}
 }
 
 // AddItemIfEmpty adds item to inventory if empty
@@ -43,12 +48,35 @@ func (i *Inventory) SetSlot(slotIndex int, id uint8, quantity uint8, dur int) {
 		}
 	}
 }
+func (i *Inventory) SetSize(n int) {
+	if n < 1 || n > cap(i.Slots) {
+		return
+	}
+	if n <= i.CurrentSlotIndex {
+		i.CurrentSlotIndex = n - 1
+	}
+	if len(i.Slots) > n {
+		i.Slots = i.Slots[:n]
+		i.ResetUnusedSlots()
+	} else {
+		i.Slots = i.Slots[:n]
+	}
+}
+
+func (i *Inventory) ResetUnusedSlots() {
+	fullSlice := i.Slots[:cap(i.Slots)]
+	for idx := len(i.Slots); idx < cap(i.Slots); idx++ {
+		fullSlice[idx] = Slot{}
+	}
+	i.Slots = fullSlice[:len(i.Slots)]
+}
 
 func (i *Inventory) SelectNextSlot() {
-	i.CurrentSlotIndex = (i.CurrentSlotIndex + 1) % 9
+	i.CurrentSlotIndex = (i.CurrentSlotIndex + 1) % len(i.Slots)
 }
+
 func (i *Inventory) SelectPrevSlot() {
-	i.CurrentSlotIndex = (i.CurrentSlotIndex - 1 + 9) % 9
+	i.CurrentSlotIndex = (i.CurrentSlotIndex - 1 + len(i.Slots)) % len(i.Slots)
 }
 
 func (i *Inventory) RemoveItem(id uint8) bool {
@@ -99,6 +127,7 @@ func (i *Inventory) Reset() {
 		i.Slots[idx] = Slot{}
 	}
 	i.CurrentSlotIndex = 0
+	i.Slots = i.Slots[:9]
 }
 func (i *Inventory) RandomFillAllSlots() {
 	for idx := range i.Slots {
