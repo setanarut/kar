@@ -18,10 +18,10 @@ github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.4 h1:5ft5W95yK2KbxlK5gfvHfs+4gqwMx
 github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.4/go.mod h1:9icewX5g2QfAJnuMswhlZUeF45HnQpeasx3kGXi3Xv8=
 github.com/jezek/xgb v1.1.1 h1:bE/r8ZZtSv7l9gk6nU0mYx51aXrvnyb44892TwSaqS4=
 github.com/jezek/xgb v1.1.1/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
-github.com/mlange-42/ark v0.3.0 h1:TdOc0Q93Shl1d8xv4Lek9CH87ZSwMNfZ06PXMqFL3JI=
-github.com/mlange-42/ark v0.3.0/go.mod h1:47KXHr5HLftLn4iyL8w04iv7KJUNUoDymEIotD41f3o=
-github.com/mlange-42/ark-serde v0.1.1 h1:rMJPzIg5ltcQKHbDf6m/23VIjKcDBft1y/3dulq04Fo=
-github.com/mlange-42/ark-serde v0.1.1/go.mod h1:mna+JXSthTrn5x/lp0JfCuWpM1nMnHfHNEvjJT9t7fI=
+github.com/mlange-42/ark v0.4.0 h1:4OcVIpeu0Pm8l76JqWOzWh/LxIoEFBIeYPXu0IMSF9o=
+github.com/mlange-42/ark v0.4.0/go.mod h1:47KXHr5HLftLn4iyL8w04iv7KJUNUoDymEIotD41f3o=
+github.com/mlange-42/ark-serde v0.1.2 h1:ICVAOiIB+zP29oM1FkkdEjFfpADaVpNO+LTwGF0383s=
+github.com/mlange-42/ark-serde v0.1.2/go.mod h1:v/rq/RE07DYIClVf903s6ZF4vFW7ZoAq+dX084FAjUM=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

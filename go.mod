@@ -5,8 +5,8 @@ go 1.24.1
 require (
 	github.com/anthonynsimon/bild v0.14.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.4
-	github.com/mlange-42/ark v0.3.0
-	github.com/mlange-42/ark-serde v0.1.1
+	github.com/mlange-42/ark v0.4.0
+	github.com/mlange-42/ark-serde v0.1.2
 	github.com/quasilyte/gdata v0.8.1
 	github.com/setanarut/anim v1.4.0
 	github.com/setanarut/fastnoise v1.1.1

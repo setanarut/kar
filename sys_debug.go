@@ -18,8 +18,6 @@ type Debug struct {
 	tile                        uint8
 }
 
-var keys = make([]ebiten.Key, 20)
-
 func (d *Debug) Init() {}
 func (d *Debug) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
