@@ -213,6 +213,7 @@ func (ui *UI) Draw() {
 	if world.Alive(currentPlayer) {
 
 		// Draw hotbar background
+		colorMDIO.ColorScale.Reset()
 		colorMDIO.GeoM.Reset()
 		colorMDIO.GeoM.Translate(hotbarPos.X, hotbarPos.Y)
 		colorm.DrawImage(Screen, res.HotbarEdge, colorM, colorMDIO)

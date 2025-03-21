@@ -49,19 +49,19 @@ func (h *HitInfo2) Reset() {
 	*h = HitInfo2{}
 }
 
-// AABBPlatform moving platform collision
-func AABBPlatform(a, platform *AABB, aVel, bVel *Vec, h *HitInfo2) bool {
+// AABBPlatform moving platform b collision
+func AABBPlatform(a, b *AABB, aVel, bVel *Vec, h *HitInfo2) bool {
 	// Calculate old positions using velocities
 	aOldPos := Vec{a.Pos.X - aVel.X, a.Pos.Y - aVel.Y}
-	bOldPos := Vec{platform.Pos.X - bVel.X, platform.Pos.Y - bVel.Y}
+	bOldPos := Vec{b.Pos.X - bVel.X, b.Pos.Y - bVel.Y}
 
 	// Check collision at current positions using half dimensions
-	xDist := math.Abs(a.Pos.X - platform.Pos.X)
-	yDist := math.Abs(a.Pos.Y - platform.Pos.Y)
+	xDist := math.Abs(a.Pos.X - b.Pos.X)
+	yDist := math.Abs(a.Pos.Y - b.Pos.Y)
 
 	// Combined half widths and heights
-	combinedHalfW := a.Half.X + platform.Half.X
-	combinedHalfH := a.Half.Y + platform.Half.Y
+	combinedHalfW := a.Half.X + b.Half.X
+	combinedHalfH := a.Half.Y + b.Half.Y
 
 	// Early exit check
 	if xDist > combinedHalfW || yDist > combinedHalfH {
@@ -74,21 +74,21 @@ func AABBPlatform(a, platform *AABB, aVel, bVel *Vec, h *HitInfo2) bool {
 
 	// Check collision direction and calculate position delta
 	if yDist < combinedHalfH {
-		if a.Pos.Y > platform.Pos.Y && oldYDist >= combinedHalfH {
-			h.Delta.Y = (platform.Pos.Y + combinedHalfH + EPSILON) - a.Pos.Y
+		if a.Pos.Y > b.Pos.Y && oldYDist >= combinedHalfH {
+			h.Delta.Y = (b.Pos.Y + combinedHalfH + EPSILON) - a.Pos.Y
 			h.Top = true
-		} else if a.Pos.Y < platform.Pos.Y && oldYDist >= combinedHalfH {
-			h.Delta.Y = (platform.Pos.Y - combinedHalfH - EPSILON) - a.Pos.Y
+		} else if a.Pos.Y < b.Pos.Y && oldYDist >= combinedHalfH {
+			h.Delta.Y = (b.Pos.Y - combinedHalfH - EPSILON) - a.Pos.Y
 			h.Bottom = true
 		}
 	}
 
 	if xDist < combinedHalfW {
-		if a.Pos.X > platform.Pos.X && oldXDist >= combinedHalfW {
-			h.Delta.X = (platform.Pos.X + combinedHalfW + EPSILON) - a.Pos.X
+		if a.Pos.X > b.Pos.X && oldXDist >= combinedHalfW {
+			h.Delta.X = (b.Pos.X + combinedHalfW + EPSILON) - a.Pos.X
 			h.Left = true
-		} else if a.Pos.X < platform.Pos.X && oldXDist >= combinedHalfW {
-			h.Delta.X = (platform.Pos.X - combinedHalfW - EPSILON) - a.Pos.X
+		} else if a.Pos.X < b.Pos.X && oldXDist >= combinedHalfW {
+			h.Delta.X = (b.Pos.X - combinedHalfW - EPSILON) - a.Pos.X
 			h.Right = true
 		}
 	}

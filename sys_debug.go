@@ -49,7 +49,7 @@ func (d *Debug) Update() {
 				Pos:  v.Vec{x, y},
 				Half: v.Vec{10, 10},
 			},
-			&Velocity{0.5, 0.5},
+			&Velocity{0.1, 0},
 			ptr(AI("worm")),
 		)
 	}

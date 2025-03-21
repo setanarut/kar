@@ -3,18 +3,22 @@ package kar
 import "kar/items"
 
 type Enemy struct {
-	hit *HitInfo
+	hit  *HitInfo
+	hit2 *HitInfo
 }
 
 func (p *Enemy) Init() {
 	p.hit = &HitInfo{}
+	p.hit2 = &HitInfo{}
 }
 
 func (p *Enemy) Update() {
 	q := filterEnemy.Query()
 	for q.Next() {
 		aabb, vel, _ := q.Get()
-		tileCollider.Collide(*aabb, *(*Vec)(vel), func(hitInfos []HitTileInfo, delta Vec) {
+		enemyVel := *(*Vec)(vel)
+
+		tileCollider.Collide(*aabb, enemyVel, func(hitInfos []HitTileInfo, delta Vec) {
 			aabb.Pos = aabb.Pos.Add(delta)
 			for _, hit := range hitInfos {
 				spawnData := spawnEffectData{

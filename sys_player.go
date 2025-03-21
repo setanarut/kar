@@ -12,12 +12,15 @@ import (
 	"github.com/setanarut/v"
 )
 
+var elapsed = 0
+var elapsed2 = 5
+var blinking bool
+
 type Player struct {
-	placeTile      image.Point
-	dyingCountdown float64
-	itemHit        *HitInfo
-	isOnFloor      bool
-	playerTile     image.Point
+	placeTile  image.Point
+	itemHit    *HitInfo
+	isOnFloor  bool
+	playerTile image.Point
 }
 
 func (p *Player) Init() {
@@ -29,6 +32,17 @@ func (p *Player) Update() {
 
 	if world.Alive(currentPlayer) {
 		animPlayer.Update()
+
+		if elapsed > 0 {
+			elapsed--
+			if elapsed2 > 0 {
+				elapsed2--
+			}
+			if elapsed2 == 0 {
+				elapsed2 = 5
+				blinking = !blinking
+			}
+		}
 
 		playerAABB, vl, pHealth, ctrl, fc := mapPlayer.GetUnchecked(currentPlayer)
 
@@ -71,21 +85,9 @@ func (p *Player) Update() {
 
 		isSkidding := inputAxis.X != 0 && (playerVel.X*inputAxis.X < 0)
 
-		// Death animation
 		if pHealth.Current <= 0 {
-			p.dyingCountdown += 0.1
-			animPlayer.Data.Paused = true
-			playerAABB.Pos.Y += p.dyingCountdown
-
-			if playerAABB.Pos.Y > cameraRes.Y+cameraRes.Height {
-				animPlayer.Data.Paused = false
-				// previousGameState = "playing"
-				currentGameState = "mainmenu"
-				colorM.ChangeHSV(1, 0, 0.5) // BW
-				textDO.ColorScale.Scale(0.5, 0.5, 0.5, 1)
-				world.RemoveEntity(currentPlayer)
-				p.dyingCountdown = 0
-			}
+			// TODO ayrı olarak ölme animasyonu sistemi yaz
+			world.RemoveEntity(currentPlayer)
 		}
 
 		// Update states
@@ -483,6 +485,48 @@ func (p *Player) Update() {
 			}
 		}
 
+		hit.Reset()
+		eq := filterEnemy.Query()
+		for eq.Next() {
+			enemyAABB, enemyVel, ai := eq.Get()
+			if AABBPlatform(playerAABB, enemyAABB, playerVel, (*Vec)(enemyVel), hit) {
+				if hit.Top {
+					if *ai == "worm" {
+						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+						playerVel.Y = 0
+						if elapsed == 0 {
+							pHealth.Current -= 5
+							elapsed = 2 * 60
+						}
+					}
+				}
+				if hit.Bottom {
+					playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+					playerVel.Y = 0
+					pvel := tileCollider.Collide(*playerAABB, Vec(*enemyVel), nil)
+					playerAABB.Pos = playerAABB.Pos.Add(pvel)
+					p.isOnFloor = true
+					toRemove = append(toRemove, eq.Entity())
+				}
+				if hit.Right {
+					playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+					playerVel.X = -1.01
+					if elapsed == 0 {
+						pHealth.Current -= 5
+						elapsed = 2 * 60
+					}
+				}
+				if hit.Left {
+					playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
+					playerVel.X = +1.01
+					if elapsed == 0 {
+						pHealth.Current -= 5
+						elapsed = 2 * 60
+					}
+				}
+			}
+		}
+
 		// player facing raycast for target block
 		p.playerTile = tileMapRes.WorldToTile(playerAABB.Pos.X, playerAABB.Pos.Y)
 		targetBlockTemp := gameDataRes.TargetBlockCoord
@@ -571,6 +615,11 @@ func (c *Player) Draw() {
 			colorMDIO.GeoM.Translate(playerBox.Pos.X+playerBox.Half.X, y)
 		} else {
 			colorMDIO.GeoM.Translate(x, y)
+		}
+		if blinking {
+			colorMDIO.ColorScale.SetA(0.2)
+		} else {
+			colorMDIO.ColorScale.SetA(1)
 		}
 		cameraRes.DrawWithColorM(animPlayer.CurrentFrame, colorM, colorMDIO, Screen)
 
