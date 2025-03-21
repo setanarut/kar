@@ -127,7 +127,7 @@ func (i *Inventory) Reset() {
 		i.Slots[idx] = Slot{}
 	}
 	i.CurrentSlotIndex = 0
-	i.Slots = i.Slots[:9]
+	i.Slots = i.Slots[:16]
 }
 func (i *Inventory) RandomFillAllSlots() {
 	for idx := range i.Slots {

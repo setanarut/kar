@@ -39,7 +39,7 @@ var (
 
 	gameDataRes             = gameData{GameplayState: Playing}
 	craftingTableRes        = items.NewCraftTable()
-	inventoryRes            = items.NewInventory(9)
+	inventoryRes            = items.NewInventory(16)
 	cameraRes               = kamera.NewCamera(0, 0, ScreenSize.X, ScreenSize.Y)
 	tileMapRes              = tilemap.MakeTileMap(512, 512, 20, 20)
 	animDefaultPlaybackData anim.PlaybackData
