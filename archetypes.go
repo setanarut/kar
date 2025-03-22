@@ -16,7 +16,7 @@ var (
 	mapHealth           = ecs.NewMap[Health](&world)
 	mapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
 	mapPlatform         = ecs.NewMap3[AABB, Velocity, PlatformType](&world)
-	mapEnemy            = ecs.NewMap3[AABB, Velocity, AI](&world)
+	mapEnemy            = ecs.NewMap4[AABB, Velocity, MobileID, AnimationIndex](&world)
 	mapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
 	mapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
 	mapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
@@ -27,7 +27,7 @@ var (
 var (
 	filterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
 	filterPlatform         = ecs.NewFilter3[AABB, Velocity, PlatformType](&world)
-	filterEnemy            = ecs.NewFilter3[AABB, Velocity, AI](&world)
+	filterEnemy            = ecs.NewFilter3[AABB, Velocity, MobileID](&world)
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
@@ -47,13 +47,13 @@ func SpawnItem(pos Vec, id uint8, durability int) ecs.Entity {
 	return e
 }
 
-func SpawnEnemy(pos, vel Vec) ecs.Entity {
-	return mapEnemy.NewEntity(
-		&AABB{Pos: pos, Half: v.Vec{40, 6}},
-		(*Velocity)(&vel),
-		ptr(AI("worm")),
-	)
-}
+// func SpawnEnemy(pos, vel Vec) ecs.Entity {
+// 	return mapEnemy.NewEntity(
+// 		&AABB{Pos: pos, Half: v.Vec{40, 6}},
+// 		(*Velocity)(&vel),
+// 		ptr(WormID),
+// 	)
+// }
 
 func SpawnEffect(pos Vec, id uint8) {
 	mapEffect.NewEntity(ptr(ItemID(id)), &Position{pos.X - 10, pos.Y - 10}, &Velocity{-1, 0}, ptr(Rotation(-0.1)))

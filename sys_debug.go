@@ -50,7 +50,8 @@ func (d *Debug) Update() {
 				Half: v.Vec{10, 10},
 			},
 			&Velocity{0.1, 0},
-			ptr(AI("worm")),
+			ptr(WormID),
+			ptr(AnimationIndex(0)),
 		)
 	}
 

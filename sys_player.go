@@ -485,13 +485,15 @@ func (p *Player) Update() {
 			}
 		}
 
+		// Enemy collision
 		hit.Reset()
 		eq := filterEnemy.Query()
 		for eq.Next() {
-			enemyAABB, enemyVel, ai := eq.Get()
+			enemyAABB, enemyVel, mobileID := eq.Get()
 			if AABBPlatform(playerAABB, enemyAABB, playerVel, (*Vec)(enemyVel), hit) {
 				if hit.Top {
-					if *ai == "worm" {
+					switch *mobileID {
+					case WormID:
 						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
 						playerVel.Y = 0
 						if elapsed == 0 {

@@ -35,6 +35,11 @@ const (
 	ItemCollisionDelay      time.Duration = time.Second / 2
 )
 
+// MOB ID
+const (
+	WormID MobileID = 1
+)
+
 var debugEnabled bool = false
 
 var (

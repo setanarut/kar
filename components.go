@@ -9,7 +9,7 @@ type Rotation float64
 type Facing Vec
 type Velocity Vec
 type Position Vec
-type AI string
+type MobileID int // Mobile character id
 type PlatformType string
 type Durability int
 type AnimationIndex int // timing-related data for item animations.
