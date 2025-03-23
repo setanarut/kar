@@ -173,27 +173,22 @@ func (t *TileMap) FindSpawnPosition() image.Point {
 	return image.Point{}
 }
 
-// Veriyi diske yazan fonksiyon (hata durumunda log kullanılıyor)
 func (t *TileMap) WriteToDisk(filename string) {
-	// Veriyi byte array'e dönüştürmek için gob kullanıyoruz
 	var buf bytes.Buffer
 	encoder := gob.NewEncoder(&buf)
 	if err := encoder.Encode(t.Grid); err != nil {
-		log.Fatalf("Veriyi encode ederken hata: %v", err)
+		log.Fatalf("encode error: %v", err)
 		return
 	}
-
-	// Dosya oluştur ve yaz
 	file, err := os.Create(filename)
 	if err != nil {
-		log.Fatalf("Dosya oluşturulamadı: %v", err)
+		log.Fatalf("file error: %v", err)
 		return
 	}
 	defer file.Close()
-
 	_, err = file.Write(buf.Bytes())
 	if err != nil {
-		log.Fatalf("Dosyaya yazarken hata: %v", err)
+		log.Fatalf("write error: %v", err)
 		return
 	}
 }

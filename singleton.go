@@ -97,7 +97,6 @@ func NewGame() {
 
 	gameTileMapGenerator.SetSeed(rand.Int())
 	gameTileMapGenerator.Generate()
-
 	spawnCoord := tileMapRes.FindSpawnPosition()
 	SpawnPos := tileMapRes.TileToWorld(spawnCoord)
 	currentPlayer = SpawnPlayer(SpawnPos)
@@ -109,7 +108,7 @@ func NewGame() {
 }
 
 func SaveGame() {
-	jsonData, err := arkserde.Serialize(&world)
+	jsonData, err := arkserde.Serialize(&world, arkserde.Opts.Compress())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -131,7 +130,7 @@ func LoadGame() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = arkserde.Deserialize(jsonData, &world)
+		err = arkserde.Deserialize(jsonData, &world, arkserde.Opts.Compress())
 		if err != nil {
 			log.Fatal(err)
 		}

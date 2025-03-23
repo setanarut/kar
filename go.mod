@@ -6,7 +6,7 @@ require (
 	github.com/anthonynsimon/bild v0.14.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.4
 	github.com/mlange-42/ark v0.4.0
-	github.com/mlange-42/ark-serde v0.1.2
+	github.com/mlange-42/ark-serde v0.1.4-0.20250323163312-1b0871576a70
 	github.com/quasilyte/gdata v0.8.1
 	github.com/setanarut/anim v1.4.0
 	github.com/setanarut/fastnoise v1.1.1
@@ -21,6 +21,7 @@ require (
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.9.0-alpha.2 // indirect
 	github.com/go-text/typesetting v0.3.0 // indirect
+	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	golang.org/x/sync v0.12.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
