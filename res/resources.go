@@ -18,14 +18,11 @@ import (
 //go:embed assets/*
 var fs embed.FS
 
-var ()
-
 var (
 	Crab             = anim.SubImages(ReadEbImgFS(fs, "assets/img/crab.png"), 0, 0, 16, 9, 2, false)
 	Icon8            = make(map[uint8]*ebiten.Image, 0)
 	BlockCrackFrames = make(map[uint8][]*ebiten.Image, 0)
 	BlockUnbreakable = make(map[uint8]*ebiten.Image, 0)
-	// Hotbar9          = ReadEbImgFS(fs, "assets/img/gui/hotbar9.png")
 	HotbarEdge       = ReadEbImgFS(fs, "assets/img/gui/hotbar_edge.png")
 	HotbarMid        = ReadEbImgFS(fs, "assets/img/gui/hotbar_mid.png")
 	CraftingTable1x2 = ReadEbImgFS(fs, "assets/img/gui/table1x2.png")

@@ -45,12 +45,10 @@ func (p *Enemy) Draw() {
 		aabb, _, mobileID, idx := q.Get()
 		switch *mobileID {
 		case CrabID:
-			// TODO draw worm enemy
 			tl := aabb.TopLeft()
 			colorMDIO.GeoM.Reset()
 			colorMDIO.GeoM.Translate(tl.X, tl.Y)
 			cameraRes.DrawWithColorM(res.Crab[int(math.Floor(float64(*idx)))], colorM, colorMDIO, Screen)
-			// drawAABB(aabb)
 		}
 
 	}
