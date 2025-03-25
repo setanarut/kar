@@ -9,9 +9,11 @@ import (
 type Projectile struct {
 	snowBallBox    AABB
 	bounceVelocity float64
+	hitInfo        HitInfo
 }
 
 func (p *Projectile) Init() {
+	p.hitInfo = HitInfo{}
 	p.snowBallBox = AABB{Half: Vec{4, 4}}
 	p.bounceVelocity = -math.Sqrt(2 * SnowballGravity * SnowballBounceHeight)
 }
@@ -49,6 +51,14 @@ func (p *Projectile) Update() {
 				}
 			},
 			)
+			// TODO snowbros mantığı yaz. çarpınca donacakç
+			q := filterEnemy.Query()
+			for q.Next() {
+				aabb, _, _, _ := q.Get()
+				if Overlap(&p.snowBallBox, aabb, nil) {
+					toRemove = append(toRemove, q.Entity())
+				}
+			}
 		}
 	}
 }
