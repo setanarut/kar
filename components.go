@@ -12,7 +12,8 @@ type Position Vec
 type MobileID int // Mobile character id
 type PlatformType string
 type Durability int
-type AnimationIndex int // timing-related data for item animations.
+type AnimationIndex int    // timing-related data for item animations.
+type AnimationTick float64 // timing-related data for item animations.
 type CollisionDelayer time.Duration
 
 type Health struct {

@@ -37,7 +37,7 @@ const (
 
 // MOB ID
 const (
-	WormID MobileID = 1
+	CrabID MobileID = 1
 )
 
 var debugEnabled bool = false

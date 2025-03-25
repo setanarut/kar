@@ -489,11 +489,11 @@ func (p *Player) Update() {
 		hit.Reset()
 		eq := filterEnemy.Query()
 		for eq.Next() {
-			enemyAABB, enemyVel, mobileID := eq.Get()
+			enemyAABB, enemyVel, mobileID, _ := eq.Get()
 			if AABBPlatform(playerAABB, enemyAABB, playerVel, (*Vec)(enemyVel), hit) {
 				if hit.Top {
 					switch *mobileID {
-					case WormID:
+					case CrabID:
 						playerAABB.Pos = playerAABB.Pos.Add(hit.Delta)
 						playerVel.Y = 0
 						if elapsed == 0 {
