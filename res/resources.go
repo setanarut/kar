@@ -11,13 +11,17 @@ import (
 	"github.com/anthonynsimon/bild/blend"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/setanarut/anim"
 	"golang.org/x/text/language"
 )
 
 //go:embed assets/*
 var fs embed.FS
 
+var ()
+
 var (
+	Crab             = anim.SubImages(ReadEbImgFS(fs, "assets/img/crab.png"), 0, 0, 16, 9, 2, false)
 	Icon8            = make(map[uint8]*ebiten.Image, 0)
 	BlockCrackFrames = make(map[uint8][]*ebiten.Image, 0)
 	BlockUnbreakable = make(map[uint8]*ebiten.Image, 0)

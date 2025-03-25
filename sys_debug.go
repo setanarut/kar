@@ -47,11 +47,11 @@ func (d *Debug) Update() {
 		mapEnemy.NewEntity(
 			&AABB{
 				Pos:  v.Vec{x, y},
-				Half: v.Vec{10, 10},
+				Half: v.Vec{8, 4.5},
 			},
-			&Velocity{0.1, 0},
-			ptr(WormID),
-			ptr(AnimationIndex(0)),
+			&Velocity{0.4, 0},
+			ptr(CrabID),
+			ptr(AnimationTick(0)),
 		)
 	}
 

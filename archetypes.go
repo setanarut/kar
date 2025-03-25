@@ -16,7 +16,7 @@ var (
 	mapHealth           = ecs.NewMap[Health](&world)
 	mapCollisionDelayer = ecs.NewMap[CollisionDelayer](&world)
 	mapPlatform         = ecs.NewMap3[AABB, Velocity, PlatformType](&world)
-	mapEnemy            = ecs.NewMap4[AABB, Velocity, MobileID, AnimationIndex](&world)
+	mapEnemy            = ecs.NewMap4[AABB, Velocity, MobileID, AnimationTick](&world)
 	mapProjectile       = ecs.NewMap3[ItemID, Position, Velocity](&world)
 	mapDroppedItem      = ecs.NewMap4[ItemID, Position, AnimationIndex, CollisionDelayer](&world)
 	mapEffect           = ecs.NewMap4[ItemID, Position, Velocity, Rotation](&world)
@@ -27,7 +27,7 @@ var (
 var (
 	filterCollisionDelayer = ecs.NewFilter1[CollisionDelayer](&world)
 	filterPlatform         = ecs.NewFilter3[AABB, Velocity, PlatformType](&world)
-	filterEnemy            = ecs.NewFilter3[AABB, Velocity, MobileID](&world)
+	filterEnemy            = ecs.NewFilter4[AABB, Velocity, MobileID, AnimationTick](&world)
 	filterProjectile       = ecs.NewFilter3[ItemID, Position, Velocity](&world).Without(ecs.C[Rotation]())
 	filterDroppedItem      = ecs.NewFilter3[ItemID, Position, AnimationIndex](&world)
 	filterEffect           = ecs.NewFilter4[ItemID, Position, Velocity, Rotation](&world)
