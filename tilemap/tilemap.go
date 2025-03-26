@@ -2,15 +2,12 @@ package tilemap
 
 import (
 	"bytes"
-	"encoding/gob"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"kar/items"
 	"log"
 	"math"
-	"os"
 
 	"github.com/setanarut/v"
 )
@@ -36,56 +33,6 @@ func MakeTileMap(w, h, tileW, tileH int) TileMap {
 		TileW: tileW,
 		TileH: tileH,
 	}
-}
-
-func NewTileMap(tm [][]uint8, tileW, tileH int) *TileMap {
-	return &TileMap{
-		Grid:  tm,
-		W:     len(tm[0]),
-		H:     len(tm),
-		TileW: tileW,
-		TileH: tileH,
-	}
-}
-
-func (tm *TileMap) WriteAsImage(path string, playerX, playerY int) {
-	im := tm.GetImage()
-	im.Set(playerX, playerY, color.RGBA{255, 0, 255, 255})
-	WritePNG(im, path)
-}
-
-func (tm *TileMap) CloneEmpty() TileMap {
-	return MakeTileMap(tm.W, tm.H, tm.TileW, tm.TileH)
-}
-
-func (tm *TileMap) GetImage() *image.RGBA {
-	im := image.NewRGBA(image.Rect(0, 0, tm.W, tm.H))
-	for y := range tm.H {
-		for x := range tm.W {
-			id := tm.Grid[y][x]
-			v, ok := items.ColorMap[id]
-			if ok {
-				im.Set(x, y, v)
-			} else {
-				im.Set(x, y, color.Black)
-			}
-		}
-	}
-	return im
-}
-
-func (t *TileMap) GetImageByte() []byte {
-	return imageToPNGBytes(t.GetImage())
-}
-func (t *TileMap) String() string {
-	s := ""
-	for _, row := range t.Grid {
-		for _, cell := range row {
-			s += fmt.Sprintf("%d ", cell)
-		}
-		s += "\n"
-	}
-	return s
 }
 
 func MakeGrid(width, height int) [][]uint8 {
@@ -173,80 +120,26 @@ func (t *TileMap) FindSpawnPosition() image.Point {
 	return image.Point{}
 }
 
-func (t *TileMap) WriteToDisk(filename string) {
-	var buf bytes.Buffer
-	encoder := gob.NewEncoder(&buf)
-	if err := encoder.Encode(t.Grid); err != nil {
-		log.Fatalf("encode error: %v", err)
-		return
-	}
-	file, err := os.Create(filename)
-	if err != nil {
-		log.Fatalf("file error: %v", err)
-		return
-	}
-	defer file.Close()
-	_, err = file.Write(buf.Bytes())
-	if err != nil {
-		log.Fatalf("write error: %v", err)
-		return
-	}
-}
-
-// Diske yazılmış veriyi okuyan fonksiyon (hata durumunda log kullanılıyor)
-func (t *TileMap) ReadFromDisk(filename string) [][]uint8 {
-	// Dosyayı aç
-	file, err := os.Open(filename)
-	if err != nil {
-		log.Fatalf("Dosya açılamadı: %v", err)
-		return nil
-	}
-	defer file.Close()
-
-	// Dosya içeriğini oku
-	fileInfo, err := file.Stat()
-	if err != nil {
-		log.Fatalf("Dosya bilgisi alınamadı: %v", err)
-		return nil
-	}
-	data := make([]byte, fileInfo.Size())
-	_, err = file.Read(data)
-	if err != nil {
-		log.Fatalf("Dosyadan okuma hatası: %v", err)
-		return nil
-	}
-
-	// Byte array'i geri çözerek [][]uint8'ya dönüştür
-	var result [][]uint8
-	buf := bytes.NewBuffer(data)
-	decoder := gob.NewDecoder(buf)
-	if err := decoder.Decode(&result); err != nil {
-		log.Fatalf("Veriyi decode ederken hata: %v", err)
-		return nil
-	}
-
-	return result
-}
-
-func WritePNG(im image.Image, name string) {
-	f, err := os.Create(name)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := png.Encode(f, im); err != nil {
-		f.Close()
-		log.Fatal(err)
-	}
-
-	if err := f.Close(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-func imageToPNGBytes(im image.Image) []byte {
-	buf := new(bytes.Buffer)
-	if err := png.Encode(buf, im); err != nil {
+func (t *TileMap) GetImageByte() []byte {
+	buf := &bytes.Buffer{}
+	if err := png.Encode(buf, t.GetImage()); err != nil {
 		log.Fatal(err)
 	}
 	return buf.Bytes()
+}
+
+func (tm *TileMap) GetImage() *image.RGBA {
+	im := image.NewRGBA(image.Rect(0, 0, tm.W, tm.H))
+	for y := range tm.H {
+		for x := range tm.W {
+			id := tm.Grid[y][x]
+			v, ok := items.ColorMap[id]
+			if ok {
+				im.Set(x, y, v)
+			} else {
+				im.Set(x, y, color.Black)
+			}
+		}
+	}
+	return im
 }
