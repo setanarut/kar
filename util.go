@@ -13,16 +13,17 @@ func mapRange(v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
 }
 
-// linspace returns evenly spaced numbers over a specified closed interval.
-func linspace(start, end float64, n int) []float64 {
-	nums := make([]float64, n)
-	step := (end - start) / float64(n-1)
-	nums[0] = start
-	for i := 1; i < n; i++ {
-		nums[i] = start + float64(i)*step
+func linspace(min, max float64, n int) []float64 {
+	if n == 1 {
+		return []float64{min}
 	}
-	nums[n-1] = end
-	return nums
+	d := max - min
+	l := float64(n) - 1
+	res := make([]float64, n)
+	for i := range res {
+		res[i] = (min + (float64(i)*d)/l)
+	}
+	return res
 }
 
 // sinspace returns n points between start and end based on a sinusoidal function with a given amplitude
