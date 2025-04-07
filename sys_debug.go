@@ -46,8 +46,8 @@ func (d *Debug) Update() {
 		x, y := cameraRes.ScreenToWorld(ebiten.CursorPosition())
 		mapEnemy.NewEntity(
 			&AABB{
-				Pos:  v.Vec{x, y},
-				Half: v.Vec{8, 4.5},
+				Pos:  Vec{x, y},
+				Half: Vec{8, 4.5},
 			},
 			&Velocity{0.4, 0},
 			ptr(CrabID),

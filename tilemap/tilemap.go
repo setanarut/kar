@@ -119,6 +119,15 @@ func (t *TileMap) FindSpawnPosition() image.Point {
 	}
 	return image.Point{}
 }
+func (t *TileMap) FindSpawnPosition2(x, y int) image.Point {
+	for i := range 10 {
+		if t.GetID(x, y+i) == items.Air && t.GetID(x, (y+i)+1) != items.Air {
+			return image.Point{x, y + i}
+		}
+	}
+
+	return image.Point{}
+}
 
 func (t *TileMap) GetImageByte() []byte {
 	buf := &bytes.Buffer{}

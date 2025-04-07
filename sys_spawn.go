@@ -41,15 +41,16 @@ func (s *Spawn) Update() {
 
 	if gameDataRes.SpawnElapsed == 0 {
 		if world.Alive(currentPlayer) {
-			// p := mapAABB.GetUnchecked(currentPlayer).Pos
-			// mapEnemy.NewEntity(
-			// 	&AABB{
-			// 		Pos:  p.Sub(Vec{50, 50}),
-			// 		Half: v.Vec{10, 10},
-			// 	},
-			// 	&Velocity{0.5, 0.5},
-			// 	&AI{},
-			// )
+			p := mapAABB.GetUnchecked(currentPlayer).Pos
+			mapEnemy.NewEntity(
+				&AABB{
+					Pos:  p.Sub(Vec{50, 50}),
+					Half: Vec{8, 4.5},
+				},
+				&Velocity{0.4, 0},
+				ptr(CrabID),
+				ptr(AnimationTick(0)),
+			)
 		}
 	}
 
