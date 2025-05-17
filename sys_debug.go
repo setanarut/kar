@@ -25,7 +25,7 @@ func (d *Debug) Update() {
 		mapPlatform.NewEntity(
 			&AABB{
 				Pos:  v.Vec{pos.X, pos.Y},
-				Half: v.Vec{10, 10},
+				Half: v.Vec{20, 10},
 			},
 			&Velocity{1, 0},
 			ptr(PlatformType("solid")),

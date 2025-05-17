@@ -28,31 +28,31 @@ type Spawn struct {
 }
 
 func (s *Spawn) Init() {
-	s.spawnInterval = time.Second * 4
+	// s.spawnInterval = time.Second * 4
 }
 func (s *Spawn) Update() {
 
-	gameDataRes.Duration += Tick
-	gameDataRes.SpawnElapsed += Tick
+	// gameDataRes.Duration += Tick
+	// gameDataRes.SpawnElapsed += Tick
 
-	if gameDataRes.SpawnElapsed > s.spawnInterval {
-		gameDataRes.SpawnElapsed = 0
-	}
+	// if gameDataRes.SpawnElapsed > s.spawnInterval {
+	// 	gameDataRes.SpawnElapsed = 0
+	// }
 
-	if gameDataRes.SpawnElapsed == 0 {
-		if world.Alive(currentPlayer) {
-			p := mapAABB.GetUnchecked(currentPlayer).Pos
-			mapEnemy.NewEntity(
-				&AABB{
-					Pos:  p.Sub(Vec{50, 50}),
-					Half: Vec{8, 4.5},
-				},
-				&Velocity{0.4, 0},
-				ptr(CrabID),
-				ptr(AnimationTick(0)),
-			)
-		}
-	}
+	// if gameDataRes.SpawnElapsed == 0 {
+	// 	if world.Alive(currentPlayer) {
+	// 		p := mapAABB.GetUnchecked(currentPlayer).Pos
+	// 		mapEnemy.NewEntity(
+	// 			&AABB{
+	// 				Pos:  p.Sub(Vec{50, 50}),
+	// 				Half: Vec{8, 4.5},
+	// 			},
+	// 			&Velocity{0.4, 0},
+	// 			ptr(CrabID),
+	// 			ptr(AnimationTick(0)),
+	// 		)
+	// 	}
+	// }
 
 	// Spawn item
 	for _, data := range toSpawnItem {
