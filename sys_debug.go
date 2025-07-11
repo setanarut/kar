@@ -3,7 +3,8 @@ package kar
 import (
 	"fmt"
 	"image"
-	"kar/items"
+
+	"github.com/setanarut/kar/items"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"

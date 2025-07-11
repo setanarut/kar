@@ -1,8 +1,9 @@
 package kar
 
 import (
-	"kar/res"
 	"math"
+
+	"github.com/setanarut/kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

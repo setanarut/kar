@@ -2,8 +2,9 @@ package tilemap
 
 import (
 	"image"
-	"kar/items"
 	"math/rand/v2"
+
+	"github.com/setanarut/kar/items"
 
 	"github.com/setanarut/fastnoise"
 )

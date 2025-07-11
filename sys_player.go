@@ -2,10 +2,11 @@ package kar
 
 import (
 	"image"
-	"kar/items"
-	"kar/tilemap"
 	"math"
 	"math/rand/v2"
+
+	"github.com/setanarut/kar/items"
+	"github.com/setanarut/kar/tilemap"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"

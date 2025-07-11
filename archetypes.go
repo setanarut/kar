@@ -1,8 +1,9 @@
 package kar
 
 import (
-	"kar/items"
 	"math/rand/v2"
+
+	"github.com/setanarut/kar/items"
 
 	"github.com/mlange-42/ark/ecs"
 	"github.com/setanarut/v"

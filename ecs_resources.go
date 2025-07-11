@@ -2,10 +2,11 @@ package kar
 
 import (
 	"image"
-	"kar/items"
-	"kar/res"
-	"kar/tilemap"
 	"time"
+
+	"github.com/setanarut/kar/items"
+	"github.com/setanarut/kar/res"
+	"github.com/setanarut/kar/tilemap"
 
 	"github.com/mlange-42/ark/ecs"
 	"github.com/setanarut/anim"

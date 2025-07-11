@@ -5,9 +5,10 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"kar/items"
 	"log"
 	"math"
+
+	"github.com/setanarut/kar/items"
 
 	"github.com/setanarut/v"
 )

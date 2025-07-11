@@ -1,8 +1,9 @@
 package main
 
 import (
-	"kar"
 	"log"
+
+	"github.com/setanarut/kar"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

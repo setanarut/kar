@@ -2,8 +2,9 @@ package kar
 
 import (
 	"image"
-	"kar/items"
 	"math"
+
+	"github.com/setanarut/kar/items"
 
 	"github.com/setanarut/v"
 )

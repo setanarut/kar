@@ -5,8 +5,9 @@ import (
 	"bytes"
 	"embed"
 	"image"
-	"kar/items"
 	"log"
+
+	"github.com/setanarut/kar/items"
 
 	"github.com/anthonynsimon/bild/blend"
 	"github.com/hajimehoshi/ebiten/v2"

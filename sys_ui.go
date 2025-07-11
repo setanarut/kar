@@ -3,9 +3,11 @@ package kar
 import (
 	"fmt"
 	"image"
-	"kar/items"
-	"kar/res"
 	"strconv"
+
+	"github.com/setanarut/kar/items"
+
+	"github.com/setanarut/kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/colorm"

@@ -1,9 +1,10 @@
 package kar
 
 import (
-	"kar/items"
-	"kar/res"
 	"math"
+
+	"github.com/setanarut/kar/items"
+	"github.com/setanarut/kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"

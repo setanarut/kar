@@ -2,7 +2,8 @@ package kar
 
 import (
 	"image/color"
-	"kar/res"
+
+	"github.com/setanarut/kar/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"

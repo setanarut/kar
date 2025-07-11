@@ -3,12 +3,13 @@ package kar
 import (
 	"image"
 	"image/color"
-	"kar/items"
-	"kar/tilemap"
 	"log"
 	"math"
 	"math/rand/v2"
 	"time"
+
+	"github.com/setanarut/kar/items"
+	"github.com/setanarut/kar/tilemap"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/colorm"

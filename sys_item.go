@@ -1,8 +1,9 @@
 package kar
 
 import (
-	"kar/items"
-	"kar/res"
+	"github.com/setanarut/kar/items"
+
+	"github.com/setanarut/kar/res"
 
 	"github.com/mlange-42/ark/ecs"
 )

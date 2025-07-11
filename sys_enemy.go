@@ -1,9 +1,11 @@
 package kar
 
 import (
-	"kar/items"
-	"kar/res"
 	"math"
+
+	"github.com/setanarut/kar/items"
+
+	"github.com/setanarut/kar/res"
 )
 
 type Enemy struct {
